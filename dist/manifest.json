@@ -1,0 +1,16 @@
+{
+  "short_name": "Growy",
+  "name": "Growy - Finanzas Personales",
+  "icons": [
+    {
+      "src": "logos/Transparent.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512"
+    }
+  ],
+  "start_url": ".",
+  "background_color": "#1E2D32",
+  "theme_color": "#1E2D32",
+  "display": "standalone",
+  "orientation": "portrait"
+}
