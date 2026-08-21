@@ -518,7 +518,7 @@ export default function DashboardPreview({ user, onLogout }) {
               <header className="flex items-center justify-between gap-3 w-full relative z-30">
                 <div className="min-w-0 flex-1">
                   <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white truncate">
-                    {t('common.greeting', { name: user?.username || 'Admin' }, `¡Hola, ${user?.username || 'Admin'}!`)}
+                    {t('common.greeting', { name: user?.username ? user.username.split(' ')[0] : 'Admin' }, `¡Hola, ${user?.username ? user.username.split(' ')[0] : 'Admin'}!`)}
                   </h1>
                   <p className="text-xs md:text-sm text-slate-400 mt-0.5 block font-normal truncate">
                     {formattedDate}
