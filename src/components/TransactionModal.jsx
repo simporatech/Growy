@@ -174,146 +174,147 @@ export default function TransactionModal({
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
         
-        {/* Segmented Control */}
-        <div className="grid grid-cols-3 gap-1.5 p-1 rounded-2xl bg-white/[0.04] border border-white/10">
-          <button
-            type="button"
-            onClick={() => handleTypeChange('expense')}
-            className={`h-11 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
-              type === 'expense'
-                ? 'bg-[#FF6B6B]/20 text-[#FF6B6B] border border-[#FF6B6B]/30 shadow-sm'
-                : 'text-slate-300 hover:text-white'
-            }`}
-          >
-            <ArrowDownRight className="w-3.5 h-3.5" />
-            <span>{t('modals.transaction.typeExpense', {}, 'Gasto')}</span>
-          </button>
+        {/* Scrollable Form Body */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-5 sm:p-7 space-y-4">
+          
+          {/* Segmented Control */}
+          <div className="grid grid-cols-3 gap-1.5 p-1 rounded-2xl bg-white/[0.04] border border-white/10">
+            <button
+              type="button"
+              onClick={() => handleTypeChange('expense')}
+              className={`h-11 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                type === 'expense'
+                  ? 'bg-[#FF6B6B]/20 text-[#FF6B6B] border border-[#FF6B6B]/30 shadow-sm'
+                  : 'text-slate-300 hover:text-white'
+              }`}
+            >
+              <ArrowDownRight className="w-3.5 h-3.5" />
+              <span>{t('modals.transaction.typeExpense', {}, 'Gasto')}</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => handleTypeChange('income')}
-            className={`h-11 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
-              type === 'income'
-                ? 'bg-[var(--color-primary,#AEEDD0)]/20 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/30 shadow-sm'
-                : 'text-slate-300 hover:text-white'
-            }`}
-          >
-            <ArrowUpRight className="w-3.5 h-3.5" />
-            <span>{t('modals.transaction.typeIncome', {}, 'Ingreso')}</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => handleTypeChange('income')}
+              className={`h-11 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                type === 'income'
+                  ? 'bg-[var(--color-primary,#AEEDD0)]/20 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/30 shadow-sm'
+                  : 'text-slate-300 hover:text-white'
+              }`}
+            >
+              <ArrowUpRight className="w-3.5 h-3.5" />
+              <span>{t('modals.transaction.typeIncome', {}, 'Ingreso')}</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => handleTypeChange('transfer')}
-            className={`h-11 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
-              type === 'transfer'
-                ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30 shadow-sm'
-                : 'text-slate-300 hover:text-white'
-            }`}
-          >
-            <ArrowLeftRight className="w-3.5 h-3.5" />
-            <span>{t('modals.transaction.typeTransfer', {}, 'Transferencia')}</span>
-          </button>
-        </div>
-
-        <FormField label={t('modals.transaction.date', {}, 'Fecha')}>
-          <CustomDatePicker
-            value={date}
-            onChange={setDate}
-          />
-        </FormField>
-
-        {type !== 'transfer' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <FormField label={t('modals.transaction.account', {}, 'Cuenta Afectada')}>
-              <CustomSelect
-                options={accountSelectOptions}
-                value={accountId}
-                onChange={setAccountId}
-                placeholder={safeAccounts.length > 0 ? t('placeholders.selectAccount', {}, 'Seleccionar cuenta') : t('placeholders.noAccounts', {}, 'No hay cuentas disponibles')}
-              />
-            </FormField>
-
-            <FormField label={categoryLabelText}>
-              <CustomSelect
-                options={categorySelectOptions}
-                value={categoryId}
-                onChange={setCategoryId}
-                placeholder={availableCategories.length > 0 ? t('placeholders.selectCategory', {}, 'Seleccionar categoría') : t('placeholders.noCategories', {}, 'No hay categorías disponibles')}
-              />
-            </FormField>
+            <button
+              type="button"
+              onClick={() => handleTypeChange('transfer')}
+              className={`h-11 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                type === 'transfer'
+                  ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30 shadow-sm'
+                  : 'text-slate-300 hover:text-white'
+              }`}
+            >
+              <ArrowLeftRight className="w-3.5 h-3.5" />
+              <span>{t('modals.transaction.typeTransfer', {}, 'Traspaso')}</span>
+            </button>
           </div>
-        ) : (
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <FormField label={t('modals.transaction.accountSource', {}, 'Cuenta Origen (Sale)')}>
-              <CustomSelect
-                options={accountSelectOptions}
-                value={accountId}
-                onChange={setAccountId}
-                placeholder={safeAccounts.length > 0 ? t('placeholders.selectAccount', {}, 'Seleccionar cuenta') : t('placeholders.noAccounts', {}, 'No hay cuentas disponibles')}
+            <FormField label={t('modals.transaction.date', {}, 'Fecha del Movimiento')}>
+              <CustomDatePicker
+                value={date}
+                onChange={setDate}
               />
             </FormField>
 
-            <FormField label={t('modals.transaction.accountTarget', {}, 'Cuenta Destino (Entra)')}>
-              <CustomSelect
-                options={accountSelectOptions}
-                value={targetAccountId}
-                onChange={setTargetAccountId}
-                placeholder={safeAccounts.length > 0 ? t('placeholders.selectAccount', {}, 'Seleccionar cuenta') : t('placeholders.noAccounts', {}, 'No hay cuentas disponibles')}
-              />
-            </FormField>
-          </div>
-        )}
-
-        {type !== 'transfer' || !isMultiCurrencyTransfer ? (
-          <FormField
-            label={t('modals.transaction.amount', {}, 'Monto')}
-            prefix={getCurrencySymbol(sourceAccount?.currency)}
-            type="number"
-            step="0.01"
-            required
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="0.00"
-          />
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <FormField
-              label={t('modals.transaction.debitOrigin', { curr: sourceAccount?.currency || 'USD' }, `Debitar Origen (${sourceAccount?.currency || 'USD'})`)}
-              prefix={getCurrencySymbol(sourceAccount?.currency)}
-              type="number"
-              step="0.01"
-              required
+            <FormField 
+              label={t('modals.transaction.amount', {}, 'Monto')}
+              prefix={currencySymbol}
+              type="number" 
+              step="0.01" 
+              required 
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="0.00"
             />
-
-            <FormField
-              label={t('modals.transaction.creditTarget', { curr: destAccount?.currency || 'USD' }, `Acreditar Destino (${destAccount?.currency || 'USD'})`)}
-              prefix={getCurrencySymbol(destAccount?.currency)}
-              type="number"
-              step="0.01"
-              required
-              value={targetAmount}
-              onChange={(e) => setTargetAmount(e.target.value)}
-              placeholder="0.00"
-            />
           </div>
-        )}
 
-        <FormField
-          label={t('modals.transaction.description', {}, 'Descripción (Opcional)')}
-          type="text"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder={t('modals.transaction.descPlaceholder', {}, 'Ej. Almuerzo de trabajo, Pago de recibo')}
-        />
+          {type !== 'transfer' ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <FormField label={t('modals.transaction.account', {}, 'Cuenta')}>
+                <CustomSelect
+                  options={accountSelectOptions}
+                  value={accountId}
+                  onChange={setAccountId}
+                  placeholder={safeAccounts.length > 0 ? t('placeholders.selectAccount', {}, 'Seleccionar cuenta') : t('placeholders.noAccounts', {}, 'No hay cuentas disponibles')}
+                />
+              </FormField>
 
-        {/* Sticky Action Footer */}
-        <div className="flex items-center gap-3 pt-4 sm:pt-4 border-t border-white/5 w-full mt-6 sticky bottom-0 bg-[#131E22] pb-4 sm:pb-0 -mx-5 px-5 sm:mx-0 sm:px-0 z-40">
+              <FormField label={categoryLabelText}>
+                <CustomSelect
+                  options={categorySelectOptions}
+                  value={categoryId}
+                  onChange={setCategoryId}
+                  placeholder={availableCategories.length > 0 ? t('placeholders.selectCategory', {}, 'Seleccionar categoría') : t('placeholders.noCategories', {}, 'No hay categorías disponibles')}
+                />
+              </FormField>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <FormField label={t('modals.transaction.accountSource', {}, 'Cuenta Origen (Sale)')}>
+                <CustomSelect
+                  options={accountSelectOptions}
+                  value={accountId}
+                  onChange={setAccountId}
+                  placeholder={safeAccounts.length > 0 ? t('placeholders.selectAccount', {}, 'Seleccionar cuenta') : t('placeholders.noAccounts', {}, 'No hay cuentas disponibles')}
+                />
+              </FormField>
+
+              <FormField label={t('modals.transaction.accountTarget', {}, 'Cuenta Destino (Entra)')}>
+                <CustomSelect
+                  options={accountSelectOptions}
+                  value={targetAccountId}
+                  onChange={setTargetAccountId}
+                  placeholder={safeAccounts.length > 0 ? t('placeholders.selectAccount', {}, 'Seleccionar cuenta') : t('placeholders.noAccounts', {}, 'No hay cuentas disponibles')}
+                />
+              </FormField>
+
+              {isMultiCurrencyTransfer && (
+                <div className="col-span-1 sm:col-span-2 pt-2 pb-2">
+                  <div className="p-4 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-100 flex flex-col gap-3">
+                    <p className="text-xs">
+                      {t('modals.transaction.multiCurrencyDesc', {}, 'Estás transfiriendo entre cuentas con monedas distintas. Ingresa cuánto dinero se acreditará en la cuenta destino')} <strong>({targetAccountInfo.currency})</strong>.
+                    </p>
+                    <FormField
+                      label={t('modals.transaction.targetAmountLabel', {}, 'Monto a acreditar en la cuenta destino')}
+                      prefix={targetCurrencySymbol}
+                      type="number"
+                      step="0.01"
+                      required
+                      value={targetAmount}
+                      onChange={(e) => setTargetAmount(e.target.value)}
+                      placeholder="0.00"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          <FormField
+            label={t('modals.transaction.description', {}, 'Descripción / Notas')}
+            type="text"
+            required
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder={t('modals.transaction.descPlaceholder', {}, 'Ej. Almuerzo de trabajo, Pago de recibo')}
+          />
+        </div>
+
+        {/* Fixed Footer */}
+        <div className="flex-shrink-0 p-5 sm:p-7 border-t border-white/10 bg-[#111C20] flex items-center gap-3 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:pb-7">
           <button
             type="button"
             onClick={onClose}

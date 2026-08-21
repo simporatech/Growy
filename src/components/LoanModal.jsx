@@ -100,59 +100,63 @@ export default function LoanModal({
       iconTextColor="text-amber-400"
       error={error}
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
         
-        <FormField
-          label={t('modals.loan.description', {}, 'Concepto del Saldo')}
-          type="text"
-          required
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder={t('modals.loan.descPlaceholder', {}, 'Ej. Préstamo personal, Tarjeta de Crédito')}
-        />
-
-        {/* Balanced 2-Column Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField label={t('modals.loan.currency', {}, 'Moneda / Divisa')}>
-            <CustomSelect
-              options={AVAILABLE_CURRENCIES}
-              value={currency}
-              onChange={setCurrency}
-            />
-          </FormField>
-
+        {/* Scrollable Form Body */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-5 sm:p-7 space-y-4">
+          
           <FormField
-            label={t('modals.loan.amount', {}, 'Monto Pendiente')}
-            prefix={currencySymbol}
-            type="number"
-            step="0.01"
+            label={t('modals.loan.description', {}, 'Concepto del Saldo')}
+            type="text"
             required
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="0.00"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder={t('modals.loan.descPlaceholder', {}, 'Ej. Préstamo personal, Tarjeta de Crédito')}
           />
+
+          {/* Balanced 2-Column Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormField label={t('modals.loan.currency', {}, 'Moneda / Divisa')}>
+              <CustomSelect
+                options={AVAILABLE_CURRENCIES}
+                value={currency}
+                onChange={setCurrency}
+              />
+            </FormField>
+
+            <FormField
+              label={t('modals.loan.amount', {}, 'Monto Pendiente')}
+              prefix={currencySymbol}
+              type="number"
+              step="0.01"
+              required
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="0.00"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormField label={t('modals.loan.category', {}, 'Categoría Asociada')}>
+              <CustomSelect
+                options={categorySelectOptions}
+                value={categoryId}
+                onChange={setCategoryId}
+                placeholder={safeCategories.length > 0 ? "Selecciona categoría" : "Sin categorías"}
+              />
+            </FormField>
+
+            <FormField label={t('modals.loan.dueDate', {}, 'Fecha Límite de Pago')}>
+              <CustomDatePicker
+                value={dueDate}
+                onChange={setDueDate}
+              />
+            </FormField>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField label={t('modals.loan.category', {}, 'Categoría Asociada')}>
-            <CustomSelect
-              options={categorySelectOptions}
-              value={categoryId}
-              onChange={setCategoryId}
-              placeholder={safeCategories.length > 0 ? "Selecciona categoría" : "Sin categorías"}
-            />
-          </FormField>
-
-          <FormField label={t('modals.loan.dueDate', {}, 'Fecha Límite de Pago')}>
-            <CustomDatePicker
-              value={dueDate}
-              onChange={setDueDate}
-            />
-          </FormField>
-        </div>
-
-        {/* Sticky Action Footer */}
-        <div className="flex items-center gap-3 pt-4 sm:pt-4 border-t border-white/5 w-full mt-6 sticky bottom-0 bg-[#131E22] pb-4 sm:pb-0 -mx-5 px-5 sm:mx-0 sm:px-0 z-40">
+        {/* Fixed Footer */}
+        <div className="flex-shrink-0 p-5 sm:p-7 border-t border-white/10 bg-[#111C20] flex items-center gap-3 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:pb-7">
           <button
             type="button"
             onClick={onClose}

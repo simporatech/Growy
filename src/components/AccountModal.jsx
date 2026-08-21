@@ -83,74 +83,77 @@ export default function AccountModal({
       iconTextColor="text-[#AEEDD0]"
       error={error}
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
         
-        <div className="flex items-start gap-3">
-          <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2 block">
-              Emoji
-            </label>
-            <input
-              type="text"
-              maxLength={4}
-              value={emoji}
-              onChange={(e) => {
-                const val = Array.from(e.target.value).pop() || '';
-                setEmoji(val);
-              }}
-              placeholder="💳"
-              className="w-11 h-11 rounded-xl growy-glass-input text-xl text-center font-bold flex items-center justify-center shrink-0 cursor-pointer placeholder:opacity-25 placeholder:grayscale caret-[#AEEDD0] transition-all"
-              title="Emoji"
-            />
-          </div>
-
-          <div className="flex-1">
-            <FormField
-              label={t('modals.account.name', {}, 'Nombre de la Cuenta')}
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={t('modals.account.namePlaceholder', {}, 'Ej. Banco Principal, Efectivo, Billetera')}
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <FormField label={t('modals.account.color', {}, 'Color de Identificación')}>
-            <div className="flex items-center gap-3 h-11 px-3 bg-[#162226] border border-white/10 rounded-xl">
+        {/* Scrollable Form Body */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-5 sm:p-7 space-y-4">
+          <div className="flex items-start gap-3">
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2 block">
+                Emoji
+              </label>
               <input
-                type="color"
-                value={color}
-                onChange={(e) => setColor(e.target.value)}
-                className="w-7 h-7 rounded-md border-0 bg-transparent cursor-pointer p-0"
+                type="text"
+                maxLength={4}
+                value={emoji}
+                onChange={(e) => {
+                  const val = Array.from(e.target.value).pop() || '';
+                  setEmoji(val);
+                }}
+                placeholder="🏦"
+                className="w-11 h-11 rounded-xl growy-glass-input text-xl text-center font-bold flex items-center justify-center shrink-0 cursor-pointer placeholder:opacity-25 placeholder:grayscale caret-[#AEEDD0] transition-all"
+                title="Emoji"
               />
-              <span className="text-xs font-mono font-bold text-slate-200 uppercase">{color}</span>
             </div>
-          </FormField>
 
-          <FormField label={t('modals.account.currency', {}, 'Moneda / Divisa')}>
-            <CustomSelect
-              options={AVAILABLE_CURRENCIES}
-              value={currency}
-              onChange={setCurrency}
-            />
-          </FormField>
+            <div className="flex-1">
+              <FormField
+                label={t('modals.account.name', {}, 'Nombre de la Cuenta')}
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={t('modals.account.namePlaceholder', {}, 'Ej. Cuenta Principal, Ahorros, Cartera')}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <FormField label={t('modals.account.color', {}, 'Color de Identificación')}>
+              <div className="flex items-center gap-3 h-11 px-3 bg-[#162226] border border-white/10 rounded-xl">
+                <input
+                  type="color"
+                  value={color}
+                  onChange={(e) => setColor(e.target.value)}
+                  className="w-7 h-7 rounded-md border-0 bg-transparent cursor-pointer p-0"
+                />
+                <span className="text-xs font-mono font-bold text-slate-200 uppercase">{color}</span>
+              </div>
+            </FormField>
+
+            <FormField label={t('modals.account.currency', {}, 'Moneda / Divisa')}>
+              <CustomSelect
+                options={AVAILABLE_CURRENCIES}
+                value={currency}
+                onChange={setCurrency}
+              />
+            </FormField>
+          </div>
+
+          <FormField
+            label={t('modals.account.balance', {}, 'Balance Actual')}
+            prefix={currencySymbol}
+            type="number"
+            step="0.01"
+            required
+            value={balance}
+            onChange={(e) => setBalance(e.target.value)}
+            placeholder="0.00"
+          />
         </div>
 
-        <FormField
-          label={t('modals.account.balance', {}, 'Balance Actual')}
-          prefix={currencySymbol}
-          type="number"
-          step="0.01"
-          required
-          value={balance}
-          onChange={(e) => setBalance(e.target.value)}
-          placeholder="0.00"
-        />
-
-        {/* Sticky Action Footer */}
-        <div className="flex items-center gap-3 pt-4 sm:pt-4 border-t border-white/5 w-full mt-6 sticky bottom-0 bg-[#131E22] pb-4 sm:pb-0 -mx-5 px-5 sm:mx-0 sm:px-0 z-40">
+        {/* Fixed Footer */}
+        <div className="flex-shrink-0 p-5 sm:p-7 border-t border-white/10 bg-[#111C20] flex items-center gap-3 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:pb-7">
           <button
             type="button"
             onClick={onClose}

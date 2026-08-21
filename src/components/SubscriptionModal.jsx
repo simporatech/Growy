@@ -151,122 +151,125 @@ export default function SubscriptionModal({
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
         
-        {/* Nombre & Emoji Tile */}
-        <div className="flex items-start gap-3">
-          <div>
-            <label className="whitespace-nowrap text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5 block">
-              Emoji
-            </label>
-            <input
-              type="text"
-              maxLength={4}
-              value={emoji}
-              onChange={(e) => {
-                const val = Array.from(e.target.value).pop() || '';
-                setEmoji(val);
-              }}
-              placeholder="🍿"
-              className="w-11 h-11 rounded-xl growy-glass-input text-xl text-center font-bold flex items-center justify-center shrink-0 cursor-pointer placeholder:opacity-25 placeholder:grayscale caret-[#AEEDD0] transition-all"
-              title="Emoji"
-            />
+        {/* Scrollable Form Body */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-5 sm:p-7 space-y-4">
+          {/* Nombre & Emoji Tile */}
+          <div className="flex items-start gap-3">
+            <div>
+              <label className="whitespace-nowrap text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5 block">
+                Emoji
+              </label>
+              <input
+                type="text"
+                maxLength={4}
+                value={emoji}
+                onChange={(e) => {
+                  const val = Array.from(e.target.value).pop() || '';
+                  setEmoji(val);
+                }}
+                placeholder="🍿"
+                className="w-11 h-11 rounded-xl growy-glass-input text-xl text-center font-bold flex items-center justify-center shrink-0 cursor-pointer placeholder:opacity-25 placeholder:grayscale caret-[#AEEDD0] transition-all"
+                title="Emoji"
+              />
+            </div>
+
+            <div className="flex-1">
+              <FormField
+                label={t('modals.subscription.name', {}, 'Nombre del Servicio')}
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={t('modals.subscription.namePlaceholder', {}, 'Ej. Netflix, Spotify, Gimnasio, iCloud')}
+              />
+            </div>
           </div>
 
-          <div className="flex-1">
+          {/* Row 1: Paying Account & Expense Category */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormField label={t('modals.subscription.account', {}, 'Cuenta Pagadora')}>
+              <CustomSelect
+                options={accountSelectOptions}
+                value={accountId}
+                onChange={setAccountId}
+                placeholder={safeAccounts.length > 0 ? t('placeholders.selectAccount', {}, 'Seleccionar cuenta') : t('placeholders.noAccounts', {}, 'No hay cuentas disponibles')}
+              />
+            </FormField>
+
+            <FormField label={t('modals.subscription.category', {}, 'Categoría de Gasto')}>
+              <CustomSelect
+                options={categorySelectOptions}
+                value={categoryId}
+                onChange={setCategoryId}
+                placeholder={safeCategories.length > 0 ? t('placeholders.selectCategory', {}, 'Seleccionar categoría') : t('placeholders.noCategories', {}, 'No hay categorías disponibles')}
+              />
+            </FormField>
+          </div>
+
+          {/* Row 2: Amount & Billing Day */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField
-              label={t('modals.subscription.name', {}, 'Nombre del Servicio')}
-              type="text"
+              label={t('modals.subscription.amount', {}, 'Monto')}
+              prefix={currencySymbol}
+              type="number"
+              step="0.01"
               required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={t('modals.subscription.namePlaceholder', {}, 'Ej. Netflix, Spotify, Gimnasio, iCloud')}
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="0.00"
+            />
+
+            <FormField
+              label={t('modals.subscription.billingDay', {}, 'Día de Corte (1-31)')}
+              type="number"
+              min="1"
+              max="31"
+              required
+              value={billingDay}
+              onChange={(e) => setBillingDay(e.target.value)}
+              placeholder="Día"
             />
           </div>
-        </div>
 
-        {/* Row 1: Paying Account & Expense Category */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField label={t('modals.subscription.account', {}, 'Cuenta Pagadora')}>
+          {/* Row 3: Frequency */}
+          <FormField label={t('modals.subscription.frequency', {}, 'Frecuencia')}>
             <CustomSelect
-              options={accountSelectOptions}
-              value={accountId}
-              onChange={setAccountId}
-              placeholder={safeAccounts.length > 0 ? t('placeholders.selectAccount', {}, 'Seleccionar cuenta') : t('placeholders.noAccounts', {}, 'No hay cuentas disponibles')}
+              options={frequencyOptions}
+              value={frequency}
+              onChange={setFrequency}
             />
           </FormField>
 
-          <FormField label={t('modals.subscription.category', {}, 'Categoría de Gasto')}>
-            <CustomSelect
-              options={categorySelectOptions}
-              value={categoryId}
-              onChange={setCategoryId}
-              placeholder={safeCategories.length > 0 ? t('placeholders.selectCategory', {}, 'Seleccionar categoría') : t('placeholders.noCategories', {}, 'No hay categorías disponibles')}
-            />
-          </FormField>
-        </div>
+          {/* Active Switch Toggle Card */}
+          <div className="flex items-center justify-between gap-4 p-4 rounded-xl bg-white/[0.03] border border-white/10">
+            <div className="space-y-0.5 min-w-0 flex-1">
+              <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 block">
+                {t('modals.subscription.isActive', {}, 'Suscripción Activa')}
+              </span>
+              <p className="text-xs text-slate-400 leading-normal">
+                {t('modals.subscription.isActiveDesc', {}, 'El cobro se debitará automáticamente en su día de corte')}
+              </p>
+            </div>
 
-        {/* Row 2: Amount & Billing Day */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField
-            label={t('modals.subscription.amount', {}, 'Monto')}
-            prefix={currencySymbol}
-            type="number"
-            step="0.01"
-            required
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="0.00"
-          />
-
-          <FormField
-            label={t('modals.subscription.billingDay', {}, 'Día de Corte (1-31)')}
-            type="number"
-            min="1"
-            max="31"
-            required
-            value={billingDay}
-            onChange={(e) => setBillingDay(e.target.value)}
-            placeholder="Día"
-          />
-        </div>
-
-        {/* Row 3: Frequency */}
-        <FormField label={t('modals.subscription.frequency', {}, 'Frecuencia')}>
-          <CustomSelect
-            options={frequencyOptions}
-            value={frequency}
-            onChange={setFrequency}
-          />
-        </FormField>
-
-        {/* Active Switch Toggle Card */}
-        <div className="flex items-center justify-between gap-4 p-4 rounded-xl bg-white/[0.03] border border-white/10">
-          <div className="space-y-0.5 min-w-0 flex-1">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 block">
-              {t('modals.subscription.isActive', {}, 'Suscripción Activa')}
-            </span>
-            <p className="text-xs text-slate-400 leading-normal">
-              {t('modals.subscription.isActiveDesc', {}, 'El cobro se debitará automáticamente en su día de corte')}
-            </p>
-          </div>
-
-          <div className="shrink-0">
-            <div 
-              onClick={() => setIsActive(!isActive)}
-              className={`w-12 h-6.5 rounded-full p-1 transition-all cursor-pointer flex items-center ${
-                isActive ? 'bg-[#AEEDD0] justify-end' : 'bg-[#1E2D32] border border-[#AEEDD0]/30 justify-start'
-              }`}
-            >
-              <div className={`w-4.5 h-4.5 rounded-full shadow-md transition-all ${
-                isActive ? 'bg-[#1E2D32]' : 'bg-[#8EA7A8]'
-              }`} />
+            <div className="shrink-0">
+              <div 
+                onClick={() => setIsActive(!isActive)}
+                className={`w-12 h-6.5 rounded-full p-1 transition-all cursor-pointer flex items-center ${
+                  isActive ? 'bg-[#AEEDD0] justify-end' : 'bg-[#1E2D32] border border-[#AEEDD0]/30 justify-start'
+                }`}
+              >
+                <div className={`w-4.5 h-4.5 rounded-full shadow-md transition-all ${
+                  isActive ? 'bg-[#1E2D32]' : 'bg-[#8EA7A8]'
+                }`} />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Sticky Action Footer */}
-        <div className="flex items-center gap-3 pt-4 sm:pt-4 border-t border-white/5 w-full mt-6 sticky bottom-0 bg-[#131E22] pb-4 sm:pb-0 -mx-5 px-5 sm:mx-0 sm:px-0 z-40">
+        {/* Fixed Footer */}
+        <div className="flex-shrink-0 p-5 sm:p-7 border-t border-white/10 bg-[#111C20] flex items-center gap-3 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:pb-7">
           <button
             type="button"
             onClick={onClose}

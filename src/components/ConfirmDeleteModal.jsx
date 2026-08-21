@@ -32,13 +32,15 @@ export default function ConfirmDeleteModal({
       iconBorderColor="border-rose-500/30"
       iconTextColor="text-rose-400"
     >
-      <div className="space-y-4">
-        <p className="text-sm text-slate-300 font-normal leading-relaxed">
-          {displayMessage}
-        </p>
+      <div className="flex-1 flex flex-col min-h-0">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-5 sm:p-7 space-y-4">
+          <p className="text-sm text-slate-300 font-normal leading-relaxed">
+            {displayMessage}
+          </p>
+        </div>
 
-        {/* Standard 50/50 Footer */}
-        <div className="flex items-center gap-3 pt-4 border-t border-white/5 w-full mt-6">
+        {/* Fixed Footer */}
+        <div className="flex-shrink-0 p-5 sm:p-7 border-t border-white/10 bg-[#111C20] flex items-center gap-3 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:pb-7">
           <button
             type="button"
             onClick={onClose}
