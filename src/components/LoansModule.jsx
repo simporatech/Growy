@@ -8,10 +8,11 @@ import ExportDropdown from './ExportDropdown';
 import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
 import { parseNumeric } from '../utils/formatters';
+import { convertToGlobal } from '../utils/currency';
 
 export default function LoansModule() {
   const { loans, categories, accounts, addLoan, updateLoan, deleteLoan, markLoanAsPaid } = useFinance();
-  const { formatCurrency, language, t } = useSettings();
+  const { formatCurrency, language, t, baseCurrency, exchangeRates } = useSettings();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loanToEdit, setLoanToEdit] = useState(null);
@@ -70,11 +71,25 @@ export default function LoansModule() {
     { label: t('loans.status', {}, 'Estado'), accessor: (l) => (l?.status === 'paid' || l?.status === 'settled') ? t('loans.paid', {}, 'Pagado') : t('loans.pending', {}, 'Pendiente') }
   ], [safeCategoriesList, t]);
 
-  const totalPendingAmount = useMemo(() => {
-    return safeLoansList
+  const { totalReceivable, totalPayable, totalPendingAmount } = useMemo(() => {
+    let receivable = 0;
+    let payable = 0;
+    let total = 0;
+    
+    safeLoansList
       .filter(l => l && (l.status === 'pending' || !l.status))
-      .reduce((sum, l) => sum + parseNumeric(l.amount, 0), 0);
-  }, [safeLoansList]);
+      .forEach(l => {
+        const val = convertToGlobal(parseNumeric(l.amount, 0), l.currency || 'USD', baseCurrency, exchangeRates);
+        total += val;
+        if (val < 0) {
+          receivable += Math.abs(val); // Amounts < 0 are receivables
+        } else {
+          payable += val; // Amounts > 0 are payables
+        }
+      });
+      
+    return { totalReceivable: receivable, totalPayable: payable, totalPendingAmount: total };
+  }, [safeLoansList, baseCurrency, exchangeRates]);
 
   const handleSaveLoan = useCallback((loanData) => {
     if (!loanData) return;
@@ -138,15 +153,6 @@ export default function LoansModule() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <div className="hidden sm:block">
-            <ExportDropdown
-              data={filteredLoans}
-              columns={loanColumns}
-              title={t('loans.title', {}, 'Saldos Pendientes')}
-              filename="saldos_pendientes_growy"
-            />
-          </div>
-
           <button
             onClick={() => {
               setLoanToEdit(null);
@@ -160,6 +166,18 @@ export default function LoansModule() {
           </button>
         </div>
       </header>
+
+      {/* CONSOLIDATED BALANCES CARD */}
+      <div className="w-full relative z-10 grid grid-cols-2 gap-3 bg-[#131E22]/60 p-4 rounded-2xl border border-white/5 mb-4">
+        <div className="flex flex-col">
+          <span className="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">{t('loans.totalReceivable', {}, 'Total por Cobrar (Activos)')}</span>
+          <span className="text-sm md:text-base font-bold text-[var(--color-primary,#AEEDD0)] tabular-nums">{formatCurrency(totalReceivable, baseCurrency)}</span>
+        </div>
+        <div className="flex flex-col border-l border-white/10 pl-3">
+          <span className="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">{t('loans.totalPayable', {}, 'Total por Pagar (Pasivos)')}</span>
+          <span className="text-sm md:text-base font-bold text-[#FF6B6B] tabular-nums">{formatCurrency(totalPayable, baseCurrency)}</span>
+        </div>
+      </div>
 
       {/* Filter Bar */}
       <div className="p-4 md:p-6 rounded-2xl md:rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] space-y-3 relative z-30">
@@ -314,9 +332,9 @@ export default function LoansModule() {
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-2.5 shrink-0">
-                    <div className="text-right">
-                      <span className={`text-sm sm:text-base font-extrabold tabular-nums block ${isPaid ? 'text-emerald-400 line-through' : 'text-amber-400'}`}>
+                  <div className="flex items-center gap-4 shrink-0">
+                    <div className="text-right flex items-center">
+                      <span className={`text-sm sm:text-base font-extrabold tabular-nums ${isPaid ? 'text-emerald-400 line-through' : 'text-amber-400'}`}>
                         {formatCurrency(parseNumeric(loan.amount, 0), loan.currency || 'USD')}
                       </span>
                     </div>

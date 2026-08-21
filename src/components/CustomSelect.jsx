@@ -88,6 +88,20 @@ export const CustomSelect = ({
 
   return (
     <div className={`relative w-full ${className}`}>
+      {/* Native Mobile Fallback (Invisible but tappable over the button) */}
+      <select
+        className="sm:hidden absolute inset-0 w-full h-full opacity-0 z-50 cursor-pointer"
+        value={value || ''}
+        onChange={(e) => onChange(e.target.value)}
+      >
+        <option value="" disabled>{placeholder}</option>
+        {safeOptions.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+
       {/* Trigger Button (Standardized h-10) */}
       <button
         ref={buttonRef}
@@ -108,7 +122,7 @@ export const CustomSelect = ({
       {isOpen && createPortal(
         <div
           style={{ top: `${coords.top}px`, left: `${coords.left}px`, width: `${coords.width}px` }}
-          className="custom-select-portal fixed p-1.5 bg-[#162226] border border-white/10 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.9)] z-[9999] flex flex-col animate-in fade-in zoom-in-95 duration-100 backdrop-blur-xl"
+          className="custom-select-portal hidden sm:flex fixed p-1.5 bg-[#162226] border border-white/10 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.9)] z-[9999] flex-col animate-in fade-in zoom-in-95 duration-100 backdrop-blur-xl"
         >
           {/* Render search input ONLY for long lists (> 7 options) */}
           {showSearch && (

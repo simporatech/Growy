@@ -132,39 +132,36 @@ export default function DashboardPreview({ user, onLogout }) {
     return safeTransactionsList.filter(t => t?.date && t.date.startsWith(prevMonthYear));
   }, [safeTransactionsList, prevMonthYear]);
 
-  // RULE 1: Monthly incomes (raw stored values without rate math)
+  // RULE 1: Monthly incomes (using historical fx snapshot or converting on the fly for legacy)
   const monthlyIncomes = useMemo(() => {
     return currentMonthTx
       .filter(t => t?.type === 'income')
-      .reduce((sum, t) => sum + Math.abs(parseNumeric(t?.amount, 0)), 0);
-  }, [currentMonthTx]);
+      .reduce((sum, t) => sum + Math.abs(t.amountInBaseCurrency ?? convertToGlobal(parseNumeric(t?.amount, 0), t.currency || 'USD')), 0);
+  }, [currentMonthTx, convertToGlobal]);
 
-  // RULE 1: Prev monthly incomes (raw stored values without rate math)
   const prevMonthlyIncomes = useMemo(() => {
     return prevMonthTx
       .filter(t => t?.type === 'income')
-      .reduce((sum, t) => sum + Math.abs(parseNumeric(t?.amount, 0)), 0);
-  }, [prevMonthTx]);
+      .reduce((sum, t) => sum + Math.abs(t.amountInBaseCurrency ?? convertToGlobal(parseNumeric(t?.amount, 0), t.currency || 'USD')), 0);
+  }, [prevMonthTx, convertToGlobal]);
+
+  const monthlyExpenses = useMemo(() => {
+    return currentMonthTx
+      .filter(t => t?.type === 'expense')
+      .reduce((sum, t) => sum + Math.abs(t.amountInBaseCurrency ?? convertToGlobal(parseNumeric(t?.amount, 0), t.currency || 'USD')), 0);
+  }, [currentMonthTx, convertToGlobal]);
+
+  const prevMonthlyExpenses = useMemo(() => {
+    return prevMonthTx
+      .filter(t => t?.type === 'expense')
+      .reduce((sum, t) => sum + Math.abs(t.amountInBaseCurrency ?? convertToGlobal(parseNumeric(t?.amount, 0), t.currency || 'USD')), 0);
+  }, [prevMonthTx, convertToGlobal]);
 
   const incomeDiffPercentage = useMemo(() => {
     return prevMonthlyIncomes > 0 
       ? Math.round(((monthlyIncomes - prevMonthlyIncomes) / prevMonthlyIncomes) * 100)
       : 0;
   }, [monthlyIncomes, prevMonthlyIncomes]);
-
-  // RULE 1: Monthly expenses (raw stored values without rate math)
-  const monthlyExpenses = useMemo(() => {
-    return currentMonthTx
-      .filter(t => t?.type === 'expense')
-      .reduce((sum, t) => sum + Math.abs(parseNumeric(t?.amount, 0)), 0);
-  }, [currentMonthTx]);
-
-  // RULE 1: Prev monthly expenses (raw stored values without rate math)
-  const prevMonthlyExpenses = useMemo(() => {
-    return prevMonthTx
-      .filter(t => t?.type === 'expense')
-      .reduce((sum, t) => sum + Math.abs(parseNumeric(t?.amount, 0)), 0);
-  }, [prevMonthTx]);
 
   const expenseDiffPercentage = useMemo(() => {
     return prevMonthlyExpenses > 0 
@@ -208,7 +205,7 @@ export default function DashboardPreview({ user, onLogout }) {
       currentMonthTx.forEach(t => {
         const day = new Date(t.date + 'T00:00:00').getDate();
         const weekIdx = Math.min(3, Math.floor((day - 1) / 7));
-        const amt = Math.abs(parseNumeric(t.amount, 0));
+        const amt = Math.abs(t.amountInBaseCurrency ?? convertToGlobal(parseNumeric(t.amount, 0), t.currency || 'USD'));
         if (t.type === 'income') weeks[weekIdx].income += amt;
         if (t.type === 'expense') weeks[weekIdx].expense += amt;
       });
@@ -224,7 +221,7 @@ export default function DashboardPreview({ user, onLogout }) {
         let inc = 0, exp = 0;
         safeTransactionsList.forEach(t => {
           if (t?.date && t.date.startsWith(mKey)) {
-            const amt = Math.abs(parseNumeric(t.amount, 0));
+            const amt = Math.abs(t.amountInBaseCurrency ?? convertToGlobal(parseNumeric(t.amount, 0), t.currency || 'USD'));
             if (t.type === 'income') inc += amt;
             if (t.type === 'expense') exp += amt;
           }
@@ -242,7 +239,7 @@ export default function DashboardPreview({ user, onLogout }) {
         let inc = 0, exp = 0;
         safeTransactionsList.forEach(t => {
           if (t?.date && t.date.startsWith(mKey)) {
-            const amt = Math.abs(parseNumeric(t.amount, 0));
+            const amt = Math.abs(t.amountInBaseCurrency ?? convertToGlobal(parseNumeric(t.amount, 0), t.currency || 'USD'));
             if (t.type === 'income') inc += amt;
             if (t.type === 'expense') exp += amt;
           }

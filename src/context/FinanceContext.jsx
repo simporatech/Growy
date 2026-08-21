@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { parseNumeric, formatDateISO } from '../utils/formatters';
+import { convertToGlobal } from '../utils/currency';
 import { detectUserLanguage } from '../utils/defaultCategories';
 import { 
   dbFetchAccounts, dbSaveAccount, dbDeleteAccount,
@@ -10,6 +11,7 @@ import {
   processSubscriptionsCron,
   consolidateOldTransactions
 } from '../services/supabaseService';
+import { useSettings } from './SettingsContext';
 
 const FinanceContext = createContext(null);
 
@@ -54,6 +56,7 @@ function deleteErrMsg(err) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function FinanceProvider({ children, userId = 'usr_admin' }) {
+  const { exchangeRates, baseCurrency } = useSettings();
   const [accounts, setAccounts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [transactions, setTransactions] = useState([]);
@@ -274,7 +277,18 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
   // --- TRANSACTIONS ACTIONS ---
   const addTransaction = useCallback(async (newTx) => {
     try {
-      const saved = await dbSaveTransaction(userId, newTx);
+      // 1. Calculate Historical FX Snapshots
+      const txCurrency = newTx.currency || 'USD';
+      const amountInBaseCurrency = convertToGlobal(newTx.amount, txCurrency, baseCurrency, exchangeRates);
+      const exchangeRateAtTransaction = convertToGlobal(1, txCurrency, baseCurrency, exchangeRates);
+
+      const txWithSnapshot = {
+        ...newTx,
+        exchangeRateAtTransaction,
+        amountInBaseCurrency
+      };
+
+      const saved = await dbSaveTransaction(userId, txWithSnapshot);
       if (saved) {
         setTransactions(prevTx => {
           const safeTx = Array.isArray(prevTx) ? prevTx.filter(Boolean) : [];
@@ -291,11 +305,32 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
       console.error('❌ Error en addTransaction:', err);
       triggerToast('error', syncErrMsg(err));
     }
-  }, [userId, syncBalances, triggerToast]);
+  }, [userId, syncBalances, triggerToast, baseCurrency, exchangeRates]);
 
   const updateTransaction = useCallback(async (updatedTx) => {
     try {
-      const saved = await dbSaveTransaction(userId, updatedTx);
+      // Find old transaction to preserve FX if amount/currency hasn't changed
+      const oldTx = transactions.find(t => t.id === updatedTx.id);
+      const amountChanged = oldTx && Number(oldTx.amount) !== Number(updatedTx.amount);
+      const currencyChanged = oldTx && oldTx.currency !== updatedTx.currency;
+      
+      let amountInBaseCurrency = updatedTx.amountInBaseCurrency;
+      let exchangeRateAtTransaction = updatedTx.exchangeRateAtTransaction;
+
+      // Recalculate Historical FX Snapshots on update ONLY if needed or if missing
+      if (!oldTx || amountChanged || currencyChanged || !exchangeRateAtTransaction) {
+        const txCurrency = updatedTx.currency || 'USD';
+        amountInBaseCurrency = convertToGlobal(updatedTx.amount, txCurrency, baseCurrency, exchangeRates);
+        exchangeRateAtTransaction = convertToGlobal(1, txCurrency, baseCurrency, exchangeRates);
+      }
+
+      const txWithSnapshot = {
+        ...updatedTx,
+        exchangeRateAtTransaction,
+        amountInBaseCurrency
+      };
+
+      const saved = await dbSaveTransaction(userId, txWithSnapshot);
       if (saved) {
         setTransactions(prevTx => {
           const safeTx = Array.isArray(prevTx) ? prevTx.filter(Boolean) : [];
@@ -312,7 +347,7 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
       console.error('❌ Error en updateTransaction:', err);
       triggerToast('error', syncErrMsg(err));
     }
-  }, [userId, syncBalances, triggerToast]);
+  }, [userId, syncBalances, triggerToast, baseCurrency, exchangeRates, transactions]);
 
   const deleteTransaction = useCallback(async (txId) => {
     try {

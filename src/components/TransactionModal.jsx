@@ -312,8 +312,8 @@ export default function TransactionModal({
           placeholder={t('modals.transaction.descPlaceholder', {}, 'Ej. Almuerzo de trabajo, Pago de recibo')}
         />
 
-        {/* Standard 50/50 Footer */}
-        <div className="flex items-center gap-3 pt-4 border-t border-white/5 w-full mt-6">
+        {/* Sticky Action Footer */}
+        <div className="flex items-center gap-3 pt-4 sm:pt-4 border-t border-white/5 w-full mt-6 sticky bottom-0 bg-[#131E22] pb-4 sm:pb-0 -mx-5 px-5 sm:mx-0 sm:px-0 z-40">
           <button
             type="button"
             onClick={onClose}

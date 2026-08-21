@@ -8,10 +8,11 @@ import ExportDropdown from './ExportDropdown';
 import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
 import { formatDateISO } from '../utils/formatters';
+import { convertToGlobal } from '../utils/currency';
 
 export default function TransactionsModule() {
   const { transactions, accounts, categories, addTransaction, updateTransaction, deleteTransaction } = useFinance();
-  const { formatCurrency, t, language } = useSettings();
+  const { formatCurrency, t, language, exchangeRates, baseCurrency } = useSettings();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
@@ -165,12 +166,45 @@ export default function TransactionsModule() {
 
       return true;
     });
-  }, [safeTxList, typeFilter, accountIdFilter, categoryIdFilter, searchQuery, startDate, endDate, safeCategoriesList, safeAccountsList]);
+  }, [safeTxList, typeFilter, accountIdFilter, categoryIdFilter, searchQuery, startDate, endDate, safeAccountsList, safeCategoriesList]);
 
-  // Group transactions by date
+  // Dynamic Totals Calculation
+  const { totalIncome, totalExpense, netFlow } = useMemo(() => {
+    let inc = 0;
+    let exp = 0;
+    filteredTx.forEach(tx => {
+      // Use historical snapshot if available, fallback to live rate
+      const val = Math.abs(tx.amountInBaseCurrency ?? convertToGlobal(Number(tx.amount) || 0, tx.currency || 'USD', baseCurrency, exchangeRates));
+      if (tx.type === 'income') inc += val;
+      if (tx.type === 'expense') exp += val;
+    });
+    return {
+      totalIncome: inc,
+      totalExpense: exp,
+      netFlow: inc - exp
+    };
+  }, [filteredTx, baseCurrency, exchangeRates]);
+
+  // Smart Pagination State
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [pageSize, setPageSize] = React.useState(10);
+
+  // Reset page to 1 when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [typeFilter, accountIdFilter, categoryIdFilter, searchQuery, startDate, endDate]);
+
+  const totalPages = Math.ceil(filteredTx.length / pageSize) || 1;
+
+  const paginatedTx = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredTx.slice(start, start + pageSize);
+  }, [filteredTx, currentPage, pageSize]);
+
+  // Group transactions by date (only the paginated ones)
   const groupedTx = useMemo(() => {
     const groups = {};
-    filteredTx.forEach((tx) => {
+    paginatedTx.forEach((tx) => {
       const dateKey = tx.date || t('transactions.noDate', {}, 'Sin fecha');
       if (!groups[dateKey]) {
         groups[dateKey] = [];
@@ -178,7 +212,7 @@ export default function TransactionsModule() {
       groups[dateKey].push(tx);
     });
     return groups;
-  }, [filteredTx]);
+  }, [paginatedTx, t]);
 
   // Sort dates descending
   const noDateLabel = t('transactions.noDate', {}, 'Sin fecha');
@@ -621,7 +655,23 @@ export default function TransactionsModule() {
         </div>
       )}
 
-      {/* Structured High-Density Feed */}
+      {/* DYNAMIC TOTALS (Visible when filtering or always as a summary) */}
+      <div className="w-full relative z-10 grid grid-cols-3 gap-3 bg-[#131E22]/60 p-4 rounded-2xl border border-white/5 mb-4">
+        <div className="flex flex-col">
+          <span className="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">{t('transactions.filterIncomes', {}, 'Ingresos')}</span>
+          <span className="text-sm md:text-base font-bold text-[var(--color-primary,#AEEDD0)] tabular-nums">{formatCurrency(totalIncome, baseCurrency)}</span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">{t('transactions.filterExpenses', {}, 'Gastos')}</span>
+          <span className="text-sm md:text-base font-bold text-[#FF6B6B] tabular-nums">{formatCurrency(totalExpense, baseCurrency)}</span>
+        </div>
+        <div className="flex flex-col border-l border-white/10 pl-3">
+          <span className="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">{t('dashboard.netWealth', {}, 'Flujo Neto')}</span>
+          <span className={`text-sm md:text-base font-bold tabular-nums ${netFlow >= 0 ? 'text-white' : 'text-[#FF6B6B]'}`}>
+            {formatCurrency(netFlow, baseCurrency)}
+          </span>
+        </div>
+      </div>      {/* Structured High-Density Feed */}
       <div className="w-full space-y-6 relative z-10">
         {sortedDates.length === 0 ? (
           <div className="p-6 rounded-2xl bg-[#1E2D32]/60 border border-white/10 backdrop-blur-md text-center text-slate-300 space-y-3">
@@ -731,6 +781,49 @@ export default function TransactionsModule() {
           })
         )}
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="w-full relative z-10 flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-3 py-4 border-t border-white/5 mt-4">
+          
+          {/* Info & Page Size Selector */}
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            <span className="text-xs text-slate-400">
+              {t('transactions.showingPage', { page: currentPage, total: totalPages }, `Página ${currentPage} de ${totalPages}`)} &bull; ({(currentPage - 1) * pageSize + 1} - {Math.min(currentPage * pageSize, filteredTx.length)} de {filteredTx.length})
+            </span>
+            
+            <div className="flex items-center gap-1.5 p-1 bg-[#131E22] rounded-xl border border-white/5">
+              {[10, 30, 50].map((size) => (
+                <button
+                  key={size}
+                  onClick={() => { setPageSize(size); setCurrentPage(1); }}
+                  className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition-colors ${pageSize === size ? 'bg-[#18252A] text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/20' : 'text-slate-500 hover:text-slate-300'}`}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          {/* Navigation Buttons */}
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="flex-1 sm:flex-none h-9 px-4 rounded-xl text-xs font-bold bg-[#18252A] border border-white/10 text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/10 transition-all active:scale-95"
+            >
+              {t('transactions.prevPage', {}, 'Anterior')}
+            </button>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="flex-1 sm:flex-none h-9 px-4 rounded-xl text-xs font-bold bg-[#18252A] border border-white/10 text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/10 transition-all active:scale-95"
+            >
+              {t('transactions.nextPage', {}, 'Siguiente')}
+            </button>
+          </div>
+        </div>
+      )}
 
       <TransactionModal
         isOpen={isModalOpen}

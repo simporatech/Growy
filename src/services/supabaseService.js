@@ -500,7 +500,9 @@ export const dbSaveTransaction = async (userId, txData) => {
     amount: isNaN(numAmount) ? 0 : numAmount,
     currency: txData.currency || 'USD',
     description: txData.description ? txData.description.trim() : null,
-    transaction_date: txData.transactionDate || txData.date || new Date().toISOString().split('T')[0]
+    transaction_date: txData.transactionDate || txData.date || new Date().toISOString().split('T')[0],
+    exchange_rate_at_transaction: txData.exchangeRateAtTransaction !== undefined ? parseFloat(txData.exchangeRateAtTransaction) : null,
+    amount_in_base_currency: txData.amountInBaseCurrency !== undefined ? parseFloat(txData.amountInBaseCurrency) : null
   };
 
   // Only pass id when updating an existing UUID record from PostgreSQL
