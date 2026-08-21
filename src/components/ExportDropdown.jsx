@@ -86,7 +86,7 @@ export const ExportDropdown = ({ data, columns, title = "Report", filename = "ex
             className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-slate-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors text-left cursor-pointer"
           >
             <FileSpreadsheet className="text-emerald-400 shrink-0" size={15} />
-            <span className="font-medium">Excel / CSV (.csv)</span>
+            <span className="font-medium">{tFunc ? tFunc('export.csvLabel', {}, 'Excel / CSV (.csv)') : 'Excel / CSV (.csv)'}</span>
           </button>
           <button
             type="button"
@@ -94,7 +94,7 @@ export const ExportDropdown = ({ data, columns, title = "Report", filename = "ex
             className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-slate-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors text-left cursor-pointer"
           >
             <FileText className="text-rose-400 shrink-0" size={15} />
-            <span className="font-medium">Documento PDF (.pdf)</span>
+            <span className="font-medium">{tFunc ? tFunc('export.pdfLabel', {}, 'PDF Document (.pdf)') : 'PDF Document (.pdf)'}</span>
           </button>
         </div>,
         document.body

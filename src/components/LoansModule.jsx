@@ -67,7 +67,7 @@ export default function LoansModule() {
     { label: t('modals.loan.amount', {}, 'Monto'), accessor: (l) => `${l?.currency || 'USD'} ${parseNumeric(l?.amount, 0).toFixed(2)}` },
     { label: t('modals.loan.startDate', {}, 'Fecha Inicio'), accessor: (l) => (l?.startDate || l?.start_date || 'N/A') },
     { label: t('modals.loan.dueDate', {}, 'Fecha Límite'), accessor: (l) => (l?.dueDate || l?.due_date || 'N/A') },
-    { label: 'Estado', accessor: (l) => (l?.status === 'paid' || l?.status === 'settled') ? 'Pagado' : 'Pendiente' }
+    { label: t('loans.status', {}, 'Estado'), accessor: (l) => (l?.status === 'paid' || l?.status === 'settled') ? t('loans.paid', {}, 'Pagado') : t('loans.pending', {}, 'Pendiente') }
   ], [safeCategoriesList, t]);
 
   const totalPendingAmount = useMemo(() => {
@@ -177,22 +177,20 @@ export default function LoansModule() {
             />
           </div>
 
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-              {statusOptions.map(opt => (
-                <button
-                  key={opt.value}
-                  onClick={() => setStatusFilter(opt.value)}
-                  className={`h-8 px-3 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
-                    statusFilter === opt.value
-                      ? 'bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] shadow-sm'
-                      : 'bg-white/5 text-slate-300 hover:text-white border border-white/5'
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full pb-1 pr-4">
+            {statusOptions.map(opt => (
+              <button
+                key={opt.value}
+                onClick={() => setStatusFilter(opt.value)}
+                className={`h-9 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
+                  statusFilter === opt.value
+                    ? 'bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] shadow-sm'
+                    : 'bg-white/5 text-slate-300 hover:text-white border border-white/5'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
 
             <div className="shrink-0">
               <ExportDropdown
@@ -210,7 +208,7 @@ export default function LoansModule() {
           <div className="flex items-center gap-4 flex-1">
             {/* Status Filter */}
             <div className="w-56">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1 block">
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1 block">
                 {t('loans.filterStatus', {}, 'Filtrar Estado')}
               </label>
               <CustomSelect
@@ -222,7 +220,7 @@ export default function LoansModule() {
 
             {/* Real-Time Search Bar */}
             <div className="flex-1 max-w-md">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1 block">
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1 block">
                 {t('common.search', {}, 'Buscar')}
               </label>
               <div className="relative">
@@ -245,7 +243,7 @@ export default function LoansModule() {
               title={t('loans.title', {}, 'Saldos Pendientes')}
               filename="saldos_pendientes_growy"
             />
-            <div className="text-xs text-slate-400 font-medium tabular-nums">
+            <div className="text-xs text-slate-300 font-medium tabular-nums">
               {t('loans.showingRecords', { count: filteredLoans.length }, `${filteredLoans.length} registros`)}
             </div>
           </div>
@@ -298,12 +296,12 @@ export default function LoansModule() {
                       {cat?.emoji || '📄'}
                     </div>
 
-                    <h4 className="text-sm font-bold text-white group-hover:text-[var(--color-primary,#AEEDD0)] transition-colors truncate">
+                    <h4 className="line-clamp-2 text-sm leading-snug font-medium text-white group-hover:text-[var(--color-primary,#AEEDD0)] transition-colors">
                       {conceptValue}
                     </h4>
                   </div>
 
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border shrink-0 ${urgency.color}`}>
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-md border shrink-0 ${urgency.color}`}>
                     {urgency.label}
                   </span>
                 </div>
@@ -311,8 +309,8 @@ export default function LoansModule() {
                 {/* FILA 2: Categoría & Fecha + Monto Grande + Botón Pagar / Acciones */}
                 <div className="flex items-center justify-between gap-3 pt-2 border-t border-white/5">
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] sm:text-xs text-slate-400 font-medium truncate">
-                      {cat?.name || 'Uncategorized'} • {language === 'es' ? 'Vence' : 'Due'}: <strong className="text-slate-300 font-semibold">{dueDateValue || 'N/A'}</strong>
+                    <p className="text-xs text-slate-300 font-medium truncate">
+                      {cat?.name || 'Uncategorized'} • {language === 'es' ? 'Vence' : 'Due'}: <strong className="text-white font-semibold">{dueDateValue || 'N/A'}</strong>
                     </p>
                   </div>
 

@@ -171,7 +171,7 @@ export default function TransactionsModule() {
   const groupedTx = useMemo(() => {
     const groups = {};
     filteredTx.forEach((tx) => {
-      const dateKey = tx.date || 'Sin fecha';
+      const dateKey = tx.date || t('transactions.noDate', {}, 'Sin fecha');
       if (!groups[dateKey]) {
         groups[dateKey] = [];
       }
@@ -181,13 +181,14 @@ export default function TransactionsModule() {
   }, [filteredTx]);
 
   // Sort dates descending
+  const noDateLabel = t('transactions.noDate', {}, 'Sin fecha');
   const sortedDates = useMemo(() => {
     return Object.keys(groupedTx).sort((a, b) => {
-      if (a === 'Sin fecha') return 1;
-      if (b === 'Sin fecha') return -1;
+      if (a === noDateLabel) return 1;
+      if (b === noDateLabel) return -1;
       return b.localeCompare(a);
     });
-  }, [groupedTx]);
+  }, [groupedTx, noDateLabel]);
 
   const handleSaveTx = useCallback((txData) => {
     if (!txData) return;
@@ -214,9 +215,9 @@ export default function TransactionsModule() {
   const transactionColumns = useMemo(() => [
     { label: t('modals.transaction.date', {}, 'Fecha'), accessor: (tx) => tx.date || '-' },
     { label: t('modals.transaction.description', {}, 'Descripción'), accessor: (tx) => tx.description || '-' },
-    { label: t('modals.transaction.type', {}, 'Tipo'), accessor: (tx) => tx.type === 'expense' ? 'Gasto' : tx.type === 'income' ? 'Ingreso' : 'Transferencia' },
-    { label: t('modals.transaction.category', {}, 'Categoría'), accessor: (tx) => safeCategoriesList.find(c => c?.id === tx.categoryId)?.name || 'General' },
-    { label: t('modals.transaction.account', {}, 'Cuenta'), accessor: (tx) => safeAccountsList.find(a => a?.id === tx.accountId)?.name || 'General' },
+    { label: t('modals.transaction.type', {}, 'Tipo'), accessor: (tx) => tx.type === 'expense' ? t('modals.transaction.typeExpense', {}, 'Gasto') : tx.type === 'income' ? t('modals.transaction.typeIncome', {}, 'Ingreso') : t('modals.transaction.typeTransfer', {}, 'Transferencia') },
+    { label: t('modals.transaction.category', {}, 'Categoría'), accessor: (tx) => safeCategoriesList.find(c => c?.id === tx.categoryId)?.name || t('common.general', {}, 'General') },
+    { label: t('modals.transaction.account', {}, 'Cuenta'), accessor: (tx) => safeAccountsList.find(a => a?.id === tx.accountId)?.name || t('common.general', {}, 'General') },
     { label: t('modals.transaction.amount', {}, 'Monto'), accessor: (tx) => `${tx.currency || 'USD'} ${Number(tx.amount || 0).toFixed(2)}` }
   ], [safeCategoriesList, safeAccountsList, t]);
 
@@ -238,15 +239,6 @@ export default function TransactionsModule() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <div className="hidden sm:block">
-            <ExportDropdown
-              data={filteredTx}
-              columns={transactionColumns}
-              title={t('transactions.title', {}, 'Historial de Transacciones')}
-              filename="transacciones_growy"
-            />
-          </div>
-
           <button
             onClick={() => {
               setTxToEdit(null);
@@ -275,96 +267,90 @@ export default function TransactionsModule() {
           />
         </div>
 
-        {/* Quick Chips & Filter Trigger Row */}
-        <div className="flex items-center justify-between gap-2 overflow-x-auto no-scrollbar py-0.5">
+        {/* Quick Chips & Filter Trigger Row with Fluid Horizontal Scroll */}
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full pb-1 pr-4">
           {/* Quick Type Chips */}
-          <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            onClick={() => setTypeFilter('all')}
+            className={`h-9 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center shrink-0 cursor-pointer ${
+              typeFilter === 'all' ? 'bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] shadow-sm' : 'bg-white/5 text-slate-300 hover:text-white border border-white/5'
+            }`}
+          >
+            {t('transactions.filterAll', {}, 'Todos')}
+          </button>
+          <button
+            onClick={() => setTypeFilter('expense')}
+            className={`h-9 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center shrink-0 cursor-pointer ${
+              typeFilter === 'expense' ? 'bg-[#FF6B6B]/20 text-[#FF6B6B] border border-[#FF6B6B]/30 shadow-sm' : 'bg-white/5 text-slate-300 hover:text-white border border-white/5'
+            }`}
+          >
+            {t('transactions.filterExpenses', {}, 'Gastos')}
+          </button>
+          <button
+            onClick={() => setTypeFilter('income')}
+            className={`h-9 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center shrink-0 cursor-pointer ${
+              typeFilter === 'income' ? 'bg-[var(--color-primary,#AEEDD0)]/20 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/30 shadow-sm' : 'bg-white/5 text-slate-300 hover:text-white border border-white/5'
+            }`}
+          >
+            {t('transactions.filterIncomes', {}, 'Ingresos')}
+          </button>
+
+          {/* Action Triggers: Filter Modal + Export */}
+          <button
+            onClick={() => setIsFilterDrawerOpen(true)}
+            className={`h-9 px-3.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shrink-0 cursor-pointer border ${
+              activeFilterCount > 0
+                ? 'bg-[var(--color-primary,#AEEDD0)]/15 border-[var(--color-primary,#AEEDD0)]/40 text-[var(--color-primary,#AEEDD0)]'
+                : 'bg-[#162226] border-white/10 text-slate-300 hover:text-white'
+            }`}
+          >
+            <Filter className="w-3.5 h-3.5" />
+            <span>{t('common.filters', {}, 'Filtros')}</span>
+            {activeFilterCount > 0 && (
+              <span className="w-4 h-4 rounded-full bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] text-[10px] font-extrabold flex items-center justify-center">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+
+          <div className="lg:hidden shrink-0">
+            <ExportDropdown
+              data={filteredTx}
+              columns={transactionColumns}
+              title={t('transactions.title', {}, 'Historial de Transacciones')}
+              filename="transacciones_growy"
+            />
+          </div>
+
+          {isFilterActive && (
+            <button
+              onClick={resetFilters}
+              className="h-9 px-3 rounded-xl bg-rose-500/10 text-rose-300 border border-rose-500/20 text-xs font-bold flex items-center shrink-0 cursor-pointer"
+              title={t('transactions.clearFilters', {}, 'Limpiar filtros')}
+            >
+              <RotateCcw className="w-3.5 h-3.5 mr-1" />
+              <span>{t('common.clear', {}, 'Limpiar')}</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* DESKTOP FILTER BAR (>= lg) - UNIFIED SINGLE ROW */}
+      <div className="hidden lg:block mb-6 relative z-30">
+        <div className="flex items-center justify-between gap-3 p-2.5 bg-[#131E22]/90 rounded-2xl border border-white/10 backdrop-blur-xl shadow-lg">
+          {/* Segmented Control de Tipo */}
+          <div className="flex items-center gap-1 bg-black/25 p-1 rounded-xl shrink-0">
             <button
               onClick={() => setTypeFilter('all')}
-              className={`h-8 px-3 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center cursor-pointer ${
-                typeFilter === 'all' ? 'bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] shadow-sm' : 'bg-white/5 text-slate-300 hover:text-white border border-white/5'
+              className={`h-8 px-3 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center cursor-pointer ${
+                typeFilter === 'all' ? 'bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] shadow-sm font-bold' : 'text-slate-300 hover:text-white'
               }`}
             >
               {t('transactions.filterAll', {}, 'Todos')}
             </button>
             <button
               onClick={() => setTypeFilter('expense')}
-              className={`h-8 px-3 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center cursor-pointer ${
-                typeFilter === 'expense' ? 'bg-[#FF6B6B]/20 text-[#FF6B6B] border border-[#FF6B6B]/30 shadow-sm' : 'bg-white/5 text-slate-300 hover:text-white border border-white/5'
-              }`}
-            >
-              {t('transactions.filterExpenses', {}, 'Gastos')}
-            </button>
-            <button
-              onClick={() => setTypeFilter('income')}
-              className={`h-8 px-3 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center cursor-pointer ${
-                typeFilter === 'income' ? 'bg-[var(--color-primary,#AEEDD0)]/20 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/30 shadow-sm' : 'bg-white/5 text-slate-300 hover:text-white border border-white/5'
-              }`}
-            >
-              {t('transactions.filterIncomes', {}, 'Ingresos')}
-            </button>
-          </div>
-
-          {/* Action Triggers: Filter Modal + Export */}
-          <div className="flex items-center gap-1.5 shrink-0 ml-auto">
-            <button
-              onClick={() => setIsFilterDrawerOpen(true)}
-              className={`h-8 px-3 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer border ${
-                activeFilterCount > 0
-                  ? 'bg-[var(--color-primary,#AEEDD0)]/15 border-[var(--color-primary,#AEEDD0)]/40 text-[var(--color-primary,#AEEDD0)]'
-                  : 'bg-[#162226] border-white/10 text-slate-300 hover:text-white'
-              }`}
-            >
-              <Filter className="w-3.5 h-3.5" />
-              <span>{t('common.filters', {}, 'Filtros')}</span>
-              {activeFilterCount > 0 && (
-                <span className="w-4 h-4 rounded-full bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] text-[10px] font-extrabold flex items-center justify-center">
-                  {activeFilterCount}
-                </span>
-              )}
-            </button>
-
-            <div className="sm:hidden">
-              <ExportDropdown
-                data={filteredTx}
-                columns={transactionColumns}
-                title={t('transactions.title', {}, 'Historial de Transacciones')}
-                filename="transacciones_growy"
-              />
-            </div>
-
-            {isFilterActive && (
-              <button
-                onClick={resetFilters}
-                className="h-8 px-2 rounded-xl bg-rose-500/10 text-rose-300 border border-rose-500/20 text-xs font-bold flex items-center cursor-pointer"
-                title="Limpiar filtros"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* DESKTOP FILTER BAR (>= lg) */}
-      <div className="hidden lg:block p-6 rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] space-y-4 relative z-30">
-        
-        {/* Row 1: Type Pills, Search & Clear Button */}
-        <div className="flex items-center justify-between gap-3">
-          
-          {/* Type Pills */}
-          <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-white/[0.03] border border-white/5 overflow-x-auto no-scrollbar">
-            <button
-              onClick={() => setTypeFilter('all')}
-              className={`h-10 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center cursor-pointer ${
-                typeFilter === 'all' ? 'bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] shadow-sm font-bold' : 'text-slate-300 hover:text-white'
-              }`}
-            >
-              {t('transactions.filterAll', {}, 'Todos los tipos')}
-            </button>
-            <button
-              onClick={() => setTypeFilter('expense')}
-              className={`h-10 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center cursor-pointer ${
+              className={`h-8 px-3 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center cursor-pointer ${
                 typeFilter === 'expense' ? 'bg-[#FF6B6B]/20 text-[#FF6B6B] border border-[#FF6B6B]/30 shadow-sm font-bold' : 'text-slate-300 hover:text-white'
               }`}
             >
@@ -372,7 +358,7 @@ export default function TransactionsModule() {
             </button>
             <button
               onClick={() => setTypeFilter('income')}
-              className={`h-10 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center cursor-pointer ${
+              className={`h-8 px-3 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center cursor-pointer ${
                 typeFilter === 'income' ? 'bg-[var(--color-primary,#AEEDD0)]/20 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/30 shadow-sm font-bold' : 'text-slate-300 hover:text-white'
               }`}
             >
@@ -380,7 +366,7 @@ export default function TransactionsModule() {
             </button>
             <button
               onClick={() => setTypeFilter('transfer')}
-              className={`h-10 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center cursor-pointer ${
+              className={`h-8 px-3 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center cursor-pointer ${
                 typeFilter === 'transfer' ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30 shadow-sm font-bold' : 'text-slate-300 hover:text-white'
               }`}
             >
@@ -388,98 +374,79 @@ export default function TransactionsModule() {
             </button>
           </div>
 
-          {/* Text Search & Clear Button */}
-          <div className="flex items-center gap-2">
-            <div className="relative w-64 min-w-[200px]">
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={t('common.search', {}, 'Buscar...')}
-                className="w-full h-10 pl-9 pr-3 rounded-xl bg-[#162226] border border-white/10 text-xs font-medium text-white focus:outline-none focus:border-[#AEEDD0] shadow-inner transition-colors"
+          {/* Buscador */}
+          <div className="flex-1 min-w-[180px] relative">
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t('common.search', {}, 'Buscar transacciones...')}
+              className="w-full h-9 pl-9 pr-3 text-sm bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-500 focus:outline-none focus:border-[#AEEDD0] transition-colors"
+            />
+          </div>
+
+          {/* Selects Compactos de Rango, Cuenta, Categoría & Exportar */}
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="min-w-[130px]">
+              <CustomSelect
+                options={datePresetOptions}
+                value={datePreset}
+                onChange={handlePresetChange}
               />
             </div>
-
+            <div className="min-w-[130px]">
+              <CustomSelect
+                options={accountOptions}
+                value={accountIdFilter}
+                onChange={setAccountIdFilter}
+              />
+            </div>
+            <div className="min-w-[130px]">
+              <CustomSelect
+                options={categoryOptions}
+                value={categoryIdFilter}
+                onChange={setCategoryIdFilter}
+              />
+            </div>
+            <ExportDropdown
+              data={filteredTx}
+              columns={transactionColumns}
+              title={t('transactions.title', {}, 'Historial de Transacciones')}
+              filename="transacciones_growy"
+            />
             {isFilterActive && (
               <button
                 onClick={resetFilters}
-                className="h-10 px-3.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-rose-300 border border-rose-500/20 flex items-center gap-1.5 transition-all shrink-0 cursor-pointer"
-                title="Limpiar filtros"
+                className="h-9 px-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-rose-300 border border-rose-500/20 flex items-center gap-1 transition-all shrink-0 cursor-pointer"
+                title={t('transactions.clearFilters', {}, 'Limpiar')}
               >
                 <RotateCcw className="w-3.5 h-3.5" />
-                <span>{t('transactions.clearFilters', {}, 'Limpiar Filtros')}</span>
               </button>
             )}
           </div>
         </div>
 
-        {/* Row 2: Date Range Preset, Account, Category & Custom DatePickers */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 pt-2 border-t border-white/5">
-          <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2 block">
-              {t('transactions.dateRange', {}, 'Rango de Fecha')}
-            </label>
-            <CustomSelect
-              options={datePresetOptions}
-              value={datePreset}
-              onChange={handlePresetChange}
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2 block">
-              {t('transactions.accountFilter', {}, 'Cuenta')}
-            </label>
-            <CustomSelect
-              options={accountOptions}
-              value={accountIdFilter}
-              onChange={setAccountIdFilter}
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2 block">
-              {t('transactions.categoryFilter', {}, 'Categoría')}
-            </label>
-            <CustomSelect
-              options={categoryOptions}
-              value={categoryIdFilter}
-              onChange={setCategoryIdFilter}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2 block">
-                {t('transactions.from', {}, 'Desde')}
-              </label>
+        {/* Fechas personalizadas condicionales si el usuario elige "custom" */}
+        {datePreset === 'custom' && (
+          <div className="flex items-center gap-3 p-2.5 mt-2 bg-[#131E22]/80 rounded-xl border border-white/10 max-w-md ml-auto animate-fadeIn">
+            <span className="text-xs font-semibold text-slate-300 shrink-0">{t('transactions.customLabel', {}, 'Personalizado:')}</span>
+            <div className="flex-1">
               <CustomDatePicker
                 value={startDate}
-                onChange={(newDate) => {
-                  setDatePreset('custom');
-                  setStartDate(newDate);
-                }}
+                onChange={(newDate) => setStartDate(newDate)}
                 placeholder={t('transactions.from', {}, 'Desde')}
               />
             </div>
-
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2 block">
-                {t('transactions.to', {}, 'Hasta')}
-              </label>
+            <div className="flex-1">
               <CustomDatePicker
                 value={endDate}
-                onChange={(newDate) => {
-                  setDatePreset('custom');
-                  setEndDate(newDate);
-                }}
+                onChange={(newDate) => setEndDate(newDate)}
                 placeholder={t('transactions.to', {}, 'Hasta')}
               />
             </div>
           </div>
-        </div>
-
+        )}
       </div>
 
       {/* MOBILE ADVANCED FILTER BOTTOM SHEET DRAWER */}
@@ -504,7 +471,7 @@ export default function TransactionsModule() {
                 <h3 className="text-base font-bold text-white">{t('transactions.advancedFilters', {}, 'Filtros Avanzados')}</h3>
                 {activeFilterCount > 0 && (
                   <span className="px-2 py-0.5 rounded-full bg-[var(--color-primary,#AEEDD0)]/20 text-[var(--color-primary,#AEEDD0)] text-xs font-bold">
-                    {activeFilterCount} activos
+                    {t('transactions.activeCount', { count: activeFilterCount }, `${activeFilterCount} activos`)}
                   </span>
                 )}
               </div>
@@ -682,8 +649,8 @@ export default function TransactionsModule() {
 
                 <div className="space-y-2">
                   {list.map((tx) => {
-                    const acc = safeAccountsList.find(a => a?.id === tx.accountId) || { name: 'Cuenta General' };
-                    const cat = safeCategoriesList.find(c => c?.id === tx.categoryId) || { name: 'General', emoji: '📌' };
+                    const acc = safeAccountsList.find(a => a?.id === tx.accountId) || { name: t('common.generalAccount', {}, 'Cuenta General') };
+                    const cat = safeCategoriesList.find(c => c?.id === tx.categoryId) || { name: t('common.general', {}, 'General'), emoji: '📌' };
 
                     const isIncome = tx.type === 'income';
                     const isExpense = tx.type === 'expense';
@@ -692,43 +659,62 @@ export default function TransactionsModule() {
                     return (
                       <div
                         key={tx.id}
-                        className="p-3.5 rounded-2xl bg-[#162226] border border-white/10 flex items-center justify-between gap-4 hover:bg-white/[0.06] transition-all group"
+                        className="p-3.5 sm:px-5 sm:py-3.5 rounded-2xl bg-[#162226] border border-white/10 flex items-center justify-between gap-4 hover:bg-white/[0.06] transition-all group"
                       >
-                        <div className="flex items-center gap-3.5 min-w-0 pr-2">
-                          <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-base shrink-0 ${
+                        {/* Col 1 (Izquierda): Icono + Concepto */}
+                        <div className="flex items-center gap-3.5 min-w-0 flex-1 sm:max-w-xs lg:max-w-sm">
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 ${
                             isIncome ? 'bg-[var(--color-primary,#AEEDD0)]/15 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/20' : isExpense ? 'bg-[#FF6B6B]/15 text-[#FF6B6B] border border-[#FF6B6B]/20' : 'bg-sky-500/15 text-sky-300 border border-sky-500/20'
                           }`}>
                             {emoji}
                           </div>
 
-                          <div className="min-w-0">
-                            <h4 className="text-sm font-bold text-white group-hover:text-[var(--color-primary,#AEEDD0)] transition-colors truncate">
-                              {tx.description || cat?.name || 'Movimiento'}
+                          <div className="min-w-0 flex-1">
+                            <h4 className="line-clamp-2 sm:truncate text-sm font-semibold text-white group-hover:text-[var(--color-primary,#AEEDD0)] transition-colors">
+                              {tx.description || cat?.name || t('transactions.movement', {}, 'Movimiento')}
                             </h4>
-                            <p className="text-xs text-slate-400 font-medium truncate">{acc?.name} • {cat?.name}</p>
+                            <p className="text-xs text-slate-300 font-medium sm:hidden truncate mt-0.5">
+                              {acc?.name} • {cat?.name}
+                            </p>
                           </div>
                         </div>
 
+                        {/* Col 2 (Centro-Izquierda): Badge de Cuenta y Categoría (Desktop) */}
+                        <div className="hidden sm:flex items-center gap-2 min-w-0 flex-1">
+                          <span className="text-xs font-medium text-slate-300 px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 truncate max-w-[140px]">
+                            🏦 {acc?.name || t('transactions.accountFilter', {}, 'Cuenta')}
+                          </span>
+                          <span className="text-xs font-medium text-slate-300 px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 truncate max-w-[140px]">
+                            🏷️ {cat?.name || t('transactions.categoryFilter', {}, 'Categoría')}
+                          </span>
+                        </div>
+
+                        {/* Col 3 (Centro-Derecha): Fecha legible (Desktop) */}
+                        <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-400 font-medium shrink-0 w-28">
+                          <span>🕒 {tx.date}</span>
+                        </div>
+
+                        {/* Col 4 (Derecha): Monto formateado grande + Botones en hover */}
                         <div className="flex items-center gap-3 shrink-0">
-                          <div className={`text-sm font-bold tabular-nums ${isIncome ? 'text-[var(--color-primary,#AEEDD0)]' : isExpense ? 'text-[#FF6B6B]' : 'text-sky-300'}`}>
+                          <div className={`text-base font-bold tabular-nums ${isIncome ? 'text-[var(--color-primary,#AEEDD0)]' : isExpense ? 'text-[#FF6B6B]' : 'text-sky-300'}`}>
                             {isIncome ? '+ ' : isExpense ? '- ' : ''}
                             {formatCurrency(tx.amount, acc.currency || tx.currency)}
                           </div>
 
-                          <div className="flex items-center gap-1 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
                               onClick={() => {
                                 setTxToEdit(tx);
                                 setIsModalOpen(true);
                               }}
-                              className="p-1.5 rounded-xl text-slate-400 hover:text-[var(--color-primary,#AEEDD0)] hover:bg-white/10 transition-colors"
+                              className="p-1.5 rounded-xl text-slate-400 hover:text-[var(--color-primary,#AEEDD0)] hover:bg-white/10 transition-colors cursor-pointer"
                               title={t('common.edit', {}, 'Editar')}
                             >
                               <Edit2 className="w-3.5 h-3.5" />
                             </button>
                             <button
                               onClick={() => setTxToDelete(tx)}
-                              className="p-1.5 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                              className="p-1.5 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
                               title={t('common.delete', {}, 'Eliminar')}
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -762,8 +748,8 @@ export default function TransactionsModule() {
         isOpen={!!txToDelete}
         onClose={() => setTxToDelete(null)}
         onConfirm={handleDeleteTx}
-        itemName={txToDelete?.description || 'movimiento'}
-        itemType="transacción"
+        itemName={txToDelete?.description || t('transactions.movement', {}, 'movimiento')}
+        itemType={t('transactions.transactionItemType', {}, 'transacción')}
       />
 
     </div>

@@ -179,7 +179,7 @@ export default function AccountsModule() {
                         <h3 className="text-sm sm:text-base font-bold text-white tracking-tight truncate">
                           {account.name}
                         </h3>
-                        <span className="text-[10px] sm:text-xs font-semibold text-slate-300 tracking-widest uppercase block">
+                        <span className="text-xs font-semibold text-slate-300 tracking-widest uppercase block mt-0.5">
                           {account.currency || 'USD'}
                         </span>
                       </div>
@@ -196,7 +196,7 @@ export default function AccountsModule() {
 
                   {/* Middle Balance Amount */}
                   <div className="relative z-10 my-auto py-2">
-                    <span className="text-[10px] sm:text-xs uppercase tracking-wider text-slate-400 font-semibold block mb-0.5">
+                    <span className="text-xs uppercase tracking-wider text-slate-300 font-semibold block mb-0.5">
                       {t('accounts.availableBalance', {}, 'Balance Disponible')}
                     </span>
                     <div className="text-xl sm:text-3xl font-extrabold text-white tracking-tight tabular-nums truncate">
@@ -206,7 +206,7 @@ export default function AccountsModule() {
 
                   {/* Bottom Footer Bar: Account Actions */}
                   <div className="flex items-center justify-between pt-2.5 sm:pt-3 border-t border-white/10 relative z-10">
-                    <span className="text-[11px] sm:text-xs text-slate-400 font-medium tabular-nums">
+                    <span className="text-xs text-slate-300 font-medium tabular-nums">
                       **** **** {account.id ? account.id.slice(-4) : '8888'}
                     </span>
 

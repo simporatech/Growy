@@ -159,6 +159,19 @@ export default function DashboardPreview({ user, onLogout }) {
       .reduce((sum, t) => sum + Math.abs(parseNumeric(t?.amount, 0)), 0);
   }, [currentMonthTx]);
 
+  // RULE 1: Prev monthly expenses (raw stored values without rate math)
+  const prevMonthlyExpenses = useMemo(() => {
+    return prevMonthTx
+      .filter(t => t?.type === 'expense')
+      .reduce((sum, t) => sum + Math.abs(parseNumeric(t?.amount, 0)), 0);
+  }, [prevMonthTx]);
+
+  const expenseDiffPercentage = useMemo(() => {
+    return prevMonthlyExpenses > 0 
+      ? Math.round(((monthlyExpenses - prevMonthlyExpenses) / prevMonthlyExpenses) * 100)
+      : 0;
+  }, [monthlyExpenses, prevMonthlyExpenses]);
+
   const daysPassed = useMemo(() => Math.max(1, today.getDate()), [today]);
   const dailyBurnRate = useMemo(() => daysPassed > 0 ? monthlyExpenses / daysPassed : 0, [monthlyExpenses, daysPassed]);
 
@@ -609,73 +622,73 @@ export default function DashboardPreview({ user, onLogout }) {
                 </div>
               </header>
 
-              {/* KPIS ROW: 2x2 COMPACT GRID ON MOBILE */}
-              <div className="grid grid-cols-2 gap-3 md:gap-5 md:grid-cols-2 xl:grid-cols-4 w-full relative z-10">
+              {/* KPIS ROW: 2x2 COMPACT GRID ON MOBILE, 4-COLUMN SINGLE ROW ON DESKTOP */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 w-full relative z-10">
                 
-                {/* KPI 1: Patrimonio Neto Real (Colspan 2 en mobile) */}
-                <div className="col-span-2 growy-glass growy-card-hover rounded-2xl p-5 bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 flex flex-col justify-between space-y-2 overflow-hidden isolate transform-gpu-layer">
+                {/* KPI 1: Patrimonio Neto Real (Colspan 2 en mobile, 1 en desktop) */}
+                <div className="col-span-2 lg:col-span-1 growy-glass growy-card-hover rounded-2xl h-auto lg:h-32 p-4 lg:p-5 bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 flex flex-col justify-between space-y-1 lg:space-y-0 overflow-hidden isolate transform-gpu-layer">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-300">
                       {t('dashboard.netWealth', {}, 'Patrimonio Neto')}
                     </span>
-                    <span className="text-[10px] sm:text-xs font-bold px-2.5 py-0.5 rounded-full bg-[var(--color-primary,#AEEDD0)]/15 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/20">
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[var(--color-primary,#AEEDD0)]/15 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/20">
                       {baseCurrency}
                     </span>
                   </div>
-                  <div className="text-xl md:text-2xl font-bold tracking-tight text-white tabular-nums">
+                  <div className="text-xl lg:text-2xl font-bold tracking-tight text-white tabular-nums">
                     {formatCurrency(netWealth, baseCurrency)}
                   </div>
-                  <div className="flex items-center gap-2 sm:gap-3 text-[11px] sm:text-xs text-slate-400 font-medium tabular-nums flex-wrap pt-0.5">
+                  <div className="flex items-center gap-2 sm:gap-3 text-xs text-slate-300 font-medium tabular-nums flex-wrap pt-0.5">
                     <span className="text-emerald-400 font-semibold">{formatCurrency(totalBalance, baseCurrency)} {t('dashboard.assets', {}, 'Activos')}</span>
-                    <span className="text-slate-500">•</span>
+                    <span className="text-slate-400">•</span>
                     <span className="text-rose-400 font-semibold">{formatCurrency(totalPendingDebt, baseCurrency)} {t('dashboard.liabilities', {}, 'Pasivos')}</span>
                   </div>
                 </div>
 
-                {/* KPI 2: Ingresos del Mes (Col 1) */}
-                <div className="col-span-1 h-24 growy-glass growy-card-hover rounded-2xl p-3.5 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between overflow-hidden isolate transform-gpu-layer">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 truncate block">
+                {/* KPI 2: Ingresos del Mes (Col 1 en mobile, 1 en desktop) */}
+                <div className="col-span-1 lg:col-span-1 h-24 lg:h-32 growy-glass growy-card-hover rounded-2xl p-3.5 lg:p-5 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between overflow-hidden isolate transform-gpu-layer">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 truncate block">
                     {t('dashboard.monthlyIncome', {}, 'Ingresos')}
                   </span>
-                  <div className="text-lg md:text-2xl font-bold tracking-tight text-[var(--color-primary,#AEEDD0)] tabular-nums truncate">
+                  <div className="text-lg lg:text-2xl font-bold tracking-tight text-[var(--color-primary,#AEEDD0)] tabular-nums truncate">
                     {formatCurrency(monthlyIncomes, baseCurrency)}
                   </div>
-                  <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
+                  <p className="text-xs text-slate-300 font-medium truncate">
                     <span className="text-[var(--color-primary,#AEEDD0)] font-bold tabular-nums">
                       {incomeDiffPercentage >= 0 ? `+${incomeDiffPercentage}%` : `${incomeDiffPercentage}%`}
                     </span> <span className="hidden sm:inline">{t('dashboard.vsPrevMonth', {}, 'vs. mes anterior')}</span><span className="sm:hidden">vs mes ant.</span>
                   </p>
                 </div>
 
-                {/* KPI 3: Gastos del Mes & Burn Rate (Col 2) */}
-                <div className="col-span-1 h-24 growy-glass growy-card-hover rounded-2xl p-3.5 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between overflow-hidden isolate transform-gpu-layer">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 truncate block">
+                {/* KPI 3: Gastos del Mes & Burn Rate (Col 2 en mobile, 1 en desktop) */}
+                <div className="col-span-1 lg:col-span-1 h-24 lg:h-32 growy-glass growy-card-hover rounded-2xl p-3.5 lg:p-5 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between overflow-hidden isolate transform-gpu-layer">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 truncate block">
                     {t('dashboard.monthlyExpenses', {}, 'Gastos')}
                   </span>
-                  <div className="text-lg md:text-2xl font-bold tracking-tight text-[#FF6B6B] tabular-nums truncate">
+                  <div className="text-lg lg:text-2xl font-bold tracking-tight text-[#FF6B6B] tabular-nums truncate">
                     {formatCurrency(monthlyExpenses, baseCurrency)}
                   </div>
-                  <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
+                  <p className="text-xs text-slate-300 font-medium truncate">
                     <span className="text-rose-400 font-bold tabular-nums">
                       {expenseDiffPercentage >= 0 ? `+${expenseDiffPercentage}%` : `${expenseDiffPercentage}%`}
                     </span> <span className="hidden sm:inline">{t('dashboard.vsPrevMonth', {}, 'vs. mes anterior')}</span><span className="sm:hidden">vs mes ant.</span>
                   </p>
                 </div>
 
-                {/* KPI 4: Tasa de Ahorro Real (Colspan 2 en mobile) */}
-                <div className="col-span-2 sm:col-span-2 xl:col-span-1 growy-glass growy-card-hover rounded-2xl p-3.5 sm:p-5 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between space-y-1 sm:space-y-2 overflow-hidden isolate transform-gpu-layer">
+                {/* KPI 4: Tasa de Ahorro Real (Colspan 2 en mobile, 1 en desktop) */}
+                <div className="col-span-2 lg:col-span-1 h-auto lg:h-32 growy-glass growy-card-hover rounded-2xl p-3.5 lg:p-5 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between space-y-1 lg:space-y-0 overflow-hidden isolate transform-gpu-layer">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-300">
                       {t('dashboard.savingsRate', {}, 'Tasa de Ahorro')}
                     </span>
-                    <span className="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-[var(--color-primary,#AEEDD0)]/15 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/20 tabular-nums">
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[var(--color-primary,#AEEDD0)]/15 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/20 tabular-nums">
                       Score {financialScore}/100
                     </span>
                   </div>
-                  <div className="text-lg sm:text-2xl font-bold tracking-tight text-white tabular-nums">
+                  <div className="text-lg lg:text-2xl font-bold tracking-tight text-white tabular-nums">
                     {savingsRate}%
                   </div>
-                  <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
+                  <p className="text-xs text-slate-300 font-medium truncate">
                     {netSavingsAmount >= 0 ? t('dashboard.positiveCashflow', {}, 'Superávit:') : t('dashboard.deficitCashflow', {}, 'Déficit:')} <span className="text-white font-semibold tabular-nums">{formatCurrency(netSavingsAmount, baseCurrency)}</span>
                   </p>
                 </div>
@@ -724,7 +737,7 @@ export default function DashboardPreview({ user, onLogout }) {
                   </div>
 
                   {currentMonthTx.length === 0 && chartPeriod === 'this_month' ? (
-                    <div className="w-full h-44 sm:h-52 flex flex-col items-center justify-center text-center text-slate-300 space-y-3 bg-[#162226] rounded-xl border border-dashed border-white/10">
+                    <div className="w-full h-48 sm:h-56 flex flex-col items-center justify-center text-center text-slate-300 space-y-3 bg-[#162226] rounded-xl border border-dashed border-white/10">
                       <Layers className="w-8 h-8 text-slate-400" />
                       <p className="text-xs font-medium">{t('dashboard.noMovementsMonth', {}, 'Sin movimientos registrados este mes')}</p>
                       <button
@@ -738,19 +751,19 @@ export default function DashboardPreview({ user, onLogout }) {
                       </button>
                     </div>
                   ) : (
-                    <div className="w-full h-44 sm:h-52 pt-4 flex items-end justify-between gap-2.5 sm:gap-3 px-1 sm:px-2">
+                    <div className="w-full h-48 sm:h-56 pt-4 pb-4 flex items-end justify-between gap-2.5 sm:gap-3 px-2 sm:px-3">
                       {trendPoints.map((pt, idx) => {
                         const incHeight = maxTrendVal > 0 ? Math.max(6, Math.round((pt.income / maxTrendVal) * 120)) : 6;
                         const expHeight = maxTrendVal > 0 ? Math.max(6, Math.round((pt.expense / maxTrendVal) * 120)) : 6;
 
                         return (
-                          <div key={idx} className="flex-1 flex flex-col items-center gap-1.5 sm:gap-2 h-full justify-end group">
+                          <div key={idx} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
                             <div className="flex items-end gap-1 h-full w-full justify-center">
                               <div 
                                 className="w-1/3 max-w-[12px] rounded-t-md bg-[var(--color-primary,#AEEDD0)] transition-all duration-300 hover:opacity-80 relative group/bar"
                                 style={{ height: `${incHeight}px` }}
                               >
-                                <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-[#1E2D32] border border-white/20 text-[var(--color-primary,#AEEDD0)] text-[10px] font-semibold px-1.5 py-0.5 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none tabular-nums">
+                                <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-[#1E2D32] border border-white/20 text-[var(--color-primary,#AEEDD0)] text-xs font-semibold px-2 py-0.5 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none tabular-nums shadow-lg">
                                   {formatCurrency(pt.income)}
                                 </div>
                               </div>
@@ -759,13 +772,13 @@ export default function DashboardPreview({ user, onLogout }) {
                                 className="w-1/3 max-w-[12px] rounded-t-md bg-[#FF6B6B] transition-all duration-300 hover:opacity-80 relative group/bar"
                                 style={{ height: `${expHeight}px` }}
                               >
-                                <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-[#1E2D32] border border-white/20 text-[#FF6B6B] text-[10px] font-semibold px-1.5 py-0.5 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none tabular-nums">
+                                <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-[#1E2D32] border border-white/20 text-[#FF6B6B] text-xs font-semibold px-2 py-0.5 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none tabular-nums shadow-lg">
                                   {formatCurrency(pt.expense)}
                                 </div>
                               </div>
                             </div>
 
-                            <span className="text-[10px] sm:text-[11px] font-semibold text-slate-300 group-hover:text-white transition-colors">
+                            <span className="text-xs font-semibold text-slate-300 group-hover:text-white transition-colors mt-1">
                               {pt.label}
                             </span>
                           </div>
@@ -1211,118 +1224,104 @@ export default function DashboardPreview({ user, onLogout }) {
       </main>
 
       {/* MOBILE BOTTOM NAVIGATION BAR (ERGONOMIC 4-TAB + ACTION FAB + MORE DRAWER) */}
-      <nav className="fixed bottom-0 left-0 right-0 h-16 pb-safe md:hidden z-40 bg-[#131E22]/95 backdrop-blur-xl border-t border-white/10 flex items-center justify-around px-3 shadow-[0_-8px_30px_rgba(0,0,0,0.6)]">
-        {/* 1. Dashboard Tab */}
-        <button
-          type="button"
-          onClick={() => {
-            setActiveTab('dashboard');
-            setIsMoreSheetOpen(false);
-          }}
-          className={`flex flex-col items-center justify-center gap-1 py-1 px-2.5 rounded-xl transition-all cursor-pointer ${
-            activeTab === 'dashboard'
-              ? 'text-[var(--color-primary,#AEEDD0)] font-bold'
-              : 'text-slate-400 hover:text-white'
-          }`}
-        >
-          <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${
-            activeTab === 'dashboard' ? 'bg-[var(--color-primary,#AEEDD0)]/15 scale-105' : ''
-          }`}>
-            <LayoutDashboard className="w-4 h-4" />
-          </div>
-          <span className="text-[10px] font-semibold tracking-tight leading-none">
-            {t('nav.dashboard', {}, 'Resumen')}
-          </span>
-        </button>
-
-        {/* 2. Transactions Tab */}
-        <button
-          type="button"
-          onClick={() => {
-            setActiveTab('transactions');
-            setIsMoreSheetOpen(false);
-          }}
-          className={`flex flex-col items-center justify-center gap-1 py-1 px-2.5 rounded-xl transition-all cursor-pointer ${
-            activeTab === 'transactions'
-              ? 'text-[var(--color-primary,#AEEDD0)] font-bold'
-              : 'text-slate-400 hover:text-white'
-          }`}
-        >
-          <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${
-            activeTab === 'transactions' ? 'bg-[var(--color-primary,#AEEDD0)]/15 scale-105' : ''
-          }`}>
-            <ArrowLeftRight className="w-4 h-4" />
-          </div>
-          <span className="text-[10px] font-semibold tracking-tight leading-none">
-            {t('nav.transactions', {}, 'Movimientos')}
-          </span>
-        </button>
-
-        {/* 3. Central Elevated Action FAB */}
-        <div className="relative flex flex-col items-center justify-center -mt-6">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 h-16 bg-[#131E22]/95 backdrop-blur-xl border-t border-white/10 px-2 pb-safe md:hidden shadow-[0_-8px_30px_rgba(0,0,0,0.6)]">
+        <div className="max-w-md mx-auto h-full grid grid-cols-5 items-center">
+          {/* Item 1: Dashboard */}
           <button
             type="button"
             onClick={() => {
-              setInitialTxType('expense');
-              setIsTxModalOpen(true);
+              setActiveTab('dashboard');
+              setIsMoreSheetOpen(false);
             }}
-            className="w-12 h-12 rounded-full bg-[#AEEDD0] text-[#0E1517] shadow-lg shadow-[#AEEDD0]/30 border-4 border-[#0E1517] active:scale-95 hover:scale-105 transition-all flex items-center justify-center cursor-pointer group"
-            title={t('transactions.newTransaction', {}, 'Nuevo Movimiento')}
+            className={`flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
+              activeTab === 'dashboard'
+                ? 'text-[var(--color-primary,#AEEDD0)] font-semibold'
+                : 'text-slate-300 hover:text-white'
+            }`}
           >
-            <Plus className="w-5 h-5 stroke-[3] group-hover:rotate-90 transition-transform duration-200" />
+            <LayoutDashboard size={20} />
+            <span className="text-[11px] font-medium leading-none">
+              {t('nav.dashboard', {}, 'Dashboard')}
+            </span>
           </button>
-          <span className="text-[9px] font-bold text-slate-400 mt-1 leading-none">
-            {t('common.new', {}, 'Nuevo')}
-          </span>
+
+          {/* Item 2: Transactions */}
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab('transactions');
+              setIsMoreSheetOpen(false);
+            }}
+            className={`flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
+              activeTab === 'transactions'
+                ? 'text-[var(--color-primary,#AEEDD0)] font-semibold'
+                : 'text-slate-300 hover:text-white'
+            }`}
+          >
+            <ArrowLeftRight size={20} />
+            <span className="text-[11px] font-medium leading-none">
+              {t('nav.transactions', {}, 'Transactions')}
+            </span>
+          </button>
+
+          {/* Item 3: FAB Central perfectamente alineado */}
+          <div className="flex flex-col items-center justify-center -mt-5">
+            <button
+              type="button"
+              onClick={() => {
+                setInitialTxType('expense');
+                setIsTxModalOpen(true);
+              }}
+              className="w-12 h-12 rounded-full bg-[#AEEDD0] text-[#0E1517] shadow-lg shadow-[#AEEDD0]/20 flex items-center justify-center hover:scale-105 active:scale-95 transition-transform cursor-pointer"
+              title={t('transactions.newTransaction', {}, 'Nuevo Movimiento')}
+            >
+              <Plus size={24} strokeWidth={2.5} />
+            </button>
+            <span className="text-[11px] font-semibold text-[#AEEDD0] mt-1 leading-none">
+              {t('common.new', {}, 'Nuevo')}
+            </span>
+          </div>
+
+          {/* Item 4: Accounts */}
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab('accounts');
+              setIsMoreSheetOpen(false);
+            }}
+            className={`flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
+              activeTab === 'accounts'
+                ? 'text-[var(--color-primary,#AEEDD0)] font-semibold'
+                : 'text-slate-300 hover:text-white'
+            }`}
+          >
+            <Landmark size={20} />
+            <span className="text-[11px] font-medium leading-none">
+              {t('nav.accounts', {}, 'Accounts')}
+            </span>
+          </button>
+
+          {/* Item 5: Más / Drawer */}
+          <button
+            type="button"
+            onClick={() => setIsMoreSheetOpen(prev => !prev)}
+            className={`flex flex-col items-center justify-center gap-1 transition-all cursor-pointer relative ${
+              isMoreSheetOpen || ['loans', 'subscriptions', 'categories', 'settings', 'feedback', 'about'].includes(activeTab)
+                ? 'text-[var(--color-primary,#AEEDD0)] font-semibold'
+                : 'text-slate-300 hover:text-white'
+            }`}
+          >
+            <div className="relative">
+              <Menu size={20} />
+              {['loans', 'subscriptions', 'categories', 'settings', 'feedback', 'about'].includes(activeTab) && (
+                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[var(--color-primary,#AEEDD0)] animate-pulse" />
+              )}
+            </div>
+            <span className="text-[11px] font-medium leading-none">
+              {t('common.more', {}, 'Más')}
+            </span>
+          </button>
         </div>
-
-        {/* 4. Accounts Tab */}
-        <button
-          type="button"
-          onClick={() => {
-            setActiveTab('accounts');
-            setIsMoreSheetOpen(false);
-          }}
-          className={`flex flex-col items-center justify-center gap-1 py-1 px-2.5 rounded-xl transition-all cursor-pointer ${
-            activeTab === 'accounts'
-              ? 'text-[var(--color-primary,#AEEDD0)] font-bold'
-              : 'text-slate-400 hover:text-white'
-          }`}
-        >
-          <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${
-            activeTab === 'accounts' ? 'bg-[var(--color-primary,#AEEDD0)]/15 scale-105' : ''
-          }`}>
-            <Landmark className="w-4 h-4" />
-          </div>
-          <span className="text-[10px] font-semibold tracking-tight leading-none">
-            {t('nav.accounts', {}, 'Cuentas')}
-          </span>
-        </button>
-
-        {/* 5. More (Drawer Toggle) */}
-        <button
-          type="button"
-          onClick={() => setIsMoreSheetOpen(prev => !prev)}
-          className={`flex flex-col items-center justify-center gap-1 py-1 px-2.5 rounded-xl transition-all cursor-pointer relative ${
-            isMoreSheetOpen || ['loans', 'subscriptions', 'categories', 'settings', 'feedback', 'about'].includes(activeTab)
-              ? 'text-[var(--color-primary,#AEEDD0)] font-bold'
-              : 'text-slate-400 hover:text-white'
-          }`}
-        >
-          <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all relative ${
-            isMoreSheetOpen || ['loans', 'subscriptions', 'categories', 'settings', 'feedback', 'about'].includes(activeTab)
-              ? 'bg-[var(--color-primary,#AEEDD0)]/15 scale-105'
-              : ''
-          }`}>
-            <Menu className="w-4 h-4" />
-            {['loans', 'subscriptions', 'categories', 'settings', 'feedback', 'about'].includes(activeTab) && (
-              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[var(--color-primary,#AEEDD0)] animate-pulse" />
-            )}
-          </div>
-          <span className="text-[10px] font-semibold tracking-tight leading-none">
-            {t('common.more', {}, 'Más')}
-          </span>
-        </button>
       </nav>
 
       {/* MOBILE "MORE" BOTTOM SHEET DRAWER */}

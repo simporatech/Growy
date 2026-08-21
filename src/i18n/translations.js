@@ -43,7 +43,18 @@ export const translations = {
       executed: 'Ejecutado',
       all: 'Todos',
       search: 'Buscar...',
-      export: 'Exportar'
+      export: 'Exportar',
+      new: 'Nuevo',
+      filters: 'Filtros',
+      apply: 'Aplicar Filtros',
+      clear: 'Limpiar',
+      general: 'General',
+      generalAccount: 'Cuenta General'
+    },
+    // Export Labels
+    export: {
+      csvLabel: 'Excel / CSV (.csv)',
+      pdfLabel: 'Documento PDF (.pdf)'
     },
     // Speed Actions
     speedActions: {
@@ -212,7 +223,7 @@ export const translations = {
       subtitle: 'Registro completo e historial continuo de movimientos',
       newTransaction: 'Nuevo Movimiento',
       showingFor: 'Mostrando movimientos de {month}',
-      filterAll: 'Todos los tipos',
+      filterAll: 'Todos',
       filterExpenses: 'Gastos',
       filterIncomes: 'Ingresos',
       filterTransfers: 'Transferencias',
@@ -229,7 +240,22 @@ export const translations = {
       to: 'Hasta',
       clearFilters: 'Limpiar Filtros',
       noTxTitle: 'No hay transacciones registradas',
-      noTxDesc: 'Tus movimientos aparecerán aquí conforme los vayas registrando.'
+      noTxDesc: 'Tus movimientos aparecerán aquí conforme los vayas registrando.',
+      movement: 'Movimiento',
+      noDate: 'Sin fecha',
+      advancedFilters: 'Filtros Avanzados',
+      transactionType: 'Tipo de Movimiento',
+      activeCount: '{count} activos',
+      customLabel: 'Personalizado:',
+      transactionItemType: 'transacción',
+      presets: {
+        thisMonth: 'Este Mes',
+        lastMonth: 'Mes Anterior',
+        last30Days: 'Últimos 30 Días',
+        thisYear: 'Este Año',
+        allHistory: 'Todo el Historial',
+        custom: 'Rango Personalizado'
+      }
     },
     // Settings Module
     settings: {
@@ -552,7 +578,18 @@ export const translations = {
       executed: 'Spent',
       all: 'All',
       search: 'Search...',
-      export: 'Export'
+      export: 'Export',
+      new: 'New',
+      filters: 'Filters',
+      apply: 'Apply Filters',
+      clear: 'Clear',
+      general: 'General',
+      generalAccount: 'General Account'
+    },
+    // Export Labels
+    export: {
+      csvLabel: 'Excel / CSV (.csv)',
+      pdfLabel: 'PDF Document (.pdf)'
     },
     // Speed Actions
     speedActions: {
@@ -721,7 +758,7 @@ export const translations = {
       subtitle: 'Full record and continuous history of transactions',
       newTransaction: 'New Transaction',
       showingFor: 'Showing transactions for {month}',
-      filterAll: 'All types',
+      filterAll: 'All',
       filterExpenses: 'Expenses',
       filterIncomes: 'Income',
       filterTransfers: 'Transfers',
@@ -738,7 +775,22 @@ export const translations = {
       to: 'To',
       clearFilters: 'Clear Filters',
       noTxTitle: 'No transactions recorded',
-      noTxDesc: 'Your transactions will appear here as you log them.'
+      noTxDesc: 'Your transactions will appear here as you log them.',
+      movement: 'Transaction',
+      noDate: 'No date',
+      advancedFilters: 'Advanced Filters',
+      transactionType: 'Transaction Type',
+      activeCount: '{count} active',
+      customLabel: 'Custom:',
+      transactionItemType: 'transaction',
+      presets: {
+        thisMonth: 'This Month',
+        lastMonth: 'Last Month',
+        last30Days: 'Last 30 Days',
+        thisYear: 'This Year',
+        allHistory: 'All History',
+        custom: 'Custom Range'
+      }
     },
     // Settings Module
     settings: {

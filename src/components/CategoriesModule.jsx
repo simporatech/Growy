@@ -246,14 +246,14 @@ export default function CategoriesModule() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-center pb-4 sm:pb-6 border-b border-white/10">
               {/* Gasto actual vs Límite */}
               <div className="lg:col-span-4">
-                <span className="text-[10px] sm:text-xs font-semibold tracking-wider text-[#AEEDD0] uppercase block">
+                <span className="text-xs font-semibold tracking-wider text-[#AEEDD0] uppercase block">
                   {t('categories.globalBudgetLabel', {}, 'PRESUPUESTO MENSUAL GLOBAL')}
                 </span>
                 <div className="flex items-baseline gap-2 mt-1">
                   <span className="text-2xl sm:text-3xl font-bold text-white tabular-nums tracking-tight">
                     {formatCurrency(totalExecutedExpense)}
                   </span>
-                  <span className="text-xs sm:text-sm font-normal text-slate-400">
+                  <span className="text-xs sm:text-sm font-normal text-slate-300">
                     / {formatCurrency(totalTargetExpense)}
                   </span>
                 </div>
@@ -261,7 +261,7 @@ export default function CategoriesModule() {
 
               {/* Restante Disponible */}
               <div className="lg:col-span-3">
-                <span className="text-[10px] sm:text-xs font-semibold tracking-wider text-slate-400 uppercase block">
+                <span className="text-xs font-semibold tracking-wider text-slate-300 uppercase block">
                   {t('categories.remainingAvailable', {}, 'Restante disponible')}
                 </span>
                 <span className={`text-xl sm:text-2xl font-bold tabular-nums tracking-tight mt-1 block ${remainingBudget >= 0 ? 'text-[#AEEDD0]' : 'text-rose-400'}`}>
@@ -292,7 +292,7 @@ export default function CategoriesModule() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6 pt-3.5 sm:pt-5">
               {/* Superávit / Meta */}
               <div>
-                <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase block">
+                <span className="text-xs font-semibold tracking-wider text-slate-300 uppercase block">
                   {t('categories.surplusMeta', {}, 'SUPERÁVIT / META')}
                 </span>
                 <p className="text-lg font-bold text-white tabular-nums mt-1">
@@ -305,13 +305,13 @@ export default function CategoriesModule() {
 
               {/* Días Restantes */}
               <div>
-                <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase block">
+                <span className="text-xs font-semibold tracking-wider text-slate-300 uppercase block">
                   {t('categories.cycleDaysLeft', {}, 'DÍAS RESTANTES')}
                 </span>
                 <p className="text-lg font-bold text-white tabular-nums mt-1 flex items-center gap-1.5">
                   <span className="text-sm">🕒</span> {remainingDays === 1 ? (language === 'es' ? '1 Día' : '1 Day') : `${remainingDays} ${language === 'es' ? 'Días' : 'Days'}`}
                 </p>
-                <span className="text-xs text-slate-400 mt-0.5 block">
+                <span className="text-xs text-slate-300 mt-0.5 block">
                   {t('categories.cycleEndNotice', {}, 'cierre de mes')}
                 </span>
               </div>

@@ -174,12 +174,12 @@ export default function SubscriptionsModule() {
                       {sub.emoji || '🍿'}
                     </div>
 
-                    <h4 className="text-sm font-bold text-white group-hover:text-[var(--color-primary,#AEEDD0)] transition-colors truncate">
+                    <h4 className="line-clamp-2 text-sm leading-snug font-medium text-white group-hover:text-[var(--color-primary,#AEEDD0)] transition-colors">
                       {sub.name}
                     </h4>
                   </div>
 
-                  <span className="text-[10px] text-slate-300 font-semibold uppercase px-2 py-0.5 rounded-md bg-white/5 border border-white/10 shrink-0">
+                  <span className="text-xs text-slate-300 font-semibold uppercase px-2.5 py-0.5 rounded-md bg-white/5 border border-white/10 shrink-0">
                     {sub.frequency === 'yearly' ? t('subscriptions.yearly', {}, 'Anual') : t('subscriptions.monthly', {}, 'Mensual')}
                   </span>
                 </div>
@@ -187,7 +187,7 @@ export default function SubscriptionsModule() {
                 {/* FILA 2: Cuenta & Categoría + Monto Grande + Switch Toggle / Acciones */}
                 <div className="flex items-center justify-between gap-3 pt-2 border-t border-white/5">
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] sm:text-xs text-slate-400 font-medium truncate">
+                    <p className="text-xs text-slate-300 font-medium truncate">
                       {acc?.name} • {cat?.name}
                     </p>
                   </div>
