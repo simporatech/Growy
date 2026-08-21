@@ -176,7 +176,7 @@ export default function CategoriesModule() {
   }, [categoryToDelete, deleteCategory]);
 
   return (
-    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn">
+    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-28 md:pb-6">
       
       {/* Standardized Header */}
       <header className="flex items-center justify-between gap-2.5 w-full relative z-30">

@@ -11,7 +11,7 @@ export default function AboutModule() {
   const contactEmail = 'simporatech@gmail.com';
 
   return (
-    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-8">
+    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-28 md:pb-6">
       
       {/* Standardized View Header */}
       <header className="flex items-center justify-between gap-3 w-full relative z-30">
