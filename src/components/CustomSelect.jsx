@@ -119,7 +119,7 @@ export const CustomSelect = ({
       </button>
 
       {/* Floating Glassmorphic Dropdown via React Portal */}
-      {isOpen && createPortal(
+      {isOpen && typeof document !== 'undefined' && document.body && createPortal(
         <div
           style={{ top: `${coords.top}px`, left: `${coords.left}px`, width: `${coords.width}px` }}
           className="custom-select-portal hidden sm:flex fixed p-1.5 bg-[#162226] border border-white/10 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.9)] z-[9999] flex-col animate-in fade-in zoom-in-95 duration-100 backdrop-blur-xl"

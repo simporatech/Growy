@@ -231,7 +231,7 @@ export default function TransactionModal({
 
             <FormField 
               label={t('modals.transaction.amount', {}, 'Monto')}
-              prefix={currencySymbol}
+              prefix={getCurrencySymbol(sourceAccount?.currency)}
               type="number" 
               step="0.01" 
               required 
@@ -285,11 +285,11 @@ export default function TransactionModal({
                 <div className="col-span-1 sm:col-span-2 pt-2 pb-2">
                   <div className="p-4 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-100 flex flex-col gap-3">
                     <p className="text-xs">
-                      {t('modals.transaction.multiCurrencyDesc', {}, 'Estás transfiriendo entre cuentas con monedas distintas. Ingresa cuánto dinero se acreditará en la cuenta destino')} <strong>({targetAccountInfo.currency})</strong>.
+                      {t('modals.transaction.multiCurrencyDesc', {}, 'Estás transfiriendo entre cuentas con monedas distintas. Ingresa cuánto dinero se acreditará en la cuenta destino')} <strong>({destAccount?.currency || 'USD'})</strong>.
                     </p>
                     <FormField
                       label={t('modals.transaction.targetAmountLabel', {}, 'Monto a acreditar en la cuenta destino')}
-                      prefix={targetCurrencySymbol}
+                      prefix={getCurrencySymbol(destAccount?.currency)}
                       type="number"
                       step="0.01"
                       required
