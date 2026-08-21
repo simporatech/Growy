@@ -154,7 +154,7 @@ export default function SubscriptionModal({
       <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
         
         {/* Scrollable Form Body */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-5 sm:p-7 space-y-4">
+        <div className="flex-1 overflow-y-auto overscroll-contain custom-scrollbar p-5 sm:p-7 space-y-4">
           {/* Nombre & Emoji Tile */}
           <div className="flex items-start gap-3">
             <div>

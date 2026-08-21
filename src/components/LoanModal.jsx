@@ -103,7 +103,7 @@ export default function LoanModal({
       <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
         
         {/* Scrollable Form Body */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-5 sm:p-7 space-y-4">
+        <div className="flex-1 overflow-y-auto overscroll-contain custom-scrollbar p-5 sm:p-7 space-y-4">
           
           <FormField
             label={t('modals.loan.description', {}, 'Concepto del Saldo')}

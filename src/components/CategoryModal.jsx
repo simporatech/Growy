@@ -82,7 +82,7 @@ export default function CategoryModal({
       <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
         
         {/* Scrollable Form Body */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-5 sm:p-7 space-y-4">
+        <div className="flex-1 overflow-y-auto overscroll-contain custom-scrollbar p-5 sm:p-7 space-y-4">
           {!initialType && (
             <div className="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-white/[0.04] border border-white/10 mb-2">
               <button

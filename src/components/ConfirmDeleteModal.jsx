@@ -33,7 +33,7 @@ export default function ConfirmDeleteModal({
       iconTextColor="text-rose-400"
     >
       <div className="flex-1 flex flex-col min-h-0">
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-5 sm:p-7 space-y-4">
+        <div className="flex-1 overflow-y-auto overscroll-contain custom-scrollbar p-5 sm:p-7 space-y-4">
           <p className="text-sm text-slate-300 font-normal leading-relaxed">
             {displayMessage}
           </p>

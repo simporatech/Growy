@@ -29,12 +29,12 @@ export default function ModalWrapper({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-0 sm:p-4">
       {/* Modal Dialog Box */}
-      <div className={`bg-[#111C20] rounded-t-3xl sm:rounded-2xl w-full ${maxWidth} max-h-[85vh] sm:max-h-[90vh] flex flex-col overflow-hidden mx-auto border-t sm:border border-white/10 shadow-2xl shadow-black/80 relative my-0 sm:my-auto animate-slideUp sm:animate-fadeIn`}>
+      <div className={`w-full max-h-[88vh] sm:max-h-[90vh] bg-[#111C20] border-t sm:border border-white/10 rounded-t-3xl sm:rounded-2xl flex flex-col shadow-2xl overflow-hidden mx-auto ${maxWidth} relative my-0 sm:my-auto animate-in fade-in slide-in-from-bottom duration-200`}>
         
-        {/* Header - Fixed */}
-        <div className="p-5 sm:p-6 border-b border-white/5 flex-shrink-0 relative bg-[#111C20] z-20">
+        {/* 1. HEADER (Fijo arriba, no scrollea) */}
+        <div className="flex flex-col p-5 border-b border-white/10 shrink-0 relative bg-[#111C20] z-20">
           <div className="w-12 h-1.5 rounded-full bg-white/20 mx-auto -mt-2 mb-4 sm:hidden" />
           
           <button
@@ -67,10 +67,8 @@ export default function ModalWrapper({
           )}
         </div>
 
-        {/* Body Content - Flex container for forms */}
-        <div className="flex-1 flex flex-col min-h-0 relative">
-          {children}
-        </div>
+        {/* The child forms will provide their own body and footer */}
+        {children}
 
       </div>
     </div>
