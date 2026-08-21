@@ -1,5 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
+import { registerModal } from '../utils/modalManager';
 
 export default function ModalWrapper({
   isOpen,
@@ -14,6 +16,21 @@ export default function ModalWrapper({
   children,
   maxWidth = 'max-w-lg'
 }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Register modal in global tracker to notify components (like BottomNav)
+  useEffect(() => {
+    if (!isOpen) return;
+    const unregister = registerModal();
+    return () => {
+      unregister();
+    };
+  }, [isOpen]);
+
   // Handle ESC key press to close modal
   useEffect(() => {
     if (!isOpen) return;
@@ -26,12 +43,12 @@ export default function ModalWrapper({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
-    <div className="fixed inset-0 z-[999] bg-black/80 flex items-end sm:items-center justify-center p-0 sm:p-4">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] bg-black/80 flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm">
       {/* Modal Dialog Box */}
-      <div className={`w-full max-h-[85vh] sm:max-h-[90vh] bg-[#111C20] flex flex-col overflow-hidden rounded-t-3xl sm:rounded-2xl mx-auto border-t sm:border border-white/10 ${maxWidth} relative my-0 sm:my-auto animate-in fade-in slide-in-from-bottom duration-200`}>
+      <div className={`w-full max-h-[85vh] sm:max-h-[90vh] bg-[#111C20] flex flex-col overflow-hidden rounded-t-3xl sm:rounded-2xl mx-auto border-t sm:border border-white/10 ${maxWidth} relative my-0 sm:my-auto animate-in fade-in slide-in-from-bottom duration-200 shadow-2xl pb-6 sm:pb-0`}>
         
         {/* 1. HEADER (Fijo arriba, no scrollea) */}
         <div className="flex flex-col p-5 border-b border-white/10 shrink-0 relative bg-[#111C20] z-20">
@@ -73,4 +90,6 @@ export default function ModalWrapper({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }

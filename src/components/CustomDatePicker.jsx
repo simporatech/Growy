@@ -1,18 +1,20 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+﻿import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { createPortal } from 'react-dom';
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 import { formatDateISO } from '../utils/formatters';
 
 export default function CustomDatePicker({
   value,
   onChange,
-  placeholder = 'Seleccionar fecha',
+  placeholder,
   className = '',
   disabled = false
 }) {
-  const { language } = useSettings();
+  const { language, t } = useSettings();
   const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef(null);
+  const [coords, setCoords] = useState({ top: 0, left: 0, isMobileCentered: false });
+  const buttonRef = useRef(null);
 
   const selectedDate = useMemo(() => {
     if (!value) return null;
@@ -37,18 +39,92 @@ export default function CustomDatePicker({
     }
   }, [selectedDate]);
 
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
-        setIsOpen(false);
+  const updatePosition = useCallback(() => {
+    if (buttonRef.current && typeof window !== 'undefined') {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      const calendarWidth = Math.min(300, viewportWidth - 24);
+
+      if (viewportWidth < 640) {
+        // Center clamped horizontally on mobile so it never overflows left or right
+        let leftPos = rect.left + (rect.width / 2) - (calendarWidth / 2);
+        if (leftPos < 12) leftPos = 12;
+        if (leftPos + calendarWidth > viewportWidth - 12) {
+          leftPos = viewportWidth - calendarWidth - 12;
+        }
+
+        let topPos = rect.bottom + 6;
+        if (viewportHeight - rect.bottom < 320 && rect.top > 320) {
+          topPos = Math.max(12, rect.top - 320);
+        }
+
+        setCoords({ top: topPos, left: leftPos, isMobileCentered: true });
+      } else {
+        // Desktop positioning aligned to trigger button
+        let leftPos = rect.left;
+        if (leftPos + calendarWidth > viewportWidth - 12) {
+          leftPos = viewportWidth - calendarWidth - 12;
+        }
+        if (leftPos < 12) leftPos = 12;
+
+        let topPos = rect.bottom + 6;
+        if (viewportHeight - rect.bottom < 320 && rect.top > 320) {
+          topPos = Math.max(12, rect.top - 320);
+        }
+
+        setCoords({ top: topPos, left: leftPos, isMobileCentered: false });
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const defaultPlaceholder = language === 'es' ? 'Seleccionar fecha' : 'Select date';
-  const effectivePlaceholder = placeholder === 'Seleccionar fecha' || !placeholder ? defaultPlaceholder : placeholder;
+  const handleToggle = () => {
+    if (disabled) return;
+    if (!isOpen) {
+      updatePosition();
+    }
+    setIsOpen(prev => !prev);
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    updatePosition();
+
+    const handleClickOutside = (event) => {
+      if (
+        buttonRef.current && 
+        !buttonRef.current.contains(event.target) &&
+        !event.target.closest('.custom-datepicker-portal')
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    const handleScroll = (event) => {
+      if (event?.target?.closest && event.target.closest('.custom-datepicker-portal')) return;
+      setIsOpen(false);
+    };
+
+    const handleResize = () => {
+      updatePosition();
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside, { passive: true });
+    window.addEventListener('scroll', handleScroll, true);
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+      window.removeEventListener('scroll', handleScroll, true);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [isOpen, updatePosition]);
+
+  const defaultPlaceholder = t('common.selectDate', {}, language === 'es' ? 'Seleccionar fecha' : 'Select date');
+  const effectivePlaceholder = placeholder || defaultPlaceholder;
 
   const formattedLabel = useMemo(() => {
     if (!selectedDate) return effectivePlaceholder;
@@ -76,9 +152,9 @@ export default function CustomDatePicker({
 
   const weekdays = useMemo(() => {
     if (language === 'es') {
-      return ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+      return ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá'];
     }
-    return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    return ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
   }, [language]);
 
   const daysGrid = useMemo(() => {
@@ -133,61 +209,74 @@ export default function CustomDatePicker({
   }, [onChange]);
 
   return (
-    <div className={`relative ${isOpen ? 'z-50' : 'z-10'} ${className}`} ref={containerRef}>
+    <div className={`relative w-full ${className}`}>
+      {/* Trigger Button */}
       <button
+        ref={buttonRef}
         type="button"
         disabled={disabled}
-        onClick={() => setIsOpen(!isOpen)}
-        className={`w-full h-11 px-4 bg-[#162226] border border-white/10 rounded-xl text-sm font-medium text-white flex items-center justify-between hover:border-[#AEEDD0]/40 active:scale-[0.98] transition-all shadow-sm ${
-          disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-        }`}
+        onClick={handleToggle}
+        className={`w-full h-11 px-3.5 bg-[#131E22] border border-white/10 rounded-xl text-xs sm:text-sm font-medium text-white flex items-center justify-between hover:border-[#5EEAD4]/50 active:scale-[0.99] transition-all shadow-inner cursor-pointer select-none ${
+          disabled ? 'opacity-50 cursor-not-allowed' : ''
+        } ${isOpen ? 'border-[#5EEAD4]/60 ring-1 ring-[#5EEAD4]/30' : ''}`}
       >
-        <span className={`truncate ${!value ? 'text-slate-300 font-normal' : 'text-white font-medium'}`}>
+        <span className={`truncate ${!value ? 'text-slate-400 font-normal' : 'text-white font-medium'}`}>
           {formattedLabel}
         </span>
-        <CalendarIcon className={`w-4 h-4 text-slate-400 shrink-0 transition-colors ${isOpen ? 'text-[#AEEDD0]' : ''}`} />
+        <CalendarIcon className={`w-4 h-4 text-slate-400 shrink-0 ml-1.5 transition-colors ${isOpen ? 'text-[#5EEAD4]' : ''}`} />
       </button>
 
-      {isOpen && !disabled && (
+      {/* Floating Dark Popover Calendar via React Portal */}
+      {isOpen && !disabled && typeof document !== 'undefined' && document.body && createPortal(
         <div 
-          className="absolute right-0 sm:right-auto sm:left-0 top-full mt-1.5 z-50 bg-[#162226] border border-white/15 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.9)] p-3.5 min-w-[280px] backdrop-blur-none animate-scaleUp select-none scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
-          style={{ backgroundColor: '#162226' }}
+          style={{ 
+            top: `${coords.top}px`, 
+            left: `${coords.left}px`,
+            width: '300px',
+            maxWidth: 'calc(100vw - 24px)'
+          }}
+          className="custom-datepicker-portal fixed z-[9999] bg-[#152328] border border-white/10 rounded-2xl shadow-2xl p-4 backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-150 select-none isolate"
         >
-          <div className="flex items-center justify-between pb-2 border-b border-white/5">
+          {/* Header with Month / Year and Navigation */}
+          <div className="flex items-center justify-between pb-3 mb-2 border-b border-white/10">
             <button
               type="button"
               onClick={handlePrevMonth}
-              className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
+              className="p-1.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 active:scale-90 transition-all cursor-pointer"
+              title="Mes anterior"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
 
-            <span className="text-sm font-bold text-white tracking-wide">
+            <span className="text-sm font-bold text-white tracking-wide capitalize">
               {monthHeaderLabel}
             </span>
 
             <button
               type="button"
               onClick={handleNextMonth}
-              className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
+              className="p-1.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 active:scale-90 transition-all cursor-pointer"
+              title="Mes siguiente"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="grid grid-cols-7 gap-1 text-center">
+          {/* Weekday Headers */}
+          <div className="grid grid-cols-7 gap-1 text-center mb-1.5">
             {weekdays.map((w, idx) => (
-              <span key={idx} className="text-xs font-semibold uppercase text-slate-300">
+              <span key={idx} className="text-[11px] font-bold uppercase text-slate-400">
                 {w}
               </span>
             ))}
           </div>
 
+          {/* Days Grid */}
           <div className="grid grid-cols-7 gap-1 text-center">
             {daysGrid.map((item, idx) => {
               if (!item.isCurrentMonth) {
                 return (
-                  <span key={idx} className="h-8 flex items-center justify-center text-xs text-slate-600 pointer-events-none">
+                  <span key={idx} className="h-9 w-9 mx-auto flex items-center justify-center text-xs text-slate-600 pointer-events-none">
                     {item.dayNumber}
                   </span>
                 );
@@ -198,12 +287,12 @@ export default function CustomDatePicker({
                   key={idx}
                   type="button"
                   onClick={() => handleSelectDay(item.dateStr)}
-                  className={`h-8 rounded-xl text-xs font-semibold flex items-center justify-center transition-all duration-150 cursor-pointer ${
+                  className={`h-9 w-9 mx-auto rounded-xl text-xs font-semibold flex items-center justify-center transition-all duration-150 cursor-pointer ${
                     item.isSelected
-                      ? 'bg-[#AEEDD0] text-[#1E2D32] font-bold shadow-md scale-105'
+                      ? 'bg-[#5EEAD4] text-[#0A1316] font-bold shadow-lg shadow-[#5EEAD4]/20 scale-105'
                       : item.isToday
-                      ? 'border border-[#AEEDD0]/50 text-[#AEEDD0] hover:bg-white/10 hover:scale-105'
-                      : 'text-slate-200 hover:bg-white/10 hover:text-white hover:scale-105'
+                      ? 'border border-[#5EEAD4]/60 text-[#5EEAD4] font-bold hover:bg-white/10'
+                      : 'text-slate-200 hover:bg-white/10 hover:text-white active:scale-95'
                   }`}
                 >
                   {item.dayNumber}
@@ -212,7 +301,33 @@ export default function CustomDatePicker({
             })}
           </div>
 
-        </div>
+          {/* Quick Actions (Today / Clear) */}
+          <div className="flex items-center justify-between pt-3 mt-2 border-t border-white/10">
+            <button
+              type="button"
+              onClick={() => {
+                const todayISO = formatDateISO(new Date());
+                handleSelectDay(todayISO);
+              }}
+              className="text-xs font-semibold text-[#5EEAD4] hover:underline cursor-pointer"
+            >
+              {language === 'es' ? 'Hoy' : 'Today'}
+            </button>
+            {value && (
+              <button
+                type="button"
+                onClick={() => {
+                  onChange('');
+                  setIsOpen(false);
+                }}
+                className="text-xs font-medium text-slate-400 hover:text-rose-300 transition-colors cursor-pointer"
+              >
+                {language === 'es' ? 'Borrar' : 'Clear'}
+              </button>
+            )}
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );

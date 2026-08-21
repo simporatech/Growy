@@ -19,6 +19,7 @@ import LoanModal from './LoanModal';
 import SubscriptionModal from './SubscriptionModal';
 import AccountModal from './AccountModal';
 import PayLoanModal from './PayLoanModal';
+import BottomNav from './BottomNav';
 import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
 import { formatCurrency, formatDateLabel, formatHeaderDate, parseNumeric } from '../utils/formatters';
@@ -530,11 +531,10 @@ export default function DashboardPreview({ user, onLogout }) {
                         setInitialTxType('expense');
                         setIsTxModalOpen(true);
                       }}
-                      className="px-3.5 sm:px-4 font-bold text-xs sm:text-sm text-[#1E2D32] hover:bg-black/5 active:scale-[0.98] transition-colors flex items-center gap-1.5 cursor-pointer"
+                      className="px-3.5 sm:px-4 font-bold text-xs sm:text-sm text-[#1E2D32] hover:bg-black/5 active:scale-[0.98] transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
                     >
-                      <Plus className="w-4 h-4 stroke-[2.5]" />
-                      <span className="hidden sm:inline">{t('transactions.newTransaction', {}, 'Nuevo Movimiento')}</span>
-                      <span className="sm:hidden">{t('common.new', {}, 'Nuevo')}</span>
+                      <Plus className="w-4 h-4 stroke-[2.5] shrink-0" />
+                      <span>{t('speedActions.newMovement', {}, 'Nuevo Movimiento')}</span>
                     </button>
 
                     <div className="w-[1px] bg-[#1E2D32]/15 my-2" />
@@ -1221,105 +1221,17 @@ export default function DashboardPreview({ user, onLogout }) {
       </main>
 
       {/* MOBILE BOTTOM NAVIGATION BAR (ERGONOMIC 4-TAB + ACTION FAB + MORE DRAWER) */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 h-16 bg-[#131E22]/95 backdrop-blur-xl border-t border-white/10 px-2 pb-safe md:hidden shadow-[0_-8px_30px_rgba(0,0,0,0.6)]">
-        <div className="max-w-md mx-auto h-full grid grid-cols-5 items-center">
-          {/* Item 1: Dashboard */}
-          <button
-            type="button"
-            onClick={() => {
-              setActiveTab('dashboard');
-              setIsMoreSheetOpen(false);
-            }}
-            className={`flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
-              activeTab === 'dashboard'
-                ? 'text-[var(--color-primary,#AEEDD0)] font-semibold'
-                : 'text-slate-300 hover:text-white'
-            }`}
-          >
-            <LayoutDashboard size={20} />
-            <span className="text-[11px] font-medium leading-none">
-              {t('nav.dashboard', {}, 'Dashboard')}
-            </span>
-          </button>
-
-          {/* Item 2: Transactions */}
-          <button
-            type="button"
-            onClick={() => {
-              setActiveTab('transactions');
-              setIsMoreSheetOpen(false);
-            }}
-            className={`flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
-              activeTab === 'transactions'
-                ? 'text-[var(--color-primary,#AEEDD0)] font-semibold'
-                : 'text-slate-300 hover:text-white'
-            }`}
-          >
-            <ArrowLeftRight size={20} />
-            <span className="text-[11px] font-medium leading-none">
-              {t('nav.transactions', {}, 'Transactions')}
-            </span>
-          </button>
-
-          {/* Item 3: FAB Central perfectamente alineado */}
-          <div className="flex flex-col items-center justify-center -mt-5">
-            <button
-              type="button"
-              onClick={() => {
-                setInitialTxType('expense');
-                setIsTxModalOpen(true);
-              }}
-              className="w-12 h-12 rounded-full bg-[#AEEDD0] text-[#0E1517] shadow-lg shadow-[#AEEDD0]/20 flex items-center justify-center hover:scale-105 active:scale-95 transition-transform cursor-pointer"
-              title={t('transactions.newTransaction', {}, 'Nuevo Movimiento')}
-            >
-              <Plus size={24} strokeWidth={2.5} />
-            </button>
-            <span className="text-[11px] font-semibold text-[#AEEDD0] mt-1 leading-none">
-              {t('common.new', {}, 'Nuevo')}
-            </span>
-          </div>
-
-          {/* Item 4: Accounts */}
-          <button
-            type="button"
-            onClick={() => {
-              setActiveTab('accounts');
-              setIsMoreSheetOpen(false);
-            }}
-            className={`flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
-              activeTab === 'accounts'
-                ? 'text-[var(--color-primary,#AEEDD0)] font-semibold'
-                : 'text-slate-300 hover:text-white'
-            }`}
-          >
-            <Landmark size={20} />
-            <span className="text-[11px] font-medium leading-none">
-              {t('nav.accounts', {}, 'Accounts')}
-            </span>
-          </button>
-
-          {/* Item 5: Más / Drawer */}
-          <button
-            type="button"
-            onClick={() => setIsMoreSheetOpen(prev => !prev)}
-            className={`flex flex-col items-center justify-center gap-1 transition-all cursor-pointer relative ${
-              isMoreSheetOpen || ['loans', 'subscriptions', 'categories', 'settings', 'feedback', 'about'].includes(activeTab)
-                ? 'text-[var(--color-primary,#AEEDD0)] font-semibold'
-                : 'text-slate-300 hover:text-white'
-            }`}
-          >
-            <div className="relative">
-              <Menu size={20} />
-              {['loans', 'subscriptions', 'categories', 'settings', 'feedback', 'about'].includes(activeTab) && (
-                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[var(--color-primary,#AEEDD0)] animate-pulse" />
-              )}
-            </div>
-            <span className="text-[11px] font-medium leading-none">
-              {t('common.more', {}, 'Más')}
-            </span>
-          </button>
-        </div>
-      </nav>
+      <BottomNav
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isMoreSheetOpen={isMoreSheetOpen}
+        setIsMoreSheetOpen={setIsMoreSheetOpen}
+        onOpenNewTx={() => {
+          setInitialTxType('expense');
+          setIsTxModalOpen(true);
+        }}
+        isModalActive={isTxModalOpen || isLoanModalOpen || isSubModalOpen || isAccountModalOpen || !!loanToPay}
+      />
 
       {/* MOBILE "MORE" BOTTOM SHEET DRAWER */}
       {isMoreSheetOpen && (

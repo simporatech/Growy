@@ -1,12 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Rocket, Wallet, PieChart, Globe, ChevronRight, ChevronLeft, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
+import { registerModal } from '../utils/modalManager';
 
 export default function WalkthroughModal({ isOpen, onComplete }) {
   const { t } = useSettings();
   const [currentStep, setCurrentStep] = useState(0);
+  const [mounted, setMounted] = useState(false);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const unregister = registerModal();
+    return () => {
+      unregister();
+    };
+  }, [isOpen]);
+
+  if (!isOpen || !mounted) return null;
 
   const steps = [
     {
@@ -61,8 +76,8 @@ export default function WalkthroughModal({ isOpen, onComplete }) {
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fadeIn">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
       
       {/* Centered Glassmorphism Container */}
       <div className="w-full max-w-md p-6 sm:p-7 rounded-3xl bg-[#1E2D32]/95 border border-white/10 shadow-2xl backdrop-blur-xl relative overflow-hidden space-y-6">
@@ -151,4 +166,6 @@ export default function WalkthroughModal({ isOpen, onComplete }) {
 
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }

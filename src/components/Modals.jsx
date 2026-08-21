@@ -54,7 +54,7 @@ export function ForgotPasswordModal({ isOpen, onClose }) {
             />
           </div>
           
-          <div className="shrink-0 p-4 border-t border-white/10 bg-[#0E171B] flex gap-3 z-10">
+          <div className="shrink-0 z-10 bg-[#111C20] p-4 border-t border-white/10 flex gap-3">
             <button
               type="submit"
               disabled={loading}
@@ -332,7 +332,7 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
             </span>
           </div>
           </div>
-          <div className="shrink-0 p-4 border-t border-white/10 bg-[#0E171B] flex gap-3 z-10">
+          <div className="shrink-0 z-10 bg-[#111C20] p-4 border-t border-white/10 flex gap-3">
             <button
               type="submit"
               disabled={loading}

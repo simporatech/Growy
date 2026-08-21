@@ -11,7 +11,9 @@ export const translations = {
       settings: 'Configuración',
       about: 'Acerca de SIMPORA',
       feedback: 'Reportes y Feedback',
-      logout: 'Cerrar Sesión'
+      logout: 'Cerrar Sesión',
+      fabRecord: 'Movimiento',
+      fabTooltip: 'Nuevo Movimiento'
     },
     // Common / Global
     common: {
@@ -48,6 +50,8 @@ export const translations = {
       filters: 'Filtros',
       apply: 'Aplicar Filtros',
       clear: 'Limpiar',
+      select: 'Seleccionar...',
+      selectDate: 'Seleccionar fecha',
       general: 'General',
       generalAccount: 'Cuenta General'
     },
@@ -131,7 +135,8 @@ export const translations = {
     loans: {
       title: 'Saldos Pendientes',
       subtitle: 'Control de deudas por pagar y créditos por cobrar',
-      newLoan: 'Nuevo Saldo Pendiente',
+      newLoan: 'Nuevo Saldo',
+      newPendingBalance: 'Nuevo Saldo',
       totalDebt: 'Deuda Pendiente',
       totalReceivable: 'Por Cobrar (Activos)',
       totalPayable: 'Por Pagar (Pasivos)',
@@ -181,6 +186,8 @@ export const translations = {
       title: 'Categorías y Presupuestos',
       subtitle: 'Define límites mensuales para tus gastos y metas de ingresos',
       newCategory: 'Nueva Categoría',
+      newBudget: 'Nuevo Presupuesto',
+      newGoal: 'Nueva Meta',
       expenseCategories: 'Categorías de Gasto',
       incomeCategories: 'Categorías de Ingreso',
       globalBudgetLabel: 'PRESUPUESTO MENSUAL GLOBAL',
@@ -222,7 +229,8 @@ export const translations = {
     transactions: {
       title: 'Historial de Transacciones',
       subtitle: 'Registro completo e historial continuo de movimientos',
-      newTransaction: 'Nuevo Movimiento',
+      newTransaction: 'Nueva Transacción',
+      newMovement: 'Nuevo Movimiento',
       showingFor: 'Mostrando movimientos de {month}',
       filterAll: 'Todos',
       filterExpenses: 'Gastos',
@@ -547,7 +555,9 @@ export const translations = {
       settings: 'Settings',
       about: 'About SIMPORA',
       feedback: 'Reports & Feedback',
-      logout: 'Log Out'
+      logout: 'Log Out',
+      fabRecord: 'Record',
+      fabTooltip: 'New Transaction'
     },
     // Common / Global
     common: {
@@ -584,6 +594,8 @@ export const translations = {
       filters: 'Filters',
       apply: 'Apply Filters',
       clear: 'Clear',
+      select: 'Select...',
+      selectDate: 'Select date',
       general: 'General',
       generalAccount: 'General Account'
     },
@@ -667,7 +679,8 @@ export const translations = {
     loans: {
       title: 'Pending Balances',
       subtitle: 'Track debts payable and credits receivable',
-      newLoan: 'New Pending Debt',
+      newLoan: 'New Pending Balance',
+      newPendingBalance: 'New Pending Balance',
       totalDebt: 'Pending Debt',
       totalReceivable: 'Receivable (Assets)',
       totalPayable: 'Payable (Liabilities)',
@@ -717,6 +730,8 @@ export const translations = {
       title: 'Categories & Budgets',
       subtitle: 'Set monthly spending limits for your categories and income goals',
       newCategory: 'New Category',
+      newBudget: 'New Budget',
+      newGoal: 'New Goal',
       expenseCategories: 'Expense Categories',
       incomeCategories: 'Income Categories',
       globalBudgetLabel: 'GLOBAL MONTHLY BUDGET',
@@ -759,6 +774,7 @@ export const translations = {
       title: 'Transaction History',
       subtitle: 'Full record and continuous history of transactions',
       newTransaction: 'New Transaction',
+      newMovement: 'New Transaction',
       showingFor: 'Showing transactions for {month}',
       filterAll: 'All',
       filterExpenses: 'Expenses',

@@ -205,11 +205,15 @@ export default function CategoriesModule() {
               setInitialType(activeTabType);
               setIsModalOpen(true);
             }}
-            className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-1.5 shrink-0 cursor-pointer"
+            className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
           >
-            <Plus size={15} />
-            <span className="hidden sm:inline">{t('categories.newCategory', {}, 'Nueva Categoría')}</span>
-            <span className="sm:hidden">{t('common.new', {}, 'Nueva')}</span>
+            <Plus size={15} className="shrink-0" />
+            <span>
+              {activeTabType === 'expense'
+                ? t('categories.newBudget', {}, 'Nuevo Presupuesto')
+                : t('categories.newGoal', {}, 'Nueva Meta')
+              }
+            </span>
           </button>
         </div>
       </header>

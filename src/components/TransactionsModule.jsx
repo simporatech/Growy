@@ -2,6 +2,7 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { Plus, ArrowLeftRight, Search, Edit2, Trash2, Calendar, RotateCcw, Filter, X, SlidersHorizontal, Check } from 'lucide-react';
 import TransactionModal from './TransactionModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
+import AdvancedFiltersModal from './AdvancedFiltersModal';
 import CustomSelect from './CustomSelect';
 import CustomDatePicker from './CustomDatePicker';
 import ExportDropdown from './ExportDropdown';
@@ -278,11 +279,10 @@ export default function TransactionsModule() {
               setTxToEdit(null);
               setIsModalOpen(true);
             }}
-            className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-1.5 shrink-0 cursor-pointer"
+            className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
           >
-            <Plus size={15} />
-            <span className="hidden sm:inline">{t('transactions.newTransaction', {}, 'Nuevo Movimiento')}</span>
-            <span className="sm:hidden">{t('common.new', {}, 'Nuevo')}</span>
+            <Plus size={15} className="shrink-0" />
+            <span>{t('transactions.newTransaction', {}, 'Nueva Transacción')}</span>
           </button>
         </div>
       </header>
@@ -483,177 +483,29 @@ export default function TransactionsModule() {
         )}
       </div>
 
-      {/* MOBILE ADVANCED FILTER BOTTOM SHEET DRAWER */}
-      {isFilterDrawerOpen && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center lg:hidden animate-fadeIn">
-          {/* Backdrop with Blur */}
-          <div 
-            className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity"
-            onClick={() => setIsFilterDrawerOpen(false)}
-          />
-
-          {/* Bottom Sheet Modal Container */}
-          <div className="relative z-10 w-full max-h-[88vh] bg-[#131E22] border-t border-white/10 rounded-t-3xl p-5 overflow-y-auto pb-safe shadow-2xl flex flex-col space-y-4 animate-slideUp">
-            
-            {/* Drawer Drag Indicator */}
-            <div className="w-12 h-1.5 rounded-full bg-white/20 mx-auto -mt-1 mb-1" />
-
-            {/* Drawer Header */}
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <div className="flex items-center gap-2">
-                <SlidersHorizontal className="w-5 h-5 text-[var(--color-primary,#AEEDD0)]" />
-                <h3 className="text-base font-bold text-white">{t('transactions.advancedFilters', {}, 'Filtros Avanzados')}</h3>
-                {activeFilterCount > 0 && (
-                  <span className="px-2 py-0.5 rounded-full bg-[var(--color-primary,#AEEDD0)]/20 text-[var(--color-primary,#AEEDD0)] text-xs font-bold">
-                    {t('transactions.activeCount', { count: activeFilterCount }, `${activeFilterCount} activos`)}
-                  </span>
-                )}
-              </div>
-
-              <button
-                onClick={() => setIsFilterDrawerOpen(false)}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Filter Fields */}
-            <div className="space-y-3.5 flex-1">
-              {/* Type selector */}
-              <div>
-                <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5 block">
-                  {t('transactions.transactionType', {}, 'Tipo de Movimiento')}
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => setTypeFilter('all')}
-                    className={`h-9 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                      typeFilter === 'all' ? 'bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] border-[var(--color-primary,#AEEDD0)]' : 'bg-white/5 border-white/10 text-slate-300'
-                    }`}
-                  >
-                    {t('transactions.filterAll', {}, 'Todos')}
-                  </button>
-                  <button
-                    onClick={() => setTypeFilter('expense')}
-                    className={`h-9 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                      typeFilter === 'expense' ? 'bg-[#FF6B6B]/20 text-[#FF6B6B] border-[#FF6B6B]/40' : 'bg-white/5 border-white/10 text-slate-300'
-                    }`}
-                  >
-                    {t('transactions.filterExpenses', {}, 'Gastos')}
-                  </button>
-                  <button
-                    onClick={() => setTypeFilter('income')}
-                    className={`h-9 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                      typeFilter === 'income' ? 'bg-[var(--color-primary,#AEEDD0)]/20 text-[var(--color-primary,#AEEDD0)] border-[var(--color-primary,#AEEDD0)]/40' : 'bg-white/5 border-white/10 text-slate-300'
-                    }`}
-                  >
-                    {t('transactions.filterIncomes', {}, 'Ingresos')}
-                  </button>
-                  <button
-                    onClick={() => setTypeFilter('transfer')}
-                    className={`h-9 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                      typeFilter === 'transfer' ? 'bg-sky-500/20 text-sky-300 border-sky-500/40' : 'bg-white/5 border-white/10 text-slate-300'
-                    }`}
-                  >
-                    {t('transactions.filterTransfers', {}, 'Transferencias')}
-                  </button>
-                </div>
-              </div>
-
-              {/* Date Preset */}
-              <div>
-                <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5 block">
-                  {t('transactions.dateRange', {}, 'Rango de Fecha')}
-                </label>
-                <CustomSelect
-                  options={datePresetOptions}
-                  value={datePreset}
-                  onChange={handlePresetChange}
-                />
-              </div>
-
-              {/* Custom Date Pickers */}
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5 block">
-                    {t('transactions.from', {}, 'Desde')}
-                  </label>
-                  <CustomDatePicker
-                    value={startDate}
-                    onChange={(newDate) => {
-                      setDatePreset('custom');
-                      setStartDate(newDate);
-                    }}
-                    placeholder={t('transactions.from', {}, 'Desde')}
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5 block">
-                    {t('transactions.to', {}, 'Hasta')}
-                  </label>
-                  <CustomDatePicker
-                    value={endDate}
-                    onChange={(newDate) => {
-                      setDatePreset('custom');
-                      setEndDate(newDate);
-                    }}
-                    placeholder={t('transactions.to', {}, 'Hasta')}
-                  />
-                </div>
-              </div>
-
-              {/* Account Filter */}
-              <div>
-                <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5 block">
-                  {t('transactions.accountFilter', {}, 'Cuenta')}
-                </label>
-                <CustomSelect
-                  options={accountOptions}
-                  value={accountIdFilter}
-                  onChange={setAccountIdFilter}
-                />
-              </div>
-
-              {/* Category Filter */}
-              <div>
-                <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5 block">
-                  {t('transactions.categoryFilter', {}, 'Categoría')}
-                </label>
-                <CustomSelect
-                  options={categoryOptions}
-                  value={categoryIdFilter}
-                  onChange={setCategoryIdFilter}
-                />
-              </div>
-            </div>
-
-            {/* Bottom Actions */}
-            <div className="pt-3 border-t border-white/10 flex items-center gap-3">
-              <button
-                onClick={() => {
-                  resetFilters();
-                  setIsFilterDrawerOpen(false);
-                }}
-                className="flex-1 h-11 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>{t('transactions.clearFilters', {}, 'Limpiar')}</span>
-              </button>
-
-              <button
-                onClick={() => setIsFilterDrawerOpen(false)}
-                className="flex-1 h-11 rounded-xl bg-[#AEEDD0] text-[#1E2D32] font-bold text-xs flex items-center justify-center gap-1.5 shadow cursor-pointer"
-              >
-                <Check className="w-4 h-4" />
-                <span>{t('common.apply', {}, 'Aplicar Filtros')}</span>
-              </button>
-            </div>
-
-          </div>
-        </div>
-      )}
+      {/* MOBILE ADVANCED FILTER MODAL VIA PORTAL */}
+      <AdvancedFiltersModal
+        isOpen={isFilterDrawerOpen}
+        onClose={() => setIsFilterDrawerOpen(false)}
+        typeFilter={typeFilter}
+        setTypeFilter={setTypeFilter}
+        datePreset={datePreset}
+        setDatePreset={setDatePreset}
+        handlePresetChange={handlePresetChange}
+        datePresetOptions={datePresetOptions}
+        startDate={startDate}
+        setStartDate={setStartDate}
+        endDate={endDate}
+        setEndDate={setEndDate}
+        accountIdFilter={accountIdFilter}
+        setAccountIdFilter={setAccountIdFilter}
+        accountOptions={accountOptions}
+        categoryIdFilter={categoryIdFilter}
+        setCategoryIdFilter={setCategoryIdFilter}
+        categoryOptions={categoryOptions}
+        activeFilterCount={activeFilterCount}
+        resetFilters={resetFilters}
+      />
 
       {/* DYNAMIC TOTALS (Visible when filtering or always as a summary) */}
       <div className="w-full relative z-10 grid grid-cols-3 gap-3 bg-[#131E22]/60 p-4 rounded-2xl border border-white/5 mb-4">

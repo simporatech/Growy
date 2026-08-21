@@ -1,13 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { AlertTriangle, Trash2, X } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
+import { registerModal } from '../utils/modalManager';
 
 export default function DeleteAccountModal({ isOpen, onClose, onConfirmDelete, isDeleting }) {
   const { language } = useSettings();
   const [confirmInput, setConfirmInput] = useState('');
   const [error, setError] = useState('');
+  const [mounted, setMounted] = useState(false);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const unregister = registerModal();
+    return () => {
+      unregister();
+    };
+  }, [isOpen]);
+
+  if (!isOpen || !mounted) return null;
 
   const requiredWord = language === 'es' ? 'ELIMINAR' : 'DELETE';
   const isUnlocked = confirmInput.trim().toUpperCase() === requiredWord;
@@ -27,9 +42,9 @@ export default function DeleteAccountModal({ isOpen, onClose, onConfirmDelete, i
     onClose();
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-      <div className="w-full max-w-md bg-[#162226] border-t sm:border border-rose-500/30 rounded-t-3xl sm:rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5 relative max-h-[92vh] overflow-y-auto pb-safe sm:pb-7">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+      <div className="w-full max-w-md bg-[#162226] border-t sm:border border-rose-500/30 rounded-t-3xl sm:rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5 relative max-h-[85vh] sm:max-h-[90vh] overflow-y-auto pb-safe sm:pb-7">
         
         {/* Mobile Drag Indicator */}
         <div className="w-12 h-1.5 rounded-full bg-white/20 mx-auto -mt-1 mb-2 sm:hidden" />
@@ -106,4 +121,6 @@ export default function DeleteAccountModal({ isOpen, onClose, onConfirmDelete, i
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
