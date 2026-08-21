@@ -221,15 +221,15 @@ export default function TransactionsModule() {
   ], [safeCategoriesList, safeAccountsList, t]);
 
   return (
-    <div className="w-full space-y-4 sm:space-y-6 animate-fadeIn">
+    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn">
       
       {/* Standardized Header */}
       <header className="flex items-center justify-between gap-2.5 w-full relative z-30">
         <div className="min-w-0 flex-1">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white truncate">
+          <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white truncate">
             {t('transactions.title', {}, 'Historial de Transacciones')}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-0.5 block font-normal flex items-center gap-1.5 truncate">
+          <p className="text-xs md:text-sm text-slate-400 mt-0.5 block font-normal flex items-center gap-1.5 truncate">
             <Calendar className="w-3.5 h-3.5 text-[var(--color-primary,#AEEDD0)] shrink-0" />
             <span className="truncate">
               {t('transactions.showingFor', { month: currentMonthLabel }, `Movimientos de ${currentMonthLabel}`)}
@@ -252,7 +252,7 @@ export default function TransactionsModule() {
               setTxToEdit(null);
               setIsModalOpen(true);
             }}
-            className="h-9 sm:h-10 px-3 sm:px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-1.5 shrink-0 cursor-pointer"
+            className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-1.5 shrink-0 cursor-pointer"
           >
             <Plus size={15} />
             <span className="hidden sm:inline">{t('transactions.newTransaction', {}, 'Nuevo Movimiento')}</span>
@@ -692,20 +692,20 @@ export default function TransactionsModule() {
                     return (
                       <div
                         key={tx.id}
-                        className="p-3.5 rounded-xl bg-[#162226] border border-white/10 flex items-center justify-between gap-4 hover:bg-white/[0.06] transition-all group"
+                        className="p-3.5 rounded-2xl bg-[#162226] border border-white/10 flex items-center justify-between gap-4 hover:bg-white/[0.06] transition-all group"
                       >
                         <div className="flex items-center gap-3.5 min-w-0 pr-2">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-base shrink-0 ${
+                          <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-base shrink-0 ${
                             isIncome ? 'bg-[var(--color-primary,#AEEDD0)]/15 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/20' : isExpense ? 'bg-[#FF6B6B]/15 text-[#FF6B6B] border border-[#FF6B6B]/20' : 'bg-sky-500/15 text-sky-300 border border-sky-500/20'
                           }`}>
                             {emoji}
                           </div>
 
                           <div className="min-w-0">
-                            <h4 className="text-xs font-bold text-white group-hover:text-[var(--color-primary,#AEEDD0)] transition-colors truncate">
+                            <h4 className="text-sm font-bold text-white group-hover:text-[var(--color-primary,#AEEDD0)] transition-colors truncate">
                               {tx.description || cat?.name || 'Movimiento'}
                             </h4>
-                            <p className="text-xs text-slate-300 font-medium truncate">{acc?.name} • {cat?.name}</p>
+                            <p className="text-xs text-slate-400 font-medium truncate">{acc?.name} • {cat?.name}</p>
                           </div>
                         </div>
 

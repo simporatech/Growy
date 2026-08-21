@@ -28,8 +28,12 @@ export default function DeleteAccountModal({ isOpen, onClose, onConfirmDelete, i
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-      <div className="w-full max-w-md bg-[#162226] border border-rose-500/30 rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5 relative">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+      <div className="w-full max-w-md bg-[#162226] border-t sm:border border-rose-500/30 rounded-t-3xl sm:rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5 relative max-h-[92vh] overflow-y-auto pb-safe sm:pb-7">
+        
+        {/* Mobile Drag Indicator */}
+        <div className="w-12 h-1.5 rounded-full bg-white/20 mx-auto -mt-1 mb-2 sm:hidden" />
+
         <button
           type="button"
           onClick={handleClose}

@@ -498,50 +498,50 @@ export default function DashboardPreview({ user, onLogout }) {
         {/* MAIN CONTENT WRAPPER */}
         <main className="flex-1 min-h-screen overflow-y-auto overflow-x-hidden max-w-full bg-transparent transition-all duration-300 ease-in-out">
         
-        <div className="w-full max-w-7xl mx-auto px-4 pt-4 pb-28 md:pb-10 space-y-4 sm:space-y-6 animate-fadeIn isolate">
+        <div className="w-full max-w-7xl mx-auto px-4 pt-4 pb-28 md:px-8 md:pt-8 md:pb-12 space-y-4 md:space-y-6 animate-fadeIn isolate">
           {activeTab === 'dashboard' ? (
             <>
               {/* PAGE HEADER WITH SPLIT BUTTON */}
               <header className="flex items-center justify-between gap-3 w-full relative z-30">
                 <div className="min-w-0 flex-1">
-                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white truncate">
+                  <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white truncate">
                     {t('common.greeting', { name: user?.username || 'Admin' }, `¡Hola, ${user?.username || 'Admin'}!`)}
                   </h1>
-                  <p className="text-xs sm:text-sm text-slate-400 mt-0.5 block font-normal truncate">
+                  <p className="text-xs md:text-sm text-slate-400 mt-0.5 block font-normal truncate">
                     {formattedDate}
                   </p>
                 </div>
 
                 {/* QUICK CREATION DROPDOWN */}
                 <div className="relative inline-block z-50 shrink-0" ref={menuRef}>
-                  <div className="inline-flex items-stretch bg-[var(--color-primary,#AEEDD0)] rounded-xl overflow-hidden shadow-md shadow-[var(--color-primary,#AEEDD0)]/10 h-9 sm:h-11">
+                  <div className="inline-flex items-stretch bg-[var(--color-primary,#AEEDD0)] rounded-xl overflow-hidden shadow-md shadow-[var(--color-primary,#AEEDD0)]/10 h-11 md:h-10">
                     <button 
                       onClick={() => {
                         setInitialTxType('expense');
                         setIsTxModalOpen(true);
                       }}
-                      className="px-3 sm:px-5 font-bold text-xs sm:text-sm text-[#1E2D32] hover:bg-black/5 active:scale-[0.98] transition-colors flex items-center gap-1.5 sm:gap-2 cursor-pointer"
+                      className="px-3.5 sm:px-4 font-bold text-xs sm:text-sm text-[#1E2D32] hover:bg-black/5 active:scale-[0.98] transition-colors flex items-center gap-1.5 cursor-pointer"
                     >
-                      <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
+                      <Plus className="w-4 h-4 stroke-[2.5]" />
                       <span className="hidden sm:inline">{t('transactions.newTransaction', {}, 'Nuevo Movimiento')}</span>
                       <span className="sm:hidden">{t('common.new', {}, 'Nuevo')}</span>
                     </button>
 
-                    <div className="w-[1px] bg-[#1E2D32]/15 my-1.5 sm:my-2" />
+                    <div className="w-[1px] bg-[#1E2D32]/15 my-2" />
 
                     <button
                       onClick={() => setIsQuickMenuOpen(!isQuickMenuOpen)}
-                      className="px-2 sm:px-3 hover:bg-black/5 active:scale-[0.98] transition-colors flex items-center justify-center text-[#1E2D32] cursor-pointer"
+                      className="px-2.5 sm:px-3 hover:bg-black/5 active:scale-[0.98] transition-colors flex items-center justify-center text-[#1E2D32] cursor-pointer"
                       title="Opciones de registro rápido"
                     >
-                      <ChevronDown className={`w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5] transition-transform duration-200 ${isQuickMenuOpen ? 'rotate-180' : ''}`} />
+                      <ChevronDown className={`w-4 h-4 stroke-[2.5] transition-transform duration-200 ${isQuickMenuOpen ? 'rotate-180' : ''}`} />
                     </button>
                   </div>
 
                   {/* EXPANDED DROPDOWN MENU */}
                   {isQuickMenuOpen && (
                     <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 p-3 z-[9999] bg-[#162226] border border-white/15 rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,0.95)] origin-top-right animate-scaleUp select-none backdrop-blur-none space-y-2 isolate">
-                      <span className="text-xs font-bold uppercase tracking-wider text-slate-300 px-3 py-1.5 block mb-1">
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-400 px-3 py-1.5 block mb-1">
                         {t('dashboard.quickRegistration', {}, 'REGISTRO RÁPIDO')}
                       </span>
 
@@ -559,7 +559,7 @@ export default function DashboardPreview({ user, onLogout }) {
                           <h4 className="text-sm font-bold text-white group-hover:text-amber-300 transition-colors">
                             {t('loans.newLoan', {}, 'Nuevo Saldo Pendiente')}
                           </h4>
-                          <p className="text-xs text-slate-300 font-medium truncate mt-0.5">
+                          <p className="text-xs text-slate-400 font-medium truncate mt-0.5">
                             {t('dashboard.loanSubtitle', {}, 'Deuda o compromiso por pagar')}
                           </p>
                         </div>
@@ -579,7 +579,7 @@ export default function DashboardPreview({ user, onLogout }) {
                           <h4 className="text-sm font-bold text-white group-hover:text-[var(--color-primary,#AEEDD0)] transition-colors">
                             {t('subscriptions.newSubscription', {}, 'Nueva Suscripción')}
                           </h4>
-                          <p className="text-xs text-slate-300 font-medium truncate mt-0.5">
+                          <p className="text-xs text-slate-400 font-medium truncate mt-0.5">
                             {t('dashboard.subSubtitle', {}, 'Pago y servicio recurrente')}
                           </p>
                         </div>
@@ -599,7 +599,7 @@ export default function DashboardPreview({ user, onLogout }) {
                           <h4 className="text-sm font-bold text-white group-hover:text-cyan-300 transition-colors">
                             {t('accounts.newAccount', {}, 'Nueva Cuenta')}
                           </h4>
-                          <p className="text-xs text-slate-300 font-medium truncate mt-0.5">
+                          <p className="text-xs text-slate-400 font-medium truncate mt-0.5">
                             {t('dashboard.accountSubtitle', {}, 'Nuevo banco o billetera')}
                           </p>
                         </div>
@@ -610,19 +610,19 @@ export default function DashboardPreview({ user, onLogout }) {
               </header>
 
               {/* KPIS ROW: 2x2 COMPACT GRID ON MOBILE */}
-              <div className="grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-2 xl:grid-cols-4 w-full relative z-10">
+              <div className="grid grid-cols-2 gap-3 md:gap-5 md:grid-cols-2 xl:grid-cols-4 w-full relative z-10">
                 
                 {/* KPI 1: Patrimonio Neto Real (Colspan 2 en mobile) */}
-                <div className="col-span-2 growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 border border-white/10 bg-gradient-to-br from-[#1E2D32]/80 to-[#141E22]/90 flex flex-col justify-between space-y-2 overflow-hidden isolate transform-gpu-layer">
+                <div className="col-span-2 growy-glass growy-card-hover rounded-2xl p-5 bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 flex flex-col justify-between space-y-2 overflow-hidden isolate transform-gpu-layer">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
                       {t('dashboard.netWealth', {}, 'Patrimonio Neto')}
                     </span>
-                    <span className="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-[var(--color-primary,#AEEDD0)]/15 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/20">
+                    <span className="text-[10px] sm:text-xs font-bold px-2.5 py-0.5 rounded-full bg-[var(--color-primary,#AEEDD0)]/15 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/20">
                       {baseCurrency}
                     </span>
                   </div>
-                  <div className="text-xl sm:text-3xl font-extrabold tracking-tight text-white tabular-nums">
+                  <div className="text-xl md:text-2xl font-bold tracking-tight text-white tabular-nums">
                     {formatCurrency(netWealth, baseCurrency)}
                   </div>
                   <div className="flex items-center gap-2 sm:gap-3 text-[11px] sm:text-xs text-slate-400 font-medium tabular-nums flex-wrap pt-0.5">
@@ -633,11 +633,11 @@ export default function DashboardPreview({ user, onLogout }) {
                 </div>
 
                 {/* KPI 2: Ingresos del Mes (Col 1) */}
-                <div className="col-span-1 growy-glass growy-card-hover rounded-2xl p-3 sm:p-5 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between space-y-1 sm:space-y-2 overflow-hidden isolate transform-gpu-layer">
+                <div className="col-span-1 h-24 growy-glass growy-card-hover rounded-2xl p-3.5 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between overflow-hidden isolate transform-gpu-layer">
                   <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 truncate block">
                     {t('dashboard.monthlyIncome', {}, 'Ingresos')}
                   </span>
-                  <div className="text-lg sm:text-2xl font-bold tracking-tight text-[var(--color-primary,#AEEDD0)] tabular-nums truncate">
+                  <div className="text-lg md:text-2xl font-bold tracking-tight text-[var(--color-primary,#AEEDD0)] tabular-nums truncate">
                     {formatCurrency(monthlyIncomes, baseCurrency)}
                   </div>
                   <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
@@ -648,19 +648,21 @@ export default function DashboardPreview({ user, onLogout }) {
                 </div>
 
                 {/* KPI 3: Gastos del Mes & Burn Rate (Col 2) */}
-                <div className="col-span-1 growy-glass growy-card-hover rounded-2xl p-3 sm:p-5 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between space-y-1 sm:space-y-2 overflow-hidden isolate transform-gpu-layer">
+                <div className="col-span-1 h-24 growy-glass growy-card-hover rounded-2xl p-3.5 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between overflow-hidden isolate transform-gpu-layer">
                   <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 truncate block">
                     {t('dashboard.monthlyExpenses', {}, 'Gastos')}
                   </span>
-                  <div className="text-lg sm:text-2xl font-bold tracking-tight text-[#FF6B6B] tabular-nums truncate">
+                  <div className="text-lg md:text-2xl font-bold tracking-tight text-[#FF6B6B] tabular-nums truncate">
                     {formatCurrency(monthlyExpenses, baseCurrency)}
                   </div>
                   <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
-                    <span className="text-white font-semibold tabular-nums">{formatCurrency(dailyBurnRate, baseCurrency)}</span>/{t('common.day', {}, 'día')}
+                    <span className="text-rose-400 font-bold tabular-nums">
+                      {expenseDiffPercentage >= 0 ? `+${expenseDiffPercentage}%` : `${expenseDiffPercentage}%`}
+                    </span> <span className="hidden sm:inline">{t('dashboard.vsPrevMonth', {}, 'vs. mes anterior')}</span><span className="sm:hidden">vs mes ant.</span>
                   </p>
                 </div>
 
-                {/* KPI 4: Tasa de Ahorro & Score Financiero (Colspan 2 en mobile, Colspan 1 en tablet/desktop) */}
+                {/* KPI 4: Tasa de Ahorro Real (Colspan 2 en mobile) */}
                 <div className="col-span-2 sm:col-span-2 xl:col-span-1 growy-glass growy-card-hover rounded-2xl p-3.5 sm:p-5 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between space-y-1 sm:space-y-2 overflow-hidden isolate transform-gpu-layer">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
@@ -1209,7 +1211,7 @@ export default function DashboardPreview({ user, onLogout }) {
       </main>
 
       {/* MOBILE BOTTOM NAVIGATION BAR (ERGONOMIC 4-TAB + ACTION FAB + MORE DRAWER) */}
-      <nav className="fixed bottom-0 left-0 right-0 h-16 pb-safe md:hidden z-40 bg-[#0E1517]/95 backdrop-blur-2xl border-t border-white/10 flex items-center justify-around px-3 shadow-[0_-8px_30px_rgba(0,0,0,0.6)]">
+      <nav className="fixed bottom-0 left-0 right-0 h-16 pb-safe md:hidden z-40 bg-[#131E22]/95 backdrop-blur-xl border-t border-white/10 flex items-center justify-around px-3 shadow-[0_-8px_30px_rgba(0,0,0,0.6)]">
         {/* 1. Dashboard Tab */}
         <button
           type="button"
@@ -1264,10 +1266,10 @@ export default function DashboardPreview({ user, onLogout }) {
               setInitialTxType('expense');
               setIsTxModalOpen(true);
             }}
-            className="w-13 h-13 rounded-full bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] flex items-center justify-center shadow-lg shadow-[var(--color-primary,#AEEDD0)]/30 border-4 border-[#0E1517] active:scale-95 hover:scale-105 transition-all cursor-pointer group"
+            className="w-12 h-12 rounded-full bg-[#AEEDD0] text-[#0E1517] shadow-lg shadow-[#AEEDD0]/30 border-4 border-[#0E1517] active:scale-95 hover:scale-105 transition-all flex items-center justify-center cursor-pointer group"
             title={t('transactions.newTransaction', {}, 'Nuevo Movimiento')}
           >
-            <Plus className="w-6 h-6 stroke-[3] group-hover:rotate-90 transition-transform duration-200" />
+            <Plus className="w-5 h-5 stroke-[3] group-hover:rotate-90 transition-transform duration-200" />
           </button>
           <span className="text-[9px] font-bold text-slate-400 mt-1 leading-none">
             {t('common.new', {}, 'Nuevo')}
@@ -1333,11 +1335,11 @@ export default function DashboardPreview({ user, onLogout }) {
           />
 
           {/* Slide-Up Bottom Sheet */}
-          <div className="relative z-10 w-full bg-[#131E22] border-t border-white/15 rounded-t-3xl p-5 pb-safe shadow-[0_-12px_45px_rgba(0,0,0,0.85)] max-h-[85vh] overflow-y-auto animate-scaleUp">
+          <div className="relative z-10 w-full bg-[#131E22] border-t border-white/10 rounded-t-3xl p-6 pb-safe shadow-[0_-12px_45px_rgba(0,0,0,0.85)] max-h-[85vh] overflow-y-auto animate-scaleUp">
             {/* Drag Handle Bar */}
             <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-4" />
 
-            <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-3">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-[var(--color-primary,#AEEDD0)]/15 border border-[var(--color-primary,#AEEDD0)]/30 flex items-center justify-center p-1.5 shadow-inner">
                   <img src="/logos/Transparent.svg" alt="Growy" className="w-full h-full object-contain" />
@@ -1356,8 +1358,8 @@ export default function DashboardPreview({ user, onLogout }) {
               </button>
             </div>
 
-            {/* Grid of Drawer Modules */}
-            <div className="grid grid-cols-2 gap-2.5 py-1">
+            {/* Grid of Drawer Modules (2 Columns) */}
+            <div className="grid grid-cols-2 gap-3 py-1">
               {[
                 { 
                   id: 'loans', 
@@ -1435,8 +1437,8 @@ export default function DashboardPreview({ user, onLogout }) {
               })}
             </div>
 
-            {/* Log Out Action */}
-            <div className="pt-3 mt-2 border-t border-white/10">
+            {/* Log Out Action (Full width row) */}
+            <div className="pt-4 mt-2 border-t border-white/10">
               <button
                 type="button"
                 onClick={() => {

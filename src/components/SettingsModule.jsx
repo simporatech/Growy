@@ -142,15 +142,15 @@ export default function SettingsModule() {
   };
 
   return (
-    <div className="w-full space-y-4 sm:space-y-6 animate-fadeIn pb-8">
+    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-8">
       
       {/* Standardized View Header */}
       <header className="flex items-center justify-between gap-3 w-full relative z-30">
         <div>
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white">
+          <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white">
             {t('settings.title', {}, 'Configuración del Sistema')}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400 font-normal mt-0.5">
+          <p className="text-xs md:text-sm text-slate-400 font-normal mt-0.5">
             {t('settings.subtitle', {}, 'Personaliza apariencia, temas, moneda y respaldos')}
           </p>
         </div>
@@ -164,10 +164,10 @@ export default function SettingsModule() {
       )}
 
       {/* FILA 1: PREFERENCIAS DE SISTEMA (Grid 2 Columnas) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 items-stretch relative z-20">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-5 items-stretch relative z-20">
         
         {/* 1. IDIOMA DEL SISTEMA */}
-        <div className="p-4 sm:p-7 rounded-2xl sm:rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl h-full flex flex-col justify-between space-y-4 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]">
+        <div className="p-4 md:p-6 rounded-2xl md:rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl h-full flex flex-col justify-between space-y-4 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]">
           <div className="flex items-center gap-3 border-b border-white/5 pb-3">
             <div className="w-10 h-10 rounded-xl bg-[var(--color-primary,#AEEDD0)]/15 border border-[var(--color-primary,#AEEDD0)]/30 flex items-center justify-center text-[var(--color-primary,#AEEDD0)] shrink-0 font-bold">
               <Languages className="w-5 h-5" />

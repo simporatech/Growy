@@ -69,15 +69,15 @@ export default function SubscriptionsModule() {
   }, [subToDelete, deleteSubscription]);
 
   return (
-    <div className="w-full space-y-4 sm:space-y-6 animate-fadeIn">
+    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn">
       
       {/* Standardized Header */}
       <header className="flex items-center justify-between gap-2.5 w-full relative z-30">
         <div className="min-w-0 flex-1">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white truncate">
+          <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white truncate">
             {t('subscriptions.title', {}, 'Gestión de Suscripciones')}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-0.5 block font-normal truncate">
+          <p className="text-xs md:text-sm text-slate-400 mt-0.5 block font-normal truncate">
             <span className="tabular-nums">
               {t('subscriptions.estimatedMonthlyTotal', { amount: formatCurrency(monthlyTotal) }, `Total Mensual Estimado: ${formatCurrency(monthlyTotal)}`)}
             </span>
@@ -99,7 +99,7 @@ export default function SubscriptionsModule() {
               setSubToEdit(null);
               setIsModalOpen(true);
             }}
-            className="h-9 sm:h-10 px-3 sm:px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-1.5 shrink-0 cursor-pointer"
+            className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-1.5 shrink-0 cursor-pointer"
           >
             <Plus size={15} />
             <span className="hidden sm:inline">{t('subscriptions.newSubscription', {}, 'Nueva Suscripción')}</span>
@@ -117,7 +117,7 @@ export default function SubscriptionsModule() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={t('placeholders.search', {}, 'Buscar por nombre...')}
-            className="w-full h-10 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#AEEDD0] shadow-inner transition-colors"
+            className="w-full h-11 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#AEEDD0] shadow-inner transition-colors"
           />
         </div>
         <div className="sm:hidden shrink-0">
@@ -135,16 +135,16 @@ export default function SubscriptionsModule() {
         {filteredSubs.length === 0 ? (
           <div className="p-6 rounded-2xl bg-[#1E2D32]/60 border border-white/10 backdrop-blur-md text-center text-slate-300 space-y-3">
             <RefreshCw className="w-12 h-12 text-slate-400 mx-auto" />
-            <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
+            <h3 className="text-base md:text-lg font-bold text-white tracking-tight">
               {safeSubsList.length === 0 ? t('subscriptions.noSubsTitle', {}, 'No tienes suscripciones activas') : 'Sin resultados de búsqueda'}
             </h3>
-            <p className="text-xs sm:text-sm text-slate-400 max-w-sm mx-auto font-normal">
+            <p className="text-xs md:text-sm text-slate-400 max-w-sm mx-auto font-normal">
               {safeSubsList.length === 0 ? t('subscriptions.noSubsDesc', {}, 'Agrega servicios como Netflix, Spotify o iCloud para gestionar tus cobros automáticos.') : 'Prueba con otro término de búsqueda.'}
             </p>
             {safeSubsList.length === 0 && (
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="h-10 px-4 rounded-xl btn-primary-mint font-bold text-xs inline-flex items-center gap-2 shadow cursor-pointer"
+                className="h-11 md:h-10 px-4 rounded-xl btn-primary-mint font-bold text-xs inline-flex items-center gap-2 shadow cursor-pointer"
               >
                 <Plus className="w-4 h-4" /> {t('subscriptions.newSubscription', {}, 'Nueva Suscripción')}
               </button>
@@ -165,7 +165,7 @@ export default function SubscriptionsModule() {
                 {/* FILA 1: Día + Emoji + Nombre Completo + Badge de Frecuencia */}
                 <div className="flex items-center justify-between gap-2.5">
                   <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/5 border border-white/10 flex flex-col items-center justify-center shrink-0">
+                    <div className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex flex-col items-center justify-center shrink-0">
                       <span className="text-[8px] uppercase font-bold text-[#AEEDD0] leading-none">{t('subscriptions.dayBadge', {}, 'Día')}</span>
                       <span className="text-xs font-extrabold text-white leading-none tabular-nums mt-0.5">{sub.billingDay || 1}</span>
                     </div>

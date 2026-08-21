@@ -176,15 +176,15 @@ export default function CategoriesModule() {
   }, [categoryToDelete, deleteCategory]);
 
   return (
-    <div className="w-full space-y-4 sm:space-y-6 animate-fadeIn">
+    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn">
       
       {/* Standardized Header */}
       <header className="flex items-center justify-between gap-2.5 w-full relative z-30">
         <div className="min-w-0 flex-1">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white truncate">
+          <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white truncate">
             {t('categories.title', {}, 'Categorías y Presupuestos')}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-0.5 block font-normal truncate">
+          <p className="text-xs md:text-sm text-slate-400 mt-0.5 block font-normal truncate">
             {t('categories.subtitle', {}, 'Límites mensuales para gastos y metas')}
           </p>
         </div>
@@ -205,7 +205,7 @@ export default function CategoriesModule() {
               setInitialType(activeTabType);
               setIsModalOpen(true);
             }}
-            className="h-9 sm:h-10 px-3 sm:px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-1.5 shrink-0 cursor-pointer"
+            className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-1.5 shrink-0 cursor-pointer"
           >
             <Plus size={15} />
             <span className="hidden sm:inline">{t('categories.newCategory', {}, 'Nueva Categoría')}</span>
@@ -223,7 +223,7 @@ export default function CategoriesModule() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={t('placeholders.search', {}, 'Buscar por nombre...')}
-            className="w-full h-10 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#AEEDD0] shadow-inner transition-colors"
+            className="w-full h-11 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#AEEDD0] shadow-inner transition-colors"
           />
         </div>
         <div className="sm:hidden shrink-0">

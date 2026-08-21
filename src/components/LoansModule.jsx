@@ -122,15 +122,15 @@ export default function LoansModule() {
   }, [t]);
 
   return (
-    <div className="w-full space-y-4 sm:space-y-6 animate-fadeIn">
+    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn">
       
       {/* Standardized Header */}
       <header className="flex items-center justify-between gap-2.5 w-full relative z-30">
         <div className="min-w-0 flex-1">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white truncate">
+          <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white truncate">
             {t('loans.title', {}, 'Saldos Pendientes')}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-0.5 block font-normal truncate">
+          <p className="text-xs md:text-sm text-slate-400 mt-0.5 block font-normal truncate">
             <span className="tabular-nums">
               {t('loans.totalPendingLabel', { amount: formatCurrency(totalPendingAmount) }, `Total Pendiente: ${formatCurrency(totalPendingAmount)}`)}
             </span>
@@ -152,7 +152,7 @@ export default function LoansModule() {
               setLoanToEdit(null);
               setIsModalOpen(true);
             }}
-            className="h-9 sm:h-10 px-3 sm:px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-1.5 shrink-0 cursor-pointer"
+            className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-1.5 shrink-0 cursor-pointer"
           >
             <Plus size={15} />
             <span className="hidden sm:inline">{t('loans.newLoan', {}, 'Nuevo Saldo Pendiente')}</span>
@@ -162,7 +162,7 @@ export default function LoansModule() {
       </header>
 
       {/* Filter Bar */}
-      <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] space-y-3 relative z-30">
+      <div className="p-4 md:p-6 rounded-2xl md:rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] space-y-3 relative z-30">
         
         {/* Mobile Quick Status Chips (< sm) */}
         <div className="sm:hidden space-y-2.5">
@@ -173,7 +173,7 @@ export default function LoansModule() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder={t('placeholders.search', {}, 'Buscar por concepto...')}
-              className="w-full h-10 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#AEEDD0] shadow-inner transition-colors"
+              className="w-full h-11 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#AEEDD0] shadow-inner transition-colors"
             />
           </div>
 
@@ -258,13 +258,13 @@ export default function LoansModule() {
         {filteredLoans.length === 0 ? (
           <div className="p-6 sm:p-8 rounded-2xl sm:rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] text-center text-slate-300 space-y-3">
             <Percent className="w-12 h-12 text-slate-400 mx-auto" />
-            <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">{t('loans.noLoansTitle', {}, 'Sin saldos pendientes')}</h3>
-            <p className="text-xs sm:text-sm text-slate-400 max-w-sm mx-auto font-normal">
+            <h3 className="text-base md:text-lg font-bold text-white tracking-tight">{t('loans.noLoansTitle', {}, 'Sin saldos pendientes')}</h3>
+            <p className="text-xs md:text-sm text-slate-400 max-w-sm mx-auto font-normal">
               {t('loans.noLoansDesc', {}, '¡Excelente! No tienes compromisos financieros registrados en esta categoría.')}
             </p>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="h-10 px-4 rounded-xl btn-primary-mint font-bold text-xs inline-flex items-center gap-2 shadow cursor-pointer"
+              className="h-11 md:h-10 px-4 rounded-xl btn-primary-mint font-bold text-xs inline-flex items-center gap-2 shadow cursor-pointer"
             >
               <Plus className="w-4 h-4" /> {t('loans.newLoan', {}, 'Nuevo Saldo Pendiente')}
             </button>
@@ -294,7 +294,7 @@ export default function LoansModule() {
                       isPaid ? 'bg-emerald-400' : urgency.label.includes('Vence') || urgency.label.includes('Vencido') || urgency.label.includes('Overdue') ? 'bg-rose-400 animate-pulse' : 'bg-[var(--color-primary,#AEEDD0)]'
                     }`} />
 
-                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-sm sm:text-base shrink-0">
+                    <div className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-base sm:text-lg shrink-0">
                       {cat?.emoji || '📄'}
                     </div>
 
