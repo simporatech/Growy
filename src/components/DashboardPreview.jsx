@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Landmark, Tag, ArrowLeftRight, Percent, RefreshCw, UserCheck,
   Plus, AlertCircle, Calendar, CheckCircle2, DollarSign, Clock, ShieldCheck,
   ArrowUpRight, ArrowDownRight, Layers, Award, Activity, Settings as SettingsIcon,
-  ChevronDown, Info, MessageSquarePlus, PanelLeftClose, PanelLeftOpen
+  ChevronDown, Info, MessageSquarePlus, PanelLeftClose, PanelLeftOpen, Menu, X
 } from 'lucide-react';
 import AccountsModule from './AccountsModule';
 import CategoriesModule from './CategoriesModule';
@@ -36,6 +36,7 @@ export default function DashboardPreview({ user, onLogout }) {
 
   const [activeTab, setActiveTab] = useState('dashboard');
   const [chartPeriod, setChartPeriod] = useState('this_month'); // 'this_month' | '3_months' | 'year'
+  const [isMoreSheetOpen, setIsMoreSheetOpen] = useState(false);
 
   // Sidebar Collapse State with LocalStorage Persistence
   const [isCollapsed, setIsCollapsed] = useState(() => safeGetStorage('growy_sidebar_collapsed', false));
@@ -495,44 +496,45 @@ export default function DashboardPreview({ user, onLogout }) {
         </aside>
 
         {/* MAIN CONTENT WRAPPER */}
-        <main className="flex-1 min-h-screen overflow-y-auto bg-transparent transition-all duration-300 ease-in-out">
+        <main className="flex-1 min-h-screen overflow-y-auto overflow-x-hidden max-w-full bg-transparent transition-all duration-300 ease-in-out">
         
-        <div className="w-full max-w-7xl mx-auto p-6 md:p-8 space-y-6 pb-20 animate-fadeIn isolate">
+        <div className="w-full max-w-7xl mx-auto px-4 pt-4 pb-28 md:pb-10 space-y-4 sm:space-y-6 animate-fadeIn isolate">
           {activeTab === 'dashboard' ? (
             <>
               {/* PAGE HEADER WITH SPLIT BUTTON */}
-              <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full relative z-30">
-                <div>
-                  <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
+              <header className="flex items-center justify-between gap-3 w-full relative z-30">
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white truncate">
                     {t('common.greeting', { name: user?.username || 'Admin' }, `¡Hola, ${user?.username || 'Admin'}!`)}
                   </h1>
-                  <p className="text-sm text-slate-300 mt-1 block font-normal">
+                  <p className="text-xs sm:text-sm text-slate-400 mt-0.5 block font-normal truncate">
                     {formattedDate}
                   </p>
                 </div>
 
                 {/* QUICK CREATION DROPDOWN */}
                 <div className="relative inline-block z-50 shrink-0" ref={menuRef}>
-                  <div className="inline-flex items-stretch bg-[var(--color-primary,#AEEDD0)] rounded-xl overflow-hidden shadow-md shadow-[var(--color-primary,#AEEDD0)]/10 h-11">
+                  <div className="inline-flex items-stretch bg-[var(--color-primary,#AEEDD0)] rounded-xl overflow-hidden shadow-md shadow-[var(--color-primary,#AEEDD0)]/10 h-9 sm:h-11">
                     <button 
                       onClick={() => {
                         setInitialTxType('expense');
                         setIsTxModalOpen(true);
                       }}
-                      className="px-5 font-bold text-sm text-[#1E2D32] hover:bg-black/5 active:scale-[0.98] transition-colors flex items-center gap-2 cursor-pointer"
+                      className="px-3 sm:px-5 font-bold text-xs sm:text-sm text-[#1E2D32] hover:bg-black/5 active:scale-[0.98] transition-colors flex items-center gap-1.5 sm:gap-2 cursor-pointer"
                     >
-                      <Plus className="w-4 h-4 stroke-[2.5]" />
-                      <span>{t('transactions.newTransaction', {}, 'Nuevo Movimiento')}</span>
+                      <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
+                      <span className="hidden sm:inline">{t('transactions.newTransaction', {}, 'Nuevo Movimiento')}</span>
+                      <span className="sm:hidden">{t('common.new', {}, 'Nuevo')}</span>
                     </button>
 
-                    <div className="w-[1px] bg-[#1E2D32]/15 my-2" />
+                    <div className="w-[1px] bg-[#1E2D32]/15 my-1.5 sm:my-2" />
 
                     <button
                       onClick={() => setIsQuickMenuOpen(!isQuickMenuOpen)}
-                      className="px-3 hover:bg-black/5 active:scale-[0.98] transition-colors flex items-center justify-center text-[#1E2D32] cursor-pointer"
+                      className="px-2 sm:px-3 hover:bg-black/5 active:scale-[0.98] transition-colors flex items-center justify-center text-[#1E2D32] cursor-pointer"
                       title="Opciones de registro rápido"
                     >
-                      <ChevronDown className={`w-4 h-4 stroke-[2.5] transition-transform duration-200 ${isQuickMenuOpen ? 'rotate-180' : ''}`} />
+                      <ChevronDown className={`w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5] transition-transform duration-200 ${isQuickMenuOpen ? 'rotate-180' : ''}`} />
                     </button>
                   </div>
 
@@ -607,60 +609,72 @@ export default function DashboardPreview({ user, onLogout }) {
                 </div>
               </header>
 
-              {/* KPIS ROW */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 w-full relative z-10">
+              {/* KPIS ROW: 2x2 COMPACT GRID ON MOBILE */}
+              <div className="grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-2 xl:grid-cols-4 w-full relative z-10">
                 
-                {/* KPI 1: Patrimonio Neto Real */}
-                <div className="growy-glass growy-card-hover rounded-2xl p-6 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between space-y-2 overflow-hidden isolate transform-gpu-layer">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 block mb-1">
-                    {t('dashboard.netWealth', {}, 'Patrimonio Neto')}
-                  </span>
-                  <div className="text-2xl sm:text-3xl font-bold tracking-tight text-white tabular-nums">
+                {/* KPI 1: Patrimonio Neto Real (Colspan 2 en mobile) */}
+                <div className="col-span-2 growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 border border-white/10 bg-gradient-to-br from-[#1E2D32]/80 to-[#141E22]/90 flex flex-col justify-between space-y-2 overflow-hidden isolate transform-gpu-layer">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                      {t('dashboard.netWealth', {}, 'Patrimonio Neto')}
+                    </span>
+                    <span className="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-[var(--color-primary,#AEEDD0)]/15 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/20">
+                      {baseCurrency}
+                    </span>
+                  </div>
+                  <div className="text-xl sm:text-3xl font-extrabold tracking-tight text-white tabular-nums">
                     {formatCurrency(netWealth, baseCurrency)}
                   </div>
-                  <p className="text-xs text-slate-300 font-semibold pt-1 tabular-nums">
-                    {formatCurrency(totalBalance, baseCurrency)} {t('dashboard.assets', {}, 'Activos')} • {formatCurrency(totalPendingDebt, baseCurrency)} {t('dashboard.liabilities', {}, 'Pasivos')}
-                  </p>
+                  <div className="flex items-center gap-2 sm:gap-3 text-[11px] sm:text-xs text-slate-400 font-medium tabular-nums flex-wrap pt-0.5">
+                    <span className="text-emerald-400 font-semibold">{formatCurrency(totalBalance, baseCurrency)} {t('dashboard.assets', {}, 'Activos')}</span>
+                    <span className="text-slate-500">•</span>
+                    <span className="text-rose-400 font-semibold">{formatCurrency(totalPendingDebt, baseCurrency)} {t('dashboard.liabilities', {}, 'Pasivos')}</span>
+                  </div>
                 </div>
 
-                {/* KPI 2: Ingresos del Mes */}
-                <div className="growy-glass growy-card-hover rounded-2xl p-6 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between space-y-2 overflow-hidden isolate transform-gpu-layer">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 block mb-1">
-                    {t('dashboard.monthlyIncome', {}, 'Ingresos del Mes')}
+                {/* KPI 2: Ingresos del Mes (Col 1) */}
+                <div className="col-span-1 growy-glass growy-card-hover rounded-2xl p-3 sm:p-5 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between space-y-1 sm:space-y-2 overflow-hidden isolate transform-gpu-layer">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 truncate block">
+                    {t('dashboard.monthlyIncome', {}, 'Ingresos')}
                   </span>
-                  <div className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--color-primary,#AEEDD0)] tabular-nums">
+                  <div className="text-lg sm:text-2xl font-bold tracking-tight text-[var(--color-primary,#AEEDD0)] tabular-nums truncate">
                     {formatCurrency(monthlyIncomes, baseCurrency)}
                   </div>
-                  <p className="text-xs text-slate-300 font-semibold pt-1">
+                  <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
                     <span className="text-[var(--color-primary,#AEEDD0)] font-bold tabular-nums">
                       {incomeDiffPercentage >= 0 ? `+${incomeDiffPercentage}%` : `${incomeDiffPercentage}%`}
-                    </span> {t('dashboard.vsPrevMonth', {}, 'vs. mes anterior')}
+                    </span> <span className="hidden sm:inline">{t('dashboard.vsPrevMonth', {}, 'vs. mes anterior')}</span><span className="sm:hidden">vs mes ant.</span>
                   </p>
                 </div>
 
-                {/* KPI 3: Gastos del Mes & Burn Rate */}
-                <div className="growy-glass growy-card-hover rounded-2xl p-6 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between space-y-2 overflow-hidden isolate transform-gpu-layer">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 block mb-1">
-                    {t('dashboard.monthlyExpenses', {}, 'Gastos del Mes')}
+                {/* KPI 3: Gastos del Mes & Burn Rate (Col 2) */}
+                <div className="col-span-1 growy-glass growy-card-hover rounded-2xl p-3 sm:p-5 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between space-y-1 sm:space-y-2 overflow-hidden isolate transform-gpu-layer">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 truncate block">
+                    {t('dashboard.monthlyExpenses', {}, 'Gastos')}
                   </span>
-                  <div className="text-2xl sm:text-3xl font-bold tracking-tight text-[#FF6B6B] tabular-nums">
+                  <div className="text-lg sm:text-2xl font-bold tracking-tight text-[#FF6B6B] tabular-nums truncate">
                     {formatCurrency(monthlyExpenses, baseCurrency)}
                   </div>
-                  <p className="text-xs text-slate-300 font-semibold pt-1">
-                    {t('dashboard.dailyBurn', {}, 'Ritmo diario:')} <span className="text-white font-bold tabular-nums">{formatCurrency(dailyBurnRate, baseCurrency)}/{t('common.day', {}, 'día')}</span>
+                  <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
+                    <span className="text-white font-semibold tabular-nums">{formatCurrency(dailyBurnRate, baseCurrency)}</span>/{t('common.day', {}, 'día')}
                   </p>
                 </div>
 
-                {/* KPI 4: Tasa de Ahorro & Score Financiero */}
-                <div className="growy-glass growy-card-hover rounded-2xl p-6 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between space-y-2 overflow-hidden isolate transform-gpu-layer">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 block mb-1">
-                    {t('dashboard.savingsRate', {}, 'Tasa de Ahorro')}
-                  </span>
-                  <div className="text-2xl sm:text-3xl font-bold tracking-tight text-white tabular-nums">
+                {/* KPI 4: Tasa de Ahorro & Score Financiero (Colspan 2 en mobile, Colspan 1 en tablet/desktop) */}
+                <div className="col-span-2 sm:col-span-2 xl:col-span-1 growy-glass growy-card-hover rounded-2xl p-3.5 sm:p-5 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between space-y-1 sm:space-y-2 overflow-hidden isolate transform-gpu-layer">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                      {t('dashboard.savingsRate', {}, 'Tasa de Ahorro')}
+                    </span>
+                    <span className="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-[var(--color-primary,#AEEDD0)]/15 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/20 tabular-nums">
+                      Score {financialScore}/100
+                    </span>
+                  </div>
+                  <div className="text-lg sm:text-2xl font-bold tracking-tight text-white tabular-nums">
                     {savingsRate}%
                   </div>
-                  <p className="text-xs text-slate-300 font-semibold pt-1">
-                    Score: <span className="text-[var(--color-primary,#AEEDD0)] font-bold tabular-nums">{financialScore}/100</span>
+                  <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
+                    {netSavingsAmount >= 0 ? t('dashboard.positiveCashflow', {}, 'Superávit:') : t('dashboard.deficitCashflow', {}, 'Déficit:')} <span className="text-white font-semibold tabular-nums">{formatCurrency(netSavingsAmount, baseCurrency)}</span>
                   </p>
                 </div>
 
@@ -670,19 +684,19 @@ export default function DashboardPreview({ user, onLogout }) {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full relative z-10">
                 
                 {/* Chart 1: Flujo de Caja y Proyección */}
-                <div className="lg:col-span-2 growy-glass growy-card-hover rounded-2xl p-6 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
+                <div className="lg:col-span-2 growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
-                      <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                      <h2 className="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
                         <span>{t('dashboard.cashflowTitle', {}, 'Flujo de Caja y Proyección')}</span>
                       </h2>
-                      <p className="text-sm text-slate-300 font-normal">{t('dashboard.cashflowSubtitle', {}, 'Ingresos vs Gastos')}</p>
+                      <p className="text-xs sm:text-sm text-slate-400 font-normal">{t('dashboard.cashflowSubtitle', {}, 'Ingresos vs Gastos')}</p>
                     </div>
 
-                    <div className="flex items-center gap-1 p-1 rounded-xl bg-white/[0.03] border border-white/10 shrink-0">
+                    <div className="flex items-center gap-1 p-1 rounded-xl bg-white/[0.03] border border-white/10 shrink-0 overflow-x-auto no-scrollbar">
                       <button
                         onClick={() => setChartPeriod('this_month')}
-                        className={`px-3 py-1 rounded-lg text-xs font-medium active:scale-95 transition-all ${
+                        className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-medium active:scale-95 transition-all whitespace-nowrap ${
                           chartPeriod === 'this_month' ? 'bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] font-bold shadow-sm' : 'text-slate-300 hover:text-white'
                         }`}
                       >
@@ -690,7 +704,7 @@ export default function DashboardPreview({ user, onLogout }) {
                       </button>
                       <button
                         onClick={() => setChartPeriod('3_months')}
-                        className={`px-3 py-1 rounded-lg text-xs font-medium active:scale-95 transition-all ${
+                        className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-medium active:scale-95 transition-all whitespace-nowrap ${
                           chartPeriod === '3_months' ? 'bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] font-bold shadow-sm' : 'text-slate-300 hover:text-white'
                         }`}
                       >
@@ -698,7 +712,7 @@ export default function DashboardPreview({ user, onLogout }) {
                       </button>
                       <button
                         onClick={() => setChartPeriod('year')}
-                        className={`px-3 py-1 rounded-lg text-xs font-medium active:scale-95 transition-all ${
+                        className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-medium active:scale-95 transition-all whitespace-nowrap ${
                           chartPeriod === 'year' ? 'bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] shadow-sm' : 'text-slate-300 hover:text-white'
                         }`}
                       >
@@ -708,7 +722,7 @@ export default function DashboardPreview({ user, onLogout }) {
                   </div>
 
                   {currentMonthTx.length === 0 && chartPeriod === 'this_month' ? (
-                    <div className="w-full h-52 flex flex-col items-center justify-center text-center text-slate-300 space-y-3 bg-[#162226] rounded-xl border border-dashed border-white/10">
+                    <div className="w-full h-44 sm:h-52 flex flex-col items-center justify-center text-center text-slate-300 space-y-3 bg-[#162226] rounded-xl border border-dashed border-white/10">
                       <Layers className="w-8 h-8 text-slate-400" />
                       <p className="text-xs font-medium">{t('dashboard.noMovementsMonth', {}, 'Sin movimientos registrados este mes')}</p>
                       <button
@@ -716,19 +730,19 @@ export default function DashboardPreview({ user, onLogout }) {
                           setInitialTxType('expense');
                           setIsTxModalOpen(true);
                         }}
-                        className="px-4 h-11 rounded-xl bg-[#AEEDD0] text-[#1E2D32] font-bold text-xs inline-flex items-center gap-1.5 shadow cursor-pointer"
+                        className="px-4 h-10 rounded-xl bg-[#AEEDD0] text-[#1E2D32] font-bold text-xs inline-flex items-center gap-1.5 shadow cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" /> {t('dashboard.registerMovement', {}, 'Registrar Movimiento')}
                       </button>
                     </div>
                   ) : (
-                    <div className="w-full h-52 pt-4 flex items-end justify-between gap-3 px-2">
+                    <div className="w-full h-44 sm:h-52 pt-4 flex items-end justify-between gap-2.5 sm:gap-3 px-1 sm:px-2">
                       {trendPoints.map((pt, idx) => {
-                        const incHeight = maxTrendVal > 0 ? Math.max(6, Math.round((pt.income / maxTrendVal) * 150)) : 6;
-                        const expHeight = maxTrendVal > 0 ? Math.max(6, Math.round((pt.expense / maxTrendVal) * 150)) : 6;
+                        const incHeight = maxTrendVal > 0 ? Math.max(6, Math.round((pt.income / maxTrendVal) * 120)) : 6;
+                        const expHeight = maxTrendVal > 0 ? Math.max(6, Math.round((pt.expense / maxTrendVal) * 120)) : 6;
 
                         return (
-                          <div key={idx} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+                          <div key={idx} className="flex-1 flex flex-col items-center gap-1.5 sm:gap-2 h-full justify-end group">
                             <div className="flex items-end gap-1 h-full w-full justify-center">
                               <div 
                                 className="w-1/3 max-w-[12px] rounded-t-md bg-[var(--color-primary,#AEEDD0)] transition-all duration-300 hover:opacity-80 relative group/bar"
@@ -749,7 +763,7 @@ export default function DashboardPreview({ user, onLogout }) {
                               </div>
                             </div>
 
-                            <span className="text-[11px] font-semibold text-slate-300 group-hover:text-white transition-colors">
+                            <span className="text-[10px] sm:text-[11px] font-semibold text-slate-300 group-hover:text-white transition-colors">
                               {pt.label}
                             </span>
                           </div>
@@ -772,10 +786,10 @@ export default function DashboardPreview({ user, onLogout }) {
                 </div>
 
                 {/* Chart 2: Donut Chart */}
-                <div className="growy-glass growy-card-hover rounded-2xl p-6 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
+                <div className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
                   <div>
-                    <h2 className="text-lg font-bold text-white tracking-tight">{t('dashboard.categoryDistribution', {}, 'Distribución por Categoría')}</h2>
-                    <p className="text-sm text-slate-300 font-normal">{t('dashboard.categorySubtitle', {}, 'Desglose del mes')}</p>
+                    <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">{t('dashboard.categoryDistribution', {}, 'Distribución por Categoría')}</h2>
+                    <p className="text-xs sm:text-sm text-slate-400 font-normal">{t('dashboard.categorySubtitle', {}, 'Desglose del mes')}</p>
                   </div>
 
                   {categoryExpenses.length === 0 ? (
@@ -862,11 +876,11 @@ export default function DashboardPreview({ user, onLogout }) {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch w-full relative z-10">
                 
                 {/* WIDGET 1: Mini Portfolio de Cuentas */}
-                <div className="growy-glass growy-card-hover rounded-2xl p-6 border border-white/10 bg-[#1E2D32]/60 h-full flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
+                <div className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 border border-white/10 bg-[#1E2D32]/60 h-full flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Landmark className="w-4 h-4 text-[var(--color-primary,#AEEDD0)]" />
-                      <h2 className="text-lg font-bold text-white tracking-tight">{t('dashboard.miniPortfolio', {}, 'Mini Portfolio')}</h2>
+                      <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">{t('dashboard.miniPortfolio', {}, 'Mini Portfolio')}</h2>
                     </div>
                     <button 
                       onClick={() => setActiveTab('accounts')}
@@ -891,7 +905,7 @@ export default function DashboardPreview({ user, onLogout }) {
                       safeAccountsList.slice(0, 3).map((acc) => (
                         <div 
                           key={acc.id}
-                          className="p-3.5 rounded-xl bg-[#162226] border border-white/10 flex items-center justify-between hover:bg-white/[0.06] transition-all"
+                          className="p-3 sm:p-3.5 rounded-xl bg-[#162226] border border-white/10 flex items-center justify-between hover:bg-white/[0.06] transition-all"
                         >
                           <div className="flex items-center gap-3 min-w-0 pr-2">
                             <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-base shrink-0">
@@ -925,11 +939,11 @@ export default function DashboardPreview({ user, onLogout }) {
                 </div>
 
                 {/* WIDGET 2: Alertas de Presupuesto */}
-                <div className="growy-glass growy-card-hover rounded-2xl p-6 border border-white/10 bg-[#1E2D32]/60 h-full flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
+                <div className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 border border-white/10 bg-[#1E2D32]/60 h-full flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <AlertCircle className={`w-4 h-4 ${criticalBudgets.length > 0 ? 'text-amber-400' : 'text-[var(--color-primary,#AEEDD0)]'}`} />
-                      <h2 className="text-lg font-bold text-white tracking-tight">
+                      <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
                         {criticalBudgets.length > 0
                           ? t('dashboard.budgetAlerts', {}, 'Alertas de Presupuesto')
                           : t('dashboard.topExpenses', {}, 'Top 3 Gastos del Mes')}
@@ -1026,11 +1040,11 @@ export default function DashboardPreview({ user, onLogout }) {
                 </div>
 
                 {/* WIDGET 3: Próximos Compromisos */}
-                <div className="growy-glass growy-card-hover rounded-2xl p-6 border border-white/10 bg-[#1E2D32]/60 h-full flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
+                <div className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 border border-white/10 bg-[#1E2D32]/60 h-full flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-amber-400" />
-                      <h2 className="text-lg font-bold text-white tracking-tight">{t('dashboard.upcomingCommitments', {}, 'Próximos Compromisos')}</h2>
+                      <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">{t('dashboard.upcomingCommitments', {}, 'Próximos Compromisos')}</h2>
                     </div>
                     <button 
                       onClick={() => setActiveTab('loans')}
@@ -1050,7 +1064,7 @@ export default function DashboardPreview({ user, onLogout }) {
                         {pendingLoansList.slice(0, 2).map((loan) => (
                           <div 
                             key={loan.id}
-                            className="p-3.5 rounded-xl bg-[#162226] border border-amber-500/20 flex items-center justify-between hover:bg-white/[0.06] transition-all"
+                            className="p-3 sm:p-3.5 rounded-xl bg-[#162226] border border-amber-500/20 flex items-center justify-between hover:bg-white/[0.06] transition-all"
                           >
                             <div className="min-w-0 flex-1 pr-2">
                               <h4 className="text-xs font-semibold text-white truncate">{loan.description}</h4>
@@ -1077,7 +1091,7 @@ export default function DashboardPreview({ user, onLogout }) {
                         {activeSubsList.slice(0, 2).map((sub) => (
                           <div 
                             key={sub.id}
-                            className="p-3.5 rounded-xl bg-[#162226] border border-white/10 flex items-center justify-between hover:bg-white/[0.06] transition-all"
+                            className="p-3 sm:p-3.5 rounded-xl bg-[#162226] border border-white/10 flex items-center justify-between hover:bg-white/[0.06] transition-all"
                           >
                             <div className="min-w-0 flex-1 pr-2">
                               <h4 className="text-xs font-semibold text-white truncate flex items-center gap-1">
@@ -1102,9 +1116,9 @@ export default function DashboardPreview({ user, onLogout }) {
               </div>
 
               {/* RECENT ACTIVITY FEED */}
-              <div className="growy-glass growy-card-hover rounded-2xl p-6 border border-white/10 bg-[#1E2D32]/60 w-full space-y-4 overflow-hidden isolate transform-gpu-layer relative z-10">
+              <div className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 border border-white/10 bg-[#1E2D32]/60 w-full space-y-4 overflow-hidden isolate transform-gpu-layer relative z-10">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                  <h2 className="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
                     <span>{t('dashboard.recentActivity', {}, 'Actividad Reciente')}</span>
                     <span className="w-2 h-2 rounded-full bg-[var(--color-primary,#AEEDD0)] animate-pulse" />
                   </h2>
@@ -1194,28 +1208,250 @@ export default function DashboardPreview({ user, onLogout }) {
 
       </main>
 
-      {/* MOBILE BOTTOM NAVIGATION BAR */}
-      <nav className="fixed bottom-0 left-0 right-0 h-16 md:hidden z-50 bg-[var(--bg-base,#1E2D32)]/95 backdrop-blur-xl border-t border-white/10 flex items-center justify-around px-2">
-        {allNavItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.id;
+      {/* MOBILE BOTTOM NAVIGATION BAR (ERGONOMIC 4-TAB + ACTION FAB + MORE DRAWER) */}
+      <nav className="fixed bottom-0 left-0 right-0 h-16 pb-safe md:hidden z-40 bg-[#0E1517]/95 backdrop-blur-2xl border-t border-white/10 flex items-center justify-around px-3 shadow-[0_-8px_30px_rgba(0,0,0,0.6)]">
+        {/* 1. Dashboard Tab */}
+        <button
+          type="button"
+          onClick={() => {
+            setActiveTab('dashboard');
+            setIsMoreSheetOpen(false);
+          }}
+          className={`flex flex-col items-center justify-center gap-1 py-1 px-2.5 rounded-xl transition-all cursor-pointer ${
+            activeTab === 'dashboard'
+              ? 'text-[var(--color-primary,#AEEDD0)] font-bold'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${
+            activeTab === 'dashboard' ? 'bg-[var(--color-primary,#AEEDD0)]/15 scale-105' : ''
+          }`}>
+            <LayoutDashboard className="w-4 h-4" />
+          </div>
+          <span className="text-[10px] font-semibold tracking-tight leading-none">
+            {t('nav.dashboard', {}, 'Resumen')}
+          </span>
+        </button>
 
-          return (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`flex flex-col items-center justify-center gap-0.5 py-1 px-1.5 rounded-xl transition-all ${
-                isActive
-                  ? 'bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] font-bold shadow-sm'
-                  : 'text-slate-300 hover:text-white'
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              <span className="text-[9px] font-semibold truncate max-w-[45px]">{item.label}</span>
-            </button>
-          );
-        })}
+        {/* 2. Transactions Tab */}
+        <button
+          type="button"
+          onClick={() => {
+            setActiveTab('transactions');
+            setIsMoreSheetOpen(false);
+          }}
+          className={`flex flex-col items-center justify-center gap-1 py-1 px-2.5 rounded-xl transition-all cursor-pointer ${
+            activeTab === 'transactions'
+              ? 'text-[var(--color-primary,#AEEDD0)] font-bold'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${
+            activeTab === 'transactions' ? 'bg-[var(--color-primary,#AEEDD0)]/15 scale-105' : ''
+          }`}>
+            <ArrowLeftRight className="w-4 h-4" />
+          </div>
+          <span className="text-[10px] font-semibold tracking-tight leading-none">
+            {t('nav.transactions', {}, 'Movimientos')}
+          </span>
+        </button>
+
+        {/* 3. Central Elevated Action FAB */}
+        <div className="relative flex flex-col items-center justify-center -mt-6">
+          <button
+            type="button"
+            onClick={() => {
+              setInitialTxType('expense');
+              setIsTxModalOpen(true);
+            }}
+            className="w-13 h-13 rounded-full bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] flex items-center justify-center shadow-lg shadow-[var(--color-primary,#AEEDD0)]/30 border-4 border-[#0E1517] active:scale-95 hover:scale-105 transition-all cursor-pointer group"
+            title={t('transactions.newTransaction', {}, 'Nuevo Movimiento')}
+          >
+            <Plus className="w-6 h-6 stroke-[3] group-hover:rotate-90 transition-transform duration-200" />
+          </button>
+          <span className="text-[9px] font-bold text-slate-400 mt-1 leading-none">
+            {t('common.new', {}, 'Nuevo')}
+          </span>
+        </div>
+
+        {/* 4. Accounts Tab */}
+        <button
+          type="button"
+          onClick={() => {
+            setActiveTab('accounts');
+            setIsMoreSheetOpen(false);
+          }}
+          className={`flex flex-col items-center justify-center gap-1 py-1 px-2.5 rounded-xl transition-all cursor-pointer ${
+            activeTab === 'accounts'
+              ? 'text-[var(--color-primary,#AEEDD0)] font-bold'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${
+            activeTab === 'accounts' ? 'bg-[var(--color-primary,#AEEDD0)]/15 scale-105' : ''
+          }`}>
+            <Landmark className="w-4 h-4" />
+          </div>
+          <span className="text-[10px] font-semibold tracking-tight leading-none">
+            {t('nav.accounts', {}, 'Cuentas')}
+          </span>
+        </button>
+
+        {/* 5. More (Drawer Toggle) */}
+        <button
+          type="button"
+          onClick={() => setIsMoreSheetOpen(prev => !prev)}
+          className={`flex flex-col items-center justify-center gap-1 py-1 px-2.5 rounded-xl transition-all cursor-pointer relative ${
+            isMoreSheetOpen || ['loans', 'subscriptions', 'categories', 'settings', 'feedback', 'about'].includes(activeTab)
+              ? 'text-[var(--color-primary,#AEEDD0)] font-bold'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all relative ${
+            isMoreSheetOpen || ['loans', 'subscriptions', 'categories', 'settings', 'feedback', 'about'].includes(activeTab)
+              ? 'bg-[var(--color-primary,#AEEDD0)]/15 scale-105'
+              : ''
+          }`}>
+            <Menu className="w-4 h-4" />
+            {['loans', 'subscriptions', 'categories', 'settings', 'feedback', 'about'].includes(activeTab) && (
+              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[var(--color-primary,#AEEDD0)] animate-pulse" />
+            )}
+          </div>
+          <span className="text-[10px] font-semibold tracking-tight leading-none">
+            {t('common.more', {}, 'Más')}
+          </span>
+        </button>
       </nav>
+
+      {/* MOBILE "MORE" BOTTOM SHEET DRAWER */}
+      {isMoreSheetOpen && (
+        <div className="fixed inset-0 z-50 md:hidden flex flex-col justify-end animate-fadeIn">
+          {/* Backdrop Overlay */}
+          <div 
+            className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity cursor-pointer"
+            onClick={() => setIsMoreSheetOpen(false)}
+          />
+
+          {/* Slide-Up Bottom Sheet */}
+          <div className="relative z-10 w-full bg-[#131E22] border-t border-white/15 rounded-t-3xl p-5 pb-safe shadow-[0_-12px_45px_rgba(0,0,0,0.85)] max-h-[85vh] overflow-y-auto animate-scaleUp">
+            {/* Drag Handle Bar */}
+            <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-4" />
+
+            <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-[var(--color-primary,#AEEDD0)]/15 border border-[var(--color-primary,#AEEDD0)]/30 flex items-center justify-center p-1.5 shadow-inner">
+                  <img src="/logos/Transparent.svg" alt="Growy" className="w-full h-full object-contain" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white tracking-tight">{t('common.moreOptions', {}, 'Más Opciones')}</h3>
+                  <p className="text-[11px] text-slate-400">{user?.username || 'Usuario'} • Plan Pro</p>
+                </div>
+              </div>
+              <button 
+                type="button"
+                onClick={() => setIsMoreSheetOpen(false)}
+                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Grid of Drawer Modules */}
+            <div className="grid grid-cols-2 gap-2.5 py-1">
+              {[
+                { 
+                  id: 'loans', 
+                  label: t('nav.loans', {}, 'Saldos Pendientes'), 
+                  icon: Percent, 
+                  badge: pendingLoansList.length > 0 ? `${pendingLoansList.length}` : null, 
+                  color: 'text-amber-400 bg-amber-500/10 border-amber-500/20' 
+                },
+                { 
+                  id: 'subscriptions', 
+                  label: t('nav.subscriptions', {}, 'Suscripciones'), 
+                  icon: RefreshCw, 
+                  badge: activeSubsList.length > 0 ? `${activeSubsList.length}` : null, 
+                  color: 'text-[var(--color-primary,#AEEDD0)] bg-[var(--color-primary,#AEEDD0)]/10 border-[var(--color-primary,#AEEDD0)]/20' 
+                },
+                { 
+                  id: 'categories', 
+                  label: t('nav.categories', {}, 'Categorías'), 
+                  icon: Tag, 
+                  color: 'text-purple-400 bg-purple-500/10 border-purple-500/20' 
+                },
+                { 
+                  id: 'settings', 
+                  label: t('nav.settings', {}, 'Configuración'), 
+                  icon: SettingsIcon, 
+                  color: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20' 
+                },
+                { 
+                  id: 'feedback', 
+                  label: t('nav.feedback', {}, 'Reportes y Feedback'), 
+                  icon: MessageSquarePlus, 
+                  color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' 
+                },
+                { 
+                  id: 'about', 
+                  label: t('nav.about', {}, 'Acerca de SIMPORA'), 
+                  icon: Info, 
+                  color: 'text-sky-400 bg-sky-500/10 border-sky-500/20' 
+                },
+              ].map((item) => {
+                const Icon = item.icon;
+                const isActive = activeTab === item.id;
+
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      setIsMoreSheetOpen(false);
+                    }}
+                    className={`p-3 rounded-2xl border flex items-center gap-3 text-left transition-all active:scale-95 cursor-pointer ${
+                      isActive 
+                        ? 'bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] border-[var(--color-primary,#AEEDD0)] font-bold shadow-md' 
+                        : 'bg-[#182428] border-white/10 text-white hover:bg-white/5'
+                    }`}
+                  >
+                    <div className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 ${
+                      isActive ? 'bg-[#1E2D32]/10 border-[#1E2D32]/20 text-[#1E2D32]' : item.color
+                    }`}>
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-bold truncate leading-tight">{item.label}</p>
+                      {item.badge && (
+                        <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full inline-block mt-0.5 ${
+                          isActive ? 'bg-[#1E2D32] text-white' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                        }`}>
+                          {item.badge}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Log Out Action */}
+            <div className="pt-3 mt-2 border-t border-white/10">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMoreSheetOpen(false);
+                  onLogout();
+                }}
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl text-xs font-bold text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 active:scale-[0.98] transition-all cursor-pointer"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>{t('nav.logout', {}, 'Cerrar Sesión')}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* QUICK ACTION MODALS */}
       <TransactionModal

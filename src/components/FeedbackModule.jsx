@@ -74,29 +74,29 @@ export default function FeedbackModule() {
   };
 
   return (
-    <div className="w-full space-y-6 animate-fadeIn">
+    <div className="w-full space-y-4 sm:space-y-6 animate-fadeIn">
       
       {/* Standardized View Header */}
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full relative z-30">
+      <header className="flex items-center justify-between gap-3 w-full relative z-30">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white">
             {t('feedback.title', {}, 'Reportes y Feedback')}
           </h1>
-          <p className="text-sm text-slate-300 font-normal mt-1">
-            {t('feedback.subtitle', {}, 'Envía sugerencias, reporta errores o solicita nuevas funciones')}
+          <p className="text-xs sm:text-sm text-slate-400 font-normal mt-0.5">
+            {t('feedback.subtitle', {}, 'Envía sugerencias, reporta errores o solicita funciones')}
           </p>
         </div>
       </header>
 
       {/* Symmetrical 2-Column Grid (items-stretch 2/3 Form + 1/3 Support Info & SLA) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch relative z-10">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 items-stretch relative z-10">
         
         {/* Left Column (2/3 Width - Form Card) */}
-        <div className="lg:col-span-2 p-7 md:p-8 rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl space-y-5 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]">
+        <div className="lg:col-span-2 p-4 sm:p-7 md:p-8 rounded-2xl sm:rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl space-y-4 sm:space-y-5 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]">
           
-          <div className="flex items-center gap-3 border-b border-white/5 pb-4">
-            <div className="w-10 h-10 rounded-xl bg-[#AEEDD0]/15 border border-[#AEEDD0]/30 flex items-center justify-center text-[#AEEDD0] shrink-0 font-bold">
-              <MessageSquarePlus className="w-5 h-5" />
+          <div className="flex items-center gap-3 border-b border-white/5 pb-3 sm:pb-4">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#AEEDD0]/15 border border-[#AEEDD0]/30 flex items-center justify-center text-[#AEEDD0] shrink-0 font-bold">
+              <MessageSquarePlus className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
               <h3 className="text-base font-bold text-white">{t('feedback.title', {}, 'Reportes y Feedback')}</h3>

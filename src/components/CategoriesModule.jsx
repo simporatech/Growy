@@ -176,38 +176,28 @@ export default function CategoriesModule() {
   }, [categoryToDelete, deleteCategory]);
 
   return (
-    <div className="w-full space-y-6 animate-fadeIn">
+    <div className="w-full space-y-4 sm:space-y-6 animate-fadeIn">
       
       {/* Standardized Header */}
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full relative z-30">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
+      <header className="flex items-center justify-between gap-2.5 w-full relative z-30">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white truncate">
             {t('categories.title', {}, 'Categorías y Presupuestos')}
           </h1>
-          <p className="text-sm text-slate-300 mt-1 block font-normal">
-            {t('categories.subtitle', {}, 'Define límites mensuales para tus gastos y metas de ingresos')}
+          <p className="text-xs sm:text-sm text-slate-400 mt-0.5 block font-normal truncate">
+            {t('categories.subtitle', {}, 'Límites mensuales para gastos y metas')}
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-          {/* Real-Time Search Bar */}
-          <div className="relative flex-1 sm:w-60 min-w-[180px]">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder={t('placeholders.search', {}, 'Buscar por nombre...')}
-              className="w-full h-10 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#AEEDD0] shadow-inner transition-colors"
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="hidden sm:block">
+            <ExportDropdown
+              data={filteredCategories}
+              columns={categoryColumns}
+              title={t('categories.title', {}, 'Categorías y Presupuestos')}
+              filename="categorias_growy"
             />
           </div>
-
-          <ExportDropdown
-            data={filteredCategories}
-            columns={categoryColumns}
-            title={t('categories.title', {}, 'Categorías y Presupuestos')}
-            filename="categorias_growy"
-          />
 
           <button
             onClick={() => {
@@ -215,58 +205,81 @@ export default function CategoriesModule() {
               setInitialType(activeTabType);
               setIsModalOpen(true);
             }}
-            className="h-10 px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-2 shrink-0 cursor-pointer"
+            className="h-9 sm:h-10 px-3 sm:px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-1.5 shrink-0 cursor-pointer"
           >
             <Plus size={15} />
-            <span>{t('categories.newCategory', {}, 'Nueva Categoría')}</span>
+            <span className="hidden sm:inline">{t('categories.newCategory', {}, 'Nueva Categoría')}</span>
+            <span className="sm:hidden">{t('common.new', {}, 'Nueva')}</span>
           </button>
         </div>
       </header>
 
+      {/* Toolbar: Search and Mobile Export */}
+      <div className="flex items-center gap-2 w-full relative z-20">
+        <div className="relative flex-1">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder={t('placeholders.search', {}, 'Buscar por nombre...')}
+            className="w-full h-10 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#AEEDD0] shadow-inner transition-colors"
+          />
+        </div>
+        <div className="sm:hidden shrink-0">
+          <ExportDropdown
+            data={filteredCategories}
+            columns={categoryColumns}
+            title={t('categories.title', {}, 'Categorías y Presupuestos')}
+            filename="categorias_growy"
+          />
+        </div>
+      </div>
+
       {/* Hero Banner: Dynamic Bimodal (Expense vs Income Goals) */}
-      <div className="w-full bg-[#141E22]/70 border border-white/10 rounded-2xl p-6 mb-8 backdrop-blur-md relative z-10 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] transition-all duration-300 ease-in-out">
+      <div className="w-full bg-[#141E22]/70 border border-white/10 rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6 backdrop-blur-md relative z-10 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] transition-all duration-300 ease-in-out">
         
         {activeTabType === 'expense' ? (
           /* MODO A: PRESUPUESTO DE GASTOS */
           <>
             {/* Fila 1: Resumen Principal y Barra de Progreso */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center pb-6 border-b border-white/10">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-center pb-4 sm:pb-6 border-b border-white/10">
               {/* Gasto actual vs Límite */}
               <div className="lg:col-span-4">
-                <span className="text-xs font-semibold tracking-wider text-[#AEEDD0] uppercase block">
+                <span className="text-[10px] sm:text-xs font-semibold tracking-wider text-[#AEEDD0] uppercase block">
                   {t('categories.globalBudgetLabel', {}, 'PRESUPUESTO MENSUAL GLOBAL')}
                 </span>
                 <div className="flex items-baseline gap-2 mt-1">
-                  <span className="text-3xl font-bold text-white tabular-nums tracking-tight">
+                  <span className="text-2xl sm:text-3xl font-bold text-white tabular-nums tracking-tight">
                     {formatCurrency(totalExecutedExpense)}
                   </span>
-                  <span className="text-sm font-normal text-slate-400">
-                    / {formatCurrency(totalTargetExpense)} {t('categories.totalLimitLabel', {}, 'límite total')}
+                  <span className="text-xs sm:text-sm font-normal text-slate-400">
+                    / {formatCurrency(totalTargetExpense)}
                   </span>
                 </div>
               </div>
 
               {/* Restante Disponible */}
               <div className="lg:col-span-3">
-                <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase block">
+                <span className="text-[10px] sm:text-xs font-semibold tracking-wider text-slate-400 uppercase block">
                   {t('categories.remainingAvailable', {}, 'Restante disponible')}
                 </span>
-                <span className={`text-2xl font-bold tabular-nums tracking-tight mt-1 block ${remainingBudget >= 0 ? 'text-[#AEEDD0]' : 'text-rose-400'}`}>
+                <span className={`text-xl sm:text-2xl font-bold tabular-nums tracking-tight mt-1 block ${remainingBudget >= 0 ? 'text-[#AEEDD0]' : 'text-rose-400'}`}>
                   {formatCurrency(remainingBudget)}
                 </span>
               </div>
 
               {/* Barra de Progreso y Porcentaje */}
-              <div className="lg:col-span-5 space-y-2">
+              <div className="lg:col-span-5 space-y-1.5 sm:space-y-2">
                 <div className="flex items-center justify-between text-xs font-semibold">
                   <span className="text-slate-300 uppercase tracking-wider">
-                    {t('categories.budgetConsumption', {}, 'Consumo de Presupuesto')}
+                    {t('categories.budgetConsumption', {}, 'Consumo')}
                   </span>
                   <span className="text-white tabular-nums font-bold">
                     {globalPercentage.toFixed(0)}%
                   </span>
                 </div>
-                <div className="w-full bg-black/40 rounded-full h-3 p-0.5 border border-white/10 overflow-hidden">
+                <div className="w-full bg-black/40 rounded-full h-2.5 sm:h-3 p-0.5 border border-white/10 overflow-hidden">
                   <div 
                     className="bg-gradient-to-r from-[#AEEDD0] to-emerald-400 h-full rounded-full transition-all duration-500"
                     style={{ width: `${Math.min(globalPercentage, 100)}%` }}
@@ -275,8 +288,8 @@ export default function CategoriesModule() {
               </div>
             </div>
 
-            {/* Fila 2: Métricas Secundarias */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-5">
+            {/* Fila 2: Métricas Secundarias (2x2 Grid en mobile) */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6 pt-3.5 sm:pt-5">
               {/* Superávit / Meta */}
               <div>
                 <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase block">
@@ -331,43 +344,43 @@ export default function CategoriesModule() {
           /* MODO B: METAS DE INGRESO (INCOME GOALS) */
           <>
             {/* Fila 1: Resumen Principal de Ingresos y Progreso */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center pb-6 border-b border-white/10">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-center pb-4 sm:pb-6 border-b border-white/10">
               {/* Recaudado vs Meta Total */}
               <div className="lg:col-span-4">
-                <span className="text-xs font-semibold tracking-wider text-cyan-400 uppercase block">
+                <span className="text-[10px] sm:text-xs font-semibold tracking-wider text-cyan-400 uppercase block">
                   {t('categories.globalIncomeGoalLabel', {}, 'META GLOBAL DE INGRESOS')}
                 </span>
                 <div className="flex items-baseline gap-2 mt-1">
-                  <span className="text-3xl font-bold text-white tabular-nums tracking-tight">
+                  <span className="text-2xl sm:text-3xl font-bold text-white tabular-nums tracking-tight">
                     {formatCurrency(totalIncomeMonth)}
                   </span>
-                  <span className="text-sm font-normal text-slate-400">
-                    / {formatCurrency(totalTargetIncome)} {t('categories.totalIncomeGoalLimitLabel', {}, 'meta total')}
+                  <span className="text-xs sm:text-sm font-normal text-slate-400">
+                    / {formatCurrency(totalTargetIncome)}
                   </span>
                 </div>
               </div>
 
               {/* Faltante para la Meta */}
               <div className="lg:col-span-3">
-                <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase block">
+                <span className="text-[10px] sm:text-xs font-semibold tracking-wider text-slate-400 uppercase block">
                   {t('categories.remainingToGoal', {}, 'Faltante para la Meta')}
                 </span>
-                <span className="text-2xl font-bold text-cyan-400 tabular-nums tracking-tight mt-1 block">
+                <span className="text-xl sm:text-2xl font-bold text-cyan-400 tabular-nums tracking-tight mt-1 block">
                   {formatCurrency(remainingIncomeGoal)}
                 </span>
               </div>
 
               {/* Barra de Progreso y Porcentaje de Meta */}
-              <div className="lg:col-span-5 space-y-2">
+              <div className="lg:col-span-5 space-y-1.5 sm:space-y-2">
                 <div className="flex items-center justify-between text-xs font-semibold">
                   <span className="text-slate-300 uppercase tracking-wider">
-                    {t('categories.goalProgress', {}, 'Progreso de Meta')}
+                    {t('categories.goalProgress', {}, 'Progreso')}
                   </span>
                   <span className="text-white tabular-nums font-bold">
                     {incomeGoalPercentage.toFixed(0)}%
                   </span>
                 </div>
-                <div className="w-full bg-black/40 rounded-full h-3 p-0.5 border border-white/10 overflow-hidden">
+                <div className="w-full bg-black/40 rounded-full h-2.5 sm:h-3 p-0.5 border border-white/10 overflow-hidden">
                   <div 
                     className="bg-gradient-to-r from-cyan-400 to-[#AEEDD0] h-full rounded-full transition-all duration-500"
                     style={{ width: `${Math.min(incomeGoalPercentage, 100)}%` }}
@@ -376,18 +389,18 @@ export default function CategoriesModule() {
               </div>
             </div>
 
-            {/* Fila 2: Métricas Secundarias para Ingresos */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-5">
+            {/* Fila 2: Métricas Secundarias para Ingresos (2x2 en mobile) */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6 pt-3.5 sm:pt-5">
               {/* Proyección de Cumplimiento */}
               <div>
                 <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase block">
-                  {t('categories.complianceProjection', {}, 'PROYECCIÓN DE CUMPLIMIENTO')}
+                  {t('categories.complianceProjection', {}, 'PROYECCIÓN')}
                 </span>
-                <p className="text-lg font-bold text-white tabular-nums mt-1">
+                <p className="text-base sm:text-lg font-bold text-white tabular-nums mt-1">
                   {incomeGoalPercentage}%
                 </p>
-                <span className="text-xs font-medium text-cyan-400 mt-0.5 block">
-                  {t('categories.completedOfGoal', {}, 'completado de la meta')}
+                <span className="text-[11px] sm:text-xs font-medium text-cyan-400 mt-0.5 block">
+                  {t('categories.completedOfGoal', {}, 'de la meta')}
                 </span>
               </div>
 
@@ -396,10 +409,10 @@ export default function CategoriesModule() {
                 <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase block">
                   {t('categories.cycleDaysLeft', {}, 'DÍAS RESTANTES')}
                 </span>
-                <p className="text-lg font-bold text-white tabular-nums mt-1 flex items-center gap-1.5">
-                  <span className="text-sm">🕒</span> {remainingDays === 1 ? (language === 'es' ? '1 Día' : '1 Day') : `${remainingDays} ${language === 'es' ? 'Días' : 'Days'}`}
+                <p className="text-base sm:text-lg font-bold text-white tabular-nums mt-1 flex items-center gap-1.5">
+                  <span className="text-xs sm:text-sm">🕒</span> {remainingDays === 1 ? (language === 'es' ? '1 Día' : '1 Day') : `${remainingDays} ${language === 'es' ? 'Días' : 'Days'}`}
                 </p>
-                <span className="text-xs text-slate-400 mt-0.5 block">
+                <span className="text-[11px] sm:text-xs text-slate-400 mt-0.5 block">
                   {t('categories.cycleEndNotice', {}, 'cierre de mes')}
                 </span>
               </div>
@@ -407,22 +420,22 @@ export default function CategoriesModule() {
               {/* Ingreso Diario Sugerido */}
               <div>
                 <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase block">
-                  {t('categories.suggestedDailyIncome', {}, 'INGRESO DIARIO SUGERIDO')}
+                  {t('categories.suggestedDailyIncome', {}, 'INGRESO DIARIO')}
                 </span>
-                <p className="text-lg font-bold text-cyan-400 tabular-nums mt-1">
+                <p className="text-base sm:text-lg font-bold text-cyan-400 tabular-nums mt-1">
                   {formatCurrency(suggestedDailyIncome)} / {t('common.day', {}, 'día')}
                 </p>
-                <span className="text-xs text-slate-400 mt-0.5 block">
-                  {t('categories.toReachGoal', {}, 'para llegar a la meta')}
+                <span className="text-[11px] sm:text-xs text-slate-400 mt-0.5 block">
+                  {t('categories.toReachGoal', {}, 'para meta')}
                 </span>
               </div>
 
               {/* Estado de Meta */}
               <div>
-                <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase block mb-1.5">
-                  {t('categories.goalStatus', {}, 'ESTADO DE META')}
+                <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase block mb-1">
+                  {t('categories.goalStatus', {}, 'ESTADO')}
                 </span>
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border shadow-sm ${incomeGoalStatus.badgeClass}`}>
+                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold border shadow-sm ${incomeGoalStatus.badgeClass}`}>
                   {incomeGoalStatus.label}
                 </span>
               </div>
@@ -432,30 +445,30 @@ export default function CategoriesModule() {
 
       </div>
 
-      {/* Segmented Tab Filter: Gastos vs Ingresos */}
-      <div className="flex items-center justify-between gap-4 relative z-10">
-        <div className="flex items-center gap-2 p-1 rounded-2xl bg-white/[0.03] border border-white/5">
+      {/* Segmented Tab Filter: Gastos vs Ingresos (Horizontal Touch Slider) */}
+      <div className="flex items-center justify-between gap-3 relative z-10">
+        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-white/[0.03] border border-white/5 overflow-x-auto no-scrollbar w-full sm:w-auto">
           <button
             onClick={() => setActiveTabType('expense')}
-            className={`h-11 px-5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
+            className={`flex-1 sm:flex-initial h-10 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
               activeTabType === 'expense'
                 ? 'bg-[#FF6B6B]/20 text-[#FF6B6B] border border-[#FF6B6B]/30 font-bold shadow'
                 : 'text-slate-300 hover:text-white'
             }`}
           >
-            <ArrowDownRight className="w-4 h-4 text-[#FF6B6B]" />
+            <ArrowDownRight className="w-3.5 h-3.5 text-[#FF6B6B]" />
             <span>{t('categories.expenseCategories', {}, 'Categorías de Gasto')}</span>
           </button>
 
           <button
             onClick={() => setActiveTabType('income')}
-            className={`h-11 px-5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
+            className={`flex-1 sm:flex-initial h-10 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
               activeTabType === 'income'
                 ? 'bg-[var(--color-primary,#AEEDD0)]/20 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/30 font-bold shadow'
                 : 'text-slate-300 hover:text-white'
             }`}
           >
-            <ArrowUpRight className="w-4 h-4 text-[var(--color-primary,#AEEDD0)]" />
+            <ArrowUpRight className="w-3.5 h-3.5 text-[var(--color-primary,#AEEDD0)]" />
             <span>{t('categories.incomeCategories', {}, 'Categorías de Ingreso')}</span>
           </button>
         </div>
@@ -466,8 +479,8 @@ export default function CategoriesModule() {
         {filteredCategories.length === 0 ? (
           <div className="p-6 rounded-2xl bg-[#1E2D32]/60 border border-white/10 backdrop-blur-md text-center text-slate-300 space-y-3">
             <Tag className="w-12 h-12 text-slate-400 mx-auto" />
-            <h3 className="text-lg font-bold text-white tracking-tight">{t('categories.noCategoriesTitle', {}, 'Sin categorías registradas')}</h3>
-            <p className="text-sm text-slate-300 max-w-sm mx-auto font-normal">
+            <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">{t('categories.noCategoriesTitle', {}, 'Sin categorías registradas')}</h3>
+            <p className="text-xs sm:text-sm text-slate-400 max-w-sm mx-auto font-normal">
               {t('categories.noCategoriesDesc', {}, 'Agrega categorías para presupuestar tus compras y agrupar tus transacciones.')}
             </p>
             <button

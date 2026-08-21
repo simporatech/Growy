@@ -11,25 +11,25 @@ export default function AboutModule() {
   const contactEmail = 'simporatech@gmail.com';
 
   return (
-    <div className="w-full space-y-6 animate-fadeIn">
+    <div className="w-full space-y-4 sm:space-y-6 animate-fadeIn">
       
       {/* Standardized View Header */}
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full relative z-30">
+      <header className="flex items-center justify-between gap-3 w-full relative z-30">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white">
             {t('about.title', {}, 'Acerca de SIMPORA')}
           </h1>
-          <p className="text-sm text-slate-300 font-normal mt-1">
-            {t('about.subtitle', {}, 'Conoce al equipo de software detrás del ecosistema Growy')}
+          <p className="text-xs sm:text-sm text-slate-400 font-normal mt-0.5">
+            {t('about.subtitle', {}, 'Conoce al equipo detrás del ecosistema Growy')}
           </p>
         </div>
       </header>
 
       {/* Main Brand Banner Deep Glassmorphism */}
-      <div className="w-full p-7 md:p-8 rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl flex flex-col md:flex-row items-center gap-6 relative z-10 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]">
+      <div className="w-full p-5 sm:p-7 md:p-8 rounded-2xl sm:rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl flex flex-col sm:flex-row items-center gap-4 sm:gap-6 relative z-10 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]">
         
         {/* Isotipo SIMPORA in w-20 h-20 box */}
-        <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center p-3 shrink-0 group hover:scale-105 transition-transform duration-300">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center p-2.5 sm:p-3 shrink-0 group hover:scale-105 transition-transform duration-300">
           <img 
             src="/logos/simpora_isotype.png" 
             alt="SIMPORA" 

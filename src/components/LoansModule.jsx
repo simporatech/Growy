@@ -122,92 +122,149 @@ export default function LoansModule() {
   }, [t]);
 
   return (
-    <div className="w-full space-y-6 animate-fadeIn">
+    <div className="w-full space-y-4 sm:space-y-6 animate-fadeIn">
       
       {/* Standardized Header */}
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full relative z-30">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
+      <header className="flex items-center justify-between gap-2.5 w-full relative z-30">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white truncate">
             {t('loans.title', {}, 'Saldos Pendientes')}
           </h1>
-          <p className="text-sm text-slate-300 mt-1 block font-normal flex items-center gap-2">
+          <p className="text-xs sm:text-sm text-slate-400 mt-0.5 block font-normal truncate">
             <span className="tabular-nums">
               {t('loans.totalPendingLabel', { amount: formatCurrency(totalPendingAmount) }, `Total Pendiente: ${formatCurrency(totalPendingAmount)}`)}
             </span>
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-          <ExportDropdown
-            data={filteredLoans}
-            columns={loanColumns}
-            title={t('loans.title', {}, 'Saldos Pendientes')}
-            filename="saldos_pendientes_growy"
-          />
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="hidden sm:block">
+            <ExportDropdown
+              data={filteredLoans}
+              columns={loanColumns}
+              title={t('loans.title', {}, 'Saldos Pendientes')}
+              filename="saldos_pendientes_growy"
+            />
+          </div>
 
           <button
             onClick={() => {
               setLoanToEdit(null);
               setIsModalOpen(true);
             }}
-            className="h-10 px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-2 shrink-0 cursor-pointer"
+            className="h-9 sm:h-10 px-3 sm:px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-1.5 shrink-0 cursor-pointer"
           >
             <Plus size={15} />
-            <span>{t('loans.newLoan', {}, 'Nuevo Saldo Pendiente')}</span>
+            <span className="hidden sm:inline">{t('loans.newLoan', {}, 'Nuevo Saldo Pendiente')}</span>
+            <span className="sm:hidden">{t('common.new', {}, 'Nuevo')}</span>
           </button>
         </div>
       </header>
 
       {/* Filter Bar */}
-      <div className="p-6 rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-30">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full md:w-auto">
-          {/* Status Filter */}
-          <div className="w-full sm:w-56">
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5 block">
-              {t('loans.filterStatus', {}, 'Filtrar Estado')}
-            </label>
-            <CustomSelect
-              options={statusOptions}
-              value={statusFilter}
-              onChange={setStatusFilter}
+      <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] space-y-3 relative z-30">
+        
+        {/* Mobile Quick Status Chips (< sm) */}
+        <div className="sm:hidden space-y-2.5">
+          <div className="relative w-full">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder={t('placeholders.search', {}, 'Buscar por concepto...')}
+              className="w-full h-10 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#AEEDD0] shadow-inner transition-colors"
             />
           </div>
 
-          {/* Real-Time Search Bar */}
-          <div className="w-full sm:w-64">
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5 block">
-              {t('common.search', {}, 'Buscar')}
-            </label>
-            <div className="relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder={t('placeholders.search', {}, 'Buscar por concepto...')}
-                className="w-full h-10 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#AEEDD0] shadow-inner transition-colors"
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+              {statusOptions.map(opt => (
+                <button
+                  key={opt.value}
+                  onClick={() => setStatusFilter(opt.value)}
+                  className={`h-8 px-3 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                    statusFilter === opt.value
+                      ? 'bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] shadow-sm'
+                      : 'bg-white/5 text-slate-300 hover:text-white border border-white/5'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="shrink-0">
+              <ExportDropdown
+                data={filteredLoans}
+                columns={loanColumns}
+                title={t('loans.title', {}, 'Saldos Pendientes')}
+                filename="saldos_pendientes_growy"
               />
             </div>
           </div>
         </div>
 
-        <div className="text-xs text-slate-300 font-medium tabular-nums self-end md:self-center">
-          {t('loans.showingRecords', { count: filteredLoans.length }, `Mostrando ${filteredLoans.length} registros`)}
+        {/* Desktop / Tablet Filter Bar (>= sm) */}
+        <div className="hidden sm:flex sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4 flex-1">
+            {/* Status Filter */}
+            <div className="w-56">
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1 block">
+                {t('loans.filterStatus', {}, 'Filtrar Estado')}
+              </label>
+              <CustomSelect
+                options={statusOptions}
+                value={statusFilter}
+                onChange={setStatusFilter}
+              />
+            </div>
+
+            {/* Real-Time Search Bar */}
+            <div className="flex-1 max-w-md">
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1 block">
+                {t('common.search', {}, 'Buscar')}
+              </label>
+              <div className="relative">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder={t('placeholders.search', {}, 'Buscar por concepto...')}
+                  className="w-full h-10 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#AEEDD0] shadow-inner transition-colors"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0 pt-4">
+            <ExportDropdown
+              data={filteredLoans}
+              columns={loanColumns}
+              title={t('loans.title', {}, 'Saldos Pendientes')}
+              filename="saldos_pendientes_growy"
+            />
+            <div className="text-xs text-slate-400 font-medium tabular-nums">
+              {t('loans.showingRecords', { count: filteredLoans.length }, `${filteredLoans.length} registros`)}
+            </div>
+          </div>
         </div>
+
       </div>
 
       {/* List View */}
-      <div className="w-full space-y-3 relative z-10">
+      <div className="w-full space-y-2.5 relative z-10">
         {filteredLoans.length === 0 ? (
-          <div className="p-8 rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] text-center text-slate-300 space-y-3">
+          <div className="p-6 sm:p-8 rounded-2xl sm:rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] text-center text-slate-300 space-y-3">
             <Percent className="w-12 h-12 text-slate-400 mx-auto" />
-            <h3 className="text-lg font-bold text-white tracking-tight">{t('loans.noLoansTitle', {}, 'Sin saldos pendientes')}</h3>
-            <p className="text-sm text-slate-300 max-w-sm mx-auto font-normal">
+            <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">{t('loans.noLoansTitle', {}, 'Sin saldos pendientes')}</h3>
+            <p className="text-xs sm:text-sm text-slate-400 max-w-sm mx-auto font-normal">
               {t('loans.noLoansDesc', {}, '¡Excelente! No tienes compromisos financieros registrados en esta categoría.')}
             </p>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="h-11 px-5 rounded-xl btn-primary-mint font-bold text-sm inline-flex items-center gap-2 shadow cursor-pointer"
+              className="h-10 px-4 rounded-xl btn-primary-mint font-bold text-xs inline-flex items-center gap-2 shadow cursor-pointer"
             >
               <Plus className="w-4 h-4" /> {t('loans.newLoan', {}, 'Nuevo Saldo Pendiente')}
             </button>
@@ -226,73 +283,73 @@ export default function LoansModule() {
             return (
               <div
                 key={loan.id || Math.random()}
-                className={`p-5 rounded-xl bg-[#162226] border flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all group ${
+                className={`p-3.5 sm:p-4 rounded-2xl bg-[#162226] border flex flex-col justify-between gap-2.5 transition-all group ${
                   isPaid ? 'border-emerald-500/20 bg-emerald-500/[0.02] opacity-75' : 'border-white/10 hover:bg-white/[0.06]'
                 }`}
               >
-                <div className="flex items-center gap-4 min-w-0 pr-2">
-                  <div className={`w-2 h-12 rounded-full shrink-0 ${
-                    isPaid ? 'bg-emerald-400' : urgency.label.includes('Vence') || urgency.label.includes('Vencido') || urgency.label.includes('Overdue') ? 'bg-rose-400 animate-pulse' : 'bg-[var(--color-primary,#AEEDD0)]'
-                  }`} />
+                {/* FILA 1: Emoji + Nombre Completo + Badge de Urgencia */}
+                <div className="flex items-center justify-between gap-2.5">
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <div className={`w-1.5 h-8 rounded-full shrink-0 ${
+                      isPaid ? 'bg-emerald-400' : urgency.label.includes('Vence') || urgency.label.includes('Vencido') || urgency.label.includes('Overdue') ? 'bg-rose-400 animate-pulse' : 'bg-[var(--color-primary,#AEEDD0)]'
+                    }`} />
 
-                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-lg shrink-0">
-                    {cat?.emoji || '📄'}
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-sm sm:text-base shrink-0">
+                      {cat?.emoji || '📄'}
+                    </div>
+
+                    <h4 className="text-sm font-bold text-white group-hover:text-[var(--color-primary,#AEEDD0)] transition-colors truncate">
+                      {conceptValue}
+                    </h4>
                   </div>
 
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h4 className="text-sm font-bold text-white group-hover:text-[var(--color-primary,#AEEDD0)] transition-colors truncate">
-                        {conceptValue}
-                      </h4>
-                      <span className={`text-xs font-bold px-2 py-0.5 rounded-md border ${urgency.color}`}>
-                        {urgency.label}
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border shrink-0 ${urgency.color}`}>
+                    {urgency.label}
+                  </span>
+                </div>
+
+                {/* FILA 2: Categoría & Fecha + Monto Grande + Botón Pagar / Acciones */}
+                <div className="flex items-center justify-between gap-3 pt-2 border-t border-white/5">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[11px] sm:text-xs text-slate-400 font-medium truncate">
+                      {cat?.name || 'Uncategorized'} • {language === 'es' ? 'Vence' : 'Due'}: <strong className="text-slate-300 font-semibold">{dueDateValue || 'N/A'}</strong>
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2.5 shrink-0">
+                    <div className="text-right">
+                      <span className={`text-sm sm:text-base font-extrabold tabular-nums block ${isPaid ? 'text-emerald-400 line-through' : 'text-amber-400'}`}>
+                        {formatCurrency(parseNumeric(loan.amount, 0), loan.currency || 'USD')}
                       </span>
                     </div>
 
-                    <p className="text-xs text-slate-300 font-medium truncate mt-0.5">
-                      {cat?.name || 'Uncategorized'} • {language === 'es' ? 'Inicio' : 'Start'}: {startDateValue} • {language === 'es' ? 'Vence' : 'Due'}: {dueDateValue || 'N/A'}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between md:justify-end gap-4 shrink-0 border-t md:border-t-0 pt-3 md:pt-0 border-white/5">
-                  <div className="text-right">
-                    <span className="text-xs uppercase font-semibold text-slate-300 block">
-                      {isPaid ? t('loans.amountPaid', {}, 'Monto Pagado') : t('loans.pendingBalance', {}, 'Saldo Pendiente')}
-                    </span>
-                    <div className={`text-base sm:text-lg font-bold tabular-nums ${isPaid ? 'text-emerald-400 line-through' : 'text-amber-400'}`}>
-                      {formatCurrency(parseNumeric(loan.amount, 0), loan.currency || 'USD')}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
                     {!isPaid && (
                       <button
                         onClick={() => setLoanToPay(loan)}
-                        className="h-11 px-5 rounded-xl btn-primary-mint text-xs font-bold flex items-center gap-2 shadow cursor-pointer active:scale-95 transition-transform"
+                        className="h-8 px-2.5 sm:px-3 rounded-xl btn-primary-mint text-xs font-bold flex items-center gap-1.5 shadow cursor-pointer active:scale-95 transition-transform"
                       >
-                        <CheckCircle className="w-4 h-4" />
-                        <span>{t('common.payNow', {}, 'Pagar Ahora')}</span>
+                        <CheckCircle className="w-3.5 h-3.5" />
+                        <span>{t('common.payNow', {}, 'Pagar')}</span>
                       </button>
                     )}
 
-                    <div className="flex items-center gap-1 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-0.5 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={() => {
                           setLoanToEdit(loan);
                           setIsModalOpen(true);
                         }}
-                        className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                        className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
                         title={t('common.edit', {}, 'Editar')}
                       >
-                        <Edit2 className="w-4 h-4" />
+                        <Edit2 className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => setLoanToDelete(loan)}
-                        className="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                        className="p-1.5 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
                         title={t('common.delete', {}, 'Eliminar')}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
