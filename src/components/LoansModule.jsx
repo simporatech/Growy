@@ -299,7 +299,11 @@ export default function LoansModule() {
             return (
               <div
                 key={loan.id || Math.random()}
-                className={`p-3.5 sm:p-4 rounded-2xl bg-[#162226] border flex flex-col justify-between gap-2.5 transition-all group ${
+                onClick={() => {
+                  setLoanToEdit(loan);
+                  setIsModalOpen(true);
+                }}
+                className={`p-3.5 sm:p-4 rounded-2xl bg-[#162226] border flex flex-col justify-between gap-2.5 transition-all group cursor-pointer ${
                   isPaid ? 'border-emerald-500/20 bg-emerald-500/[0.02] opacity-75' : 'border-white/10 hover:bg-white/[0.06]'
                 }`}
               >
@@ -341,7 +345,10 @@ export default function LoansModule() {
 
                     {!isPaid && (
                       <button
-                        onClick={() => setLoanToPay(loan)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setLoanToPay(loan);
+                        }}
                         className="h-8 px-2.5 sm:px-3 rounded-xl btn-primary-mint text-xs font-bold flex items-center gap-1.5 shadow cursor-pointer active:scale-95 transition-transform"
                       >
                         <CheckCircle className="w-3.5 h-3.5" />
@@ -351,21 +358,14 @@ export default function LoansModule() {
 
                     <div className="flex items-center gap-0.5 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                       <button
-                        onClick={() => {
-                          setLoanToEdit(loan);
-                          setIsModalOpen(true);
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setLoanToDelete(loan);
                         }}
-                        className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-                        title={t('common.edit', {}, 'Editar')}
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => setLoanToDelete(loan)}
                         className="p-1.5 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
                         title={t('common.delete', {}, 'Eliminar')}
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>

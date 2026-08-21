@@ -42,28 +42,32 @@ export function ForgotPasswordModal({ isOpen, onClose }) {
       iconTextColor="text-[#AEEDD0]"
     >
       {!sent ? (
-        <form onSubmit={handleReset} className="space-y-4">
-          <FormField
-            label={t('modals.auth.email', {}, 'Correo Electrónico')}
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="tu@email.com"
-          />
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full h-11 px-6 rounded-xl btn-primary-mint font-bold text-sm flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 cursor-pointer"
-          >
-            {loading ? t('modals.auth.sendingLink', {}, 'Enviando enlace...') : (
-              <>
-                <span>{t('modals.auth.sendLink', {}, 'Enviar enlace de recuperación')}</span>
-                <Send className="w-4 h-4" />
-              </>
-            )}
-          </button>
+        <form onSubmit={handleReset} className="flex-1 flex flex-col min-h-0">
+          <div className="flex-1 overflow-y-auto overscroll-contain custom-scrollbar p-5 space-y-4">
+            <FormField
+              label={t('modals.auth.email', {}, 'Correo Electrónico')}
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="tu@email.com"
+            />
+          </div>
+          
+          <div className="shrink-0 p-4 border-t border-white/10 bg-[#0E171B] flex gap-3 z-10">
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 py-3 px-4 rounded-xl bg-[#5EEAD4] text-[#0A1316] font-semibold hover:bg-[#2DD4BF] transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            >
+              {loading ? t('modals.auth.sendingLink', {}, 'Enviando enlace...') : (
+                <>
+                  <span>{t('modals.auth.sendLink', {}, 'Enviar enlace de recuperación')}</span>
+                  <Send className="w-4 h-4" />
+                </>
+              )}
+            </button>
+          </div>
         </form>
       ) : (
         <div className="text-center py-4 space-y-4">
@@ -196,8 +200,9 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
       error={error}
     >
       {!registeredUser ? (
-        <form onSubmit={handleSubmit} className="space-y-3.5">
-          <div className="space-y-1.5">
+        <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
+          <div className="flex-1 overflow-y-auto overscroll-contain custom-scrollbar p-5 space-y-4">
+            <div className="space-y-1.5">
             <label className="text-xs font-semibold text-slate-300 block">
               {t('modals.auth.fullName', {}, 'Nombre Completo')} *
             </label>
@@ -326,21 +331,23 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
               {t('modals.auth.masterPinNotice', {}, 'Registro exclusivo con invitación de administrador')}
             </span>
           </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full h-11 px-6 rounded-xl btn-primary-mint font-bold text-sm flex items-center justify-center gap-2 shadow-lg cursor-pointer mt-2 disabled:opacity-70 disabled:cursor-not-allowed"
-          >
-            {loading ? (
-              <span>{t('modals.auth.validating', {}, 'Procesando...')}</span>
-            ) : (
-              <>
-                <span>{t('modals.auth.createFreeAccount', {}, 'Crear Cuenta Gratis')}</span>
-                <ArrowRight className="w-4 h-4" />
-              </>
-            )}
-          </button>
+          </div>
+          <div className="shrink-0 p-4 border-t border-white/10 bg-[#0E171B] flex gap-3 z-10">
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 py-3 px-4 rounded-xl bg-[#5EEAD4] text-[#0A1316] font-semibold hover:bg-[#2DD4BF] transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <span>{t('modals.auth.validating', {}, 'Procesando...')}</span>
+              ) : (
+                <>
+                  <span>{t('modals.auth.createFreeAccount', {}, 'Crear Cuenta Gratis')}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+          </div>
         </form>
       ) : (
         <div className="text-center py-4 space-y-4">

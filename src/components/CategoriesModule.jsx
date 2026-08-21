@@ -506,7 +506,11 @@ export default function CategoriesModule() {
               return (
                 <div
                   key={cat.id || Math.random()}
-                  className="p-5 rounded-xl bg-[#162226] border border-white/10 h-full flex flex-col justify-between space-y-4 relative overflow-hidden group shadow-lg"
+                  onClick={() => {
+                    setCategoryToEdit(cat);
+                    setIsModalOpen(true);
+                  }}
+                  className="p-5 rounded-xl bg-[#162226] border border-white/10 h-full flex flex-col justify-between space-y-4 relative overflow-hidden group shadow-lg cursor-pointer hover:bg-white/[0.04] transition-all"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3 min-w-0 pr-2">
@@ -529,21 +533,14 @@ export default function CategoriesModule() {
 
                     <div className="flex items-center gap-1 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                       <button
-                        onClick={() => {
-                          setCategoryToEdit(cat);
-                          setIsModalOpen(true);
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCategoryToDelete(cat);
                         }}
-                        className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-                        title={t('common.edit', {}, 'Editar')}
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => setCategoryToDelete(cat)}
                         className="p-1.5 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
                         title={t('common.delete', {}, 'Eliminar')}
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>

@@ -40,18 +40,18 @@ export default function ConfirmDeleteModal({
         </div>
 
         {/* Fixed Footer */}
-        <div className="flex-shrink-0 p-5 sm:p-7 border-t border-white/10 bg-[#111C20] flex items-center gap-3 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:pb-7">
+        <div className="shrink-0 p-4 border-t border-white/10 bg-[#0E171B] flex gap-3 z-10">
           <button
             type="button"
             onClick={onClose}
-            className="w-1/2 h-11 rounded-xl bg-white/5 hover:bg-white/10 text-white font-semibold text-sm border border-white/10 active:scale-[0.98] transition-all flex items-center justify-center cursor-pointer"
+            className="flex-1 py-3 px-4 rounded-xl border border-white/10 text-slate-300 font-medium hover:bg-white/5 transition-colors cursor-pointer"
           >
             {cancelText || t('modals.cancel', {}, language === 'es' ? 'Cancelar' : 'Cancel')}
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className="w-1/2 h-11 rounded-xl bg-rose-500 hover:bg-rose-600 active:scale-[0.98] text-white font-bold text-sm shadow-md shadow-rose-500/20 transition-all flex items-center justify-center cursor-pointer"
+            className="flex-1 py-3 px-4 rounded-xl bg-rose-500 text-white font-semibold hover:bg-rose-600 transition-colors cursor-pointer"
           >
             {confirmText || t('modals.delete', {}, language === 'es' ? 'Eliminar' : 'Delete')}
           </button>

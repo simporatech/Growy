@@ -166,7 +166,11 @@ export default function AccountsModule() {
               return (
                 <div
                   key={account.id}
-                  className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 border border-white/10 relative overflow-hidden flex flex-col justify-between min-h-[175px] sm:min-h-[200px] shadow-xl group transition-all duration-300"
+                  onClick={() => {
+                    setAccountToEdit(account);
+                    setIsModalOpen(true);
+                  }}
+                  className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 border border-white/10 relative overflow-hidden flex flex-col justify-between min-h-[175px] sm:min-h-[200px] shadow-xl group transition-all duration-300 cursor-pointer"
                   style={{ background: bgGradient }}
                 >
                   {/* Top Bar: Bank Brand & EMV Chip */}
@@ -212,21 +216,14 @@ export default function AccountsModule() {
 
                     <div className="flex items-center gap-1 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                       <button
-                        onClick={() => {
-                          setAccountToEdit(account);
-                          setIsModalOpen(true);
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setAccountToDelete(account);
                         }}
-                        className="p-1.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-                        title={t('common.edit', {}, 'Editar')}
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => setAccountToDelete(account)}
                         className="p-1.5 rounded-xl text-slate-300 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
                         title={t('common.delete', {}, 'Eliminar')}
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>

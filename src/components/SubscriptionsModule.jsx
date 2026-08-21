@@ -158,7 +158,11 @@ export default function SubscriptionsModule() {
             return (
               <div
                 key={sub.id}
-                className={`rounded-2xl p-3.5 sm:p-4 bg-[#162226] border flex flex-col justify-between gap-2.5 transition-all group ${
+                onClick={() => {
+                  setSubToEdit(sub);
+                  setIsModalOpen(true);
+                }}
+                className={`rounded-2xl p-3.5 sm:p-4 bg-[#162226] border flex flex-col justify-between gap-2.5 transition-all group cursor-pointer ${
                   sub.isActive ? 'border-white/10 hover:bg-white/[0.06]' : 'border-white/5 bg-white/[0.01] opacity-50'
                 }`}
               >
@@ -201,7 +205,10 @@ export default function SubscriptionsModule() {
 
                     {/* Custom Toggle Switch */}
                     <div
-                      onClick={() => toggleSubscription(sub.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleSubscription(sub.id);
+                      }}
                       className={`w-9 sm:w-11 h-5 sm:h-6 rounded-full p-0.5 transition-all cursor-pointer flex items-center shrink-0 ${
                         sub.isActive ? 'bg-[var(--color-primary,#AEEDD0)] justify-end' : 'bg-[#1E2D32] border border-white/20 justify-start'
                       }`}
@@ -214,21 +221,14 @@ export default function SubscriptionsModule() {
 
                     <div className="flex items-center gap-0.5 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                       <button
-                        onClick={() => {
-                          setSubToEdit(sub);
-                          setIsModalOpen(true);
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSubToDelete(sub);
                         }}
-                        className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-                        title={t('common.edit', {}, 'Editar')}
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => setSubToDelete(sub)}
                         className="p-1.5 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
                         title={t('common.delete', {}, 'Eliminar')}
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>

@@ -153,17 +153,17 @@ export default function AccountModal({
         </div>
 
         {/* Fixed Footer */}
-        <div className="flex-shrink-0 p-5 sm:p-7 border-t border-white/10 bg-[#111C20] flex items-center gap-3 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:pb-7">
+        <div className="shrink-0 p-4 border-t border-white/10 bg-[#0E171B] flex gap-3 z-10">
           <button
             type="button"
             onClick={onClose}
-            className="w-1/2 h-11 rounded-xl bg-white/5 hover:bg-white/10 text-white font-semibold text-sm border border-white/10 active:scale-[0.98] transition-all flex items-center justify-center cursor-pointer"
+            className="flex-1 py-3 px-4 rounded-xl border border-white/10 text-slate-300 font-medium hover:bg-white/5 transition-colors cursor-pointer"
           >
             {t('common.cancel', {}, 'Cancelar')}
           </button>
           <button
             type="submit"
-            className="w-1/2 h-11 rounded-xl bg-[var(--color-primary,#AEEDD0)] hover:brightness-105 active:scale-[0.98] text-[#1E2D32] font-bold text-sm shadow-md shadow-[#AEEDD0]/10 transition-all flex items-center justify-center cursor-pointer"
+            className="flex-1 py-3 px-4 rounded-xl bg-[#5EEAD4] text-[#0A1316] font-semibold hover:bg-[#2DD4BF] transition-colors cursor-pointer"
           >
             {accountToEdit ? t('modals.account.updateBtn', {}, 'Actualizar Cuenta') : t('modals.account.saveBtn', {}, 'Guardar Cuenta')}
           </button>

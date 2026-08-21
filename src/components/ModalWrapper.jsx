@@ -29,9 +29,9 @@ export default function ModalWrapper({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-0 sm:p-4">
+    <div className="fixed inset-0 z-[999] bg-black/80 flex items-end sm:items-center justify-center p-0 sm:p-4">
       {/* Modal Dialog Box */}
-      <div className={`w-full max-h-[88vh] sm:max-h-[90vh] bg-[#111C20] border-t sm:border border-white/10 rounded-t-3xl sm:rounded-2xl flex flex-col shadow-2xl overflow-hidden mx-auto ${maxWidth} relative my-0 sm:my-auto animate-in fade-in slide-in-from-bottom duration-200`}>
+      <div className={`w-full max-h-[85vh] sm:max-h-[90vh] bg-[#111C20] flex flex-col overflow-hidden rounded-t-3xl sm:rounded-2xl mx-auto border-t sm:border border-white/10 ${maxWidth} relative my-0 sm:my-auto animate-in fade-in slide-in-from-bottom duration-200`}>
         
         {/* 1. HEADER (Fijo arriba, no scrollea) */}
         <div className="flex flex-col p-5 border-b border-white/10 shrink-0 relative bg-[#111C20] z-20">

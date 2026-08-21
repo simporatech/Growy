@@ -709,7 +709,11 @@ export default function TransactionsModule() {
                     return (
                       <div
                         key={tx.id}
-                        className="p-3.5 sm:px-5 sm:py-3.5 rounded-2xl bg-[#162226] border border-white/10 flex items-center justify-between gap-4 hover:bg-white/[0.06] transition-all group"
+                        onClick={() => {
+                          setTxToEdit(tx);
+                          setIsModalOpen(true);
+                        }}
+                        className="p-3.5 sm:px-5 sm:py-3.5 rounded-2xl bg-[#162226] border border-white/10 flex items-center justify-between gap-4 hover:bg-white/[0.06] transition-all group cursor-pointer"
                       >
                         {/* Col 1 (Izquierda): Icono + Concepto */}
                         <div className="flex items-center gap-3.5 min-w-0 flex-1 sm:max-w-xs lg:max-w-sm">
@@ -751,23 +755,16 @@ export default function TransactionsModule() {
                             {formatCurrency(tx.amount, acc.currency || tx.currency)}
                           </div>
 
-                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                             <button
-                              onClick={() => {
-                                setTxToEdit(tx);
-                                setIsModalOpen(true);
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setTxToDelete(tx);
                               }}
-                              className="p-1.5 rounded-xl text-slate-400 hover:text-[var(--color-primary,#AEEDD0)] hover:bg-white/10 transition-colors cursor-pointer"
-                              title={t('common.edit', {}, 'Editar')}
-                            >
-                              <Edit2 className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              onClick={() => setTxToDelete(tx)}
                               className="p-1.5 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
                               title={t('common.delete', {}, 'Eliminar')}
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
                         </div>
