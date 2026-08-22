@@ -15,13 +15,13 @@ export default function AccountModal({
   onSave, 
   accountToEdit 
 }) {
-  const { t } = useSettings();
+  const { t, baseCurrency: settingsBaseCurrency } = useSettings();
 
   const [name, setName] = useState('');
   const [emoji, setEmoji] = useState('💳');
   const [color, setColor] = useState('#AEEDD0');
-  const [currency, setCurrency] = useState('USD');
-  const [balance, setBalance] = useState('');
+  const [currency, setCurrency] = useState(settingsBaseCurrency || 'USD');
+  const [initialBalance, setInitialBalance] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -32,20 +32,24 @@ export default function AccountModal({
       setEmoji(accountToEdit.emoji || '💳');
       setColor(accountToEdit.color || '#AEEDD0');
       setCurrency(accountToEdit.currency || 'USD');
-      setBalance(accountToEdit.initialBalance !== undefined ? accountToEdit.initialBalance.toString() : accountToEdit.balance !== undefined ? accountToEdit.balance.toString() : '');
+      const initialVal = accountToEdit.initialBalance !== undefined 
+        ? accountToEdit.initialBalance 
+        : (accountToEdit.initial_balance !== undefined ? accountToEdit.initial_balance : (accountToEdit.balance ?? ''));
+      setInitialBalance(initialVal !== undefined && initialVal !== null ? initialVal.toString() : '');
     } else {
       setName('');
       setEmoji('💳');
       setColor('#AEEDD0');
-      setCurrency('USD');
-      setBalance('');
+      setCurrency(settingsBaseCurrency || 'USD');
+      setInitialBalance('');
     }
     setError('');
-  }, [accountToEdit, isOpen]);
+  }, [accountToEdit, isOpen, settingsBaseCurrency]);
 
   if (!isOpen) return null;
 
   const currencySymbol = getCurrencySymbol(currency);
+  const currentCalculatedBalance = Number(accountToEdit?.currentBalance ?? accountToEdit?.balance ?? 0);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -56,7 +60,7 @@ export default function AccountModal({
       return;
     }
 
-    const numBalance = parseNumeric(balance, 0);
+    const numInitialBalance = parseNumeric(initialBalance, 0);
 
     onSave({
       id: accountToEdit ? accountToEdit.id : undefined,
@@ -65,7 +69,9 @@ export default function AccountModal({
       color,
       currency,
       currencySymbol,
-      balance: numBalance
+      initialBalance: numInitialBalance,
+      initial_balance: numInitialBalance,
+      balance: numInitialBalance
     });
 
     onClose();
@@ -87,6 +93,24 @@ export default function AccountModal({
         
         {/* Scrollable Form Body */}
         <div className="flex-1 overflow-y-auto overscroll-contain custom-scrollbar p-5 sm:p-7 space-y-4">
+          
+          {/* Read-Only Current Balance Display Badge (When Editing Existing Account) */}
+          {accountToEdit && (
+            <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300">
+                  {t('modals.account.currentBalanceBadge', {}, 'Saldo Actual Calculado')}
+                </span>
+                <span className="text-[11px] text-slate-400">
+                  {t('modals.account.currentBalanceNote', {}, '(Saldo inicial + ingresos - gastos ± traspasos)')}
+                </span>
+              </div>
+              <span className="text-base sm:text-lg font-black text-[var(--color-primary,#AEEDD0)] tabular-nums">
+                {currencySymbol} {currentCalculatedBalance.toLocaleString('es-HN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+            </div>
+          )}
+
           <div className="flex items-start gap-3">
             <div>
               <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2 block">
@@ -120,14 +144,26 @@ export default function AccountModal({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <FormField label={t('modals.account.color', {}, 'Color de Identificación')}>
-              <div className="flex items-center gap-3 h-11 px-3 bg-[#162226] border border-white/10 rounded-xl">
-                <input
-                  type="color"
-                  value={color}
-                  onChange={(e) => setColor(e.target.value)}
-                  className="w-7 h-7 rounded-md border-0 bg-transparent cursor-pointer p-0"
-                />
-                <span className="text-xs font-mono font-bold text-slate-200 uppercase">{color}</span>
+              <div className="flex items-center gap-2 flex-wrap">
+                {[
+                  { hex: '#5EEAD4', name: 'Menta' },
+                  { hex: '#38BDF8', name: 'Celeste' },
+                  { hex: '#818CF8', name: 'Índigo' },
+                  { hex: '#F472B6', name: 'Rosa' },
+                  { hex: '#FCD34D', name: 'Dorado' },
+                  { hex: '#34D399', name: 'Esmeralda' }
+                ].map((c) => (
+                  <button
+                    key={c.hex}
+                    type="button"
+                    onClick={() => setColor(c.hex)}
+                    className={`w-9 h-9 rounded-xl border-2 transition-all cursor-pointer hover:scale-110 ${
+                      color === c.hex ? 'border-white shadow-lg scale-110' : 'border-white/10'
+                    }`}
+                    style={{ backgroundColor: c.hex }}
+                    title={c.name}
+                  />
+                ))}
               </div>
             </FormField>
 
@@ -141,13 +177,14 @@ export default function AccountModal({
           </div>
 
           <FormField
-            label={t('modals.account.balance', {}, 'Balance Actual')}
+            label={t('modals.account.initialBalance', {}, 'SALDO INICIAL')}
+            helperText={t('modals.account.initialBalanceHelper', {}, 'Monto de apertura con el que comienza la cuenta')}
             prefix={currencySymbol}
             type="number"
             step="0.01"
             required
-            value={balance}
-            onChange={(e) => setBalance(e.target.value)}
+            value={initialBalance}
+            onChange={(e) => setInitialBalance(e.target.value)}
             placeholder="0.00"
           />
         </div>

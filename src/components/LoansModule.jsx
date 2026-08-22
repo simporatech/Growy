@@ -167,14 +167,22 @@ export default function LoansModule() {
       </header>
 
       {/* CONSOLIDATED BALANCES CARD */}
-      <div className="w-full relative z-10 grid grid-cols-2 gap-3 bg-[#131E22]/60 p-4 rounded-2xl border border-white/5 mb-4">
-        <div className="flex flex-col">
-          <span className="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">{t('loans.totalReceivable', {}, 'Total por Cobrar (Activos)')}</span>
-          <span className="text-sm md:text-base font-bold text-[var(--color-primary,#AEEDD0)] tabular-nums">{formatCurrency(totalReceivable, baseCurrency)}</span>
+      <div className="w-full relative z-10 bg-[#131E22]/60 p-4 rounded-2xl border border-white/5 mb-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col">
+            <span className="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">{t('loans.netBalance', {}, 'Balance Neto Pendiente')}</span>
+            <span className="text-base md:text-lg font-extrabold text-white tabular-nums">{formatCurrency(totalPendingAmount, baseCurrency)}</span>
+          </div>
         </div>
-        <div className="flex flex-col border-l border-white/10 pl-3">
-          <span className="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">{t('loans.totalPayable', {}, 'Total por Pagar (Pasivos)')}</span>
-          <span className="text-sm md:text-base font-bold text-[#FF6B6B] tabular-nums">{formatCurrency(totalPayable, baseCurrency)}</span>
+        <div className="grid grid-cols-2 gap-3 pt-2 border-t border-white/5">
+          <div className="flex flex-col">
+            <span className="text-[10px] sm:text-xs text-slate-400 font-semibold">{t('loans.receivableShort', {}, 'Por Cobrar')}</span>
+            <span className="text-sm font-bold text-[var(--color-primary,#AEEDD0)] tabular-nums">{formatCurrency(totalReceivable, baseCurrency)}</span>
+          </div>
+          <div className="flex flex-col border-l border-white/10 pl-3">
+            <span className="text-[10px] sm:text-xs text-slate-400 font-semibold">{t('loans.payableShort', {}, 'Por Pagar')}</span>
+            <span className="text-sm font-bold text-[#FF6B6B] tabular-nums">{formatCurrency(totalPayable, baseCurrency)}</span>
+          </div>
         </div>
       </div>
 

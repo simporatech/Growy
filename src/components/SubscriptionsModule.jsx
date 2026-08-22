@@ -74,7 +74,7 @@ export default function SubscriptionsModule() {
       {/* Standardized Header */}
       <header className="flex items-center justify-between gap-2.5 w-full relative z-30">
         <div className="min-w-0 flex-1">
-          <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white truncate">
+          <h1 className="text-lg md:text-xl font-bold tracking-tight text-white">
             {t('subscriptions.title', {}, 'Gestión de Suscripciones')}
           </h1>
           <p className="text-xs md:text-sm text-slate-400 mt-0.5 block font-normal truncate">

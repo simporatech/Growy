@@ -13,7 +13,7 @@ import { convertToGlobal } from '../utils/currency';
 
 export default function TransactionsModule() {
   const { transactions, accounts, categories, addTransaction, updateTransaction, deleteTransaction } = useFinance();
-  const { formatCurrency, t, language, exchangeRates, baseCurrency } = useSettings();
+  const { formatCurrency, t, language, exchangeRates, baseCurrency, formatToGlobal } = useSettings();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
@@ -145,7 +145,7 @@ export default function TransactionsModule() {
 
       // Account Filter
       if (accountIdFilter !== 'all') {
-        const matchAcc = tx.accountId === accountIdFilter || tx.toAccountId === accountIdFilter;
+        const matchAcc = tx.accountId === accountIdFilter || tx.targetAccountId === accountIdFilter;
         if (!matchAcc) return false;
       }
 
@@ -174,8 +174,7 @@ export default function TransactionsModule() {
     let inc = 0;
     let exp = 0;
     filteredTx.forEach(tx => {
-      // Use historical snapshot if available, fallback to live rate
-      const val = Math.abs(tx.amountInBaseCurrency ?? convertToGlobal(Number(tx.amount) || 0, tx.currency || 'USD', baseCurrency, exchangeRates));
+      const val = Math.abs(formatToGlobal(tx));
       if (tx.type === 'income') inc += val;
       if (tx.type === 'expense') exp += val;
     });
@@ -184,7 +183,7 @@ export default function TransactionsModule() {
       totalExpense: exp,
       netFlow: inc - exp
     };
-  }, [filteredTx, baseCurrency, exchangeRates]);
+  }, [filteredTx, formatToGlobal]);
 
   // Smart Pagination State
   const [currentPage, setCurrentPage] = React.useState(1);
@@ -225,12 +224,12 @@ export default function TransactionsModule() {
     });
   }, [groupedTx, noDateLabel]);
 
-  const handleSaveTx = useCallback((txData) => {
+  const handleSaveTx = useCallback(async (txData) => {
     if (!txData) return;
     if (txToEdit) {
-      updateTransaction(txData);
+      await updateTransaction(txData);
     } else {
-      addTransaction(txData);
+      await addTransaction(txData);
     }
     setTxToEdit(null);
   }, [txToEdit, updateTransaction, addTransaction]);
@@ -371,7 +370,7 @@ export default function TransactionsModule() {
 
       {/* DESKTOP FILTER BAR (>= lg) - UNIFIED SINGLE ROW */}
       <div className="hidden lg:block mb-6 relative z-30">
-        <div className="flex items-center justify-between gap-3 p-2.5 bg-[#131E22]/90 rounded-2xl border border-white/10 backdrop-blur-xl shadow-lg">
+        <div className="flex items-center justify-between gap-3 p-2.5 bg-[#131E22]/90 rounded-2xl border border-white/10 backdrop-blur-xl shadow-lg flex-wrap">
           {/* Segmented Control de Tipo */}
           <div className="flex items-center gap-1 bg-black/25 p-1 rounded-xl shrink-0">
             <button
@@ -463,21 +462,25 @@ export default function TransactionsModule() {
 
         {/* Fechas personalizadas condicionales si el usuario elige "custom" */}
         {datePreset === 'custom' && (
-          <div className="flex items-center gap-3 p-2.5 mt-2 bg-[#131E22]/80 rounded-xl border border-white/10 max-w-md ml-auto animate-fadeIn">
-            <span className="text-xs font-semibold text-slate-300 shrink-0">{t('transactions.customLabel', {}, 'Personalizado:')}</span>
-            <div className="flex-1">
-              <CustomDatePicker
-                value={startDate}
-                onChange={(newDate) => setStartDate(newDate)}
-                placeholder={t('transactions.from', {}, 'Desde')}
-              />
-            </div>
-            <div className="flex-1">
-              <CustomDatePicker
-                value={endDate}
-                onChange={(newDate) => setEndDate(newDate)}
-                placeholder={t('transactions.to', {}, 'Hasta')}
-              />
+          <div className="flex items-center gap-2 mt-2 animate-fadeIn">
+            <div className="flex items-center gap-2 p-2 bg-[#131E22]/80 rounded-xl border border-white/10">
+              <span className="text-[11px] font-semibold text-slate-400 shrink-0 pl-1">{t('transactions.from', {}, 'Desde')}</span>
+              <div className="w-32">
+                <CustomDatePicker
+                  value={startDate}
+                  onChange={(newDate) => setStartDate(newDate)}
+                  placeholder={t('transactions.from', {}, 'Desde')}
+                />
+              </div>
+              <span className="text-[11px] font-semibold text-slate-400 shrink-0">—</span>
+              <span className="text-[11px] font-semibold text-slate-400 shrink-0">{t('transactions.to', {}, 'Hasta')}</span>
+              <div className="w-32">
+                <CustomDatePicker
+                  value={endDate}
+                  onChange={(newDate) => setEndDate(newDate)}
+                  placeholder={t('transactions.to', {}, 'Hasta')}
+                />
+              </div>
             </div>
           </div>
         )}

@@ -50,7 +50,7 @@ export const SUPPORTED_CURRENCIES = Object.keys(CURRENCY_MAP).map(code => ({
 
 export const FALLBACK_EXCHANGE_RATES = {
   USD: 1,
-  HNL: 24.85,
+  HNL: 25.50,
   EUR: 0.92,
   GBP: 0.79,
   MXN: 18.20,
@@ -180,20 +180,65 @@ export const fetchExchangeRates = async (force = false) => {
 };
 
 /**
- * Conversion function strictly for consolidated account balances / net wealth calculation.
+ * Core mathematical currency conversion function
+ * Converts nominal amount from a source currency to a target currency.
+ * If currencies match, factor is 1.0 (no multiplication or division).
+ * 
+ * @param {number|string} amount - Nominal original amount
+ * @param {string} fromCurrency - Original currency (e.g. 'HNL', 'USD', 'EUR')
+ * @param {string} toCurrency - Target currency (e.g. 'USD', 'HNL', 'EUR')
+ * @param {number|null} exchangeRateToUsd - Historical exchange rate snapshot (1 USD = X fromCurrency units)
+ * @param {object} liveRates - Active exchange rates map pegged to USD
+ * @returns {number} Converted amount in target currency
  */
-export const convertToGlobal = (amount, accountCurrency = 'USD', globalCurrency = 'USD', rates = FALLBACK_EXCHANGE_RATES) => {
+export const convertCurrency = (amount, fromCurrency = 'USD', toCurrency = 'USD', exchangeRateToUsd = null, liveRates = FALLBACK_EXCHANGE_RATES) => {
   const num = Number(amount) || 0;
-  if (!accountCurrency || !globalCurrency || accountCurrency === globalCurrency) {
+  const from = fromCurrency || 'USD';
+  const to = toCurrency || 'USD';
+
+  // Strict Rule: Same currency -> Factor = 1.0
+  if (!from || !to || from === to) {
     return num;
   }
 
-  const safeRates = (rates && typeof rates === 'object') ? rates : FALLBACK_EXCHANGE_RATES;
-  const rateFromUSDToAccount = Number(safeRates[accountCurrency]) || Number(FALLBACK_EXCHANGE_RATES[accountCurrency]) || 1;
-  const rateFromUSDToGlobal = Number(safeRates[globalCurrency]) || Number(FALLBACK_EXCHANGE_RATES[globalCurrency]) || 1;
+  const safeRates = (liveRates && typeof liveRates === 'object') ? liveRates : FALLBACK_EXCHANGE_RATES;
+  
+  // Rate from USD to 'fromCurrency' (1 USD = X 'fromCurrency' units)
+  const fromRate = Number(exchangeRateToUsd) || Number(safeRates[from]) || Number(FALLBACK_EXCHANGE_RATES[from]) || 1;
+  // Rate from USD to 'toCurrency' (1 USD = Y 'toCurrency' units)
+  const toRate = Number(safeRates[to]) || Number(FALLBACK_EXCHANGE_RATES[to]) || 1;
 
-  const amountInUSD = num / rateFromUSDToAccount;
-  const amountInGlobal = amountInUSD * rateFromUSDToGlobal;
+  // Convert: fromCurrency -> USD Pivot -> toCurrency
+  const amountInUSD = num / fromRate;
+  const amountInTarget = amountInUSD * toRate;
 
-  return amountInGlobal;
+  return amountInTarget;
+};
+
+/**
+ * Pure dynamic presentation function for converting any transaction to the active global display currency
+ * @param {object} tx - Transaction object
+ * @param {string} globalCurrency - Active global base currency (e.g. 'USD', 'HNL')
+ * @param {object} liveRates - Active exchange rates
+ * @returns {number}
+ */
+export const formatToGlobal = (tx, globalCurrency = 'USD', liveRates = FALLBACK_EXCHANGE_RATES) => {
+  if (!tx) return 0;
+  const amount = Number(tx.amount) || 0;
+  const txCurrency = tx.currency || 'USD';
+
+  // Strict Rule: If transaction is already in globalCurrency, return original amount directly
+  if (txCurrency === globalCurrency) {
+    return amount;
+  }
+
+  const snapshotRate = tx.exchangeRateToUsd ?? tx.exchange_rate_to_usd ?? tx.exchangeRateAtTransaction ?? tx.exchange_rate_at_transaction;
+  return convertCurrency(amount, txCurrency, globalCurrency, snapshotRate, liveRates);
+};
+
+/**
+ * Conversion function strictly for consolidated account balances / net wealth calculation.
+ */
+export const convertToGlobal = (amount, accountCurrency = 'USD', globalCurrency = 'USD', rates = FALLBACK_EXCHANGE_RATES) => {
+  return convertCurrency(amount, accountCurrency, globalCurrency, null, rates);
 };

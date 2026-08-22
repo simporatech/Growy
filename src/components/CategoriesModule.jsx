@@ -6,10 +6,11 @@ import ExportDropdown from './ExportDropdown';
 import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
 import { parseNumeric } from '../utils/formatters';
+import { convertToGlobal } from '../utils/currency';
 
 export default function CategoriesModule() {
   const { accounts, categories, transactions, addCategory, updateCategory, deleteCategory } = useFinance();
-  const { baseCurrency, formatCurrency, language, t } = useSettings();
+  const { baseCurrency, formatCurrency, language, t, formatToGlobal } = useSettings();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [categoryToEdit, setCategoryToEdit] = useState(null);
@@ -47,7 +48,7 @@ export default function CategoriesModule() {
 
       const executed = currentMonthTx
         .filter(t => t && (t.categoryId === catId || t.category_id === catId) && t.type === catType)
-        .reduce((sum, t) => sum + Math.abs(parseNumeric(t.amount, 0)), 0);
+        .reduce((sum, t) => sum + Math.abs(formatToGlobal(t)), 0);
 
       const rawTarget = cat.targetAmount !== undefined ? cat.targetAmount : (cat.target_amount !== undefined ? cat.target_amount : cat.monthly_budget);
       const target = parseNumeric(rawTarget, 0);
@@ -55,7 +56,7 @@ export default function CategoriesModule() {
       const percentage = target > 0 ? Math.min(100, Math.round((executed / target) * 100)) : 0;
       return { ...cat, executed, target, percentage };
     }).filter(Boolean);
-  }, [safeCategoriesList, currentMonthTx]);
+  }, [safeCategoriesList, currentMonthTx, formatToGlobal]);
 
   const filteredCategories = useMemo(() => {
     return categoriesWithSpent.filter(c => {
@@ -89,8 +90,8 @@ export default function CategoriesModule() {
   const totalExecutedExpense = useMemo(() => {
     return currentMonthTx
       .filter(t => t && t.type === 'expense')
-      .reduce((sum, t) => sum + Math.abs(parseNumeric(t.amount, 0)), 0);
-  }, [currentMonthTx]);
+      .reduce((sum, t) => sum + Math.abs(formatToGlobal(t)), 0);
+  }, [currentMonthTx, formatToGlobal]);
 
   const remainingBudget = useMemo(() => totalTargetExpense - totalExecutedExpense, [totalTargetExpense, totalExecutedExpense]);
   const globalPercentage = useMemo(() => {
@@ -114,8 +115,8 @@ export default function CategoriesModule() {
   const totalIncomeMonth = useMemo(() => {
     return currentMonthTx
       .filter(t => t && t.type === 'income')
-      .reduce((sum, t) => sum + Math.abs(parseNumeric(t.amount, 0)), 0);
-  }, [currentMonthTx]);
+      .reduce((sum, t) => sum + Math.abs(formatToGlobal(t)), 0);
+  }, [currentMonthTx, formatToGlobal]);
 
   const remainingIncomeGoal = useMemo(() => Math.max(0, totalTargetIncome - totalIncomeMonth), [totalTargetIncome, totalIncomeMonth]);
   const incomeGoalPercentage = useMemo(() => {

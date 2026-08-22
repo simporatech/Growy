@@ -3,6 +3,7 @@ import { Plus, Edit2, Trash2, Wallet, Search } from 'lucide-react';
 import AccountModal from './AccountModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import ExportDropdown from './ExportDropdown';
+import CustomSelect from './CustomSelect';
 import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
 import { formatCurrency, parseNumeric } from '../utils/formatters';
@@ -15,17 +16,27 @@ export default function AccountsModule() {
   const [accountToEdit, setAccountToEdit] = useState(null);
   const [accountToDelete, setAccountToDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currencyFilter, setCurrencyFilter] = useState('all');
 
   const safeAccountsList = useMemo(() => Array.isArray(accounts) ? accounts.filter(Boolean) : [], [accounts]);
 
+  const uniqueCurrencies = useMemo(() => {
+    const codes = [...new Set(safeAccountsList.map(a => a?.currency || 'USD'))];
+    return [
+      { value: 'all', label: t('accounts.allCurrencies', {}, 'Todas las divisas') },
+      ...codes.map(c => ({ value: c, label: c }))
+    ];
+  }, [safeAccountsList, t]);
+
   const filteredAccounts = useMemo(() => {
-    if (!searchTerm.trim()) return safeAccountsList;
-    const q = searchTerm.toLowerCase();
-    return safeAccountsList.filter(a =>
-      (a.name || '').toLowerCase().includes(q) ||
-      (a.currency || '').toLowerCase().includes(q)
-    );
-  }, [safeAccountsList, searchTerm]);
+    return safeAccountsList.filter(a => {
+      if (currencyFilter !== 'all' && (a.currency || 'USD') !== currencyFilter) return false;
+      if (!searchTerm.trim()) return true;
+      const q = searchTerm.toLowerCase();
+      return (a.name || '').toLowerCase().includes(q) ||
+        (a.currency || '').toLowerCase().includes(q);
+    });
+  }, [safeAccountsList, searchTerm, currencyFilter]);
 
   const accountColumns = useMemo(() => [
     { label: t('modals.account.name', {}, 'Nombre'), accessor: (a) => a.name || '-' },
@@ -113,8 +124,15 @@ export default function AccountsModule() {
         </div>
       </header>
 
-      {/* Toolbar: Search and Mobile Export */}
+      {/* Toolbar: Search, Currency Filter and Mobile Export */}
       <div className="flex items-center gap-2 w-full relative z-20">
+        <div className="w-36 shrink-0">
+          <CustomSelect
+            options={uniqueCurrencies}
+            value={currencyFilter}
+            onChange={setCurrencyFilter}
+          />
+        </div>
         <div className="relative flex-1">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
           <input
@@ -199,9 +217,16 @@ export default function AccountsModule() {
 
                   {/* Middle Balance Amount */}
                   <div className="relative z-10 my-auto py-2">
-                    <span className="text-xs uppercase tracking-wider text-slate-300 font-semibold block mb-0.5">
-                      {t('accounts.availableBalance', {}, 'Balance Disponible')}
-                    </span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs uppercase tracking-wider text-slate-300 font-semibold block mb-0.5">
+                        {t('accounts.availableBalance', {}, 'Balance Disponible')}
+                      </span>
+                      {account.initialBalance !== undefined && (
+                        <span className="text-[11px] text-slate-400 font-medium tabular-nums">
+                          {t('modals.account.initialBalance', {}, 'Inicial')}: {formatCurrency(account.initialBalance, account.currency)}
+                        </span>
+                      )}
+                    </div>
                     <div className="text-xl sm:text-3xl font-extrabold text-white tracking-tight tabular-nums truncate">
                       {formatCurrency(account.balance, account.currency)}
                     </div>

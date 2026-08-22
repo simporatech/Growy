@@ -28,6 +28,7 @@ export default function TransactionModal({
   const [targetAmount, setTargetAmount] = useState('');
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const safeAccounts = Array.isArray(accounts) ? accounts.filter(Boolean) : [];
   const safeCategories = Array.isArray(categories) ? categories.filter(Boolean) : [];
@@ -42,7 +43,7 @@ export default function TransactionModal({
       setType(editType);
       setDate(transactionToEdit.date || formatDateISO());
       setAccountId(transactionToEdit.accountId || (safeAccounts[0]?.id || ''));
-      setTargetAccountId(transactionToEdit.targetAccountId || (safeAccounts[1]?.id || safeAccounts[0]?.id || ''));
+      setTargetAccountId(transactionToEdit.targetAccountId || (safeAccounts.find(a => a?.id !== (transactionToEdit.accountId || safeAccounts[0]?.id))?.id || ''));
       setCategoryId(transactionToEdit.categoryId || '');
       setAmount(transactionToEdit.amount !== undefined ? Math.abs(transactionToEdit.amount).toString() : '');
       setTargetAmount(transactionToEdit.targetAmount !== undefined ? Math.abs(transactionToEdit.targetAmount).toString() : '');
@@ -64,12 +65,17 @@ export default function TransactionModal({
       setDescription('');
     }
     setError('');
+    setIsSubmitting(false);
   }, [transactionToEdit, isOpen, initialType]);
 
   if (!isOpen) return null;
 
-  const sourceAccount = safeAccounts.find(a => a?.id === accountId) || safeAccounts[0] || null;
-  const destAccount = safeAccounts.find(a => a?.id === targetAccountId) || safeAccounts[1] || safeAccounts[0] || null;
+  const activeAccountId = accountId || safeAccounts[0]?.id || '';
+  const activeTargetAccountId = targetAccountId || (safeAccounts.find(a => a?.id !== activeAccountId)?.id || safeAccounts[0]?.id || '');
+  const activeCategoryId = categoryId || (availableCategories[0]?.id || '');
+
+  const sourceAccount = safeAccounts.find(a => a?.id === activeAccountId) || safeAccounts[0] || null;
+  const destAccount = safeAccounts.find(a => a?.id === activeTargetAccountId) || safeAccounts[1] || safeAccounts[0] || null;
 
   const isMultiCurrencyTransfer = type === 'transfer' && sourceAccount && destAccount && (sourceAccount.currency !== destAccount.currency);
 
@@ -93,8 +99,8 @@ export default function TransactionModal({
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+    if (e) e.preventDefault();
     setError('');
 
     if (safeAccounts.length === 0) {
@@ -102,17 +108,18 @@ export default function TransactionModal({
       return;
     }
 
-    if (!accountId) {
-      setError(t('modals.transaction.selectAccountError', {}, 'Selecciona una cuenta'));
+    const selectedAccountId = activeAccountId;
+    if (!selectedAccountId) {
+      setError(t('modals.transaction.selectAccountError', {}, 'Selecciona una cuenta válida'));
       return;
     }
 
-    if (type !== 'transfer' && !categoryId) {
+    if (type !== 'transfer' && !activeCategoryId) {
       setError(t('modals.transaction.selectCategoryError', {}, 'Selecciona una categoría'));
       return;
     }
 
-    if (type === 'transfer' && accountId === targetAccountId) {
+    if (type === 'transfer' && selectedAccountId === activeTargetAccountId) {
       setError(t('modals.transaction.sameAccountError', {}, 'La cuenta origen y destino deben ser distintas'));
       return;
     }
@@ -132,19 +139,31 @@ export default function TransactionModal({
       }
     }
 
-    onSave({
+    const payload = {
       id: transactionToEdit ? transactionToEdit.id : undefined,
       type,
-      date,
-      accountId,
-      targetAccountId: type === 'transfer' ? targetAccountId : null,
-      categoryId: type !== 'transfer' ? categoryId : null,
+      date: date || formatDateISO(),
+      accountId: selectedAccountId,
+      targetAccountId: type === 'transfer' ? activeTargetAccountId : null,
+      categoryId: type !== 'transfer' ? activeCategoryId : null,
       amount: numericAmount,
       targetAmount: isMultiCurrencyTransfer ? numericTargetAmount : numericAmount,
+      currency: sourceAccount?.currency || 'USD',
       description: (description || '').trim()
-    });
+    };
 
-    onClose();
+    setIsSubmitting(true);
+    try {
+      if (onSave) {
+        await onSave(payload);
+      }
+      setIsSubmitting(false);
+      onClose();
+    } catch (err) {
+      console.error("SUPABASE ERROR / TRANSACTION SAVE ERROR:", err);
+      setError(err?.message || t('modals.transaction.saveError', {}, 'Error al guardar la transacción. Inténtalo de nuevo.'));
+      setIsSubmitting(false);
+    }
   };
 
   const IconComponent = type === 'expense' ? ArrowDownRight : type === 'income' ? ArrowUpRight : ArrowLeftRight;
@@ -306,7 +325,6 @@ export default function TransactionModal({
           <FormField
             label={t('modals.transaction.description', {}, 'Descripción / Notas')}
             type="text"
-            required
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder={t('modals.transaction.descPlaceholder', {}, 'Ej. Almuerzo de trabajo, Pago de recibo')}
@@ -324,14 +342,23 @@ export default function TransactionModal({
           </button>
           <button
             type="submit"
-            disabled={safeAccounts.length === 0}
-            className={`flex-1 py-3 px-4 rounded-xl bg-[#5EEAD4] text-[#0A1316] font-semibold hover:bg-[#2DD4BF] transition-colors cursor-pointer ${
-              safeAccounts.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
+            disabled={isSubmitting || safeAccounts.length === 0}
+            className={`flex-1 py-3 px-4 rounded-xl bg-[#5EEAD4] text-[#0A1316] font-semibold hover:bg-[#2DD4BF] transition-colors cursor-pointer flex items-center justify-center gap-2 ${
+              isSubmitting || safeAccounts.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
-            {transactionToEdit 
-              ? t('modals.transaction.updateBtn', {}, 'Actualizar Movimiento') 
-              : t('modals.transaction.saveBtn', {}, 'Guardar Movimiento')}
+            {isSubmitting ? (
+              <>
+                <div className="w-4 h-4 border-2 border-[#0A1316] border-t-transparent rounded-full animate-spin" />
+                <span>{t('common.saving', {}, 'Guardando...')}</span>
+              </>
+            ) : (
+              <span>
+                {transactionToEdit 
+                  ? t('modals.transaction.updateBtn', {}, 'Actualizar Movimiento') 
+                  : t('modals.transaction.saveBtn', {}, 'Guardar Movimiento')}
+              </span>
+            )}
           </button>
         </div>
 

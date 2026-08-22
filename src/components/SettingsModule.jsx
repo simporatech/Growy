@@ -1,12 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { Settings as SettingsIcon, Languages, Palette, Sparkles, Download, RotateCcw, Check, ShieldAlert, Coins, RefreshCw, ArrowLeftRight, Trash2 } from 'lucide-react';
+import { Settings as SettingsIcon, Languages, Palette, Sparkles, Download, RotateCcw, Check, ShieldAlert, Coins, RefreshCw, ArrowLeftRight, Trash2, Lock, Eye, EyeOff } from 'lucide-react';
 import { useSettings, THEMES } from '../context/SettingsContext';
 import { useFinance } from '../context/FinanceContext';
 import { SUPPORTED_CURRENCIES, FALLBACK_EXCHANGE_RATES, CURRENCY_MAP, AVAILABLE_CURRENCIES } from '../utils/currency';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import DeleteAccountModal from './DeleteAccountModal';
 import CustomSelect from './CustomSelect';
-import { dbDeleteUser } from '../services/supabaseService';
+import { dbDeleteUser, dbChangeUserPassword } from '../services/supabaseService';
 import { supabase } from '../lib/supabaseClient';
 import { getActiveSessionUserId, setActiveSessionUserId } from '../utils/userStorage';
 
@@ -29,6 +29,62 @@ export default function SettingsModule() {
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [isConsolidating, setIsConsolidating] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
+
+  // Password Change State
+  const [currentPwd, setCurrentPwd] = useState('');
+  const [newPwd, setNewPwd] = useState('');
+  const [confirmPwd, setConfirmPwd] = useState('');
+  const [showCurrentPwd, setShowCurrentPwd] = useState(false);
+  const [showNewPwd, setShowNewPwd] = useState(false);
+  const [isChangingPwd, setIsChangingPwd] = useState(false);
+  const [pwdMessage, setPwdMessage] = useState({ type: '', text: '' });
+
+  // Password policy checks
+  const pwdHasLength = newPwd.length >= 8;
+  const pwdHasUpper = /[A-Z]/.test(newPwd);
+  const pwdHasLower = /[a-z]/.test(newPwd);
+  const pwdHasDigitOrSpecial = /[\d\W]/.test(newPwd);
+  const pwdIsValid = pwdHasLength && pwdHasUpper && pwdHasLower && pwdHasDigitOrSpecial;
+  const pwdMatch = newPwd === confirmPwd && confirmPwd.length > 0;
+
+  const handleChangePassword = async () => {
+    setPwdMessage({ type: '', text: '' });
+    if (!currentPwd.trim()) {
+      setPwdMessage({ type: 'error', text: t('settings.enterCurrentPassword', {}, 'Ingresa tu contraseña actual') });
+      return;
+    }
+    if (!pwdIsValid) {
+      setPwdMessage({ type: 'error', text: t('settings.passwordPolicyError', {}, 'La nueva contraseña no cumple los requisitos de seguridad') });
+      return;
+    }
+    if (!pwdMatch) {
+      setPwdMessage({ type: 'error', text: t('settings.passwordMismatch', {}, 'Las contraseñas no coinciden') });
+      return;
+    }
+
+    const activeUserId = getActiveSessionUserId();
+    if (!activeUserId) return;
+
+    setIsChangingPwd(true);
+    try {
+      const res = await dbChangeUserPassword(activeUserId, currentPwd, newPwd);
+      if (res.success) {
+        setPwdMessage({ type: 'success', text: t('settings.passwordUpdated', {}, '¡Contraseña actualizada correctamente!') });
+        setCurrentPwd('');
+        setNewPwd('');
+        setConfirmPwd('');
+      } else if (res.error === 'INVALID_CURRENT_PASSWORD') {
+        setPwdMessage({ type: 'error', text: t('settings.wrongCurrentPassword', {}, 'La contraseña actual es incorrecta') });
+      } else {
+        setPwdMessage({ type: 'error', text: t('settings.passwordError', {}, 'Error al actualizar la contraseña') });
+      }
+    } catch {
+      setPwdMessage({ type: 'error', text: t('settings.passwordError', {}, 'Error al actualizar la contraseña') });
+    } finally {
+      setIsChangingPwd(false);
+      setTimeout(() => setPwdMessage({ type: '', text: '' }), 5000);
+    }
+  };
 
   // Live Exchange Rate Calculator State
   const [calcAmount, setCalcAmount] = useState('1');
@@ -434,6 +490,112 @@ export default function SettingsModule() {
           </div>
         </div>
 
+      </div>
+
+      {/* FILA 3.5: SEGURIDAD DE LA CUENTA */}
+      <div className="p-6 sm:p-7 rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl space-y-4 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] relative z-10">
+        <div className="flex items-center gap-3 border-b border-white/5 pb-3">
+          <div className="w-10 h-10 rounded-xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 shrink-0 font-bold">
+            <Lock className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-white">{t('settings.securityTitle', {}, 'Seguridad de la Cuenta')}</h3>
+            <p className="text-xs text-slate-300 font-medium">{t('settings.securitySubtitle', {}, 'Actualiza tu contraseña de acceso')}</p>
+          </div>
+        </div>
+
+        {pwdMessage.text && (
+          <div className={`p-3 rounded-xl text-xs font-bold flex items-center gap-2 ${
+            pwdMessage.type === 'success' ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-300' : 'bg-rose-500/10 border border-rose-500/30 text-rose-300'
+          }`}>
+            <Check className="w-4 h-4 shrink-0" />
+            <span>{pwdMessage.text}</span>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {/* Current Password */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+              {t('settings.currentPassword', {}, 'Contraseña Actual')}
+            </label>
+            <div className="relative">
+              <input
+                type={showCurrentPwd ? 'text' : 'password'}
+                value={currentPwd}
+                onChange={(e) => setCurrentPwd(e.target.value)}
+                className="w-full h-11 px-3.5 pr-10 bg-[#162226] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[var(--color-primary,#AEEDD0)] transition-colors"
+                placeholder="••••••••"
+              />
+              <button type="button" onClick={() => setShowCurrentPwd(!showCurrentPwd)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+                {showCurrentPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+
+          {/* New Password */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+              {t('settings.newPassword', {}, 'Nueva Contraseña')}
+            </label>
+            <div className="relative">
+              <input
+                type={showNewPwd ? 'text' : 'password'}
+                value={newPwd}
+                onChange={(e) => setNewPwd(e.target.value)}
+                className="w-full h-11 px-3.5 pr-10 bg-[#162226] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[var(--color-primary,#AEEDD0)] transition-colors"
+                placeholder="••••••••"
+              />
+              <button type="button" onClick={() => setShowNewPwd(!showNewPwd)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+                {showNewPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Confirm Password */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+              {t('settings.confirmNewPassword', {}, 'Confirmar Nueva Contraseña')}
+            </label>
+            <input
+              type="password"
+              value={confirmPwd}
+              onChange={(e) => setConfirmPwd(e.target.value)}
+              className={`w-full h-11 px-3.5 bg-[#162226] border rounded-xl text-sm text-white focus:outline-none transition-colors ${
+                confirmPwd && !pwdMatch ? 'border-rose-500/50 focus:border-rose-500' : 'border-white/10 focus:border-[var(--color-primary,#AEEDD0)]'
+              }`}
+              placeholder="••••••••"
+            />
+          </div>
+        </div>
+
+        {/* Password Strength Indicator */}
+        {newPwd.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+            <div className={`text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border ${pwdHasLength ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-white/5 border-white/10 text-slate-400'}`}>
+              ✓ 8+ {t('settings.characters', {}, 'caracteres')}
+            </div>
+            <div className={`text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border ${pwdHasUpper ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-white/5 border-white/10 text-slate-400'}`}>
+              ✓ {t('settings.uppercase', {}, 'Mayúscula')}
+            </div>
+            <div className={`text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border ${pwdHasLower ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-white/5 border-white/10 text-slate-400'}`}>
+              ✓ {t('settings.lowercase', {}, 'Minúscula')}
+            </div>
+            <div className={`text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border ${pwdHasDigitOrSpecial ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-white/5 border-white/10 text-slate-400'}`}>
+              ✓ {t('settings.digitOrSpecial', {}, 'Número/Especial')}
+            </div>
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={handleChangePassword}
+          disabled={isChangingPwd || !pwdIsValid || !pwdMatch || !currentPwd.trim()}
+          className="h-11 px-6 rounded-xl bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:brightness-105 active:scale-[0.98]"
+        >
+          <Lock className="w-4 h-4" />
+          <span>{isChangingPwd ? (language === 'es' ? 'Actualizando...' : 'Updating...') : t('settings.updatePassword', {}, 'Actualizar Contraseña')}</span>
+        </button>
       </div>
 
       {/* FILA 4: GESTIÓN DE DATOS Y DEPURACIÓN (FULL WIDTH & DANGER ZONE) */}

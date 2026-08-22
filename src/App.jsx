@@ -47,9 +47,12 @@ function LoginScreen({ onLoginSuccess, onOpenForgotPassword, onOpenRegister }) {
       </main>
 
       {/* FOOTER */}
-      <footer className="relative z-10 p-4 text-center">
-        <p className="text-xs text-slate-300 font-medium">
-          Growy &copy; {new Date().getFullYear()} • Smart Personal Finance Ecosystem
+      <footer className="relative z-10 mt-8 pb-4 flex flex-col items-center gap-1">
+        <p className="text-xs text-slate-400 font-medium">
+          Growy &copy; {new Date().getFullYear()}
+        </p>
+        <p className="text-xs text-slate-500 font-medium">
+          {t('common.footerTagline', {}, 'Ecosistema de Finanzas Personales Inteligentes')}
         </p>
       </footer>
     </div>

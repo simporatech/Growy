@@ -26,6 +26,12 @@ export const toCamel = (obj) => {
   if (n.status === 'settled') {
     n.status = 'paid';
   }
+  if (n.exchangeRateToUsd !== undefined && n.exchangeRateAtTransaction === undefined) {
+    n.exchangeRateAtTransaction = n.exchangeRateToUsd;
+  }
+  if (n.exchangeRateAtTransaction !== undefined && n.exchangeRateToUsd === undefined) {
+    n.exchangeRateToUsd = n.exchangeRateAtTransaction;
+  }
   return n;
 };
 
@@ -316,13 +322,15 @@ export const dbSaveAccount = async (userId, accountData) => {
     return null;
   }
 
-  const numBalance = Number(accountData.balance !== undefined ? accountData.balance : (accountData.initialBalance || 0));
+  const numInitial = Number(accountData.initialBalance !== undefined ? accountData.initialBalance : (accountData.initial_balance !== undefined ? accountData.initial_balance : (accountData.balance || 0)));
+  const cleanBalance = isNaN(numInitial) ? 0 : numInitial;
 
   const payload = {
     user_id: userId,
     name: accountData.name ? accountData.name.trim() : 'Cuenta',
     currency: accountData.currency || 'USD',
-    balance: isNaN(numBalance) ? 0 : numBalance,
+    balance: cleanBalance,
+    initial_balance: cleanBalance,
     emoji: accountData.emoji || '💳',
     color: accountData.color || '#AEEDD0'
   };
@@ -335,11 +343,24 @@ export const dbSaveAccount = async (userId, accountData) => {
   console.log('📤 Enviando payload de cuenta a Supabase DB:', payload);
 
   try {
-    const query = payload.id 
+    let query = payload.id 
       ? supabase.from('accounts').upsert([payload]).select()
       : supabase.from('accounts').insert([payload]).select();
 
-    const { data, error } = await query;
+    let { data, error } = await query;
+
+    // Fallback if initial_balance column does not exist in Postgres accounts schema
+    if (error && error.message && error.message.includes('initial_balance')) {
+      console.warn('⚠️ Columna initial_balance no existe en accounts, reintentando sin initial_balance...');
+      const fallbackPayload = { ...payload };
+      delete fallbackPayload.initial_balance;
+      const fallbackQuery = fallbackPayload.id 
+        ? supabase.from('accounts').upsert([fallbackPayload]).select()
+        : supabase.from('accounts').insert([fallbackPayload]).select();
+      const res = await fallbackQuery;
+      data = res.data;
+      error = res.error;
+    }
 
     if (error) {
       console.error('❌ Error exacto de Supabase al guardar cuenta:', {
@@ -356,6 +377,27 @@ export const dbSaveAccount = async (userId, accountData) => {
   } catch (err) {
     console.error('❌ [Supabase DB Exception] dbSaveAccount:', err);
     return null;
+  }
+};
+
+export const dbUpdateAccountBalance = async (accountId, newBalance) => {
+  if (!accountId) return null;
+  const numBalance = Number(newBalance || 0);
+  try {
+    const { data, error } = await supabase
+      .from('accounts')
+      .update({ balance: isNaN(numBalance) ? 0 : numBalance })
+      .eq('id', accountId)
+      .select();
+
+    if (error) {
+      console.error('❌ Error exacto de Supabase al actualizar balance de cuenta:', error);
+      throw error;
+    }
+    return toCamel(data && data[0] ? data[0] : { id: accountId, balance: numBalance });
+  } catch (err) {
+    console.error('❌ [Supabase DB Exception] dbUpdateAccountBalance:', err);
+    throw err;
   }
 };
 
@@ -487,22 +529,23 @@ export const dbFetchTransactions = async (userId) => {
 export const dbSaveTransaction = async (userId, txData) => {
   if (!userId) {
     console.error('❌ Error: No hay sesión de usuario activa para guardar la transacción.');
-    return null;
+    throw new Error('No active user session');
   }
 
   const numAmount = parseFloat(txData.amount || 0);
+  const cleanCurrency = txData.currency || 'USD';
+  const cleanDate = txData.transactionDate || txData.date || new Date().toISOString().split('T')[0];
 
+  // Base payload with standard columns strictly existing in Supabase transactions table
   const payload = {
     user_id: userId,
     account_id: txData.accountId || null,
     category_id: txData.categoryId || null,
     type: txData.type || 'expense',
     amount: isNaN(numAmount) ? 0 : numAmount,
-    currency: txData.currency || 'USD',
+    currency: cleanCurrency,
     description: txData.description ? txData.description.trim() : null,
-    transaction_date: txData.transactionDate || txData.date || new Date().toISOString().split('T')[0],
-    exchange_rate_at_transaction: txData.exchangeRateAtTransaction !== undefined ? parseFloat(txData.exchangeRateAtTransaction) : null,
-    amount_in_base_currency: txData.amountInBaseCurrency !== undefined ? parseFloat(txData.amountInBaseCurrency) : null
+    transaction_date: cleanDate
   };
 
   // Only pass id when updating an existing UUID record from PostgreSQL
@@ -520,15 +563,15 @@ export const dbSaveTransaction = async (userId, txData) => {
     const { data, error } = await query;
 
     if (error) {
-      console.error('❌ Error exacto de Supabase al guardar transacción:', error);
+      console.error("SUPABASE ERROR:", error);
       throw error;
     }
 
     console.log('✅ Transacción guardada en DB:', data);
     return toCamel(data && data[0] ? data[0] : payload);
   } catch (err) {
-    console.error('❌ [Supabase DB Exception] dbSaveTransaction:', err);
-    return null;
+    console.error("SUPABASE ERROR:", err);
+    throw err;
   }
 };
 
@@ -948,6 +991,54 @@ export const consolidateOldTransactions = async (userId) => {
     };
   } catch (err) {
     console.error('Error consolidating old transactions:', err);
+    return { success: false, error: err.message };
+  }
+};
+
+// --- PASSWORD CHANGE SERVICE ---
+
+export const dbChangeUserPassword = async (userId, currentPassword, newPassword) => {
+  if (!userId || !currentPassword || !newPassword) {
+    return { success: false, error: 'Missing required fields' };
+  }
+
+  try {
+    // 1. Fetch user to validate current password
+    const { data: userData, error: fetchError } = await supabase
+      .from('users')
+      .select('id, password')
+      .eq('id', userId)
+      .single();
+
+    if (fetchError || !userData) {
+      return { success: false, error: 'User not found' };
+    }
+
+    // 2. Validate current password matches
+    if (userData.password !== currentPassword) {
+      return { success: false, error: 'INVALID_CURRENT_PASSWORD' };
+    }
+
+    // 3. Validate new password policy (8+ chars, upper, lower, digit/special)
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[\d\W]).{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+      return { success: false, error: 'PASSWORD_POLICY_FAIL' };
+    }
+
+    // 4. Update password in DB
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ password: newPassword })
+      .eq('id', userId);
+
+    if (updateError) {
+      console.error('❌ Error updating password:', updateError);
+      return { success: false, error: updateError.message };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error('❌ Exception in dbChangeUserPassword:', err);
     return { success: false, error: err.message };
   }
 };

@@ -6,6 +6,8 @@ import {
   SUPPORTED_CURRENCIES, 
   FALLBACK_EXCHANGE_RATES,
   fetchExchangeRates, 
+  convertCurrency as convertCurrencyUtil,
+  formatToGlobal as formatToGlobalUtil,
   convertToGlobal as convertToGlobalUtil, 
   formatCurrency as formatCurrencyUtil,
   getCurrencySymbol,
@@ -141,6 +143,16 @@ export function SettingsProvider({ children }) {
     return loadExchangeRates(true);
   }, [loadExchangeRates]);
 
+  // Mathematical Dynamic Calculation to Global Currency for Transactions
+  const formatToGlobal = useCallback((tx) => {
+    return formatToGlobalUtil(tx, baseCurrency, exchangeRates);
+  }, [baseCurrency, exchangeRates]);
+
+  // Mathematical Dynamic Conversion between any two currencies
+  const convertCurrency = useCallback((amount, fromCurrency, toCurrency, exchangeRateToUsd = null) => {
+    return convertCurrencyUtil(amount, fromCurrency, toCurrency, exchangeRateToUsd, exchangeRates);
+  }, [exchangeRates]);
+
   // Mathematical Conversion ONLY for Net Wealth and Consolidated Account Balances
   const convertToGlobal = useCallback((amount, accountCurrency = 'USD') => {
     return convertToGlobalUtil(amount, accountCurrency, baseCurrency, exchangeRates);
@@ -256,6 +268,8 @@ export function SettingsProvider({ children }) {
     lastUpdated,
     isFetchingRates,
     refreshExchangeRates,
+    formatToGlobal,
+    convertCurrency,
     convertToGlobal,
     formatCurrency,
     t,
@@ -276,6 +290,8 @@ export function SettingsProvider({ children }) {
     lastUpdated,
     isFetchingRates,
     refreshExchangeRates,
+    formatToGlobal,
+    convertCurrency,
     convertToGlobal,
     formatCurrency,
     t,

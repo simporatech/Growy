@@ -33,7 +33,7 @@ export default function DashboardPreview({ user, onLogout }) {
     addTransaction, addLoan, addSubscription, addAccount, markLoanAsPaid
   } = useFinance();
 
-  const { convertToGlobal, baseCurrency, formatCurrency, t, language } = useSettings();
+  const { convertToGlobal, formatToGlobal, baseCurrency, formatCurrency, t, language } = useSettings();
 
   const [activeTab, setActiveTab] = useState('dashboard');
   const [chartPeriod, setChartPeriod] = useState('this_month'); // 'this_month' | '3_months' | 'year'
@@ -133,30 +133,30 @@ export default function DashboardPreview({ user, onLogout }) {
     return safeTransactionsList.filter(t => t?.date && t.date.startsWith(prevMonthYear));
   }, [safeTransactionsList, prevMonthYear]);
 
-  // RULE 1: Monthly incomes (using historical fx snapshot or converting on the fly for legacy)
+  // Dynamic Monthly Incomes (pure render conversion to global currency)
   const monthlyIncomes = useMemo(() => {
     return currentMonthTx
       .filter(t => t?.type === 'income')
-      .reduce((sum, t) => sum + Math.abs(t.amountInBaseCurrency ?? convertToGlobal(parseNumeric(t?.amount, 0), t.currency || 'USD')), 0);
-  }, [currentMonthTx, convertToGlobal]);
+      .reduce((sum, t) => sum + Math.abs(formatToGlobal(t)), 0);
+  }, [currentMonthTx, formatToGlobal]);
 
   const prevMonthlyIncomes = useMemo(() => {
     return prevMonthTx
       .filter(t => t?.type === 'income')
-      .reduce((sum, t) => sum + Math.abs(t.amountInBaseCurrency ?? convertToGlobal(parseNumeric(t?.amount, 0), t.currency || 'USD')), 0);
-  }, [prevMonthTx, convertToGlobal]);
+      .reduce((sum, t) => sum + Math.abs(formatToGlobal(t)), 0);
+  }, [prevMonthTx, formatToGlobal]);
 
   const monthlyExpenses = useMemo(() => {
     return currentMonthTx
       .filter(t => t?.type === 'expense')
-      .reduce((sum, t) => sum + Math.abs(t.amountInBaseCurrency ?? convertToGlobal(parseNumeric(t?.amount, 0), t.currency || 'USD')), 0);
-  }, [currentMonthTx, convertToGlobal]);
+      .reduce((sum, t) => sum + Math.abs(formatToGlobal(t)), 0);
+  }, [currentMonthTx, formatToGlobal]);
 
   const prevMonthlyExpenses = useMemo(() => {
     return prevMonthTx
       .filter(t => t?.type === 'expense')
-      .reduce((sum, t) => sum + Math.abs(t.amountInBaseCurrency ?? convertToGlobal(parseNumeric(t?.amount, 0), t.currency || 'USD')), 0);
-  }, [prevMonthTx, convertToGlobal]);
+      .reduce((sum, t) => sum + Math.abs(formatToGlobal(t)), 0);
+  }, [prevMonthTx, formatToGlobal]);
 
   const incomeDiffPercentage = useMemo(() => {
     return prevMonthlyIncomes > 0 
@@ -206,7 +206,7 @@ export default function DashboardPreview({ user, onLogout }) {
       currentMonthTx.forEach(t => {
         const day = new Date(t.date + 'T00:00:00').getDate();
         const weekIdx = Math.min(3, Math.floor((day - 1) / 7));
-        const amt = Math.abs(t.amountInBaseCurrency ?? convertToGlobal(parseNumeric(t.amount, 0), t.currency || 'USD'));
+        const amt = Math.abs(formatToGlobal(t));
         if (t.type === 'income') weeks[weekIdx].income += amt;
         if (t.type === 'expense') weeks[weekIdx].expense += amt;
       });
@@ -222,7 +222,7 @@ export default function DashboardPreview({ user, onLogout }) {
         let inc = 0, exp = 0;
         safeTransactionsList.forEach(t => {
           if (t?.date && t.date.startsWith(mKey)) {
-            const amt = Math.abs(t.amountInBaseCurrency ?? convertToGlobal(parseNumeric(t.amount, 0), t.currency || 'USD'));
+            const amt = Math.abs(formatToGlobal(t));
             if (t.type === 'income') inc += amt;
             if (t.type === 'expense') exp += amt;
           }
@@ -240,7 +240,7 @@ export default function DashboardPreview({ user, onLogout }) {
         let inc = 0, exp = 0;
         safeTransactionsList.forEach(t => {
           if (t?.date && t.date.startsWith(mKey)) {
-            const amt = Math.abs(t.amountInBaseCurrency ?? convertToGlobal(parseNumeric(t.amount, 0), t.currency || 'USD'));
+            const amt = Math.abs(formatToGlobal(t));
             if (t.type === 'income') inc += amt;
             if (t.type === 'expense') exp += amt;
           }
@@ -249,7 +249,7 @@ export default function DashboardPreview({ user, onLogout }) {
       }
       return periods;
     }
-  }, [chartPeriod, currentMonthTx, safeTransactionsList, today, language]);
+  }, [chartPeriod, currentMonthTx, safeTransactionsList, today, language, formatToGlobal]);
 
   const maxTrendVal = useMemo(() => Math.max(1, ...trendPoints.flatMap(p => [p.income, p.expense])), [trendPoints]);
 
@@ -259,12 +259,12 @@ export default function DashboardPreview({ user, onLogout }) {
       .map(cat => {
         const totalSpent = currentMonthTx
           .filter(t => t && t.categoryId === cat.id && t.type === 'expense')
-          .reduce((sum, t) => sum + Math.abs(parseNumeric(t.amount, 0)), 0);
+          .reduce((sum, t) => sum + Math.abs(formatToGlobal(t)), 0);
         return { ...cat, totalSpent };
       })
       .filter(c => c.totalSpent > 0)
       .sort((a, b) => b.totalSpent - a.totalSpent);
-  }, [safeCategoriesList, currentMonthTx]);
+  }, [safeCategoriesList, currentMonthTx, formatToGlobal]);
 
   const totalCatExpenses = useMemo(() => categoryExpenses.reduce((sum, c) => sum + c.totalSpent, 0), [categoryExpenses]);
 
@@ -274,22 +274,22 @@ export default function DashboardPreview({ user, onLogout }) {
       .map(cat => {
         const executed = currentMonthTx
           .filter(t => t && t.categoryId === cat.id && t.type === 'expense')
-          .reduce((sum, t) => sum + Math.abs(parseNumeric(t.amount, 0)), 0);
+          .reduce((sum, t) => sum + Math.abs(formatToGlobal(t)), 0);
         const target = parseNumeric(cat.targetAmount, 0);
         const percentage = target > 0 ? Math.round((executed / target) * 100) : 0;
         return { ...cat, executed, target, percentage };
       })
       .filter(c => c.percentage >= 70)
       .sort((a, b) => b.percentage - a.percentage);
-  }, [safeCategoriesList, currentMonthTx]);
+  }, [safeCategoriesList, currentMonthTx, formatToGlobal]);
 
   const topExpenses = useMemo(() => categoryExpenses.slice(0, 3), [categoryExpenses]);
   const pendingLoansList = useMemo(() => safeLoansList.filter(l => l && l.status === 'pending'), [safeLoansList]);
   const activeSubsList = useMemo(() => safeSubsList.filter(s => s && s.isActive), [safeSubsList]);
   const recentTransactions = useMemo(() => safeTransactionsList.slice(0, 5), [safeTransactionsList]);
 
-  const handleSaveTransaction = useCallback((txData) => {
-    if (txData) addTransaction(txData);
+  const handleSaveTransaction = useCallback(async (txData) => {
+    if (txData) return await addTransaction(txData);
   }, [addTransaction]);
 
   const handleSaveLoan = useCallback((loanData) => {

@@ -148,9 +148,10 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
       return;
     }
 
-    // 2. Password length validation (>= 6)
-    if ((formData.password || '').length < 6) {
-      setError(t('modals.auth.passwordTooShort', {}, 'La contraseña debe tener al menos 6 caracteres'));
+    // 2. Password policy validation (>= 8 chars, upper, lower, digit/special)
+    const pwdRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[\d\W]).{8,}$/;
+    if (!pwdRegex.test(formData.password || '')) {
+      setError(t('modals.auth.passwordPolicyError', {}, 'La contraseña debe tener al menos 8 caracteres, mayúscula, minúscula y número/especial'));
       return;
     }
 

@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { parseNumeric, formatDateISO } from '../utils/formatters';
-import { convertToGlobal } from '../utils/currency';
+import { convertToGlobal, FALLBACK_EXCHANGE_RATES } from '../utils/currency';
 import { detectUserLanguage } from '../utils/defaultCategories';
 import { 
-  dbFetchAccounts, dbSaveAccount, dbDeleteAccount,
+  dbFetchAccounts, dbSaveAccount, dbDeleteAccount, dbUpdateAccountBalance,
   dbFetchCategories, dbSaveCategory, dbDeleteCategory, seedUserCategories,
   dbFetchTransactions, dbSaveTransaction, dbDeleteTransaction,
   dbFetchLoans, dbSaveLoan, dbDeleteLoan,
@@ -57,7 +57,7 @@ function deleteErrMsg(err) {
 
 export function FinanceProvider({ children, userId = 'usr_admin' }) {
   const { exchangeRates, baseCurrency } = useSettings();
-  const [accounts, setAccounts] = useState([]);
+  const [rawAccounts, setRawAccounts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [loans, setLoans] = useState([]);
@@ -75,49 +75,61 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
     setTimeout(() => setDbStatusToast(null), 4500);
   }, []);
 
-  // Helper to sync account balances dynamically in DB & State when transactions change
-  const syncBalances = useCallback(async (newTxList, currentAccounts) => {
-    const safeTx = Array.isArray(newTxList) ? newTxList.filter(Boolean) : [];
-    const safeAccs = Array.isArray(currentAccounts) ? currentAccounts.filter(Boolean) : [];
+  // Strict dynamic calculation of current_balance for each account:
+  // current_balance = initial_balance + total_incomes - total_expenses - total_transfers_out + total_transfers_in
+  const accounts = useMemo(() => {
+    const safeAccs = Array.isArray(rawAccounts) ? rawAccounts.filter(Boolean) : [];
+    const safeTx = Array.isArray(transactions) ? transactions.filter(Boolean) : [];
 
-    const updatedAccs = await Promise.all(safeAccs.map(async (acc) => {
+    return safeAccs.map(acc => {
       if (!acc) return acc;
-      let netChange = 0;
+      const initialBal = parseNumeric(
+        acc.initialBalance !== undefined 
+          ? acc.initialBalance 
+          : (acc.initial_balance !== undefined ? acc.initial_balance : acc.balance), 
+        0
+      );
 
-      safeTx.forEach((tx) => {
+      let totalIncomes = 0;
+      let totalExpenses = 0;
+      let totalTransfersOut = 0;
+      let totalTransfersIn = 0;
+
+      safeTx.forEach(tx => {
         if (!tx) return;
         const amt = parseNumeric(tx.amount, 0);
         const targetAmt = parseNumeric(tx.targetAmount || tx.amount, 0);
 
         if (tx.type === 'income' && tx.accountId === acc.id) {
-          netChange += Math.abs(amt);
+          totalIncomes += amt;
         } else if (tx.type === 'expense' && tx.accountId === acc.id) {
-          netChange -= Math.abs(amt);
+          totalExpenses += amt;
         } else if (tx.type === 'transfer') {
           if (tx.accountId === acc.id) {
-            netChange -= Math.abs(amt);
+            totalTransfersOut += amt;
           }
           if (tx.targetAccountId === acc.id) {
-            netChange += Math.abs(targetAmt);
+            totalTransfersIn += targetAmt;
           }
         }
       });
 
-      const baseInitial = acc.initialBalance !== undefined ? parseNumeric(acc.initialBalance, 0) : parseNumeric(acc.balance, 0);
+      const currentBalance = initialBal + totalIncomes - totalExpenses - totalTransfersOut + totalTransfersIn;
 
-      const updatedAccount = {
+      return {
         ...acc,
-        balance: baseInitial + netChange
+        initialBalance: initialBal,
+        initial_balance: initialBal,
+        balance: currentBalance,
+        currentBalance,
+        current_balance: currentBalance,
+        totalIncomes,
+        totalExpenses,
+        totalTransfersOut,
+        totalTransfersIn
       };
-
-      // Async DB sync for updated balance directly in Supabase PostgreSQL
-      await dbSaveAccount(userId, updatedAccount);
-      return updatedAccount;
-    }));
-
-    setAccounts(updatedAccs);
-    return updatedAccs;
-  }, [userId]);
+    });
+  }, [rawAccounts, transactions]);
 
   // Load state 100% connected to Supabase DB
   useEffect(() => {
@@ -156,7 +168,7 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
           if (Array.isArray(seeded)) loadedCategories = seeded;
         }
 
-        setAccounts(loadedAccounts);
+        setRawAccounts(loadedAccounts);
         setCategories(loadedCategories);
         setTransactions(loadedTx);
         setLoans(loadedLoans);
@@ -167,9 +179,6 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
         if (isMounted && cronRes && cronRes.processed.length > 0) {
           if (cronRes.newTx && cronRes.newTx.length > 0) {
             setTransactions(prev => [...cronRes.newTx, ...prev]);
-          }
-          if (cronRes.updatedAccountsMap && Object.keys(cronRes.updatedAccountsMap).length > 0) {
-            setAccounts(prev => prev.map(a => cronRes.updatedAccountsMap[a.id] !== undefined ? { ...a, balance: cronRes.updatedAccountsMap[a.id] } : a));
           }
           setAutoDebitsNotification({
             count: cronRes.processed.length,
@@ -199,7 +208,7 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
     try {
       const saved = await dbSaveAccount(userId, newAccount);
       if (saved) {
-        setAccounts(prev => [...(Array.isArray(prev) ? prev.filter(Boolean) : []), saved]);
+        setRawAccounts(prev => [...(Array.isArray(prev) ? prev.filter(Boolean) : []), saved]);
         triggerToast('success', i18nMsg('Cuenta guardada correctamente', 'Account saved successfully'));
       }
     } catch (err) {
@@ -212,7 +221,7 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
     try {
       const saved = await dbSaveAccount(userId, updatedAccount);
       if (saved) {
-        setAccounts(prev => (Array.isArray(prev) ? prev.filter(Boolean) : []).map(a => a.id === saved.id ? saved : a));
+        setRawAccounts(prev => (Array.isArray(prev) ? prev.filter(Boolean) : []).map(a => a.id === saved.id ? saved : a));
         triggerToast('success', i18nMsg('Cuenta actualizada correctamente', 'Account updated successfully'));
       }
     } catch (err) {
@@ -225,7 +234,7 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
     try {
       const success = await dbDeleteAccount(accountId);
       if (success !== false) {
-        setAccounts(prev => (Array.isArray(prev) ? prev.filter(Boolean) : []).filter(a => a.id !== accountId));
+        setRawAccounts(prev => (Array.isArray(prev) ? prev.filter(Boolean) : []).filter(a => a.id !== accountId));
         triggerToast('success', i18nMsg('Cuenta eliminada correctamente', 'Account deleted successfully'));
       }
     } catch (err) {
@@ -277,98 +286,76 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
   // --- TRANSACTIONS ACTIONS ---
   const addTransaction = useCallback(async (newTx) => {
     try {
-      // 1. Calculate Historical FX Snapshots
       const txCurrency = newTx.currency || 'USD';
-      const amountInBaseCurrency = convertToGlobal(newTx.amount, txCurrency, baseCurrency, exchangeRates);
-      const exchangeRateAtTransaction = convertToGlobal(1, txCurrency, baseCurrency, exchangeRates);
+      const safeRates = (exchangeRates && typeof exchangeRates === 'object') ? exchangeRates : FALLBACK_EXCHANGE_RATES;
+      const exchangeRateToUsd = Number(safeRates[txCurrency]) || Number(FALLBACK_EXCHANGE_RATES[txCurrency]) || 1;
 
       const txWithSnapshot = {
         ...newTx,
-        exchangeRateAtTransaction,
-        amountInBaseCurrency
+        currency: txCurrency,
+        exchangeRateToUsd,
+        exchangeRateAtTransaction: exchangeRateToUsd
       };
 
       const saved = await dbSaveTransaction(userId, txWithSnapshot);
       if (saved) {
-        setTransactions(prevTx => {
-          const safeTx = Array.isArray(prevTx) ? prevTx.filter(Boolean) : [];
-          const updatedTx = [saved, ...safeTx];
-          setAccounts(prevAccs => {
-            syncBalances(updatedTx, prevAccs);
-            return prevAccs;
-          });
-          return updatedTx;
-        });
+        setTransactions(prevTx => [saved, ...(Array.isArray(prevTx) ? prevTx.filter(Boolean) : [])]);
         triggerToast('success', i18nMsg('Transacción guardada correctamente', 'Transaction saved successfully'));
+        return saved;
       }
+      throw new Error(i18nMsg('No se pudo guardar la transacción', 'Could not save transaction'));
     } catch (err) {
       console.error('❌ Error en addTransaction:', err);
       triggerToast('error', syncErrMsg(err));
+      throw err;
     }
-  }, [userId, syncBalances, triggerToast, baseCurrency, exchangeRates]);
+  }, [userId, triggerToast, exchangeRates]);
 
   const updateTransaction = useCallback(async (updatedTx) => {
     try {
-      // Find old transaction to preserve FX if amount/currency hasn't changed
-      const oldTx = transactions.find(t => t.id === updatedTx.id);
-      const amountChanged = oldTx && Number(oldTx.amount) !== Number(updatedTx.amount);
+      const oldTx = transactions.find(t => t && t.id === updatedTx.id);
       const currencyChanged = oldTx && oldTx.currency !== updatedTx.currency;
-      
-      let amountInBaseCurrency = updatedTx.amountInBaseCurrency;
-      let exchangeRateAtTransaction = updatedTx.exchangeRateAtTransaction;
+      const txCurrency = updatedTx.currency || (oldTx && oldTx.currency) || 'USD';
 
-      // Recalculate Historical FX Snapshots on update ONLY if needed or if missing
-      if (!oldTx || amountChanged || currencyChanged || !exchangeRateAtTransaction) {
-        const txCurrency = updatedTx.currency || 'USD';
-        amountInBaseCurrency = convertToGlobal(updatedTx.amount, txCurrency, baseCurrency, exchangeRates);
-        exchangeRateAtTransaction = convertToGlobal(1, txCurrency, baseCurrency, exchangeRates);
+      let exchangeRateToUsd = updatedTx.exchangeRateToUsd || (oldTx && (oldTx.exchangeRateToUsd || oldTx.exchangeRateAtTransaction));
+      if (currencyChanged || !exchangeRateToUsd) {
+        const safeRates = (exchangeRates && typeof exchangeRates === 'object') ? exchangeRates : FALLBACK_EXCHANGE_RATES;
+        exchangeRateToUsd = Number(safeRates[txCurrency]) || Number(FALLBACK_EXCHANGE_RATES[txCurrency]) || 1;
       }
 
       const txWithSnapshot = {
         ...updatedTx,
-        exchangeRateAtTransaction,
-        amountInBaseCurrency
+        currency: txCurrency,
+        exchangeRateToUsd,
+        exchangeRateAtTransaction: exchangeRateToUsd
       };
 
       const saved = await dbSaveTransaction(userId, txWithSnapshot);
       if (saved) {
-        setTransactions(prevTx => {
-          const safeTx = Array.isArray(prevTx) ? prevTx.filter(Boolean) : [];
-          const updated = safeTx.map(t => t.id === saved.id ? saved : t);
-          setAccounts(prevAccs => {
-            syncBalances(updated, prevAccs);
-            return prevAccs;
-          });
-          return updated;
-        });
+        setTransactions(prevTx => (Array.isArray(prevTx) ? prevTx.filter(Boolean) : []).map(t => t.id === saved.id ? saved : t));
         triggerToast('success', i18nMsg('Transacción actualizada correctamente', 'Transaction updated successfully'));
+        return saved;
       }
+      throw new Error(i18nMsg('No se pudo actualizar la transacción', 'Could not update transaction'));
     } catch (err) {
       console.error('❌ Error en updateTransaction:', err);
       triggerToast('error', syncErrMsg(err));
+      throw err;
     }
-  }, [userId, syncBalances, triggerToast, baseCurrency, exchangeRates, transactions]);
+  }, [userId, triggerToast, exchangeRates, transactions]);
 
   const deleteTransaction = useCallback(async (txId) => {
     try {
       const success = await dbDeleteTransaction(txId);
       if (success !== false) {
-        setTransactions(prevTx => {
-          const safeTx = Array.isArray(prevTx) ? prevTx.filter(Boolean) : [];
-          const updated = safeTx.filter(t => t.id !== txId);
-          setAccounts(prevAccs => {
-            syncBalances(updated, prevAccs);
-            return prevAccs;
-          });
-          return updated;
-        });
+        setTransactions(prevTx => (Array.isArray(prevTx) ? prevTx.filter(Boolean) : []).filter(t => t.id !== txId));
         triggerToast('success', i18nMsg('Transacción eliminada correctamente', 'Transaction deleted successfully'));
       }
     } catch (err) {
       console.error('❌ Error en deleteTransaction:', err);
       triggerToast('error', deleteErrMsg(err));
     }
-  }, [syncBalances, triggerToast]);
+  }, [triggerToast]);
 
   // --- LOANS ACTIONS ---
   const addLoan = useCallback(async (newLoan) => {
@@ -420,13 +407,19 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
       : targetLoan.amount;
 
     const conceptLabel = targetLoan.concept || targetLoan.description || i18nMsg('Deuda', 'Debt');
+    const txCurrency = targetLoan.currency || 'USD';
+    const safeRates = (exchangeRates && typeof exchangeRates === 'object') ? exchangeRates : FALLBACK_EXCHANGE_RATES;
+    const exchangeRateToUsd = Number(safeRates[txCurrency]) || Number(FALLBACK_EXCHANGE_RATES[txCurrency]) || 1;
+
     const newTx = {
       type: 'expense',
       transactionDate: formatDateISO(),
       accountId: sourceAccountId,
       categoryId: targetLoan.categoryId || null,
       amount: actualAmount,
-      currency: targetLoan.currency || 'USD',
+      currency: txCurrency,
+      exchangeRateToUsd,
+      exchangeRateAtTransaction: exchangeRateToUsd,
       description: i18nMsg(
         `Pago de Saldo Pendiente: ${conceptLabel}`,
         `Pending Balance Payment: ${conceptLabel}`
@@ -453,21 +446,14 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
         setLoans(prev => (Array.isArray(prev) ? prev.filter(Boolean) : []).filter(l => l.id !== loanId));
       }
 
-      setTransactions(prevTx => {
-        const updatedTxList = [savedTx, ...(Array.isArray(prevTx) ? prevTx.filter(Boolean) : [])];
-        setAccounts(prevAccs => {
-          syncBalances(updatedTxList, prevAccs);
-          return prevAccs;
-        });
-        return updatedTxList;
-      });
+      setTransactions(prevTx => [savedTx, ...(Array.isArray(prevTx) ? prevTx.filter(Boolean) : [])]);
 
       triggerToast('success', i18nMsg('Saldo marcado como pagado correctamente', 'Balance marked as paid successfully'));
     } catch (err) {
       console.error('❌ Error en markLoanAsPaid:', err);
       triggerToast('error', syncErrMsg(err));
     }
-  }, [userId, loans, syncBalances, triggerToast]);
+  }, [userId, loans, triggerToast, exchangeRates]);
 
   // --- SUBSCRIPTIONS ACTIONS ---
   const addSubscription = useCallback(async (newSub) => {

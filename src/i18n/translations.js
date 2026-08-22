@@ -53,7 +53,8 @@ export const translations = {
       select: 'Seleccionar...',
       selectDate: 'Seleccionar fecha',
       general: 'General',
-      generalAccount: 'Cuenta General'
+      generalAccount: 'Cuenta General',
+      footerTagline: 'Ecosistema de Finanzas Personales Inteligentes'
     },
     // Export Labels
     export: {
@@ -129,7 +130,8 @@ export const translations = {
       noAccountsDesc: 'Agrega tu primera cuenta bancaria o billetera digital para comenzar a llevar tus finanzas.',
       addFirstAccount: 'Agregar primera cuenta',
       balance: 'Balance',
-      accountType: 'Tipo de Cuenta'
+      accountType: 'Tipo de Cuenta',
+      allCurrencies: 'Todas las divisas'
     },
     // Loans / Pending Balances Module
     loans: {
@@ -293,7 +295,23 @@ export const translations = {
       dataSubtitle: 'Exporta copia de seguridad en JSON o reinicia el sistema',
       exportBackup: 'Exportar Respaldo JSON',
       resetData: 'Restablecer Todos los Datos',
-      resetSuccess: 'Datos restablecidos con éxito.'
+      resetSuccess: 'Datos restablecidos con éxito.',
+      securityTitle: 'Seguridad de la Cuenta',
+      securitySubtitle: 'Actualiza tu contraseña de acceso',
+      currentPassword: 'Contraseña Actual',
+      newPassword: 'Nueva Contraseña',
+      confirmNewPassword: 'Confirmar Nueva Contraseña',
+      updatePassword: 'Actualizar Contraseña',
+      passwordUpdated: '¡Contraseña actualizada correctamente!',
+      passwordError: 'Error al actualizar la contraseña',
+      enterCurrentPassword: 'Ingresa tu contraseña actual',
+      wrongCurrentPassword: 'La contraseña actual es incorrecta',
+      passwordMismatch: 'Las contraseñas no coinciden',
+      passwordPolicyError: 'La nueva contraseña no cumple los requisitos de seguridad',
+      characters: 'caracteres',
+      uppercase: 'Mayúscula',
+      lowercase: 'Minúscula',
+      digitOrSpecial: 'Número/Especial'
     },
     // About SIMPORA Module
     about: {
@@ -404,10 +422,13 @@ export const translations = {
         saveBtn: 'Guardar Cuenta',
         name: 'Nombre de la Cuenta',
         namePlaceholder: 'Ej. Banco Principal, Efectivo, Billetera',
-        nameError: 'Ingresa el nombre de la cuenta',
         color: 'Color de Identificación',
         currency: 'Moneda / Divisa',
-        balance: 'Balance Actual'
+        balance: 'Saldo Inicial',
+        initialBalance: 'Saldo Inicial',
+        initialBalanceHelper: 'Monto de apertura con el que comienza la cuenta',
+        currentBalanceBadge: 'Saldo Actual Calculado',
+        currentBalanceNote: 'Saldo inicial + ingresos - gastos ± traspasos'
       },
       category: {
         newTitle: 'Nueva Categoría',
@@ -597,7 +618,8 @@ export const translations = {
       select: 'Select...',
       selectDate: 'Select date',
       general: 'General',
-      generalAccount: 'General Account'
+      generalAccount: 'General Account',
+      footerTagline: 'Smart Personal Finance Ecosystem'
     },
     // Export Labels
     export: {
@@ -673,7 +695,8 @@ export const translations = {
       noAccountsDesc: 'Add your first bank account or digital wallet to start tracking your finances.',
       addFirstAccount: 'Add first account',
       balance: 'Balance',
-      accountType: 'Account Type'
+      accountType: 'Account Type',
+      allCurrencies: 'All currencies'
     },
     // Loans / Pending Balances Module
     loans: {
@@ -837,7 +860,23 @@ export const translations = {
       dataSubtitle: 'Export JSON backup copy or reset system',
       exportBackup: 'Export JSON Backup',
       resetData: 'Reset All Data',
-      resetSuccess: 'Data reset successfully.'
+      resetSuccess: 'Data reset successfully.',
+      securityTitle: 'Account Security',
+      securitySubtitle: 'Update your access password',
+      currentPassword: 'Current Password',
+      newPassword: 'New Password',
+      confirmNewPassword: 'Confirm New Password',
+      updatePassword: 'Update Password',
+      passwordUpdated: 'Password updated successfully!',
+      passwordError: 'Error updating password',
+      enterCurrentPassword: 'Enter your current password',
+      wrongCurrentPassword: 'Current password is incorrect',
+      passwordMismatch: 'Passwords do not match',
+      passwordPolicyError: 'New password does not meet security requirements',
+      characters: 'characters',
+      uppercase: 'Uppercase',
+      lowercase: 'Lowercase',
+      digitOrSpecial: 'Number/Special'
     },
     // About SIMPORA Module
     about: {
@@ -951,7 +990,11 @@ export const translations = {
         nameError: 'Please enter account name',
         color: 'Identification Color',
         currency: 'Currency',
-        balance: 'Current Balance'
+        balance: 'Initial Balance',
+        initialBalance: 'Initial Balance',
+        initialBalanceHelper: 'Opening balance of this account',
+        currentBalanceBadge: 'Calculated Current Balance',
+        currentBalanceNote: 'Initial balance + income - expenses ± transfers'
       },
       category: {
         newTitle: 'New Category',
