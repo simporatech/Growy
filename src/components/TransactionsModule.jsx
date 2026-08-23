@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Plus, ArrowLeftRight, Search, Edit2, Trash2, Calendar, RotateCcw, Filter, X, SlidersHorizontal, Check, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
+import { Plus, ArrowLeftRight, Search, Trash2, RotateCcw, Filter, TrendingUp, TrendingDown } from 'lucide-react';
 import TransactionModal from './TransactionModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import AdvancedFiltersModal from './AdvancedFiltersModal';
@@ -11,7 +11,6 @@ import Pagination from './Pagination';
 import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
 import { formatDateISO } from '../utils/formatters';
-import { convertCrossCurrency } from '../utils/currency';
 
 export default function TransactionsModule() {
   const { transactions, accounts, categories, addTransaction, updateTransaction, deleteTransaction } = useFinance();
@@ -121,19 +120,19 @@ export default function TransactionsModule() {
   const datePresetOptions = useMemo(() => [
     { value: 'this_month', label: t('transactions.presets.thisMonth', {}, 'Este Mes') },
     { value: 'last_month', label: t('transactions.presets.lastMonth', {}, 'Mes Anterior') },
-    { value: 'last_30_days', label: t('transactions.presets.last30Days', {}, 'Últimos 30 días') },
+    { value: 'last_30_days', label: t('transactions.presets.last30Days', {}, 'Últimos 30 Días') },
     { value: 'this_year', label: t('transactions.presets.thisYear', {}, 'Este Año') },
     { value: 'all', label: t('transactions.presets.allHistory', {}, 'Todo el Historial') },
     { value: 'custom', label: t('transactions.presets.custom', {}, 'Personalizado') }
   ], [t]);
 
   const accountOptions = useMemo(() => [
-    { value: 'all', label: t('transactions.allAccounts', {}, 'Todas las cuentas') },
+    { value: 'all', label: t('transactions.allAccounts', {}, 'Todas las Cuentas') },
     ...safeAccountsList.map(a => ({ value: a.id, label: `${a.emoji || '🏦'} ${a.name}` }))
   ], [safeAccountsList, t]);
 
   const categoryOptions = useMemo(() => [
-    { value: 'all', label: t('transactions.allCategories', {}, 'Todas las categorías') },
+    { value: 'all', label: t('transactions.allCategories', {}, 'Todas las Categorías') },
     ...safeCategoriesList.map(c => ({ value: c.id, label: `${c.emoji || '🏷️'} ${c.name}` }))
   ], [safeCategoriesList, t]);
 
@@ -207,7 +206,7 @@ export default function TransactionsModule() {
   const groupedTx = useMemo(() => {
     const groups = {};
     paginatedTx.forEach((tx) => {
-      const dateKey = tx.date || t('transactions.noDate', {}, 'Sin fecha');
+      const dateKey = tx.date || t('transactions.noDate', {}, 'Sin Fecha');
       if (!groups[dateKey]) {
         groups[dateKey] = [];
       }
@@ -217,7 +216,7 @@ export default function TransactionsModule() {
   }, [paginatedTx, t]);
 
   // Sort dates descending
-  const noDateLabel = t('transactions.noDate', {}, 'Sin fecha');
+  const noDateLabel = t('transactions.noDate', {}, 'Sin Fecha');
   const sortedDates = useMemo(() => {
     return Object.keys(groupedTx).sort((a, b) => {
       if (a === noDateLabel) return 1;
@@ -264,12 +263,12 @@ export default function TransactionsModule() {
   }), [filteredTx.length, netFlow, baseCurrency, formatCurrency]);
 
   return (
-    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-28 md:pb-6">
+    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-32 md:pb-6">
       
       {/* Standardized Header */}
       <header className="flex items-center justify-between gap-2.5 w-full relative z-30">
         <div className="min-w-0 flex-1">
-          <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white truncate">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white leading-tight truncate">
             {t('transactions.title', {}, 'Historial de Transacciones')}
           </h1>
           <p className="text-xs md:text-sm text-slate-400 mt-0.5 block font-normal truncate">
@@ -286,7 +285,7 @@ export default function TransactionsModule() {
             className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
           >
             <Plus size={15} className="shrink-0" />
-            <span>{t('transactions.newTransaction', {}, 'Nueva Transacción')}</span>
+            <span className="hidden sm:inline">{t('transactions.newTransaction', {}, 'Nueva Transacción')}</span>
           </button>
         </div>
       </header>
@@ -397,7 +396,7 @@ export default function TransactionsModule() {
             <button
               onClick={resetFilters}
               className="h-9 px-3 rounded-xl bg-rose-500/10 text-rose-300 border border-rose-500/20 text-xs font-bold flex items-center shrink-0 cursor-pointer"
-              title={t('transactions.clearFilters', {}, 'Limpiar filtros')}
+              title={t('transactions.clearFilters', {}, 'Limpiar Filtros')}
             >
               <RotateCcw className="w-3.5 h-3.5 mr-1" />
               <span>{t('common.clear', {}, 'Limpiar')}</span>

@@ -11,12 +11,12 @@ export default function AboutModule() {
   const contactEmail = 'simporatech@gmail.com';
 
   return (
-    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-28 md:pb-6">
+    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-32 md:pb-6">
       
       {/* Standardized View Header */}
       <header className="flex items-center justify-between gap-3 w-full relative z-30">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white leading-tight">
             {t('about.title', {}, 'Acerca de SIMPORA')}
           </h1>
           <p className="text-xs md:text-sm text-slate-400 font-normal mt-0.5">
@@ -132,7 +132,7 @@ export default function AboutModule() {
                 <Coffee className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-white">{t('about.coffeeTitle', {}, 'Regálame un café ☕')}</h3>
+                <h3 className="text-base font-bold text-white">{t('about.coffeeTitle', {}, 'Regálame un Café ☕')}</h3>
                 <p className="text-xs text-slate-300 font-medium">{t('about.coffeeSub', {}, 'Apoya el desarrollo continuo de Growy')}</p>
               </div>
             </div>
@@ -163,7 +163,7 @@ export default function AboutModule() {
               className="h-11 w-full bg-[#AEEDD0] text-[#1E2D32] font-bold text-sm px-6 rounded-xl flex items-center justify-center gap-3 hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10"
             >
               <Coffee className="w-4 h-4 stroke-[2.5]" />
-              <span>{t('about.coffeeBtn', {}, 'Enviar aporte por PayPal')}</span>
+              <span>{t('about.coffeeBtn', {}, 'Enviar Aporte por PayPal')}</span>
               <ExternalLink className="w-4 h-4 stroke-[2.5]" />
             </a>
           </div>

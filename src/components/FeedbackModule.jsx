@@ -74,12 +74,12 @@ export default function FeedbackModule() {
   };
 
   return (
-    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-28 md:pb-6">
+    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-32 md:pb-6">
       
       {/* Standardized View Header */}
       <header className="flex items-center justify-between gap-3 w-full relative z-30">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white leading-tight">
             {t('feedback.title', {}, 'Reportes y Feedback')}
           </h1>
           <p className="text-xs md:text-sm text-slate-400 font-normal mt-0.5">
@@ -134,7 +134,7 @@ export default function FeedbackModule() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2 block">
-                  {t('feedback.typeLabel', {}, 'Tipo de reporte')}
+                  {t('feedback.typeLabel', {}, 'Tipo de Reporte')}
                 </label>
                 <CustomSelect
                   options={typeOptions}
@@ -173,7 +173,7 @@ export default function FeedbackModule() {
             {/* Subject Input (h-11) */}
             <div>
               <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2 block">
-                {t('feedback.subjectLabel', {}, 'Asunto o título breve')}
+                {t('feedback.subjectLabel', {}, 'Asunto o Título Breve')}
               </label>
               <input
                 type="text"
@@ -189,7 +189,7 @@ export default function FeedbackModule() {
             {/* Description Textarea */}
             <div>
               <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2 block">
-                {t('feedback.descLabel', {}, 'Descripción detallada')}
+                {t('feedback.descLabel', {}, 'Descripción Detallada')}
               </label>
               <textarea
                 required

@@ -189,7 +189,6 @@ export function SettingsProvider({ children }) {
       const res = await fetch('https://open.er-api.com/v6/latest/USD');
       if (!res.ok) throw new Error(`FX API Error: ${res.status}`);
       const data = await res.json();
-      console.log('Tasa HNL recibida:', data?.rates?.HNL);
 
       if (data && data.rates) {
         const mergedRates = { ...FALLBACK_EXCHANGE_RATES, ...data.rates };

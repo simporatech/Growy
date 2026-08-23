@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Plus, Percent, Edit2, Trash2, CheckCircle, Search } from 'lucide-react';
+import { Plus, Percent, Trash2, CheckCircle, Search } from 'lucide-react';
 import LoanModal from './LoanModal';
 import PayLoanModal from './PayLoanModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
@@ -22,8 +22,8 @@ export default function LoansModule() {
   const [loanToPay, setLoanToPay] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Status Filter: 'pending' (default) | 'paid' | 'all'
-  const [statusFilter, setStatusFilter] = useState('pending');
+  // Status Filter: 'all' (default) | 'pending' | 'paid'
+  const [statusFilter, setStatusFilter] = useState('all');
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -35,9 +35,9 @@ export default function LoansModule() {
 
   // Status Dropdown Options
   const statusOptions = useMemo(() => [
-    { value: 'pending', label: t('loans.pendingPayment', {}, 'Pendientes por pagar') },
-    { value: 'paid', label: t('loans.paidHistory', {}, 'Historial de pagados') },
-    { value: 'all', label: t('loans.allBalances', {}, 'Todos los registros') }
+    { value: 'all', label: t('loans.allBalances', {}, 'Todos los Registros') },
+    { value: 'pending', label: t('loans.pendingPayment', {}, 'Pendientes por Pagar') },
+    { value: 'paid', label: t('loans.paidHistory', {}, 'Historial de Pagados') }
   ], [t]);
 
   const filteredLoans = useMemo(() => {
@@ -154,12 +154,12 @@ export default function LoansModule() {
   }, [t]);
 
   return (
-    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-28 md:pb-6">
+    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-32 md:pb-6">
       
       {/* Standardized Header */}
       <header className="flex items-center justify-between gap-2.5 w-full relative z-30">
         <div className="min-w-0 flex-1">
-          <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white truncate">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white leading-tight truncate">
             {t('loans.title', {}, 'Deudas y Compromisos')}
           </h1>
           <p className="text-xs md:text-sm text-slate-400 mt-0.5 block font-normal truncate">
@@ -168,6 +168,16 @@ export default function LoansModule() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
+          <div className="hidden sm:block">
+            <ExportDropdown
+              data={filteredLoans}
+              columns={loanColumns}
+              title={t('loans.title', {}, 'Deudas y Compromisos')}
+              filename="deudas_growy"
+              summary={loanSummary}
+            />
+          </div>
+
           <button
             onClick={() => {
               setLoanToEdit(null);
@@ -176,7 +186,7 @@ export default function LoansModule() {
             className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
           >
             <Plus size={15} className="shrink-0" />
-            <span>{t('loans.newLoan', {}, 'Nueva Deuda')}</span>
+            <span className="hidden sm:inline">{t('loans.newLoan', {}, 'Nueva Deuda')}</span>
           </button>
         </div>
       </header>
@@ -194,83 +204,31 @@ export default function LoansModule() {
         secondaryValue={baseCurrency}
       />
 
-      {/* Filter Bar */}
-      <div className="p-4 md:p-6 rounded-2xl md:rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] space-y-3 relative z-30">
-        
-        {/* Mobile Quick Status Chips (< sm) */}
-        <div className="sm:hidden space-y-2.5">
-          <div className="relative w-full">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder={t('placeholders.search', {}, 'Buscar por concepto...')}
-              className="w-full h-11 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#AEEDD0] shadow-inner transition-colors"
-            />
-          </div>
-
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full pb-1 pr-4">
-            {statusOptions.map(opt => (
-              <button
-                key={opt.value}
-                onClick={() => setStatusFilter(opt.value)}
-                className={`h-9 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
-                  statusFilter === opt.value
-                    ? 'bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] shadow-sm'
-                    : 'bg-white/5 text-slate-300 hover:text-white border border-white/5'
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
-
-            <div className="shrink-0">
-              <ExportDropdown
-                data={filteredLoans}
-                columns={loanColumns}
-                title={t('loans.title', {}, 'Deudas y Compromisos')}
-                filename="deudas_growy"
-                summary={loanSummary}
-              />
-            </div>
-          </div>
+      {/* Responsive Toolbar: Search (Row 1 on mobile), Status Filter & Export (Row 2 on mobile), Single row on desktop */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-2 w-full relative z-20">
+        {/* Search Bar */}
+        <div className="relative w-full sm:flex-1 order-1 sm:order-2">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder={t('placeholders.search', {}, 'Buscar por concepto o categoría...')}
+            className="w-full h-11 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#AEEDD0] shadow-inner transition-colors"
+          />
         </div>
 
-        {/* Desktop / Tablet Filter Bar (>= sm) */}
-        <div className="hidden sm:flex sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-4 flex-1">
-            {/* Status Filter */}
-            <div className="w-56">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1 block">
-                {t('loans.filterStatus', {}, 'Filtrar Estado')}
-              </label>
-              <CustomSelect
-                options={statusOptions}
-                value={statusFilter}
-                onChange={setStatusFilter}
-              />
-            </div>
-
-            {/* Real-Time Search Bar */}
-            <div className="flex-1 max-w-md">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1 block">
-                {t('common.search', {}, 'Buscar')}
-              </label>
-              <div className="relative">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder={t('placeholders.search', {}, 'Buscar por concepto o categoría...')}
-                  className="w-full h-11 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#AEEDD0] shadow-inner transition-colors"
-                />
-              </div>
-            </div>
+        {/* Status Filter & Mobile Export */}
+        <div className="flex items-center justify-between gap-2.5 w-full sm:w-auto order-2 sm:order-1">
+          <div className="w-full sm:w-52 shrink-0 flex-1 sm:flex-none">
+            <CustomSelect
+              options={statusOptions}
+              value={statusFilter}
+              onChange={setStatusFilter}
+              placeholder={t('loans.allBalances', {}, 'Todos los Registros')}
+            />
           </div>
-
-          <div className="flex items-center gap-3 shrink-0 pt-4">
+          <div className="sm:hidden shrink-0">
             <ExportDropdown
               data={filteredLoans}
               columns={loanColumns}
@@ -280,7 +238,6 @@ export default function LoansModule() {
             />
           </div>
         </div>
-
       </div>
 
       {/* List View */}

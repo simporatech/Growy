@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { 
-  TrendingUp, TrendingDown, Wallet, LogOut, PieChart, Sparkles, ChevronRight,
+  LogOut,
   LayoutDashboard, Landmark, Tag, ArrowLeftRight, Percent, RefreshCw, UserCheck,
-  Plus, AlertCircle, Calendar, CheckCircle2, DollarSign, Clock, ShieldCheck,
-  ArrowUpRight, ArrowDownRight, Layers, Award, Activity, Settings as SettingsIcon,
-  ChevronDown, Info, MessageSquarePlus, PanelLeftClose, PanelLeftOpen, Menu, X
+  Plus, AlertCircle, CheckCircle2, Clock,
+  Layers, Activity, Settings as SettingsIcon,
+  ChevronDown, Info, MessageSquarePlus, PanelLeftClose, PanelLeftOpen, X
 } from 'lucide-react';
 import AccountsModule from './AccountsModule';
 import CategoriesModule from './CategoriesModule';
@@ -514,18 +514,18 @@ export default function DashboardPreview({ user, onLogout }) {
         </aside>
 
         {/* MAIN CONTENT WRAPPER */}
-        <main className="flex-1 min-h-screen overflow-y-auto overflow-x-hidden max-w-full bg-transparent transition-all duration-200 ease-in-out pb-28 md:pb-8">
+        <main className="flex-1 min-h-screen overflow-y-auto overflow-x-hidden max-w-full bg-transparent transition-all duration-200 ease-in-out pb-32 md:pb-8">
         
-        <div className="w-full max-w-[1600px] mx-auto px-4 pt-4 pb-28 md:px-6 lg:px-8 md:pt-8 md:pb-12 space-y-4 md:space-y-6 animate-fadeIn isolate transition-all duration-200 ease-in-out">
+        <div className="w-full max-w-[1600px] mx-auto px-4 pt-4 pb-32 md:px-6 lg:px-8 md:pt-8 md:pb-12 space-y-4 md:space-y-6 animate-fadeIn isolate transition-all duration-200 ease-in-out">
           {activeTab === 'dashboard' ? (
             <>
               {/* PAGE HEADER WITH SPLIT BUTTON */}
               <header className="flex items-center justify-between gap-3 w-full relative z-30">
                 <div className="min-w-0 flex-1">
-                  <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white truncate">
+                  <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white leading-tight truncate">
                     {t('common.greeting', { name: user?.username ? user.username.split(' ')[0] : 'Admin' }, `¡Hola, ${user?.username ? user.username.split(' ')[0] : 'Admin'}!`)}
                   </h1>
-                  <p className="text-xs md:text-sm text-slate-400 mt-0.5 block font-normal truncate">
+                  <p className="text-xs sm:text-sm text-slate-400 mt-0.5 block font-normal truncate">
                     {formattedDate}
                   </p>
                 </div>
@@ -538,10 +538,10 @@ export default function DashboardPreview({ user, onLogout }) {
                         setInitialTxType('expense');
                         setIsTxModalOpen(true);
                       }}
-                      className="px-3.5 sm:px-4 font-bold text-xs sm:text-sm text-[#1E2D32] hover:bg-black/5 active:scale-[0.98] transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
+                      className="px-3 sm:px-4 font-bold text-xs sm:text-sm text-[#1E2D32] hover:bg-black/5 active:scale-[0.98] transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
                     >
                       <Plus className="w-4 h-4 stroke-[2.5] shrink-0" />
-                      <span>{t('speedActions.newMovement', {}, 'Nuevo Movimiento')}</span>
+                      <span className="hidden sm:inline">{t('speedActions.newMovement', {}, 'Nuevo Movimiento')}</span>
                     </button>
 
                     <div className="w-[1px] bg-[#1E2D32]/15 my-2" />
@@ -905,7 +905,7 @@ export default function DashboardPreview({ user, onLogout }) {
                       onClick={() => setActiveTab('accounts')}
                       className="text-xs font-semibold text-[var(--color-primary,#AEEDD0)] hover:underline"
                     >
-                      {t('dashboard.viewAccounts', {}, 'Ver cuentas')}
+                      {t('dashboard.viewAccounts', {}, 'Ver Cuentas')}
                     </button>
                   </div>
 
@@ -972,7 +972,7 @@ export default function DashboardPreview({ user, onLogout }) {
                       onClick={() => setActiveTab('categories')}
                       className="text-xs font-semibold text-[var(--color-primary,#AEEDD0)] hover:underline"
                     >
-                      {t('dashboard.viewCategories', {}, 'Ver categorías')}
+                      {t('dashboard.viewCategories', {}, 'Ver Categorías')}
                     </button>
                   </div>
 
@@ -1069,7 +1069,7 @@ export default function DashboardPreview({ user, onLogout }) {
                       onClick={() => setActiveTab('loans')}
                       className="text-xs font-semibold text-[var(--color-primary,#AEEDD0)] hover:underline"
                     >
-                      {t('dashboard.viewLoans', {}, 'Ver saldos')}
+                      {t('dashboard.viewLoans', {}, 'Ver Saldos')}
                     </button>
                   </div>
 
@@ -1326,19 +1326,19 @@ export default function DashboardPreview({ user, onLogout }) {
                       setActiveTab(item.id);
                       setIsMoreSheetOpen(false);
                     }}
-                    className={`p-3 rounded-2xl border flex items-center gap-3 text-left transition-all active:scale-95 cursor-pointer ${
+                    className={`p-2.5 sm:p-3 rounded-2xl border flex items-center gap-2.5 text-left transition-all active:scale-95 cursor-pointer ${
                       isActive 
                         ? 'bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] border-[var(--color-primary,#AEEDD0)] font-bold shadow-md' 
                         : 'bg-[#182428] border-white/10 text-white hover:bg-white/5'
                     }`}
                   >
-                    <div className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 ${
+                    <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl border flex items-center justify-center shrink-0 ${
                       isActive ? 'bg-[#1E2D32]/10 border-[#1E2D32]/20 text-[#1E2D32]' : item.color
                     }`}>
                       <Icon className="w-4 h-4" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs font-bold truncate leading-tight">{item.label}</p>
+                      <p className="text-[11px] sm:text-xs font-medium leading-snug break-words">{item.label}</p>
                       {item.badge && (
                         <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full inline-block mt-0.5 ${
                           isActive ? 'bg-[#1E2D32] text-white' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'

@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { LayoutDashboard, ArrowLeftRight, Plus, Landmark, Menu } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 import { useIsAnyModalOpen } from '../utils/modalManager';
@@ -37,7 +37,7 @@ export default function BottomNav({
         >
           <LayoutDashboard size={20} />
           <span className="text-[11px] font-medium leading-none">
-            {t('nav.dashboard', {}, 'Dashboard')}
+            {t('nav.dashboard', {}, 'Panel')}
           </span>
         </button>
 
@@ -56,7 +56,7 @@ export default function BottomNav({
         >
           <ArrowLeftRight size={20} />
           <span className="text-[11px] font-medium leading-none">
-            {t('nav.transactions', {}, 'Transactions')}
+            {t('nav.transactions', {}, 'Transacciones')}
           </span>
         </button>
 
@@ -72,7 +72,7 @@ export default function BottomNav({
             <Plus size={24} strokeWidth={2.5} />
           </button>
           <span className="text-[11px] font-semibold text-[#AEEDD0] mt-1 leading-none tracking-tight">
-            {t('nav.fabRecord', {}, 'Movimiento')}
+            {t('nav.fabRecord', {}, 'Registrar')}
           </span>
         </div>
 
@@ -91,7 +91,7 @@ export default function BottomNav({
         >
           <Landmark size={20} />
           <span className="text-[11px] font-medium leading-none">
-            {t('nav.accounts', {}, 'Accounts')}
+            {t('nav.accounts', {}, 'Cuentas')}
           </span>
         </button>
 
@@ -112,7 +112,7 @@ export default function BottomNav({
             )}
           </div>
           <span className="text-[11px] font-medium leading-none">
-            {t('common.more', {}, 'Más')}
+            {t('nav.more', {}, 'Más')}
           </span>
         </button>
       </div>

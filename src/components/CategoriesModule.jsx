@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Plus, Tag, Edit2, Trash2, ArrowDownRight, ArrowUpRight, Clock, Search } from 'lucide-react';
+import { Plus, Tag, Trash2, ArrowDownRight, ArrowUpRight, Search } from 'lucide-react';
 import CategoryModal from './CategoryModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import ExportDropdown from './ExportDropdown';
@@ -89,10 +89,10 @@ export default function CategoriesModule() {
 
   const categoryColumns = useMemo(() => [
     { label: t('modals.category.name', {}, 'Categoría'), accessor: (c) => c?.name || '-' },
-    { label: t('modals.category.type', {}, 'Tipo'), accessor: (c) => c?.type === 'expense' ? 'Gasto' : 'Ingreso' },
-    { label: 'Presupuesto / Meta', accessor: (c) => parseNumeric(c?.target, 0).toFixed(2) },
-    { label: 'Ejecutado Mes', accessor: (c) => parseNumeric(c?.executed, 0).toFixed(2) },
-    { label: 'Consumo %', accessor: (c) => `${c?.percentage || 0}%` }
+    { label: t('modals.category.type', {}, 'Tipo'), accessor: (c) => c?.type === 'expense' ? t('modals.transaction.typeExpense', {}, 'Gasto') : t('modals.transaction.typeIncome', {}, 'Ingreso') },
+    { label: t('categories.budgetOrGoal', {}, 'Presupuesto / Meta'), accessor: (c) => parseNumeric(c?.target, 0).toFixed(2) },
+    { label: t('categories.executedMonth', {}, 'Ejecutado Mes'), accessor: (c) => parseNumeric(c?.executed, 0).toFixed(2) },
+    { label: t('categories.consumptionPct', {}, 'Consumo %'), accessor: (c) => `${c?.percentage || 0}%` }
   ], [t]);
 
   // Expense Budget Calculations (converted to Base Currency)
@@ -212,14 +212,14 @@ export default function CategoriesModule() {
 
   return (
     <div 
-      className="w-full min-w-full box-border categories-container space-y-4 md:space-y-6 animate-fadeIn pb-28 md:pb-6"
+      className="w-full min-w-full box-border categories-container space-y-4 md:space-y-6 animate-fadeIn pb-32 md:pb-6"
       style={{ scrollbarGutter: 'stable', boxSizing: 'border-box', width: '100%' }}
     >
       
       {/* Standardized Header */}
       <header className="flex items-center justify-between gap-2.5 w-full relative z-30">
         <div className="min-w-0 flex-1">
-          <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white truncate">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white leading-tight truncate">
             {t('categories.title', {}, 'Categorías y Presupuestos')}
           </h1>
           <p className="text-xs md:text-sm text-slate-400 mt-0.5 block font-normal truncate">
@@ -247,7 +247,7 @@ export default function CategoriesModule() {
             className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
           >
             <Plus size={15} className="shrink-0" />
-            <span>
+            <span className="hidden sm:inline">
               {activeTabType === 'expense'
                 ? t('categories.newBudget', {}, 'Nuevo Presupuesto')
                 : t('categories.newGoal', {}, 'Nueva Meta')

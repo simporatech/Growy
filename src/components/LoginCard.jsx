@@ -114,7 +114,7 @@ export default function LoginCard({ onLoginSuccess, onOpenForgotPassword, onOpen
                   setUsername(e.target.value);
                   if (errorMsg) setErrorMsg('');
                 }}
-                placeholder={t('modals.auth.usernamePlaceholder', {}, 'Ingresa tu usuario')}
+                placeholder={t('modals.auth.usernamePlaceholder', {}, 'Ingresa tu Usuario')}
                 className="w-full pl-11 pr-4 py-3.5 rounded-2xl growy-glass-input text-sm placeholder-[#8EA7A8]/50"
                 autoComplete="off"
               />
@@ -173,7 +173,7 @@ export default function LoginCard({ onLoginSuccess, onOpenForgotPassword, onOpen
               onClick={onOpenForgotPassword}
               className="text-[#8EA7A8] hover:text-[#AEEDD0] transition-colors font-medium hover:underline underline-offset-4"
             >
-              {t('modals.auth.forgotPassword', {}, '¿Olvidaste tu contraseña?')}
+              {t('modals.auth.forgotPassword', {}, '¿Olvidaste tu Contraseña?')}
             </button>
           </div>
 
@@ -208,7 +208,7 @@ export default function LoginCard({ onLoginSuccess, onOpenForgotPassword, onOpen
             onClick={onOpenRegister}
             className="text-[#AEEDD0] font-bold hover:underline underline-offset-4 ml-1 transition-colors"
           >
-            {t('modals.auth.createAccount', {}, 'Crear cuenta')}
+            {t('modals.auth.createAccount', {}, 'Crear Cuenta')}
           </button>
         </div>
 

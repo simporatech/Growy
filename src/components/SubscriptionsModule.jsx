@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Plus, RefreshCw, Edit2, Trash2, Search, Calendar } from 'lucide-react';
+import { Plus, RefreshCw, Trash2, Search } from 'lucide-react';
 import SubscriptionModal from './SubscriptionModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import ExportDropdown from './ExportDropdown';
@@ -52,11 +52,11 @@ export default function SubscriptionsModule() {
 
   const subColumns = useMemo(() => [
     { label: t('modals.subscription.name', {}, 'Servicio'), accessor: (s) => s.name || '-' },
-    { label: t('modals.subscription.billingDay', {}, 'Día de Corte'), accessor: (s) => `Día ${s.billingDay || 1}` },
-    { label: t('modals.subscription.frequency', {}, 'Frecuencia'), accessor: (s) => s.frequency === 'yearly' ? 'Anual' : 'Mensual' },
-    { label: t('modals.subscription.account', {}, 'Cuenta Pagadora'), accessor: (s) => safeAccountsList.find(a => a?.id === s.accountId)?.name || 'General' },
+    { label: t('modals.subscription.billingDay', {}, 'Día de Corte'), accessor: (s) => `${t('subscriptions.dayBadge', {}, 'Día')} ${s.billingDay || 1}` },
+    { label: t('modals.subscription.frequency', {}, 'Frecuencia'), accessor: (s) => s.frequency === 'yearly' ? t('subscriptions.yearly', {}, 'Anual') : t('subscriptions.monthly', {}, 'Mensual') },
+    { label: t('modals.subscription.account', {}, 'Cuenta Pagadora'), accessor: (s) => safeAccountsList.find(a => a?.id === s.accountId)?.name || t('common.general', {}, 'General') },
     { label: t('modals.subscription.amount', {}, 'Monto'), accessor: (s) => `${s.currency || 'USD'} ${Number(s.amount || 0).toFixed(2)}` },
-    { label: 'Estado', accessor: (s) => s.isActive ? 'Activo' : 'Pausado' }
+    { label: t('common.status', {}, 'Estado'), accessor: (s) => (s.isActive !== undefined ? s.isActive : s.is_active !== false) ? t('common.active', {}, 'Activo') : t('common.paused', {}, 'Pausado') }
   ], [safeAccountsList, t]);
 
   // Calculate monthly total commitment in Base Currency based on active subscriptions
@@ -93,12 +93,12 @@ export default function SubscriptionsModule() {
   }, [subToDelete, deleteSubscription]);
 
   return (
-    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-28 md:pb-6">
+    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-32 md:pb-6">
       
       {/* Standardized Header */}
       <header className="flex items-center justify-between gap-2.5 w-full relative z-30">
         <div className="min-w-0 flex-1">
-          <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white truncate">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white leading-tight truncate">
             {t('subscriptions.title', {}, 'Gestión de Suscripciones')}
           </h1>
           <p className="text-xs md:text-sm text-slate-400 mt-0.5 block font-normal truncate">
@@ -125,7 +125,7 @@ export default function SubscriptionsModule() {
             className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
           >
             <Plus size={15} className="shrink-0" />
-            <span>{t('subscriptions.newSubscription', {}, 'Nueva Suscripción')}</span>
+            <span className="hidden sm:inline">{t('subscriptions.newSubscription', {}, 'Nueva Suscripción')}</span>
           </button>
         </div>
       </header>
@@ -201,7 +201,7 @@ export default function SubscriptionsModule() {
                   setSubToEdit(sub);
                   setIsModalOpen(true);
                 }}
-                className={`p-3.5 sm:p-4 rounded-2xl bg-[#162226] border flex items-center justify-between gap-3 sm:gap-4 transition-all group cursor-pointer ${
+                className={`p-3.5 sm:p-4 rounded-2xl bg-[#162226] border flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 transition-all group cursor-pointer ${
                   sub.isActive 
                     ? 'border-white/10 hover:border-[#AEEDD0]/30 hover:bg-white/[0.04]' 
                     : 'border-white/5 opacity-60 bg-black/20'
@@ -223,8 +223,8 @@ export default function SubscriptionsModule() {
                   </div>
 
                   <div className="min-w-0 flex-1 pr-1">
-                    <div className="flex items-center gap-2">
-                      <h4 className="text-sm font-bold text-white group-hover:text-[var(--color-primary,#AEEDD0)] transition-colors truncate">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h4 className="text-sm font-bold text-white group-hover:text-[var(--color-primary,#AEEDD0)] transition-colors leading-snug">
                         {sub.name}
                       </h4>
                       {isYearly && (
@@ -241,12 +241,12 @@ export default function SubscriptionsModule() {
                 </div>
 
                 {/* Right Block: Amount + Active Toggle Switch + Actions */}
-                <div className="flex items-center gap-3 sm:gap-4 shrink-0">
-                  <div className="text-right">
+                <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 pt-2 sm:pt-0 border-t border-white/5 sm:border-0 shrink-0">
+                  <div className="text-left sm:text-right">
                     <div className="text-sm sm:text-base font-extrabold text-white tabular-nums">
                       {formatCurrency(sub.amount, subCurrency)}
                       <span className="text-[10px] text-slate-400 font-normal ml-1">
-                        {isYearly ? '/ año' : '/ mes'}
+                        {isYearly ? (language === 'es' ? '/ año' : '/ yr') : (language === 'es' ? '/ mes' : '/ mo')}
                       </span>
                     </div>
                     {subCurrency !== baseCurrency && (
@@ -256,34 +256,36 @@ export default function SubscriptionsModule() {
                     )}
                   </div>
 
-                  {/* iOS Style Micro Toggle */}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleSubscription(sub.id);
-                    }}
-                    className={`w-10 h-6 rounded-full transition-colors relative p-0.5 cursor-pointer shrink-0 ${
-                      sub.isActive ? 'bg-[var(--color-primary,#AEEDD0)]' : 'bg-white/10'
-                    }`}
-                    title={sub.isActive ? t('common.active', {}, 'Activo') : t('common.paused', {}, 'Pausado')}
-                  >
-                    <div className={`w-5 h-5 rounded-full bg-[#131E22] transition-transform shadow-sm ${
-                      sub.isActive ? 'translate-x-4' : 'translate-x-0'
-                    }`} />
-                  </button>
-
-                  <div className="flex items-center gap-0.5 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-3">
+                    {/* iOS Style Micro Toggle */}
                     <button
+                      type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setSubToDelete(sub);
+                        toggleSubscription(sub.id);
                       }}
-                      className="p-1.5 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
-                      title={t('common.delete', {}, 'Eliminar')}
+                      className={`w-10 h-6 rounded-full transition-colors relative p-0.5 cursor-pointer shrink-0 ${
+                        sub.isActive ? 'bg-[var(--color-primary,#AEEDD0)]' : 'bg-white/10'
+                      }`}
+                      title={sub.isActive ? t('common.active', {}, 'Activo') : t('common.paused', {}, 'Pausado')}
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <div className={`w-5 h-5 rounded-full bg-[#131E22] transition-transform shadow-sm ${
+                        sub.isActive ? 'translate-x-4' : 'translate-x-0'
+                      }`} />
                     </button>
+
+                    <div className="flex items-center gap-0.5 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSubToDelete(sub);
+                        }}
+                        className="p-1.5 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                        title={t('common.delete', {}, 'Eliminar')}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
 

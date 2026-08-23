@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { parseNumeric, formatDateISO } from '../utils/formatters';
-import { convertToGlobal, getCrossRate, FALLBACK_EXCHANGE_RATES } from '../utils/currency';
+import { getCrossRate, FALLBACK_EXCHANGE_RATES } from '../utils/currency';
 import { detectUserLanguage } from '../utils/defaultCategories';
 import { 
-  dbFetchAccounts, dbSaveAccount, dbDeleteAccount, dbUpdateAccountBalance,
+  dbFetchAccounts, dbSaveAccount, dbDeleteAccount,
   dbFetchCategories, dbSaveCategory, dbDeleteCategory, seedUserCategories,
   dbFetchTransactions, dbSaveTransaction, dbDeleteTransaction,
   dbFetchLoans, dbSaveLoan, dbDeleteLoan,

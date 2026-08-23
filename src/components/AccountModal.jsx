@@ -5,9 +5,7 @@ import ModalWrapper from './ModalWrapper';
 import FormField from './FormField';
 import { useSettings } from '../context/SettingsContext';
 import { parseNumeric } from '../utils/formatters';
-import { getCurrencySymbol } from '../utils/currency';
-
-import { AVAILABLE_CURRENCIES } from '../constants/currencies';
+import { getCurrencySymbol, AVAILABLE_CURRENCIES } from '../utils/currency';
 
 export default function AccountModal({ 
   isOpen, 
@@ -94,7 +92,7 @@ export default function AccountModal({
       <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
         
         {/* Scrollable Form Body */}
-        <div className="flex-1 overflow-y-auto overscroll-contain custom-scrollbar p-5 sm:p-7 space-y-4">
+        <div className="flex-1 overflow-y-auto overscroll-contain custom-scrollbar px-6 py-4 space-y-4">
           
           {/* Read-Only Current Balance Display Badge (When Editing Existing Account) */}
           {accountToEdit && (
@@ -179,7 +177,7 @@ export default function AccountModal({
           </div>
 
           <FormField
-            label={t('modals.account.initialBalance', {}, 'SALDO INICIAL')}
+            label={t('modals.account.initialBalance', {}, 'Saldo Inicial')}
             helperText={t('modals.account.initialBalanceHelper', {}, 'Monto de apertura con el que comienza la cuenta')}
             prefix={currencySymbol}
             type="number"
@@ -191,8 +189,8 @@ export default function AccountModal({
           />
         </div>
 
-        {/* Fixed Footer */}
-        <div className="shrink-0 z-10 bg-[#111C20] p-4 border-t border-white/10 flex gap-3">
+        {/* Sticky Action Footer */}
+        <div className="sticky bottom-0 z-20 bg-[#111C20]/95 backdrop-blur-md px-6 py-4 border-t border-white/10 flex gap-3 shrink-0 pb-safe sm:pb-4">
           <button
             type="button"
             onClick={onClose}

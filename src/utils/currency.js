@@ -1,5 +1,3 @@
-import { safeGetStorage, safeSetStorage } from './storage';
-import { dbFetchExchangeRates, dbUpsertExchangeRates } from '../services/supabaseService';
 import { 
   fetchLiveExchangeRates, 
   convertCrossCurrency, 

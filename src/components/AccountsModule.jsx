@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Wallet, Search, CreditCard } from 'lucide-react';
+import { Plus, Trash2, Wallet, Search } from 'lucide-react';
 import AccountModal from './AccountModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import ExportDropdown from './ExportDropdown';
@@ -29,7 +29,7 @@ export default function AccountsModule() {
   const uniqueCurrencies = useMemo(() => {
     const codes = [...new Set(safeAccountsList.map(a => a?.currency || 'USD'))];
     return [
-      { value: 'all', label: t('accounts.allCurrencies', {}, 'Todas las divisas') },
+      { value: 'all', label: t('accounts.allCurrencies', {}, 'Todas las Divisas') },
       ...codes.map(c => ({ value: c, label: c }))
     ];
   }, [safeAccountsList, t]);
@@ -92,12 +92,12 @@ export default function AccountsModule() {
   }, [accountToDelete, deleteAccount]);
 
   return (
-    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-28 md:pb-6">
+    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-32 md:pb-6">
       
       {/* Standardized Header */}
       <header className="flex items-center justify-between gap-2.5 w-full relative z-30">
         <div className="min-w-0 flex-1">
-          <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white truncate">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white leading-tight truncate">
             {t('accounts.title', {}, 'Gestión de Cuentas')}
           </h1>
           <p className="text-xs md:text-sm text-slate-400 mt-0.5 block font-normal truncate">
@@ -124,7 +124,7 @@ export default function AccountsModule() {
             className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
           >
             <Plus size={15} className="shrink-0" />
-            <span>{t('accounts.newAccount', {}, 'Nueva Cuenta')}</span>
+            <span className="hidden sm:inline">{t('accounts.newAccount', {}, 'Nueva Cuenta')}</span>
           </button>
         </div>
       </header>
@@ -142,16 +142,10 @@ export default function AccountsModule() {
         secondaryValue={baseCurrency}
       />
 
-      {/* Toolbar: Search, Currency Filter and Mobile Export */}
-      <div className="flex items-center gap-2 w-full relative z-20">
-        <div className="w-40 shrink-0">
-          <CustomSelect
-            options={uniqueCurrencies}
-            value={currencyFilter}
-            onChange={setCurrencyFilter}
-          />
-        </div>
-        <div className="relative flex-1">
+      {/* Responsive Toolbar: Search (Row 1 on mobile), Currency Filter & Export (Row 2 on mobile), Single row on desktop */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-2 w-full relative z-20">
+        {/* Search Bar */}
+        <div className="relative w-full sm:flex-1 order-1 sm:order-2">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
           <input
             type="text"
@@ -161,14 +155,25 @@ export default function AccountsModule() {
             className="w-full h-11 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#AEEDD0] shadow-inner transition-colors"
           />
         </div>
-        <div className="sm:hidden shrink-0">
-          <ExportDropdown
-            data={filteredAccounts}
-            columns={accountColumns}
-            title={t('accounts.title', {}, 'Gestión de Cuentas')}
-            filename="cuentas_growy"
-            summary={accountSummary}
-          />
+
+        {/* Currency Filter & Mobile Export */}
+        <div className="flex items-center justify-between gap-2.5 w-full sm:w-auto order-2 sm:order-1">
+          <div className="w-full sm:w-44 shrink-0 flex-1 sm:flex-none">
+            <CustomSelect
+              options={uniqueCurrencies}
+              value={currencyFilter}
+              onChange={setCurrencyFilter}
+            />
+          </div>
+          <div className="sm:hidden shrink-0">
+            <ExportDropdown
+              data={filteredAccounts}
+              columns={accountColumns}
+              title={t('accounts.title', {}, 'Gestión de Cuentas')}
+              filename="cuentas_growy"
+              summary={accountSummary}
+            />
+          </div>
         </div>
       </div>
 
@@ -178,7 +183,7 @@ export default function AccountsModule() {
           <div className="p-6 rounded-2xl bg-[#1E2D32]/60 border border-white/10 backdrop-blur-md text-center text-slate-300 space-y-3">
             <Wallet className="w-12 h-12 text-slate-400 mx-auto" />
             <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
-              {safeAccountsList.length === 0 ? t('accounts.noAccountsTitle', {}, 'No tienes cuentas registradas') : 'Sin resultados de búsqueda'}
+              {safeAccountsList.length === 0 ? t('accounts.noAccountsTitle', {}, 'No tienes cuentas registradas') : (language === 'es' ? 'Sin Resultados de Búsqueda' : 'No Search Results')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-400 max-w-sm mx-auto font-normal">
               {safeAccountsList.length === 0 ? t('accounts.noAccountsDesc', {}, 'Agrega tus cuentas bancarias, tarjetas o efectivo para organizar tus finanzas.') : 'Prueba con otro término de búsqueda.'}

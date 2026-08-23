@@ -196,7 +196,7 @@ export default function TransactionModal({
       <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
         
         {/* Scrollable Form Body */}
-        <div className="flex-1 overflow-y-auto overscroll-contain custom-scrollbar p-5 sm:p-7 space-y-4">
+        <div className="flex-1 overflow-y-auto overscroll-contain custom-scrollbar px-6 py-4 space-y-4">
           
           {/* Segmented Control */}
           <div className="grid grid-cols-3 gap-1.5 p-1 rounded-2xl bg-white/[0.04] border border-white/10">
@@ -236,7 +236,7 @@ export default function TransactionModal({
               }`}
             >
               <ArrowLeftRight className="w-3.5 h-3.5" />
-              <span>{t('modals.transaction.typeTransfer', {}, 'Traspaso')}</span>
+              <span>{t('modals.transaction.typeTransfer', {}, 'Transferencia')}</span>
             </button>
           </div>
 
@@ -267,7 +267,7 @@ export default function TransactionModal({
                   options={accountSelectOptions}
                   value={accountId}
                   onChange={setAccountId}
-                  placeholder={safeAccounts.length > 0 ? t('placeholders.selectAccount', {}, 'Seleccionar cuenta') : t('placeholders.noAccounts', {}, 'No hay cuentas disponibles')}
+                  placeholder={safeAccounts.length > 0 ? t('placeholders.selectAccount', {}, 'Seleccionar Cuenta') : t('placeholders.noAccounts', {}, 'No Hay Cuentas Disponibles')}
                 />
               </FormField>
 
@@ -276,7 +276,7 @@ export default function TransactionModal({
                   options={categorySelectOptions}
                   value={categoryId}
                   onChange={setCategoryId}
-                  placeholder={availableCategories.length > 0 ? t('placeholders.selectCategory', {}, 'Seleccionar categoría') : t('placeholders.noCategories', {}, 'No hay categorías disponibles')}
+                  placeholder={availableCategories.length > 0 ? t('placeholders.selectCategory', {}, 'Seleccionar Categoría') : t('placeholders.noCategories', {}, 'No Hay Categorías Disponibles')}
                 />
               </FormField>
             </div>
@@ -287,7 +287,7 @@ export default function TransactionModal({
                   options={accountSelectOptions}
                   value={accountId}
                   onChange={setAccountId}
-                  placeholder={safeAccounts.length > 0 ? t('placeholders.selectAccount', {}, 'Seleccionar cuenta') : t('placeholders.noAccounts', {}, 'No hay cuentas disponibles')}
+                  placeholder={safeAccounts.length > 0 ? t('placeholders.selectAccount', {}, 'Seleccionar Cuenta') : t('placeholders.noAccounts', {}, 'No Hay Cuentas Disponibles')}
                 />
               </FormField>
 
@@ -296,7 +296,7 @@ export default function TransactionModal({
                   options={accountSelectOptions}
                   value={targetAccountId}
                   onChange={setTargetAccountId}
-                  placeholder={safeAccounts.length > 0 ? t('placeholders.selectAccount', {}, 'Seleccionar cuenta') : t('placeholders.noAccounts', {}, 'No hay cuentas disponibles')}
+                  placeholder={safeAccounts.length > 0 ? t('placeholders.selectAccount', {}, 'Seleccionar Cuenta') : t('placeholders.noAccounts', {}, 'No Hay Cuentas Disponibles')}
                 />
               </FormField>
 
@@ -307,7 +307,7 @@ export default function TransactionModal({
                       {t('modals.transaction.multiCurrencyDesc', {}, 'Estás transfiriendo entre cuentas con monedas distintas. Ingresa cuánto dinero se acreditará en la cuenta destino')} <strong>({destAccount?.currency || 'USD'})</strong>.
                     </p>
                     <FormField
-                      label={t('modals.transaction.targetAmountLabel', {}, 'Monto a acreditar en la cuenta destino')}
+                      label={t('modals.transaction.targetAmountLabel', {}, 'Monto a Acreditar en Destino')}
                       prefix={getCurrencySymbol(destAccount?.currency)}
                       type="number"
                       step="0.01"
@@ -331,8 +331,8 @@ export default function TransactionModal({
           />
         </div>
 
-        {/* Fixed Footer */}
-        <div className="shrink-0 z-10 bg-[#111C20] p-4 border-t border-white/10 flex gap-3">
+        {/* Sticky Action Footer */}
+        <div className="sticky bottom-0 z-20 bg-[#111C20]/95 backdrop-blur-md px-6 py-4 border-t border-white/10 flex gap-3 shrink-0 pb-safe sm:pb-4">
           <button
             type="button"
             onClick={onClose}

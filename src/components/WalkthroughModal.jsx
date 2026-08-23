@@ -94,7 +94,7 @@ export default function WalkthroughModal({ isOpen, onComplete }) {
             onClick={onComplete}
             className="text-xs font-semibold text-slate-300 hover:text-white transition-colors cursor-pointer"
           >
-            {t('walkthrough.skip', {}, 'Saltar tour')}
+            {t('walkthrough.skip', {}, 'Saltar Tour')}
           </button>
         </div>
 
@@ -151,7 +151,7 @@ export default function WalkthroughModal({ isOpen, onComplete }) {
             {isLastStep ? (
               <>
                 <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
-                <span>{t('walkthrough.startBtn', {}, '¡Comenzar ahora!')}</span>
+                <span>{t('walkthrough.startBtn', {}, '¡Comenzar Ahora!')}</span>
               </>
             ) : (
               <>

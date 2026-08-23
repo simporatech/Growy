@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Send, CheckCircle2, UserPlus, Sparkles, ArrowRight, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { Mail, Send, CheckCircle2, UserPlus, Sparkles, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import ModalWrapper from './ModalWrapper';
 import FormField from './FormField';
 import { useSettings } from '../context/SettingsContext';
@@ -43,7 +43,7 @@ export function ForgotPasswordModal({ isOpen, onClose }) {
     >
       {!sent ? (
         <form onSubmit={handleReset} className="flex-1 flex flex-col min-h-0">
-          <div className="flex-1 overflow-y-auto overscroll-contain custom-scrollbar p-5 space-y-4">
+          <div className="flex-1 overflow-y-auto overscroll-contain custom-scrollbar px-6 py-4 space-y-4">
             <FormField
               label={t('modals.auth.email', {}, 'Correo Electrónico')}
               type="email"
@@ -54,7 +54,7 @@ export function ForgotPasswordModal({ isOpen, onClose }) {
             />
           </div>
           
-          <div className="shrink-0 z-10 bg-[#111C20] p-4 border-t border-white/10 flex gap-3">
+          <div className="sticky bottom-0 z-20 bg-[#111C20]/95 backdrop-blur-md px-6 py-4 border-t border-white/10 flex gap-3 shrink-0 pb-safe sm:pb-4">
             <button
               type="submit"
               disabled={loading}
@@ -62,7 +62,7 @@ export function ForgotPasswordModal({ isOpen, onClose }) {
             >
               {loading ? t('modals.auth.sendingLink', {}, 'Enviando enlace...') : (
                 <>
-                  <span>{t('modals.auth.sendLink', {}, 'Enviar enlace de recuperación')}</span>
+                  <span>{t('modals.auth.sendLink', {}, 'Enviar Enlace de Recuperación')}</span>
                   <Send className="w-4 h-4" />
                 </>
               )}
@@ -79,7 +79,7 @@ export function ForgotPasswordModal({ isOpen, onClose }) {
             onClick={handleClose}
             className="w-full h-11 px-6 rounded-xl btn-primary-mint font-bold text-sm cursor-pointer"
           >
-            {t('modals.auth.understood', {}, 'Entendido, volver')}
+            {t('modals.auth.understood', {}, 'Entendido, Volver')}
           </button>
         </div>
       )}
@@ -134,8 +134,6 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
     ].filter(Boolean);
 
     const cleanPin = String(formData.masterPin || formData.inviteCode || '').trim();
-
-    console.log('🔑 Validando código de invitación ingresado:', cleanPin);
 
     if (!VALID_INVITE_CODES.includes(cleanPin)) {
       console.warn('❌ Código de invitación no autorizado:', cleanPin);
@@ -202,7 +200,7 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
     >
       {!registeredUser ? (
         <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
-          <div className="flex-1 overflow-y-auto overscroll-contain custom-scrollbar p-5 space-y-4">
+          <div className="flex-1 overflow-y-auto overscroll-contain custom-scrollbar px-6 py-4 space-y-4">
             <div className="space-y-1.5">
             <label className="text-xs font-semibold text-slate-300 block">
               {t('modals.auth.fullName', {}, 'Nombre Completo')} *
@@ -333,7 +331,7 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
             </span>
           </div>
           </div>
-          <div className="shrink-0 z-10 bg-[#111C20] p-4 border-t border-white/10 flex gap-3">
+          <div className="sticky bottom-0 z-20 bg-[#111C20]/95 backdrop-blur-md px-6 py-4 border-t border-white/10 flex gap-3 shrink-0 pb-safe sm:pb-4">
             <button
               type="submit"
               disabled={loading}
@@ -360,7 +358,7 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
             onClick={handleClose}
             className="w-full h-11 px-6 rounded-xl btn-primary-mint font-bold text-sm cursor-pointer"
           >
-            {t('modals.auth.understood', {}, 'Entendido, continuar')}
+            {t('modals.auth.understood', {}, 'Entendido, Volver')}
           </button>
         </div>
       )}

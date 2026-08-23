@@ -1,13 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { Settings as SettingsIcon, Languages, Palette, Sparkles, Download, RotateCcw, Check, ShieldAlert, Coins, RefreshCw, ArrowLeftRight, Trash2, Lock, Eye, EyeOff } from 'lucide-react';
+import { Languages, Palette, Sparkles, Download, RotateCcw, Check, ShieldAlert, Coins, RefreshCw, ArrowLeftRight, Trash2, Lock, Eye, EyeOff } from 'lucide-react';
 import { useSettings, THEMES } from '../context/SettingsContext';
 import { useFinance } from '../context/FinanceContext';
-import { SUPPORTED_CURRENCIES, FALLBACK_EXCHANGE_RATES, CURRENCY_MAP, AVAILABLE_CURRENCIES, getCrossRate, convertCrossCurrency } from '../utils/currency';
+import { FALLBACK_EXCHANGE_RATES, AVAILABLE_CURRENCIES, getCrossRate, convertCrossCurrency } from '../utils/currency';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import DeleteAccountModal from './DeleteAccountModal';
 import CustomSelect from './CustomSelect';
 import { dbDeleteUser, dbChangeUserPassword } from '../services/supabaseService';
-import { supabase } from '../lib/supabaseClient';
 import { getActiveSessionUserId, setActiveSessionUserId } from '../utils/userStorage';
 
 export default function SettingsModule() {
@@ -167,8 +166,6 @@ export default function SettingsModule() {
     setIsDeletingAccount(true);
 
     try {
-      console.log('🗑️ Intentando eliminar usuario de Supabase:', activeUserId);
-
       const res = await dbDeleteUser(activeUserId);
 
       if (!res || !res.success) {
@@ -177,8 +174,6 @@ export default function SettingsModule() {
         setIsDeletingAccount(false);
         return;
       }
-
-      console.log('✅ Usuario eliminado exitosamente de la base de datos');
 
       // 1. Limpiar sesión token
       setActiveSessionUserId(null);
@@ -195,12 +190,12 @@ export default function SettingsModule() {
   };
 
   return (
-    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-28 md:pb-6">
+    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-32 md:pb-6">
       
       {/* Standardized View Header */}
       <header className="flex items-center justify-between gap-3 w-full relative z-30">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white leading-tight">
             {t('settings.title', {}, 'Configuración del Sistema')}
           </h1>
           <p className="text-xs md:text-sm text-slate-400 font-normal mt-0.5">
@@ -319,7 +314,7 @@ export default function SettingsModule() {
             className="h-10 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-white font-semibold text-xs flex items-center justify-center gap-2 border border-white/10 transition-all cursor-pointer disabled:opacity-50 shrink-0"
           >
             <RefreshCw className={`w-3.5 h-3.5 text-[#AEEDD0] ${isFetchingRates ? 'animate-spin' : ''}`} />
-            <span>{t('settings.refreshRates', {}, 'Actualizar tasas')}</span>
+            <span>{t('settings.refreshRates', {}, 'Actualizar Tasas')}</span>
           </button>
         </div>
 
@@ -363,7 +358,7 @@ export default function SettingsModule() {
                 setCalcToCurrency(calcFromCurrency);
               }}
               className="w-10 h-10 rounded-xl bg-white/5 hover:bg-[#AEEDD0]/20 border border-white/10 text-[#AEEDD0] flex items-center justify-center transition-all cursor-pointer"
-              title={language === 'es' ? 'Intercambiar divisas' : 'Swap currencies'}
+              title={language === 'es' ? 'Intercambiar Divisas' : 'Swap Currencies'}
             >
               <ArrowLeftRight className="w-4 h-4" />
             </button>
@@ -570,7 +565,7 @@ export default function SettingsModule() {
         {newPwd.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
             <div className={`text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border ${pwdHasLength ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-white/5 border-white/10 text-slate-400'}`}>
-              ✓ 8+ {t('settings.characters', {}, 'caracteres')}
+              ✓ 8+ {t('settings.characters', {}, 'Caracteres')}
             </div>
             <div className={`text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border ${pwdHasUpper ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-white/5 border-white/10 text-slate-400'}`}>
               ✓ {t('settings.uppercase', {}, 'Mayúscula')}

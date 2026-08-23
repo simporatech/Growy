@@ -56,7 +56,7 @@ export default function Pagination({
         <div className="text-xs text-slate-300 font-medium tabular-nums whitespace-nowrap">
           <span className="text-white font-bold">{startIndex} - {endIndex}</span>
           <span className="text-slate-500 mx-1.5">/</span>
-          <span className="text-slate-400">{totalItems} {t('pagination.totalRecords', {}, 'registros')}</span>
+          <span className="text-slate-400">{totalItems} {t('pagination.totalRecords', {}, 'Registros')}</span>
         </div>
       </div>
 
@@ -72,7 +72,7 @@ export default function Pagination({
             onClick={() => onPageChange(validCurrentPage - 1)}
             disabled={validCurrentPage <= 1}
             className="w-8 h-8 rounded-xl bg-[#131E22] hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white flex items-center justify-center transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
-            title={t('pagination.previous', {}, 'Página anterior')}
+            title={t('pagination.previous', {}, 'Anterior')}
           >
             <ChevronLeft size={15} />
           </button>
@@ -82,7 +82,7 @@ export default function Pagination({
             onClick={() => onPageChange(validCurrentPage + 1)}
             disabled={validCurrentPage >= totalPages}
             className="w-8 h-8 rounded-xl bg-[#131E22] hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white flex items-center justify-center transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
-            title={t('pagination.next', {}, 'Página siguiente')}
+            title={t('pagination.next', {}, 'Siguiente')}
           >
             <ChevronRight size={15} />
           </button>
