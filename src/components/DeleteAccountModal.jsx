@@ -43,8 +43,12 @@ export default function DeleteAccountModal({ isOpen, onClose, onConfirmDelete, i
   };
 
   const modalContent = (
-    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-      <div className="w-full max-w-md bg-[#162226] border-t sm:border border-rose-500/30 rounded-t-3xl sm:rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5 relative max-h-[85vh] sm:max-h-[90vh] overflow-y-auto pb-safe sm:pb-7">
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/70 backdrop-blur-md animate-fadeIn">
+      <div 
+        role="dialog"
+        aria-modal="true"
+        className="modal-container w-full max-w-md bg-[#0A0D14] border-t sm:border border-rose-500/30 rounded-t-3xl sm:rounded-3xl p-6 sm:p-7 shadow-[0_20px_50px_rgba(0,0,0,0.7)] space-y-5 relative max-h-[85vh] sm:max-h-[90vh] overflow-y-auto pb-safe sm:pb-7"
+      >
         
         {/* Mobile Drag Indicator */}
         <div className="w-12 h-1.5 rounded-full bg-white/20 mx-auto -mt-1 mb-2 sm:hidden" />
@@ -94,7 +98,7 @@ export default function DeleteAccountModal({ isOpen, onClose, onConfirmDelete, i
                 if (error) setError('');
               }}
               placeholder={language === 'es' ? 'Escribe ELIMINAR para confirmar' : 'Type DELETE to confirm'}
-              className="w-full h-11 px-4 bg-[#1E2D32] border border-rose-500/30 rounded-xl text-xs font-bold text-rose-300 text-center tracking-wider uppercase outline-none focus:border-rose-400 placeholder:opacity-25 placeholder:grayscale caret-rose-400"
+              className="w-full h-11 px-4 bg-[#121721] border border-rose-500/30 rounded-xl text-xs font-bold text-rose-300 text-center tracking-wider uppercase outline-none focus:border-rose-400 placeholder:opacity-25 placeholder:grayscale caret-rose-400"
               autoFocus
             />
             {error && <span className="text-[11px] text-rose-400 font-semibold block text-center">{error}</span>}
@@ -104,7 +108,7 @@ export default function DeleteAccountModal({ isOpen, onClose, onConfirmDelete, i
             <button
               type="button"
               onClick={handleClose}
-              className="flex-1 h-11 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs cursor-pointer transition-colors"
+              className="btn-cancel btn-secondary flex-1 h-11 rounded-xl font-bold text-xs cursor-pointer transition-colors"
             >
               {language === 'es' ? 'Cancelar' : 'Cancel'}
             </button>

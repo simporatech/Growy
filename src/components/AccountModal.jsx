@@ -84,9 +84,9 @@ export default function AccountModal({
       title={accountToEdit ? t('modals.account.editTitle', {}, 'Editar Cuenta') : t('modals.account.newTitle', {}, 'Nueva Cuenta')}
       subtitle={accountToEdit ? t('modals.account.editSubtitle', {}, 'Modifica los detalles de tu cuenta') : t('modals.account.newSubtitle', {}, 'Agrega una nueva fuente de saldo')}
       icon={Wallet}
-      iconBgColor="bg-[#AEEDD0]/15"
-      iconBorderColor="border-[#AEEDD0]/30"
-      iconTextColor="text-[#AEEDD0]"
+      iconBgColor="bg-[#97F2CC]/15"
+      iconBorderColor="border-[#97F2CC]/30"
+      iconTextColor="text-[#97F2CC]"
       error={error}
     >
       <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
@@ -96,7 +96,7 @@ export default function AccountModal({
           
           {/* Read-Only Current Balance Display Badge (When Editing Existing Account) */}
           {accountToEdit && (
-            <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-between">
+            <div className="p-4 rounded-2xl bg-[#121721] border border-white/[0.08] flex items-center justify-between">
               <div className="flex flex-col">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300">
                   {t('modals.account.currentBalanceBadge', {}, 'Saldo Actual Calculado')}
@@ -105,7 +105,7 @@ export default function AccountModal({
                   {t('modals.account.currentBalanceNote', {}, '(Saldo inicial + ingresos - gastos ± traspasos)')}
                 </span>
               </div>
-              <span className="text-base sm:text-lg font-black text-[var(--color-primary,#AEEDD0)] tabular-nums">
+              <span className="text-base sm:text-lg font-black text-[var(--color-primary,#97F2CC)] tabular-nums">
                 {currencySymbol} {currentCalculatedBalance.toLocaleString('es-HN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
@@ -125,7 +125,7 @@ export default function AccountModal({
                   setEmoji(val);
                 }}
                 placeholder="🏦"
-                className="w-11 h-11 rounded-xl growy-glass-input text-xl text-center font-bold flex items-center justify-center shrink-0 cursor-pointer placeholder:opacity-25 placeholder:grayscale caret-[#AEEDD0] transition-all"
+                className="w-11 h-11 rounded-xl form-input bg-[#121721] border border-white/[0.08] text-[#F1F5F9] text-xl text-center font-bold flex items-center justify-center shrink-0 cursor-pointer placeholder:opacity-25 placeholder:grayscale caret-[#97F2CC] focus:outline-none focus:border-[#97F2CC] focus:ring-1 focus:ring-[#97F2CC] transition-all"
                 title="Emoji"
               />
             </div>
@@ -190,17 +190,17 @@ export default function AccountModal({
         </div>
 
         {/* Sticky Action Footer */}
-        <div className="sticky bottom-0 z-20 bg-[#111C20]/95 backdrop-blur-md px-6 py-4 border-t border-white/10 flex gap-3 shrink-0 pb-safe sm:pb-4">
+        <div className="modal-footer sticky bottom-0 z-20 bg-transparent px-6 py-4 border-t border-white/[0.06] flex gap-3 shrink-0 pb-safe sm:pb-4">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 px-4 rounded-xl bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 font-semibold border border-white/10 transition-colors cursor-pointer"
+            className="btn-cancel btn-secondary flex-1 py-3 px-4 rounded-xl font-semibold transition-colors cursor-pointer"
           >
             {t('common.cancel', {}, 'Cancelar')}
           </button>
           <button
             type="submit"
-            className="flex-1 py-3 px-4 rounded-xl btn-primary-mint font-bold hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer shadow-md"
+            className="btn-primary btn-save flex-1 py-3 px-4 rounded-xl font-semibold hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer shadow-md"
           >
             {accountToEdit ? t('modals.account.updateBtn', {}, 'Actualizar Cuenta') : t('modals.account.saveBtn', {}, 'Guardar Cuenta')}
           </button>

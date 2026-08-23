@@ -154,17 +154,17 @@ export default function LoanModal({
         </div>
 
         {/* Sticky Action Footer */}
-        <div className="sticky bottom-0 z-20 bg-[#111C20]/95 backdrop-blur-md px-6 py-4 border-t border-white/10 flex gap-3 shrink-0 pb-safe sm:pb-4">
+        <div className="modal-footer sticky bottom-0 z-20 bg-transparent px-6 py-4 border-t border-white/[0.06] flex gap-3 shrink-0 pb-safe sm:pb-4">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 px-4 rounded-xl bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 font-semibold border border-white/10 transition-colors cursor-pointer"
+            className="btn-cancel btn-secondary flex-1 py-3 px-4 rounded-xl font-semibold transition-colors cursor-pointer"
           >
             {t('common.cancel', {}, 'Cancelar')}
           </button>
           <button
             type="submit"
-            className="flex-1 py-3 px-4 rounded-xl btn-primary-mint font-bold hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer shadow-md"
+            className="btn-primary btn-save flex-1 py-3 px-4 rounded-xl font-semibold hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer shadow-md"
           >
             {loanToEdit ? t('modals.loan.updateBtn', {}, 'Actualizar Saldo') : t('modals.loan.saveBtn', {}, 'Guardar Saldo')}
           </button>

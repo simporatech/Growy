@@ -29,6 +29,7 @@ export class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       // Obtener idioma preferido dinámicamente desde el storage del navegador
       const lang = (
+        localStorage.getItem('growy_lang') ||
         localStorage.getItem('growy_language_preference') || 
         localStorage.getItem('growy_language') || 
         (navigator.language || 'es')

@@ -59,7 +59,7 @@ export default function AdvancedFiltersModal({
   if (!isOpen || !mounted) return null;
 
   const modalContent = (
-    <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fadeIn">
+    <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fadeIn">
       {/* Backdrop overlay */}
       <div 
         className="fixed inset-0 bg-transparent cursor-pointer"
@@ -67,15 +67,19 @@ export default function AdvancedFiltersModal({
       />
 
       {/* Drawer / Modal Container */}
-      <div className="relative z-10 w-full max-w-lg max-h-[85vh] bg-[#111C20] flex flex-col rounded-t-3xl sm:rounded-2xl border-t sm:border border-white/10 overflow-hidden shadow-2xl animate-scaleUp">
+      <div 
+        role="dialog"
+        aria-modal="true"
+        className="modal-container relative z-10 w-full max-w-lg max-h-[85vh] bg-[#0A0D14] flex flex-col rounded-t-3xl sm:rounded-2xl border-t sm:border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.7)] overflow-hidden animate-scaleUp"
+      >
         
         {/* Header */}
-        <div className="p-5 border-b border-white/10 shrink-0 bg-[#111C20] relative">
+        <div className="modal-header p-5 border-b border-white/[0.06] shrink-0 bg-[#0A0D14] relative">
           <div className="w-12 h-1.5 rounded-full bg-white/20 mx-auto -mt-2 mb-3 sm:hidden" />
           
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-2xl bg-[var(--color-primary,#AEEDD0)]/15 border border-[var(--color-primary,#AEEDD0)]/30 flex items-center justify-center text-[var(--color-primary,#AEEDD0)] shrink-0">
+              <div className="w-10 h-10 rounded-2xl bg-[var(--color-primary,#97F2CC)]/15 border border-[var(--color-primary,#97F2CC)]/30 flex items-center justify-center text-[var(--color-primary,#97F2CC)] shrink-0">
                 <SlidersHorizontal className="w-5 h-5" />
               </div>
               <div>
@@ -83,7 +87,7 @@ export default function AdvancedFiltersModal({
                   {t('transactions.advancedFilters', {}, 'Filtros Avanzados')}
                 </h3>
                 {activeFilterCount > 0 && (
-                  <span className="text-[11px] font-semibold text-[var(--color-primary,#AEEDD0)]">
+                  <span className="text-[11px] font-semibold text-[var(--color-primary,#97F2CC)]">
                     {t('transactions.activeCount', { count: activeFilterCount }, `${activeFilterCount} activos`)}
                   </span>
                 )}
@@ -114,8 +118,8 @@ export default function AdvancedFiltersModal({
                 onClick={() => setTypeFilter('all')}
                 className={`h-11 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                   typeFilter === 'all'
-                    ? 'bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] border-[var(--color-primary,#AEEDD0)] shadow-sm'
-                    : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
+                    ? 'bg-slate-800 text-white border-white/20 shadow-sm'
+                    : 'bg-[#121721] border-white/[0.08] text-slate-300 hover:bg-white/10'
                 }`}
               >
                 {t('transactions.filterAll', {}, 'Todos')}
@@ -125,33 +129,33 @@ export default function AdvancedFiltersModal({
                 onClick={() => setTypeFilter('expense')}
                 className={`h-11 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                   typeFilter === 'expense'
-                    ? 'bg-[#FF6B6B]/20 text-[#FF6B6B] border-[#FF6B6B]/40 shadow-sm'
-                    : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
+                    ? 'bg-rose-500/20 text-rose-400 border-rose-500/40 shadow-sm'
+                    : 'bg-[#121721] border-white/[0.08] text-slate-300 hover:bg-white/10'
                 }`}
               >
-                {t('transactions.filterExpenses', {}, 'Gastos')}
+                {t('transactions.filterExpense', {}, 'Gastos')}
               </button>
               <button
                 type="button"
                 onClick={() => setTypeFilter('income')}
                 className={`h-11 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                   typeFilter === 'income'
-                    ? 'bg-[var(--color-primary,#AEEDD0)]/20 text-[var(--color-primary,#AEEDD0)] border-[var(--color-primary,#AEEDD0)]/40 shadow-sm'
-                    : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
+                    ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40 shadow-sm'
+                    : 'bg-[#121721] border-white/[0.08] text-slate-300 hover:bg-white/10'
                 }`}
               >
-                {t('transactions.filterIncomes', {}, 'Ingresos')}
+                {t('transactions.filterIncome', {}, 'Ingresos')}
               </button>
               <button
                 type="button"
                 onClick={() => setTypeFilter('transfer')}
                 className={`h-11 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                   typeFilter === 'transfer'
-                    ? 'bg-sky-500/20 text-sky-300 border-sky-500/40 shadow-sm'
-                    : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
+                    ? 'bg-sky-500/20 text-sky-400 border-sky-500/40 shadow-sm'
+                    : 'bg-[#121721] border-white/[0.08] text-slate-300 hover:bg-white/10'
                 }`}
               >
-                {t('transactions.filterTransfers', {}, 'Transferencias')}
+                {t('transactions.filterTransfer', {}, 'Transferencias')}
               </button>
             </div>
           </div>
@@ -225,14 +229,14 @@ export default function AdvancedFiltersModal({
         </div>
 
         {/* Fixed Action Footer */}
-        <div className="p-4 border-t border-white/10 bg-[#0E171B] shrink-0 flex items-center gap-3 z-10">
+        <div className="modal-footer p-4 border-t border-white/[0.06] bg-transparent shrink-0 flex items-center gap-3 z-10">
           <button
             type="button"
             onClick={() => {
               resetFilters();
               onClose();
             }}
-            className="flex-1 py-3 bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 font-semibold border border-white/10 rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-2 text-sm"
+            className="btn-cancel btn-secondary flex-1 py-3 font-semibold rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-2 text-sm"
           >
             <RotateCcw className="w-4 h-4" />
             <span>{t('transactions.clearFilters', {}, 'Limpiar')}</span>
@@ -241,7 +245,7 @@ export default function AdvancedFiltersModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 btn-primary-mint font-bold rounded-xl hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 text-sm shadow-md"
+            className="btn-primary btn-save flex-1 py-3 font-semibold rounded-xl hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 text-sm shadow-md"
           >
             <Check className="w-4 h-4" />
             <span>{t('common.apply', {}, 'Aplicar Filtros')}</span>

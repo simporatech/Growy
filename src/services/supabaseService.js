@@ -178,7 +178,6 @@ export const dbRegisterUser = async ({ username, fullName, email, password, lang
       user_id: userId,
       base_currency: baseCurrency,
       theme_color: 'MINT',
-      glass_intensity: 'Deep',
       language: language,
       sidebar_collapsed: false
     }]);
@@ -193,6 +192,54 @@ export const dbRegisterUser = async ({ username, fullName, email, password, lang
   await seedUserCategories(userId, language);
 
   return { success: true, user: toCamel(userData[0]) };
+};
+
+// --- USER SETTINGS SERVICES ---
+
+export const dbFetchUserSettings = async (userId) => {
+  if (!userId) return null;
+  console.log('📡 [Supabase DB] Obteniendo user_settings para usuario:', userId);
+  try {
+    const { data, error } = await supabase
+      .from('user_settings')
+      .select('language, base_currency, theme_color, sidebar_collapsed')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (error) {
+      console.warn('⚠️ [Supabase DB] Error obteniendo user_settings:', error.message);
+      return null;
+    }
+    return toCamel(data);
+  } catch (err) {
+    console.error('❌ [Supabase DB Exception] dbFetchUserSettings:', err);
+    return null;
+  }
+};
+
+export const dbUpsertUserSettings = async (userId, settings) => {
+  if (!userId) return null;
+  console.log('📡 [Supabase DB] Guardando user_settings para usuario:', userId, settings);
+  try {
+    const payload = {
+      user_id: userId,
+      ...toSnake(settings),
+      updated_at: new Date().toISOString()
+    };
+    const { data, error } = await supabase
+      .from('user_settings')
+      .upsert([payload], { onConflict: 'user_id' })
+      .select();
+
+    if (error) {
+      console.error('❌ [Supabase DB Error] dbUpsertUserSettings:', error);
+      throw error;
+    }
+    return toCamel(data && data[0] ? data[0] : payload);
+  } catch (err) {
+    console.error('❌ [Supabase DB Exception] dbUpsertUserSettings:', err);
+    return null;
+  }
 };
 
 export const dbValidateUserLogin = async (identifier, password) => {

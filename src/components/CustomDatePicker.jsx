@@ -216,14 +216,14 @@ export default function CustomDatePicker({
         type="button"
         disabled={disabled}
         onClick={handleToggle}
-        className={`w-full h-11 px-3.5 bg-[#131E22] border border-white/10 rounded-xl text-xs sm:text-sm font-medium text-white flex items-center justify-between hover:border-[var(--color-primary)]/50 active:scale-[0.99] transition-all shadow-inner cursor-pointer select-none ${
+        className={`form-input w-full h-11 px-3.5 bg-[#121721] border border-white/[0.08] rounded-xl text-xs sm:text-sm font-medium text-white flex items-center justify-between hover:border-[#97F2CC]/50 active:scale-[0.99] transition-all shadow-inner cursor-pointer select-none ${
           disabled ? 'opacity-50 cursor-not-allowed' : ''
-        } ${isOpen ? 'border-[var(--color-primary)]/60 ring-1 ring-[var(--color-primary)]/30' : ''}`}
+        } ${isOpen ? 'border-[#97F2CC] ring-1 ring-[#97F2CC]' : ''}`}
       >
         <span className={`truncate ${!value ? 'text-slate-400 font-normal' : 'text-white font-medium'}`}>
           {formattedLabel}
         </span>
-        <CalendarIcon className={`w-4 h-4 text-slate-400 shrink-0 ml-1.5 transition-colors ${isOpen ? 'text-[var(--color-primary)]' : ''}`} />
+        <CalendarIcon className={`w-4 h-4 text-slate-400 shrink-0 ml-1.5 transition-colors ${isOpen ? 'text-[var(--color-primary,#97F2CC)]' : ''}`} />
       </button>
 
       {/* Floating Dark Popover Calendar via React Portal */}
@@ -235,10 +235,10 @@ export default function CustomDatePicker({
             width: '300px',
             maxWidth: 'calc(100vw - 24px)'
           }}
-          className="custom-datepicker-portal fixed z-[9999] bg-[#152328] border border-white/10 rounded-2xl shadow-2xl p-4 backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-150 select-none isolate"
+          className="custom-datepicker-portal fixed z-[9999] bg-[#0A0D14] border border-white/[0.08] rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.7)] p-4 backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-150 select-none isolate"
         >
           {/* Header with Month / Year and Navigation */}
-          <div className="flex items-center justify-between pb-3 mb-2 border-b border-white/10">
+          <div className="flex items-center justify-between pb-3 mb-2 border-b border-white/[0.06]">
             <button
               type="button"
               onClick={handlePrevMonth}
@@ -289,7 +289,7 @@ export default function CustomDatePicker({
                   onClick={() => handleSelectDay(item.dateStr)}
                   className={`h-9 w-9 mx-auto rounded-xl text-xs font-semibold flex items-center justify-center transition-all duration-150 cursor-pointer ${
                     item.isSelected
-                      ? 'bg-[var(--color-primary)] text-[#1E2D32] font-bold shadow-lg shadow-[var(--color-primary)]/20 scale-105'
+                      ? 'bg-[var(--color-primary,#97F2CC)] text-[#091E15] font-bold shadow-lg shadow-[var(--color-primary,#97F2CC)]/20 scale-105'
                       : item.isToday
                       ? 'border border-[var(--color-primary)]/60 text-[var(--color-primary)] font-bold hover:bg-white/10'
                       : 'text-slate-200 hover:bg-white/10 hover:text-white active:scale-95'

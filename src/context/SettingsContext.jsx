@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { safeGetStorage, safeSetStorage, safeRemoveStorage } from '../utils/storage';
 import { translations } from '../i18n/translations';
+import { supabase } from '../lib/supabaseClient';
+import { getActiveSessionUserId } from '../utils/userStorage';
 import { 
   BASE_CURRENCY_KEY, 
   SUPPORTED_CURRENCIES, 
@@ -12,43 +14,60 @@ import {
   formatToGlobal as formatToGlobalUtil,
   convertToGlobal as convertToGlobalUtil, 
   formatCurrency as formatCurrencyUtil,
-  getCurrencySymbol,
-  detectUserLocaleAndCurrency
+  getCurrencySymbol
 } from '../utils/currency';
 
-const LANGUAGE_KEY = 'growy_language_preference';
-const THEME_KEY = 'growy_theme_preference';
-const GLASS_KEY = 'growy_glass_intensity';
+export const GROWY_LANG_KEY = 'growy_lang';
+export const LEGACY_LANG_KEY = 'growy_language_preference';
+export const GROWY_BASE_CURRENCY_KEY = 'growy_base_currency';
+export const THEME_KEY = 'growy_theme_preference';
+
+export const THEME_PRESETS = {
+  MINT: { primary: '#97F2CC', primaryRgb: '151, 242, 204', primaryText: '#091E15', glow: 'rgba(151, 242, 204, 0.10)' },
+  CYAN: { primary: '#38BDF8', primaryRgb: '56, 189, 248', primaryText: '#082f49', glow: 'rgba(56, 189, 248, 0.10)' },
+  PURPLE: { primary: '#C084FC', primaryRgb: '192, 132, 252', primaryText: '#2e1065', glow: 'rgba(192, 132, 252, 0.10)' },
+  EMERALD: { primary: '#34D399', primaryRgb: '52, 211, 153', primaryText: '#064e3b', glow: 'rgba(52, 211, 153, 0.10)' },
+  CORAL: { primary: '#FB7185', primaryRgb: '251, 113, 133', primaryText: '#4c0519', glow: 'rgba(251, 113, 133, 0.10)' }
+};
 
 export const THEMES = [
-  { id: 'mint', nameKey: 'settings.themeMint', accentColor: '#AEEDD0', bgColor: '#1E2D32' },
-  { id: 'cyan', nameKey: 'settings.themeCyan', accentColor: '#38BDF8', bgColor: '#0F172A' },
-  { id: 'purple', nameKey: 'settings.themePurple', accentColor: '#C084FC', bgColor: '#1E1B4B' },
-  { id: 'emerald', nameKey: 'settings.themeEmerald', accentColor: '#34D399', bgColor: '#064E3B' },
-  { id: 'coral', nameKey: 'settings.themeCoral', accentColor: '#FB7185', bgColor: '#1C1917' }
+  { id: 'mint', nameKey: 'settings.themeMint', accentColor: '#97F2CC', bgColor: '#090C10' },
+  { id: 'cyan', nameKey: 'settings.themeCyan', accentColor: '#38BDF8', bgColor: '#090C10' },
+  { id: 'purple', nameKey: 'settings.themePurple', accentColor: '#C084FC', bgColor: '#090C10' },
+  { id: 'emerald', nameKey: 'settings.themeEmerald', accentColor: '#34D399', bgColor: '#090C10' },
+  { id: 'coral', nameKey: 'settings.themeCoral', accentColor: '#FB7185', bgColor: '#090C10' }
 ];
+
+export const applyThemeTokens = (themeKey) => {
+  try {
+    const key = String(themeKey || 'MINT').toUpperCase();
+    const theme = THEME_PRESETS[key] || THEME_PRESETS.MINT;
+    const root = document.documentElement;
+
+    root.style.setProperty('--bg-base', '#090C10');
+    root.style.setProperty('--color-primary', theme.primary);
+    root.style.setProperty('--color-primary-rgb', theme.primaryRgb);
+    root.style.setProperty('--color-primary-text', theme.primaryText || '#091E15');
+    root.style.setProperty('--color-glow', theme.glow);
+  } catch (e) {
+    console.error('Error applying theme tokens:', e);
+  }
+};
 
 const SettingsContext = createContext(null);
 
-export function SettingsProvider({ children }) {
-  const [isAutoLanguage, setIsAutoLanguage] = useState(() => {
-    try {
-      const savedLang = safeGetStorage(LANGUAGE_KEY, null);
-      return !savedLang;
-    } catch {
-      return true;
-    }
-  });
+export function SettingsProvider({ children, userId = null }) {
   const [language, setLanguageState] = useState(() => {
     try {
-      const savedLang = safeGetStorage(LANGUAGE_KEY, null);
+      const savedLang = safeGetStorage(GROWY_LANG_KEY, null) || safeGetStorage(LEGACY_LANG_KEY, null);
       if (savedLang === 'es' || savedLang === 'en') return savedLang;
-      const detected = detectUserLocaleAndCurrency();
-      return detected?.language || 'es';
+      const browserLang = (navigator.language || 'es').toLowerCase().startsWith('es') ? 'es' : 'en';
+      return browserLang;
     } catch {
       return 'es';
     }
   });
+
   const [theme, setThemeState] = useState(() => {
     try {
       const savedTheme = safeGetStorage(THEME_KEY, 'mint');
@@ -57,27 +76,21 @@ export function SettingsProvider({ children }) {
       return 'mint';
     }
   });
-  const [glassIntensity, setGlassIntensityState] = useState(() => {
-    try {
-      const savedGlass = safeGetStorage(GLASS_KEY, 'high');
-      return savedGlass === 'light' ? 'light' : 'high';
-    } catch {
-      return 'high';
-    }
-  });
+
   const [baseCurrency, setBaseCurrencyState] = useState(() => {
     try {
-      const savedCurr = safeGetStorage(BASE_CURRENCY_KEY, null);
+      const savedCurr = safeGetStorage(GROWY_BASE_CURRENCY_KEY, null) || safeGetStorage(BASE_CURRENCY_KEY, null);
       if (savedCurr && SUPPORTED_CURRENCIES.some(c => c.code === savedCurr)) return savedCurr;
-      const detected = detectUserLocaleAndCurrency();
-      return detected?.currency || 'USD';
+      return 'USD';
     } catch {
       return 'USD';
     }
   });
+
   const [exchangeRates, setExchangeRates] = useState(FALLBACK_EXCHANGE_RATES);
   const [lastUpdated, setLastUpdated] = useState('Hoy');
   const [isFetchingRates, setIsFetchingRates] = useState(false);
+  const [isAutoLanguage, setIsAutoLanguage] = useState(false);
 
   const loadExchangeRates = useCallback(async (force = false) => {
     setIsFetchingRates(true);
@@ -96,43 +109,81 @@ export function SettingsProvider({ children }) {
     }
   }, []);
 
-  // Initialize Settings & Daily Exchange Rates (24h Cache) with Smart Detection
+  // 1. JERARQUÍA DE INICIALIZACIÓN (AL INICIAR SESIÓN / MONTAR LA APP)
   useEffect(() => {
-    try {
-      const detected = detectUserLocaleAndCurrency();
+    const effectiveUserId = userId || getActiveSessionUserId();
+    let isMounted = true;
 
-      const savedLang = safeGetStorage(LANGUAGE_KEY, null);
-      if (savedLang && (savedLang === 'es' || savedLang === 'en')) {
-        setLanguageState(savedLang);
-        setIsAutoLanguage(false);
-      } else {
-        setLanguageState(detected.language);
-        setIsAutoLanguage(true);
+    async function initSettingsHierarchy() {
+      try {
+        let settings = null;
+
+        // 1. Obtener settings guardados del usuario en Supabase (si hay sesión)
+        if (effectiveUserId) {
+          const { data, error } = await supabase
+            .from('user_settings')
+            .select('language, base_currency, theme_color, sidebar_collapsed')
+            .eq('user_id', effectiveUserId)
+            .maybeSingle();
+
+          if (error) {
+            console.warn('⚠️ [Supabase DB] Error al consultar user_settings:', error.message);
+          } else if (data) {
+            settings = data;
+          }
+        }
+
+        if (!isMounted) return;
+
+        // 2. Determinar Idioma (Base de Datos > LocalStorage > Detección Navegador)
+        const browserLang = (navigator.language || 'es').toLowerCase().startsWith('es') ? 'es' : 'en';
+        const resolvedLanguage = settings?.language || 
+          safeGetStorage(GROWY_LANG_KEY, null) || 
+          safeGetStorage(LEGACY_LANG_KEY, null) || 
+          browserLang;
+
+        // 3. Determinar Moneda Base (Base de Datos > LocalStorage > Default USD)
+        const resolvedCurrency = settings?.base_currency || 
+          safeGetStorage(GROWY_BASE_CURRENCY_KEY, null) || 
+          safeGetStorage(BASE_CURRENCY_KEY, null) || 
+          'USD';
+
+        // 4. Aplicar a i18n y estado global
+        setLanguageState(resolvedLanguage);
+        setBaseCurrencyState(resolvedCurrency);
+
+        // Sincronizar en localStorage como respaldo offline
+        safeSetStorage(GROWY_LANG_KEY, resolvedLanguage);
+        safeSetStorage(LEGACY_LANG_KEY, resolvedLanguage);
+        safeSetStorage(GROWY_BASE_CURRENCY_KEY, resolvedCurrency);
+        safeSetStorage(BASE_CURRENCY_KEY, resolvedCurrency);
+
+        // Sincronizar Tema si viene configurado en DB
+        let resolvedTheme = safeGetStorage('growy_theme', null) || safeGetStorage(THEME_KEY, 'mint');
+        if (settings?.theme_color) {
+          const dbTheme = String(settings.theme_color).toLowerCase();
+          resolvedTheme = THEMES.some(t => t.id === dbTheme) ? dbTheme : 'mint';
+        }
+        setThemeState(resolvedTheme);
+        safeSetStorage('growy_theme', resolvedTheme);
+        safeSetStorage(THEME_KEY, resolvedTheme);
+
+        applyThemeTokens(resolvedTheme);
+      } catch (err) {
+        console.error('❌ Error en jerarquía de inicialización de settings:', err);
+      } finally {
+        if (isMounted) {
+          loadExchangeRates(false);
+        }
       }
-
-      const savedTheme = safeGetStorage(THEME_KEY, 'mint');
-      if (THEMES.some(t => t.id === savedTheme)) {
-        setThemeState(savedTheme);
-      } else {
-        setThemeState('mint');
-      }
-
-      const savedGlass = safeGetStorage(GLASS_KEY, 'high');
-      setGlassIntensityState(savedGlass === 'light' ? 'light' : 'high');
-
-      const savedCurr = safeGetStorage(BASE_CURRENCY_KEY, null);
-      if (savedCurr && SUPPORTED_CURRENCIES.some(c => c.code === savedCurr)) {
-        setBaseCurrencyState(savedCurr);
-      } else {
-        setBaseCurrencyState(detected.currency);
-        safeSetStorage(BASE_CURRENCY_KEY, detected.currency);
-      }
-
-      loadExchangeRates(false);
-    } catch (e) {
-      console.error('Error loading settings:', e);
     }
-  }, [loadExchangeRates]);
+
+    initSettingsHierarchy();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [userId, loadExchangeRates]);
 
   // Apply CSS Variables and Theme Class to <html> Root
   useEffect(() => {
@@ -140,44 +191,133 @@ export function SettingsProvider({ children }) {
       const root = document.documentElement;
       
       THEMES.forEach(t => root.classList.remove(`theme-${t.id}`));
-      root.classList.remove('glass-high', 'glass-light');
-
       root.classList.add(`theme-${theme}`);
-      root.classList.add(`glass-${glassIntensity}`);
+
+      applyThemeTokens(theme);
     } catch (e) {
-      console.error('Error applying theme:', e);
+      console.error('Error applying theme tokens:', e);
     }
-  }, [theme, glassIntensity]);
+  }, [theme]);
+
+  // 2. GUARDADO REACTIVO AL CAMBIAR AJUSTES (SETTINGS VIEW)
+  // General bulk updater
+  const updateUserSettings = useCallback(async (newSettings) => {
+    if (!newSettings) return;
+    const effectiveUserId = userId || getActiveSessionUserId();
+
+    if (newSettings.language) {
+      setLanguageState(newSettings.language);
+      safeSetStorage(GROWY_LANG_KEY, newSettings.language);
+      safeSetStorage(LEGACY_LANG_KEY, newSettings.language);
+    }
+    if (newSettings.base_currency) {
+      setBaseCurrencyState(newSettings.base_currency);
+      safeSetStorage(GROWY_BASE_CURRENCY_KEY, newSettings.base_currency);
+      safeSetStorage(BASE_CURRENCY_KEY, newSettings.base_currency);
+    }
+    if (newSettings.theme_color) {
+      const dbTheme = String(newSettings.theme_color).toLowerCase();
+      const resolved = THEMES.some(t => t.id === dbTheme) ? dbTheme : 'mint';
+      setThemeState(resolved);
+      safeSetStorage('growy_theme', resolved);
+      safeSetStorage(THEME_KEY, resolved);
+      applyThemeTokens(resolved);
+    }
+
+    if (effectiveUserId) {
+      try {
+        const payload = {
+          user_id: effectiveUserId,
+          updated_at: new Date().toISOString()
+        };
+        if (newSettings.language) payload.language = newSettings.language;
+        if (newSettings.base_currency) payload.base_currency = newSettings.base_currency;
+        if (newSettings.theme_color) payload.theme_color = newSettings.theme_color;
+        if (newSettings.sidebar_collapsed !== undefined) payload.sidebar_collapsed = newSettings.sidebar_collapsed;
+
+        await supabase
+          .from('user_settings')
+          .upsert(payload, { onConflict: 'user_id' });
+        console.log('✅ [Supabase DB] Settings persistidos en user_settings:', payload);
+      } catch (err) {
+        console.error('❌ [Supabase DB Error] Error actualizando user_settings:', err);
+      }
+    }
+  }, [userId]);
 
   // Set Language
-  const setLanguage = useCallback((newLang, isManual = true) => {
+  const setLanguage = useCallback(async (newLang) => {
     setLanguageState(newLang);
-    if (isManual) {
-      setIsAutoLanguage(false);
-      safeSetStorage(LANGUAGE_KEY, newLang);
-    } else {
-      setIsAutoLanguage(true);
-      safeRemoveStorage(LANGUAGE_KEY);
+    safeSetStorage(GROWY_LANG_KEY, newLang);
+    safeSetStorage(LEGACY_LANG_KEY, newLang);
+
+    const effectiveUserId = userId || getActiveSessionUserId();
+    if (effectiveUserId) {
+      try {
+        await supabase
+          .from('user_settings')
+          .upsert({
+            user_id: effectiveUserId,
+            language: newLang,
+            base_currency: baseCurrency,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'user_id' });
+        console.log('✅ [Supabase DB] Idioma persistido en user_settings:', newLang);
+      } catch (err) {
+        console.error('❌ [Supabase DB Error] Error al persistir idioma:', err);
+      }
     }
-  }, []);
-
-  // Set Theme
-  const setTheme = useCallback((newTheme) => {
-    setThemeState(newTheme);
-    safeSetStorage(THEME_KEY, newTheme);
-  }, []);
-
-  // Set Glass Intensity
-  const setGlassIntensity = useCallback((intensity) => {
-    setGlassIntensityState(intensity);
-    safeSetStorage(GLASS_KEY, intensity);
-  }, []);
+  }, [userId, baseCurrency]);
 
   // Set Base Currency
-  const setBaseCurrency = useCallback((currencyCode) => {
-    setBaseCurrencyState(currencyCode);
-    safeSetStorage(BASE_CURRENCY_KEY, currencyCode);
-  }, []);
+  const setBaseCurrency = useCallback(async (newCurrency) => {
+    setBaseCurrencyState(newCurrency);
+    safeSetStorage(GROWY_BASE_CURRENCY_KEY, newCurrency);
+    safeSetStorage(BASE_CURRENCY_KEY, newCurrency);
+
+    const effectiveUserId = userId || getActiveSessionUserId();
+    if (effectiveUserId) {
+      try {
+        await supabase
+          .from('user_settings')
+          .upsert({
+            user_id: effectiveUserId,
+            language: language,
+            base_currency: newCurrency,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'user_id' });
+        console.log('✅ [Supabase DB] Moneda base persistida en user_settings:', newCurrency);
+      } catch (err) {
+        console.error('❌ [Supabase DB Error] Error al persistir moneda base:', err);
+      }
+    }
+  }, [userId, language]);
+
+  // Set Theme
+  const setTheme = useCallback(async (newTheme) => {
+    const dbTheme = String(newTheme).toLowerCase();
+    const resolvedTheme = THEMES.some(t => t.id === dbTheme) ? dbTheme : 'mint';
+    setThemeState(resolvedTheme);
+    safeSetStorage('growy_theme', resolvedTheme);
+    safeSetStorage(THEME_KEY, resolvedTheme);
+    applyThemeTokens(resolvedTheme);
+
+    const effectiveUserId = userId || getActiveSessionUserId();
+    if (effectiveUserId) {
+      try {
+        await supabase
+          .from('user_settings')
+          .upsert({
+            user_id: effectiveUserId,
+            theme_color: resolvedTheme,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'user_id' });
+        console.log('✅ [Supabase DB] Tema persistido en user_settings:', resolvedTheme);
+      } catch (err) {
+        console.warn('⚠️ Error guardando tema en Supabase:', err);
+      }
+    }
+  }, [userId]);
 
   // Manual Refresh of Exchange Rates
   const refreshExchangeRates = useCallback(async () => {
@@ -294,9 +434,8 @@ export function SettingsProvider({ children }) {
         subscriptions: financeData.subscriptions || [],
         settings: {
           theme: safeGetStorage(THEME_KEY, 'mint'),
-          language: safeGetStorage(LANGUAGE_KEY, 'es'),
-          glassIntensity: safeGetStorage(GLASS_KEY, 'high'),
-          baseCurrency: safeGetStorage(BASE_CURRENCY_KEY, 'USD')
+          language: safeGetStorage(GROWY_LANG_KEY, null) || safeGetStorage(LEGACY_LANG_KEY, 'es'),
+          baseCurrency: safeGetStorage(GROWY_BASE_CURRENCY_KEY, null) || safeGetStorage(BASE_CURRENCY_KEY, 'USD')
         }
       };
 
@@ -318,9 +457,12 @@ export function SettingsProvider({ children }) {
     try {
       const settingsKeys = [
         'growy_sidebar_collapsed',
-        LANGUAGE_KEY,
+        'growy_glass',
+        'growy_glass_intensity',
+        GROWY_LANG_KEY,
+        LEGACY_LANG_KEY,
         THEME_KEY,
-        GLASS_KEY,
+        GROWY_BASE_CURRENCY_KEY,
         BASE_CURRENCY_KEY
       ];
       settingsKeys.forEach(k => safeRemoveStorage(k));
@@ -336,8 +478,6 @@ export function SettingsProvider({ children }) {
     isAutoLanguage,
     theme,
     setTheme,
-    glassIntensity,
-    setGlassIntensity,
     baseCurrency,
     setBaseCurrency,
     baseCurrencySymbol,
@@ -353,15 +493,17 @@ export function SettingsProvider({ children }) {
     formatCurrency,
     t,
     exportBackup,
-    resetAllData
+    resetAllData,
+    updateUserSettings,
+    applyThemeTokens,
+    THEME_PRESETS,
+    THEMES
   }), [
     language,
     setLanguage,
     isAutoLanguage,
     theme,
     setTheme,
-    glassIntensity,
-    setGlassIntensity,
     baseCurrency,
     setBaseCurrency,
     baseCurrencySymbol,
@@ -377,7 +519,8 @@ export function SettingsProvider({ children }) {
     formatCurrency,
     t,
     exportBackup,
-    resetAllData
+    resetAllData,
+    updateUserSettings
   ]);
 
   return (

@@ -13,7 +13,6 @@ export default function SettingsModule() {
   const { 
     language, setLanguage,
     theme: currentTheme, setTheme,
-    glassIntensity, setGlassIntensity,
     baseCurrency, setBaseCurrency,
     exchangeRates, lastUpdated, isFetchingRates, refreshExchangeRates,
     exportBackup, resetAllData, t 
@@ -393,99 +392,57 @@ export default function SettingsModule() {
         </div>
       </div>
 
-      {/* FILA 3: ESTÉTICA Y APARIENCIA (Grid 2 Columnas) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-        
-        {/* 1. INTENSIDAD DE BLUR (GLASSMORPHISM) */}
-        <div className="p-6 sm:p-7 rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl h-full flex flex-col justify-between space-y-4 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]">
-          <div className="flex items-center gap-3 border-b border-white/5 pb-3">
-            <div className="w-10 h-10 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400 shrink-0 font-bold">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-white">{t('settings.glassTitle', {}, 'Efectos de Vidrio (Glassmorphism)')}</h3>
-              <p className="text-xs text-slate-300 font-medium">{t('settings.glassSubtitle', {}, 'Intensidad de desenfoque de fondo')}</p>
-            </div>
+      {/* FILA 3: TEMAS Y PALETA DE COLORES DINÁMICA */}
+      <div className="p-6 sm:p-7 rounded-3xl glass-card space-y-4">
+        <div className="flex items-center gap-3 border-b border-white/5 pb-3">
+          <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0 font-bold">
+            <Palette className="w-5 h-5" />
           </div>
+          <div>
+            <h3 className="text-base font-bold text-white">{t('settings.themesTitle', {}, 'Paleta de Colores Dinámica')}</h3>
+            <p className="text-xs text-slate-300 font-medium">{t('settings.themesSubtitle', {}, 'Selecciona la identidad cromática del sistema')}</p>
+          </div>
+        </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { id: 'light', label: t('settings.glassLight', {}, 'Suave'), blur: '8px' },
-              { id: 'high', label: t('settings.glassHigh', {}, 'Profundo'), blur: '24px' }
-            ].map((g) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          {(THEMES || []).map((themeItem) => {
+            const isActive = currentTheme === themeItem.id;
+            return (
               <button
-                key={g.id}
+                key={themeItem.id}
                 type="button"
-                onClick={() => setGlassIntensity(g.id)}
-                className={`h-16 px-4 rounded-xl border flex items-center justify-between transition-all cursor-pointer ${
-                  glassIntensity === g.id
-                    ? 'bg-sky-500/20 border-sky-400 text-sky-300 font-bold shadow-md'
-                    : 'bg-[#162226] border-white/10 text-slate-300 hover:text-white hover:bg-white/[0.05]'
+                onClick={() => setTheme(themeItem.id)}
+                className={`h-14 p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                  isActive
+                    ? 'border-white/40 bg-white/[0.08] shadow-xl scale-[1.02]'
+                    : 'border-white/10 bg-[#161B22] hover:bg-white/[0.05] hover:border-white/20'
                 }`}
               >
-                <div className="text-left">
-                  <span className="text-xs font-bold text-white block">{g.label}</span>
-                  <span className="text-[10px] text-slate-300 font-medium">{g.blur} blur</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-white truncate">{themeItem.id.toUpperCase()}</span>
+                  {isActive && <Check className="w-4 h-4 text-white shrink-0" />}
                 </div>
-                {glassIntensity === g.id && <Check className="w-4 h-4 text-sky-400 shrink-0" />}
+
+                <div className="flex items-center justify-between gap-1.5 p-1 rounded-lg bg-black/40 border border-white/10">
+                  <div 
+                    className="w-3.5 h-3.5 rounded-md border border-white/20 shadow-sm shrink-0"
+                    style={{ backgroundColor: themeItem.accentColor }}
+                    title="Color primario de acento"
+                  />
+                  <div 
+                    className="w-3.5 h-3.5 rounded-md border border-white/20 shadow-sm flex-1"
+                    style={{ backgroundColor: themeItem.bgColor }}
+                    title="Fondo base"
+                  />
+                </div>
               </button>
-            ))}
-          </div>
+            );
+          })}
         </div>
-
-        {/* 2. TEMAS Y PALETA DE COLORES DINÁMICA */}
-        <div className="p-6 sm:p-7 rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl h-full flex flex-col justify-between space-y-4 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]">
-          <div className="flex items-center gap-3 border-b border-white/5 pb-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0 font-bold">
-              <Palette className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-white">{t('settings.themesTitle', {}, 'Paleta de Colores Dinámica')}</h3>
-              <p className="text-xs text-slate-300 font-medium">{t('settings.themesSubtitle', {}, 'Selecciona la identidad cromática del sistema')}</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {(THEMES || []).map((themeItem) => {
-              const isActive = currentTheme === themeItem.id;
-              return (
-                <button
-                  key={themeItem.id}
-                  type="button"
-                  onClick={() => setTheme(themeItem.id)}
-                  className={`h-14 p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
-                    isActive
-                      ? 'border-white/40 bg-white/[0.08] shadow-xl scale-[1.02]'
-                      : 'border-white/10 bg-[#162226] hover:bg-white/[0.05] hover:border-white/20'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-white truncate">{themeItem.id.toUpperCase()}</span>
-                    {isActive && <Check className="w-4 h-4 text-white shrink-0" />}
-                  </div>
-
-                  <div className="flex items-center justify-between gap-1.5 p-1 rounded-lg bg-black/40 border border-white/10">
-                    <div 
-                      className="w-3.5 h-3.5 rounded-md border border-white/20 shadow-sm shrink-0"
-                      style={{ backgroundColor: themeItem.accentColor }}
-                      title="Color primario de acento"
-                    />
-                    <div 
-                      className="w-3.5 h-3.5 rounded-md border border-white/20 shadow-sm flex-1"
-                      style={{ backgroundColor: themeItem.bgColor }}
-                      title="Fondo base"
-                    />
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
       </div>
 
       {/* FILA 3.5: SEGURIDAD DE LA CUENTA */}
-      <div className="p-6 sm:p-7 rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl space-y-4 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] relative z-10">
+      <div className="p-6 sm:p-7 rounded-3xl glass-card space-y-4">
         <div className="flex items-center gap-3 border-b border-white/5 pb-3">
           <div className="w-10 h-10 rounded-xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 shrink-0 font-bold">
             <Lock className="w-5 h-5" />
@@ -516,7 +473,7 @@ export default function SettingsModule() {
                 type={showCurrentPwd ? 'text' : 'password'}
                 value={currentPwd}
                 onChange={(e) => setCurrentPwd(e.target.value)}
-                className="w-full h-11 px-3.5 pr-10 bg-[#162226] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[var(--color-primary,#AEEDD0)] transition-colors"
+                className="w-full h-11 px-3.5 pr-10 form-input bg-[#161B22] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[#97F2CC] transition-colors"
                 placeholder="••••••••"
               />
               <button type="button" onClick={() => setShowCurrentPwd(!showCurrentPwd)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
@@ -535,7 +492,7 @@ export default function SettingsModule() {
                 type={showNewPwd ? 'text' : 'password'}
                 value={newPwd}
                 onChange={(e) => setNewPwd(e.target.value)}
-                className="w-full h-11 px-3.5 pr-10 bg-[#162226] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[var(--color-primary,#AEEDD0)] transition-colors"
+                className="w-full h-11 px-3.5 pr-10 form-input bg-[#161B22] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[#97F2CC] transition-colors"
                 placeholder="••••••••"
               />
               <button type="button" onClick={() => setShowNewPwd(!showNewPwd)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
@@ -553,8 +510,8 @@ export default function SettingsModule() {
               type="password"
               value={confirmPwd}
               onChange={(e) => setConfirmPwd(e.target.value)}
-              className={`w-full h-11 px-3.5 bg-[#162226] border rounded-xl text-sm text-white focus:outline-none transition-colors ${
-                confirmPwd && !pwdMatch ? 'border-rose-500/50 focus:border-rose-500' : 'border-white/10 focus:border-[var(--color-primary,#AEEDD0)]'
+              className={`w-full h-11 px-3.5 form-input bg-[#161B22] border rounded-xl text-sm text-white focus:outline-none transition-colors ${
+                confirmPwd && !pwdMatch ? 'border-rose-500/50 focus:border-rose-500' : 'border-white/10 focus:border-[#97F2CC]'
               }`}
               placeholder="••••••••"
             />
@@ -583,7 +540,7 @@ export default function SettingsModule() {
           type="button"
           onClick={handleChangePassword}
           disabled={isChangingPwd || !pwdIsValid || !pwdMatch || !currentPwd.trim()}
-          className="h-11 px-6 rounded-xl bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:brightness-105 active:scale-[0.98]"
+          className="btn-primary btn-save h-11 px-6 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:brightness-105 active:scale-[0.98]"
         >
           <Lock className="w-4 h-4" />
           <span>{isChangingPwd ? (language === 'es' ? 'Actualizando...' : 'Updating...') : t('settings.updatePassword', {}, 'Actualizar Contraseña')}</span>
@@ -591,7 +548,7 @@ export default function SettingsModule() {
       </div>
 
       {/* FILA 4: GESTIÓN DE DATOS Y DEPURACIÓN (FULL WIDTH & DANGER ZONE) */}
-      <div className="p-6 sm:p-7 rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl space-y-4 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]">
+      <div className="p-6 sm:p-7 rounded-3xl glass-card space-y-4">
         <div className="flex items-center gap-3 border-b border-white/5 pb-3">
           <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0 font-bold">
             <ShieldAlert className="w-5 h-5" />

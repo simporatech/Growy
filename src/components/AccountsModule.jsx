@@ -139,7 +139,8 @@ export default function AccountsModule() {
               setAccountToEdit(null);
               setIsModalOpen(true);
             }}
-            className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
+            className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-semibold rounded-xl bg-[#97F2CC] text-[#091E15] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#97F2CC]/10 flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
+            title={t('accounts.newAccount', {}, 'Nueva Cuenta')}
           >
             <Plus size={15} className="shrink-0" />
             <span className="hidden sm:inline">{t('accounts.newAccount', {}, 'Nueva Cuenta')}</span>
@@ -201,7 +202,7 @@ export default function AccountsModule() {
       {/* Structured Grid layout for Cards */}
       <div className="w-full relative z-10">
         {filteredAccounts.length === 0 ? (
-          <div className="p-6 rounded-2xl bg-[#1E2D32]/60 border border-white/10 backdrop-blur-md text-center text-slate-300 space-y-3">
+          <div className="p-6 rounded-2xl glass-card text-center text-slate-300 space-y-3">
             <Wallet className="w-12 h-12 text-slate-400 mx-auto" />
             <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
               {safeAccountsList.length === 0 ? t('accounts.noAccountsTitle', {}, 'No tienes cuentas registradas') : (language === 'es' ? 'Sin Resultados de Búsqueda' : 'No Search Results')}

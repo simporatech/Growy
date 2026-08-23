@@ -153,6 +153,8 @@ export const registerUser = async ({ username, fullName, email, password, master
 
     if (dbRes && dbRes.success && dbRes.user) {
       console.log('✅ Usuario creado con éxito en Supabase DB:', dbRes.user);
+      safeSetStorage('growy_lang', userLang);
+      safeSetStorage('growy_base_currency', baseCurrency);
       return { success: true, user: dbRes.user };
     } else {
       console.error('❌ Error de Supabase al insertar usuario');

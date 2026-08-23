@@ -325,7 +325,7 @@ export default function TransactionsModule() {
               setTxToEdit(null);
               setIsModalOpen(true);
             }}
-            className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
+            className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-semibold rounded-xl bg-[#97F2CC] text-[#091E15] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#97F2CC]/10 flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
           >
             <Plus size={15} className="shrink-0" />
             <span className="hidden sm:inline">{t('transactions.newTransaction', {}, 'Nueva Transacción')}</span>
@@ -350,7 +350,7 @@ export default function TransactionsModule() {
             <span className="text-[10px] sm:text-[11px] text-slate-400 font-semibold uppercase block">
               {t('transactions.filterIncomes', {}, 'Ingresos')}
             </span>
-            <span className="text-sm sm:text-base font-bold text-[var(--color-primary,#AEEDD0)] tabular-nums block mt-0.5">
+            <span className="text-sm sm:text-base font-bold text-emerald-400 tabular-nums block mt-0.5">
               +{formatCurrency(totalIncome, baseCurrency)}
             </span>
           </div>
@@ -358,7 +358,7 @@ export default function TransactionsModule() {
             <span className="text-[10px] sm:text-[11px] text-slate-400 font-semibold uppercase block">
               {t('transactions.filterExpenses', {}, 'Gastos')}
             </span>
-            <span className="text-sm sm:text-base font-bold text-[#FF6B6B] tabular-nums block mt-0.5">
+            <span className="text-sm sm:text-base font-bold text-rose-400 tabular-nums block mt-0.5">
               -{formatCurrency(totalExpense, baseCurrency)}
             </span>
           </div>
@@ -375,7 +375,7 @@ export default function TransactionsModule() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t('common.search', {}, 'Buscar por descripción, cuenta o categoría...')}
-            className="w-full h-10 pl-9 pr-3 rounded-xl bg-[#162226] border border-white/10 text-xs font-medium text-white focus:outline-none focus:border-[#AEEDD0] shadow-inner transition-colors"
+            className="w-full h-10 pl-9 pr-3 rounded-xl bg-[#162226] border border-white/10 text-xs font-medium text-white focus:outline-none focus:border-[#97F2CC] shadow-inner transition-colors"
           />
         </div>
 
@@ -385,7 +385,7 @@ export default function TransactionsModule() {
           <button
             onClick={() => setTypeFilter('all')}
             className={`h-9 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center shrink-0 cursor-pointer ${
-              typeFilter === 'all' ? 'bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] shadow-sm' : 'bg-white/5 text-slate-300 hover:text-white border border-white/5'
+              typeFilter === 'all' ? 'bg-slate-800 text-white border border-white/20 shadow-sm' : 'bg-white/5 text-slate-300 hover:text-white border border-white/5'
             }`}
           >
             {t('transactions.filterAll', {}, 'Todos')}
@@ -393,7 +393,7 @@ export default function TransactionsModule() {
           <button
             onClick={() => setTypeFilter('expense')}
             className={`h-9 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center shrink-0 cursor-pointer ${
-              typeFilter === 'expense' ? 'bg-[#FF6B6B]/20 text-[#FF6B6B] border border-[#FF6B6B]/30 shadow-sm' : 'bg-white/5 text-slate-300 hover:text-white border border-white/5'
+              typeFilter === 'expense' ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30 shadow-sm' : 'bg-white/5 text-slate-300 hover:text-white border border-white/5'
             }`}
           >
             {t('transactions.filterExpenses', {}, 'Gastos')}
@@ -401,7 +401,7 @@ export default function TransactionsModule() {
           <button
             onClick={() => setTypeFilter('income')}
             className={`h-9 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center shrink-0 cursor-pointer ${
-              typeFilter === 'income' ? 'bg-[var(--color-primary,#AEEDD0)]/20 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/30 shadow-sm' : 'bg-white/5 text-slate-300 hover:text-white border border-white/5'
+              typeFilter === 'income' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-sm' : 'bg-white/5 text-slate-300 hover:text-white border border-white/5'
             }`}
           >
             {t('transactions.filterIncomes', {}, 'Ingresos')}
@@ -412,14 +412,14 @@ export default function TransactionsModule() {
             onClick={() => setIsFilterDrawerOpen(true)}
             className={`h-9 px-3.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shrink-0 cursor-pointer border ${
               activeFilterCount > 0
-                ? 'bg-[var(--color-primary,#AEEDD0)]/15 border-[var(--color-primary,#AEEDD0)]/40 text-[var(--color-primary,#AEEDD0)]'
+                ? 'bg-white/15 border-white/40 text-white'
                 : 'bg-[#162226] border-white/10 text-slate-300 hover:text-white'
             }`}
           >
             <Filter className="w-3.5 h-3.5" />
             <span>{t('common.filters', {}, 'Filtros')}</span>
             {activeFilterCount > 0 && (
-              <span className="w-4 h-4 rounded-full bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] text-[10px] font-extrabold flex items-center justify-center">
+              <span className="w-4 h-4 rounded-full bg-white text-[#091E15] text-[10px] font-extrabold flex items-center justify-center">
                 {activeFilterCount}
               </span>
             )}
@@ -456,7 +456,7 @@ export default function TransactionsModule() {
             <button
               onClick={() => setTypeFilter('all')}
               className={`h-8 px-3 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center cursor-pointer ${
-                typeFilter === 'all' ? 'bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] shadow-sm font-bold' : 'text-slate-300 hover:text-white'
+                typeFilter === 'all' ? 'bg-slate-800 text-white border border-white/20 shadow-sm' : 'text-slate-300 hover:text-white'
               }`}
             >
               {t('transactions.filterAll', {}, 'Todos')}
@@ -464,7 +464,7 @@ export default function TransactionsModule() {
             <button
               onClick={() => setTypeFilter('expense')}
               className={`h-8 px-3 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center cursor-pointer ${
-                typeFilter === 'expense' ? 'bg-[#FF6B6B]/20 text-[#FF6B6B] border border-[#FF6B6B]/30 shadow-sm font-bold' : 'text-slate-300 hover:text-white'
+                typeFilter === 'expense' ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30 shadow-sm' : 'text-slate-300 hover:text-white'
               }`}
             >
               {t('transactions.filterExpenses', {}, 'Gastos')}
@@ -472,7 +472,7 @@ export default function TransactionsModule() {
             <button
               onClick={() => setTypeFilter('income')}
               className={`h-8 px-3 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center cursor-pointer ${
-                typeFilter === 'income' ? 'bg-[var(--color-primary,#AEEDD0)]/20 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/30 shadow-sm font-bold' : 'text-slate-300 hover:text-white'
+                typeFilter === 'income' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-sm' : 'text-slate-300 hover:text-white'
               }`}
             >
               {t('transactions.filterIncomes', {}, 'Ingresos')}
@@ -480,7 +480,7 @@ export default function TransactionsModule() {
             <button
               onClick={() => setTypeFilter('transfer')}
               className={`h-8 px-3 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center cursor-pointer ${
-                typeFilter === 'transfer' ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30 shadow-sm font-bold' : 'text-slate-300 hover:text-white'
+                typeFilter === 'transfer' ? 'bg-sky-500/15 text-sky-400 border border-sky-500/30 shadow-sm' : 'text-slate-300 hover:text-white'
               }`}
             >
               {t('transactions.filterTransfers', {}, 'Transferencias')}
@@ -593,7 +593,7 @@ export default function TransactionsModule() {
       />      {/* Structured High-Density Feed */}
       <div className="w-full space-y-6 relative z-10">
         {sortedDates.length === 0 ? (
-          <div className="p-6 rounded-2xl bg-[#1E2D32]/60 border border-white/10 backdrop-blur-md text-center text-slate-300 space-y-3">
+          <div className="p-6 rounded-2xl glass-card text-center text-slate-300 space-y-3">
             <ArrowLeftRight className="w-12 h-12 text-slate-400 mx-auto" />
             <h4 className="text-base font-bold text-white">{t('transactions.noTxTitle', {}, 'No hay transacciones registradas')}</h4>
             <p className="text-xs text-slate-300 max-w-sm mx-auto font-medium">
@@ -649,13 +649,13 @@ export default function TransactionsModule() {
                         {/* Col 1 (Izquierda): Icono + Concepto */}
                         <div className="flex items-center gap-3.5 min-w-0 flex-1 sm:max-w-xs lg:max-w-sm">
                           <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 ${
-                            isIncome ? 'bg-[var(--color-primary,#AEEDD0)]/15 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/20' : isExpense ? 'bg-[#FF6B6B]/15 text-[#FF6B6B] border border-[#FF6B6B]/20' : 'bg-sky-500/15 text-sky-300 border border-sky-500/20'
+                            isIncome ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' : isExpense ? 'bg-rose-500/15 text-rose-400 border border-rose-500/20' : 'bg-sky-500/15 text-sky-400 border border-sky-500/20'
                           }`}>
                             {emoji}
                           </div>
 
                           <div className="min-w-0 flex-1">
-                            <h4 className="line-clamp-2 sm:truncate text-sm font-semibold text-white group-hover:text-[var(--color-primary,#AEEDD0)] transition-colors">
+                            <h4 className="line-clamp-2 sm:truncate text-sm font-semibold text-white group-hover:text-slate-200 transition-colors">
                               {txTitle}
                             </h4>
                             <p className="text-xs text-slate-300 font-medium sm:hidden truncate mt-0.5">
@@ -681,7 +681,7 @@ export default function TransactionsModule() {
 
                         {/* Col 4 (Derecha): Monto formateado grande + Botones en hover */}
                         <div className="flex items-center gap-3 shrink-0">
-                          <div className={`text-base font-bold tabular-nums ${isIncome ? 'text-[var(--color-primary,#AEEDD0)]' : isExpense ? 'text-[#FF6B6B]' : 'text-sky-300'}`}>
+                          <div className={`text-base font-bold tabular-nums ${isIncome ? 'text-emerald-400' : isExpense ? 'text-rose-400' : 'text-sky-400'}`}>
                             {isIncome ? '+ ' : isExpense ? '- ' : ''}
                             {formatCurrency ? formatCurrency(tx?.amount, tx?.currency || sourceAcc?.currency || 'USD') : `${tx?.amount}`}
                           </div>

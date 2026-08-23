@@ -160,7 +160,7 @@ export default function SubscriptionsModule() {
               setSubToEdit(null);
               setIsModalOpen(true);
             }}
-            className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
+            className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-semibold rounded-xl bg-[#97F2CC] text-[#091E15] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#97F2CC]/10 flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
           >
             <Plus size={15} className="shrink-0" />
             <span className="hidden sm:inline">{t('subscriptions.newSubscription', {}, 'Nueva Suscripción')}</span>
@@ -207,7 +207,7 @@ export default function SubscriptionsModule() {
       {/* Chronological Timeline List */}
       <div className="w-full space-y-2.5 relative z-10">
         {paginatedSubs.length === 0 ? (
-          <div className="p-6 rounded-2xl bg-[#1E2D32]/60 border border-white/10 backdrop-blur-md text-center text-slate-300 space-y-3">
+          <div className="p-6 rounded-2xl glass-card text-center text-slate-300 space-y-3">
             <RefreshCw className="w-12 h-12 text-slate-400 mx-auto" />
             <h3 className="text-base md:text-lg font-bold text-white tracking-tight">
               {safeSubsList.length === 0 ? t('subscriptions.noSubsTitle', {}, 'No tienes suscripciones activas') : 'Sin resultados de búsqueda'}

@@ -321,10 +321,20 @@ export default function DashboardPreview({ user, onLogout }) {
   }, [markLoanAsPaid]);
 
   return (
-    <div className="relative min-h-screen bg-[#0A0F11] text-white overflow-hidden font-sans">
-      {/* Luces de ambiente Glassmorphism fijas */}
-      <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-[#AEEDD0]/5 blur-[120px] pointer-events-none z-0" />
-      <div className="fixed bottom-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-[#1E3A34]/20 blur-[150px] pointer-events-none z-0" />
+    <div className="relative min-h-screen bg-[#090C10] text-white overflow-hidden font-sans">
+      {/* Fondo Ambiental Reactivo con Glow Controlado */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10 bg-[#090C10]">
+        {/* Glow MINT Superior */}
+        <div 
+          className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full blur-[150px] opacity-40 transition-colors duration-500"
+          style={{ backgroundColor: 'var(--color-glow, rgba(151, 242, 204, 0.12))' }}
+        />
+        {/* Glow MINT Inferior */}
+        <div 
+          className="absolute -bottom-40 -right-40 w-[600px] h-[600px] rounded-full blur-[180px] opacity-30 transition-colors duration-500"
+          style={{ backgroundColor: 'var(--color-glow, rgba(151, 242, 204, 0.08))' }}
+        />
+      </div>
       
       {/* Contenedor de la aplicación con aislamiento */}
       <div className="relative z-10 flex h-screen w-screen overflow-hidden">
@@ -429,11 +439,11 @@ export default function DashboardPreview({ user, onLogout }) {
                       title={item.label}
                       className={`w-full flex items-center justify-center h-10 rounded-xl transition-all duration-150 group cursor-pointer ${
                         isActive
-                          ? 'bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] shadow-sm font-bold scale-105'
+                          ? 'bg-[var(--color-primary,#97F2CC)] text-[var(--color-primary-text,#091E15)] shadow-sm font-bold scale-105'
                           : 'text-slate-300 hover:text-white hover:bg-white/[0.06]'
                       }`}
                     >
-                      <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#1E2D32]' : 'text-slate-400 group-hover:text-white'}`} />
+                      <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[var(--color-primary-text,#091E15)]' : 'text-slate-400 group-hover:text-white'}`} />
                     </button>
                   );
                 }
@@ -444,11 +454,11 @@ export default function DashboardPreview({ user, onLogout }) {
                     onClick={() => setActiveTab(item.id)}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 text-left group cursor-pointer ${
                       isActive
-                        ? 'bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] shadow-sm font-bold scale-[1.01]'
+                        ? 'bg-[var(--color-primary,#97F2CC)] text-[var(--color-primary-text,#091E15)] shadow-sm font-bold scale-[1.01]'
                         : 'text-slate-300 hover:text-white hover:bg-white/[0.04] hover:translate-x-1'
                     }`}
                   >
-                    <Icon className={`w-4 h-4 shrink-0 transition-transform duration-150 ${isActive ? 'text-[#1E2D32]' : 'text-slate-400 group-hover:text-white'}`} />
+                    <Icon className={`w-4 h-4 shrink-0 transition-transform duration-150 ${isActive ? 'text-[var(--color-primary-text,#091E15)]' : 'text-slate-400 group-hover:text-white'}`} />
                     <span className="truncate">{item.label}</span>
                   </button>
                 );
@@ -536,23 +546,23 @@ export default function DashboardPreview({ user, onLogout }) {
 
                 {/* QUICK CREATION DROPDOWN */}
                 <div className="relative inline-block z-50 shrink-0" ref={menuRef}>
-                  <div className="inline-flex items-stretch bg-[var(--color-primary,#AEEDD0)] rounded-xl overflow-hidden shadow-md shadow-[var(--color-primary,#AEEDD0)]/10 h-11 md:h-10">
+                  <div className="inline-flex items-stretch bg-[var(--color-primary,#97F2CC)] rounded-xl overflow-hidden shadow-md shadow-[var(--color-primary,#97F2CC)]/10 h-11 md:h-10">
                     <button 
                       onClick={() => {
                         setInitialTxType('expense');
                         setIsTxModalOpen(true);
                       }}
-                      className="px-3 sm:px-4 font-bold text-xs sm:text-sm text-[#1E2D32] hover:bg-black/5 active:scale-[0.98] transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
+                      className="px-3 sm:px-4 font-bold text-xs sm:text-sm text-[var(--color-primary-text,#091E15)] hover:bg-black/5 active:scale-[0.98] transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
                     >
                       <Plus className="w-4 h-4 stroke-[2.5] shrink-0" />
                       <span className="hidden sm:inline">{t('speedActions.newMovement', {}, 'Nuevo Movimiento')}</span>
                     </button>
 
-                    <div className="w-[1px] bg-[#1E2D32]/15 my-2" />
+                    <div className="w-[1px] bg-black/15 my-2" />
 
                     <button
                       onClick={() => setIsQuickMenuOpen(!isQuickMenuOpen)}
-                      className="px-2.5 sm:px-3 hover:bg-black/5 active:scale-[0.98] transition-colors flex items-center justify-center text-[#1E2D32] cursor-pointer"
+                      className="px-2.5 sm:px-3 hover:bg-black/5 active:scale-[0.98] transition-colors flex items-center justify-center text-[var(--color-primary-text,#091E15)] cursor-pointer"
                       title="Opciones de registro rápido"
                     >
                       <ChevronDown className={`w-4 h-4 stroke-[2.5] transition-transform duration-200 ${isQuickMenuOpen ? 'rotate-180' : ''}`} />
@@ -654,26 +664,26 @@ export default function DashboardPreview({ user, onLogout }) {
                 </div>
 
                 {/* KPI 2: Ingresos del Mes (Col 1 en mobile, 1 en desktop) */}
-                <div className="col-span-1 lg:col-span-1 h-24 lg:h-32 growy-glass growy-card-hover rounded-2xl p-3.5 lg:p-5 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between overflow-hidden isolate transform-gpu-layer">
+                <div className="col-span-1 lg:col-span-1 h-24 lg:h-32 growy-glass growy-card-hover rounded-2xl p-3.5 lg:p-5 flex flex-col justify-between overflow-hidden isolate transform-gpu-layer">
                   <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 truncate block">
                     {t('dashboard.monthlyIncome', {}, 'Ingresos')}
                   </span>
-                  <div className="text-lg lg:text-2xl font-bold tracking-tight text-[var(--color-primary,#AEEDD0)] tabular-nums truncate">
+                  <div className="text-lg lg:text-2xl font-bold tracking-tight text-emerald-400 tabular-nums truncate">
                     {formatCurrency(monthlyIncomes, baseCurrency)}
                   </div>
                   <p className="text-xs text-slate-300 font-medium truncate">
-                    <span className="text-[var(--color-primary,#AEEDD0)] font-bold tabular-nums">
+                    <span className="text-emerald-400 font-bold tabular-nums">
                       {incomeDiffPercentage >= 0 ? `+${incomeDiffPercentage}%` : `${incomeDiffPercentage}%`}
                     </span> <span className="hidden sm:inline">{t('dashboard.vsPrevMonth', {}, 'vs. mes anterior')}</span><span className="sm:hidden">vs mes ant.</span>
                   </p>
                 </div>
 
                 {/* KPI 3: Gastos del Mes & Burn Rate (Col 2 en mobile, 1 en desktop) */}
-                <div className="col-span-1 lg:col-span-1 h-24 lg:h-32 growy-glass growy-card-hover rounded-2xl p-3.5 lg:p-5 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between overflow-hidden isolate transform-gpu-layer">
+                <div className="col-span-1 lg:col-span-1 h-24 lg:h-32 growy-glass growy-card-hover rounded-2xl p-3.5 lg:p-5 flex flex-col justify-between overflow-hidden isolate transform-gpu-layer">
                   <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 truncate block">
                     {t('dashboard.monthlyExpenses', {}, 'Gastos')}
                   </span>
-                  <div className="text-lg lg:text-2xl font-bold tracking-tight text-[#FF6B6B] tabular-nums truncate">
+                  <div className="text-lg lg:text-2xl font-bold tracking-tight text-rose-400 tabular-nums truncate">
                     {formatCurrency(monthlyExpenses, baseCurrency)}
                   </div>
                   <p className="text-xs text-slate-300 font-medium truncate">
@@ -684,7 +694,7 @@ export default function DashboardPreview({ user, onLogout }) {
                 </div>
 
                 {/* KPI 4: Tasa de Ahorro Real (Colspan 2 en mobile, 1 en desktop) */}
-                <div className="col-span-2 lg:col-span-1 h-auto lg:h-32 growy-glass growy-card-hover rounded-2xl p-3.5 lg:p-5 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between space-y-1 lg:space-y-0 overflow-hidden isolate transform-gpu-layer">
+                <div className="col-span-2 lg:col-span-1 h-auto lg:h-32 growy-glass growy-card-hover rounded-2xl p-3.5 lg:p-5 flex flex-col justify-between space-y-1 lg:space-y-0 overflow-hidden isolate transform-gpu-layer">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold uppercase tracking-wider text-slate-300">
                       {t('dashboard.savingsRate', {}, 'Tasa de Ahorro')}
@@ -707,7 +717,7 @@ export default function DashboardPreview({ user, onLogout }) {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full relative z-10">
                 
                 {/* Chart 1: Flujo de Caja y Proyección */}
-                <div className="lg:col-span-2 growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
+                <div className="lg:col-span-2 growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
                       <h2 className="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
@@ -768,19 +778,19 @@ export default function DashboardPreview({ user, onLogout }) {
                           <div key={idx} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
                             <div className="flex items-end gap-1 h-full w-full justify-center">
                               <div 
-                                className="w-1/3 max-w-[12px] rounded-t-md bg-[var(--color-primary,#AEEDD0)] transition-all duration-300 hover:opacity-80 relative group/bar"
+                                className="w-1/3 max-w-[12px] rounded-t-md bg-emerald-400 transition-all duration-300 hover:opacity-80 relative group/bar"
                                 style={{ height: `${incHeight}px` }}
                               >
-                                <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-[#1E2D32] border border-white/20 text-[var(--color-primary,#AEEDD0)] text-xs font-semibold px-2 py-0.5 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none tabular-nums shadow-lg">
+                                <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-[#1E2D32] border border-white/20 text-emerald-400 text-xs font-semibold px-2 py-0.5 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none tabular-nums shadow-lg">
                                   {formatCurrency(pt.income)}
                                 </div>
                               </div>
 
                               <div 
-                                className="w-1/3 max-w-[12px] rounded-t-md bg-[#FF6B6B] transition-all duration-300 hover:opacity-80 relative group/bar"
+                                className="w-1/3 max-w-[12px] rounded-t-md bg-rose-400 transition-all duration-300 hover:opacity-80 relative group/bar"
                                 style={{ height: `${expHeight}px` }}
                               >
-                                <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-[#1E2D32] border border-white/20 text-[#FF6B6B] text-xs font-semibold px-2 py-0.5 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none tabular-nums shadow-lg">
+                                <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-[#1E2D32] border border-white/20 text-rose-400 text-xs font-semibold px-2 py-0.5 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none tabular-nums shadow-lg">
                                   {formatCurrency(pt.expense)}
                                 </div>
                               </div>
@@ -809,7 +819,7 @@ export default function DashboardPreview({ user, onLogout }) {
                 </div>
 
                 {/* Chart 2: Donut Chart */}
-                <div className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 border border-white/10 bg-[#1E2D32]/60 flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
+                <div className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
                   <div>
                     <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">{t('dashboard.categoryDistribution', {}, 'Distribución por Categoría')}</h2>
                     <p className="text-xs sm:text-sm text-slate-400 font-normal">{t('dashboard.categorySubtitle', {}, 'Desglose del mes')}</p>
@@ -899,7 +909,7 @@ export default function DashboardPreview({ user, onLogout }) {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch w-full relative z-10">
                 
                 {/* WIDGET 1: Mini Portfolio de Cuentas */}
-                <div className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 border border-white/10 bg-[#1E2D32]/60 h-full flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
+                <div className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 h-full flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Landmark className="w-4 h-4 text-[var(--color-primary,#AEEDD0)]" />
@@ -962,7 +972,7 @@ export default function DashboardPreview({ user, onLogout }) {
                 </div>
 
                 {/* WIDGET 2: Alertas de Presupuesto */}
-                <div className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 border border-white/10 bg-[#1E2D32]/60 h-full flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
+                <div className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 h-full flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <AlertCircle className={`w-4 h-4 ${criticalBudgets.length > 0 ? 'text-amber-400' : 'text-[var(--color-primary,#AEEDD0)]'}`} />
@@ -985,7 +995,7 @@ export default function DashboardPreview({ user, onLogout }) {
                       criticalBudgets.map((cat) => {
                         const isOverLimit = cat.percentage >= 90;
                         const isWarning = cat.percentage >= 75 && cat.percentage < 90;
-                        const barColor = isOverLimit ? '#FF6B6B' : isWarning ? '#F59E0B' : 'var(--color-primary, #AEEDD0)';
+                        const barColor = isOverLimit ? '#F87171' : isWarning ? '#F59E0B' : (cat.color || '#34D399');
 
                         return (
                           <div key={cat.id} className="p-3 rounded-xl bg-[#162226] border border-white/10 space-y-1.5">
@@ -1040,14 +1050,14 @@ export default function DashboardPreview({ user, onLogout }) {
                                 className="h-full rounded-full transition-all duration-300"
                                 style={{ 
                                   width: `${Math.min(100, pct)}%`, 
-                                  backgroundColor: cat.color || 'var(--color-primary, #AEEDD0)' 
+                                  backgroundColor: cat.color || '#34D399' 
                                 }}
                               />
                             </div>
 
                             <div className="flex justify-between items-center text-[11px] text-slate-300 font-medium">
                               <span className="tabular-nums">{pct}% {t('dashboard.ofTotalSpent', {}, 'del total gastado')}</span>
-                              <span className="text-[var(--color-primary,#AEEDD0)] font-semibold">
+                              <span className="text-emerald-400 font-semibold">
                                 {t('dashboard.healthyBudget', {}, 'Presupuesto saludable')}
                               </span>
                             </div>
@@ -1063,7 +1073,7 @@ export default function DashboardPreview({ user, onLogout }) {
                 </div>
 
                 {/* WIDGET 3: Próximos Compromisos */}
-                <div className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 border border-white/10 bg-[#1E2D32]/60 h-full flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
+                <div className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 h-full flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-amber-400" />
@@ -1126,7 +1136,7 @@ export default function DashboardPreview({ user, onLogout }) {
                               </p>
                             </div>
 
-                            <div className="text-xs font-bold text-[var(--color-primary,#AEEDD0)] shrink-0 tabular-nums">
+                            <div className="text-xs font-bold text-rose-400 shrink-0 tabular-nums">
                               {formatCurrency(sub.amount, sub.currency || 'USD')} / {t('common.month', {}, 'mes')}
                             </div>
                           </div>
@@ -1139,7 +1149,7 @@ export default function DashboardPreview({ user, onLogout }) {
               </div>
 
               {/* RECENT ACTIVITY FEED */}
-              <div className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 border border-white/10 bg-[#1E2D32]/60 w-full space-y-4 overflow-hidden isolate transform-gpu-layer relative z-10">
+              <div className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 w-full space-y-4 overflow-hidden isolate transform-gpu-layer relative z-10">
                 <div className="flex items-center justify-between">
                   <h2 className="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
                     <span>{t('dashboard.recentActivity', {}, 'Actividad Reciente')}</span>
@@ -1186,20 +1196,20 @@ export default function DashboardPreview({ user, onLogout }) {
                         >
                           <div className="flex items-center gap-3 min-w-0 pr-2">
                             <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm shrink-0 ${
-                              isIncome ? 'bg-[var(--color-primary,#AEEDD0)]/15 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/20' : isExpense ? 'bg-[#FF6B6B]/15 text-[#FF6B6B] border border-[#FF6B6B]/20' : 'bg-sky-500/15 text-sky-300 border border-sky-500/20'
+                              isIncome ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' : isExpense ? 'bg-rose-500/15 text-rose-400 border border-rose-500/20' : 'bg-sky-500/15 text-sky-400 border border-sky-500/20'
                             }`}>
                               {emoji}
                             </div>
                             <div className="min-w-0">
-                              <h4 className="text-xs font-semibold text-white group-hover:text-[var(--color-primary,#AEEDD0)] transition-colors truncate">
+                              <h4 className="text-xs font-semibold text-white group-hover:text-slate-200 transition-colors truncate">
                                 {tx.description || cat?.name || 'Movimiento'}
                               </h4>
                               <p className="text-[11px] text-slate-300 truncate font-medium">{acc?.name} • {formatDateLabel(tx.date, language)}</p>
                             </div>
                           </div>
 
-                          <div className={`text-xs font-bold shrink-0 tabular-nums ${isIncome ? 'text-[var(--color-primary,#AEEDD0)]' : 'text-[#FF6B6B]'}`}>
-                            {isIncome ? '+ ' : '- '}
+                          <div className={`text-xs font-bold shrink-0 tabular-nums ${isIncome ? 'text-emerald-400' : isExpense ? 'text-rose-400' : 'text-sky-400'}`}>
+                            {isIncome ? '+ ' : isExpense ? '- ' : ''}
                             {formatCurrency(tx.amount, tx.currency || acc.currency || 'USD')}
                           </div>
                         </div>

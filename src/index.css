@@ -1,55 +1,59 @@
 @import "tailwindcss";
 
 :root {
-  --bg-base: #1E2D32;
-  --color-primary: #AEEDD0;
-  --color-primary-hover: #c2f3dc;
-  --color-primary-rgb: 174, 237, 208;
-  --glass-blur: 16px;
+  --bg-base: #090C10;
+  --color-primary: #97F2CC;
+  --color-primary-hover: #b4f8db;
+  --color-primary-rgb: 151, 242, 204;
+  --color-primary-text: #091E15;
+  --color-glow: rgba(151, 242, 204, 0.10);
 }
 
 html.theme-mint {
-  --bg-base: #1E2D32;
-  --color-primary: #AEEDD0;
-  --color-primary-hover: #c2f3dc;
-  --color-primary-rgb: 174, 237, 208;
+  --bg-base: #090C10;
+  --color-primary: #97F2CC;
+  --color-primary-hover: #b4f8db;
+  --color-primary-rgb: 151, 242, 204;
+  --color-primary-text: #091E15;
+  --color-glow: rgba(151, 242, 204, 0.10);
 }
 
 html.theme-cyan {
-  --bg-base: #0F172A;
+  --bg-base: #090C10;
   --color-primary: #38BDF8;
   --color-primary-hover: #7dd3fc;
   --color-primary-rgb: 56, 189, 248;
+  --color-primary-text: #082f49;
+  --color-glow: rgba(56, 189, 248, 0.10);
 }
 
 html.theme-purple {
-  --bg-base: #1E1B4B;
+  --bg-base: #090C10;
   --color-primary: #C084FC;
   --color-primary-hover: #d8b4fe;
   --color-primary-rgb: 192, 132, 252;
+  --color-primary-text: #2e1065;
+  --color-glow: rgba(192, 132, 252, 0.10);
 }
 
 html.theme-emerald {
-  --bg-base: #064E3B;
+  --bg-base: #090C10;
   --color-primary: #34D399;
   --color-primary-hover: #6ee7b7;
   --color-primary-rgb: 52, 211, 153;
+  --color-primary-text: #064e3b;
+  --color-glow: rgba(52, 211, 153, 0.10);
 }
 
 html.theme-coral {
-  --bg-base: #1C1917;
+  --bg-base: #090C10;
   --color-primary: #FB7185;
   --color-primary-hover: #fda4af;
   --color-primary-rgb: 251, 113, 133;
+  --color-primary-text: #4c0519;
+  --color-glow: rgba(251, 113, 133, 0.10);
 }
 
-html.glass-high {
-  --glass-blur: 24px;
-}
-
-html.glass-light {
-  --glass-blur: 8px;
-}
 
 html, body, #root {
   height: 100%;
@@ -151,63 +155,65 @@ html, body, #root {
   scrollbar-color: rgba(var(--color-primary-rgb), 0.2) rgba(30, 45, 50, 0.5);
 }
 
-/* Glassmorphism utility classes with Stacking Isolation */
-.growy-glass {
-  background: rgba(30, 45, 50, 0.95);
-  border: 1px solid rgba(var(--color-primary-rgb), 0.15);
+/* ==========================================================================
+   ESTILO ESTÁNDAR UNIFICADO PARA PANELES, TARJETAS Y FORMULARIOS
+   ========================================================================== */
+
+/* Paneles, Tarjetas y Modales */
+.glass-card, .growy-glass-card, .glass-panel, .growy-glass, .growy-glass-modal, .growy-glass-dropdown, .modal-container, [role="dialog"] {
+  background-color: #0D1117;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   isolation: isolate;
 }
 
-.growy-glass-modal {
-  background: rgba(30, 45, 50, 0.96);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid rgba(var(--color-primary-rgb), 0.25);
-  isolation: isolate;
+/* Header y Footer del Modal */
+.modal-header, .modal-footer {
+  background-color: transparent !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
 }
 
-.growy-glass-dropdown {
-  background: rgba(22, 34, 38, 0.98);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  isolation: isolate;
-}
-
-.growy-glass-input {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(var(--color-primary-rgb), 0.15);
-  color: #FFFFFF;
+/* Inputs y Selects */
+.form-input, .form-select, select, input[type="text"], input[type="number"], input[type="date"], input[type="email"], input[type="password"], textarea, .growy-glass-input {
+  background-color: #161B22 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #F0F6FC !important;
   transition: all 0.2s ease-in-out;
 }
 
-.growy-glass-input:focus {
-  outline: none;
-  border-color: rgba(var(--color-primary-rgb), 0.5);
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 12px rgba(var(--color-primary-rgb), 0.15);
+.form-input:focus, .form-select:focus, select:focus, input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, input[type="email"]:focus, input[type="password"]:focus, textarea:focus, .growy-glass-input:focus {
+  border-color: #97F2CC !important;
+  box-shadow: 0 0 0 1px #97F2CC !important;
+  outline: none !important;
 }
 
-.growy-glass-input::placeholder {
-  color: #CBD5E1;
+.form-input::placeholder, .growy-glass-input::placeholder, input::placeholder, textarea::placeholder {
+  color: #8B949E !important;
 }
 
-.btn-primary-mint {
-  background-color: var(--color-primary);
-  color: #1E2D32;
-  transition: all 0.2s ease-in-out;
-  will-change: transform;
-  isolation: isolate;
+/* Botón Cancelar */
+.btn-cancel, .btn-secondary {
+  background-color: #161C26 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #94A3B8 !important;
 }
 
-.btn-primary-mint:hover {
-  background-color: var(--color-primary-hover);
-  box-shadow: 0 0 20px rgba(var(--color-primary-rgb), 0.35);
-  filter: brightness(1.05);
+.btn-cancel:hover, .btn-secondary:hover {
+  background-color: #1D2432 !important;
+  color: #FFFFFF !important;
 }
 
-.btn-primary-mint:active {
-  transform: scale(0.98);
+/* Botón Guardar / Acción Principal (Mint #97F2CC) */
+.btn-primary, .btn-save, .btn-primary-mint {
+  background-color: #97F2CC !important;
+  color: #091E15 !important;
+  font-weight: 600 !important;
+  border: none !important;
+}
+
+.btn-primary:hover, .btn-save:hover, .btn-primary-mint:hover {
+  background-color: #82E5BC !important;
 }
 
 /* Safe Area & Mobile PWA Utilities */

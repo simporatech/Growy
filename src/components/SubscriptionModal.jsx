@@ -170,7 +170,7 @@ export default function SubscriptionModal({
                   setEmoji(val);
                 }}
                 placeholder="🍿"
-                className="w-11 h-11 rounded-xl growy-glass-input text-xl text-center font-bold flex items-center justify-center shrink-0 cursor-pointer placeholder:opacity-25 placeholder:grayscale caret-[#AEEDD0] transition-all"
+                className="w-11 h-11 rounded-xl form-input bg-[#121721] border border-white/[0.08] text-[#F1F5F9] text-xl text-center font-bold flex items-center justify-center shrink-0 cursor-pointer placeholder:opacity-25 placeholder:grayscale caret-[#97F2CC] focus:outline-none focus:border-[#97F2CC] focus:ring-1 focus:ring-[#97F2CC] transition-all"
                 title="Emoji"
               />
             </div>
@@ -256,12 +256,12 @@ export default function SubscriptionModal({
             <div className="shrink-0">
               <div 
                 onClick={() => setIsActive(!isActive)}
-                className={`w-12 h-6.5 rounded-full p-1 transition-all cursor-pointer flex items-center ${
-                  isActive ? 'bg-[#AEEDD0] justify-end' : 'bg-[#1E2D32] border border-[#AEEDD0]/30 justify-start'
+                className={`w-12 h-6.5 p-1 rounded-full flex items-center transition-colors cursor-pointer ${
+                  isActive ? 'bg-[#97F2CC] justify-end' : 'bg-[#121721] border border-white/[0.08] justify-start'
                 }`}
               >
                 <div className={`w-4.5 h-4.5 rounded-full shadow-md transition-all ${
-                  isActive ? 'bg-[#1E2D32]' : 'bg-[#8EA7A8]'
+                  isActive ? 'bg-[#091E15]' : 'bg-[#8EA7A8]'
                 }`} />
               </div>
             </div>
@@ -269,18 +269,18 @@ export default function SubscriptionModal({
         </div>
 
         {/* Sticky Action Footer */}
-        <div className="sticky bottom-0 z-20 bg-[#111C20]/95 backdrop-blur-md px-6 py-4 border-t border-white/10 flex gap-3 shrink-0 pb-safe sm:pb-4">
+        <div className="modal-footer sticky bottom-0 z-20 bg-transparent px-6 py-4 border-t border-white/[0.06] flex gap-3 shrink-0 pb-safe sm:pb-4">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 px-4 rounded-xl bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 font-semibold border border-white/10 transition-colors cursor-pointer"
+            className="btn-cancel btn-secondary flex-1 py-3 px-4 rounded-xl font-semibold transition-colors cursor-pointer"
           >
             {t('common.cancel', {}, 'Cancelar')}
           </button>
           <button
             type="submit"
             disabled={safeAccounts.length === 0 || safeCategories.length === 0}
-            className={`flex-1 py-3 px-4 rounded-xl btn-primary-mint font-bold hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer shadow-md ${
+            className={`btn-primary btn-save flex-1 py-3 px-4 rounded-xl font-semibold hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer shadow-md ${
               safeAccounts.length === 0 || safeCategories.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >

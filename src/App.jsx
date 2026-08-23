@@ -17,11 +17,17 @@ function LoginScreen({ onLoginSuccess, onOpenForgotPassword, onOpenRegister }) {
   useDocumentTitle('login');
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-[#0A0F11] relative flex flex-col justify-between selection:bg-[var(--color-primary,#AEEDD0)] selection:text-[#1E2D32]">
+    <div className="h-screen w-screen overflow-hidden bg-[#090C10] relative flex flex-col justify-between selection:bg-[var(--color-primary,#97F2CC)] selection:text-[#091E15]">
       
-      {/* BACKGROUND GRAPHICS (Ambient Glow Blobs) */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[var(--color-primary,#AEEDD0)]/10 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#3B82F6]/10 rounded-full blur-[140px] pointer-events-none" />
+      {/* BACKGROUND GRAPHICS (Ambient Glow Blobs with Texture) */}
+      <div 
+        className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full blur-[150px] opacity-40 transition-colors duration-500 pointer-events-none"
+        style={{ backgroundColor: 'var(--color-glow, rgba(151, 242, 204, 0.12))' }}
+      />
+      <div 
+        className="absolute -bottom-40 -right-40 w-[600px] h-[600px] rounded-full blur-[180px] opacity-30 transition-colors duration-500 pointer-events-none"
+        style={{ backgroundColor: 'var(--color-glow, rgba(151, 242, 204, 0.08))' }}
+      />
 
       {/* TOP DECORATIVE HEADER */}
       <header className="relative z-10 p-6 flex items-center justify-between max-w-7xl mx-auto w-full">
@@ -118,13 +124,13 @@ export default function App() {
     setShowWalkthrough(false);
   };
 
-  if (user) {
-    return (
-      <ErrorBoundary>
-        <DbConnectionGuard>
-          <SettingsProvider>
+  return (
+    <ErrorBoundary>
+      <DbConnectionGuard>
+        <SettingsProvider userId={user?.id || getActiveSessionUserId()}>
+          {user ? (
             <FinanceProvider userId={user.id}>
-              <div className="h-screen w-screen overflow-hidden bg-[var(--bg-base,#1E2D32)] selection:bg-[var(--color-primary,#AEEDD0)] selection:text-[#1E2D32]">
+              <div className="h-screen w-screen overflow-hidden bg-[#090C10] selection:bg-[var(--color-primary,#97F2CC)] selection:text-[#091E15]">
                 <DashboardPreview user={user} onLogout={handleLogout} />
                 <WalkthroughModal
                   isOpen={showWalkthrough}
@@ -132,32 +138,26 @@ export default function App() {
                 />
               </div>
             </FinanceProvider>
-          </SettingsProvider>
-        </DbConnectionGuard>
-      </ErrorBoundary>
-    );
-  }
-
-  return (
-    <ErrorBoundary>
-      <DbConnectionGuard>
-        <SettingsProvider>
-          <LoginScreen
-            onLoginSuccess={handleLoginSuccess}
-            onOpenForgotPassword={() => setIsForgotPasswordOpen(true)}
-            onOpenRegister={() => setIsRegisterOpen(true)}
-          />
-          <ForgotPasswordModal
-            isOpen={isForgotPasswordOpen}
-            onClose={() => setIsForgotPasswordOpen(false)}
-          />
-          <RegisterModal
-            isOpen={isRegisterOpen}
-            onClose={() => setIsRegisterOpen(false)}
-            onRegisterSuccess={(newUser) => {
-              handleLoginSuccess(newUser);
-            }}
-          />
+          ) : (
+            <>
+              <LoginScreen
+                onLoginSuccess={handleLoginSuccess}
+                onOpenForgotPassword={() => setIsForgotPasswordOpen(true)}
+                onOpenRegister={() => setIsRegisterOpen(true)}
+              />
+              <ForgotPasswordModal
+                isOpen={isForgotPasswordOpen}
+                onClose={() => setIsForgotPasswordOpen(false)}
+              />
+              <RegisterModal
+                isOpen={isRegisterOpen}
+                onClose={() => setIsRegisterOpen(false)}
+                onRegisterSuccess={(newUser) => {
+                  handleLoginSuccess(newUser);
+                }}
+              />
+            </>
+          )}
         </SettingsProvider>
       </DbConnectionGuard>
     </ErrorBoundary>

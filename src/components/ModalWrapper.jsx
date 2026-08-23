@@ -46,12 +46,16 @@ export default function ModalWrapper({
   if (!isOpen || !mounted) return null;
 
   const modalContent = (
-    <div className="fixed inset-0 z-[9999] bg-black/80 flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-[9999] bg-black/70 flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-md animate-fadeIn">
       {/* Modal / BottomSheet Dialog Box: 90vh Full-Height on mobile (< 768px), Centered Modal on Desktop */}
-      <div className={`w-full fixed sm:static inset-x-0 bottom-0 top-auto h-[90vh] max-h-[92vh] min-h-[80vh] sm:h-auto sm:max-h-[90vh] sm:min-h-0 bg-[#111C20] flex flex-col overflow-hidden rounded-t-3xl sm:rounded-2xl mx-auto border-t sm:border border-white/10 ${maxWidth} relative my-0 sm:my-auto animate-in fade-in slide-in-from-bottom duration-200 shadow-2xl pb-safe sm:pb-0`}>
+      <div 
+        role="dialog"
+        aria-modal="true"
+        className={`modal-container w-full fixed sm:static inset-x-0 bottom-0 top-auto h-[90vh] max-h-[92vh] min-h-[80vh] sm:h-auto sm:max-h-[90vh] sm:min-h-0 bg-[#0A0D14] border-t sm:border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.7)] flex flex-col overflow-hidden rounded-t-3xl sm:rounded-2xl mx-auto ${maxWidth} relative my-0 sm:my-auto animate-in fade-in slide-in-from-bottom duration-200 pb-safe sm:pb-0`}
+      >
         
         {/* 1. STICKY HEADER (Fijo arriba) */}
-        <div className="sticky top-0 z-20 flex flex-col px-6 py-4 border-b border-white/10 shrink-0 bg-[#111C20]">
+        <div className="modal-header sticky top-0 z-20 flex flex-col px-6 py-4 border-b border-white/[0.06] shrink-0 bg-[#0A0D14]">
           {/* Drag handle bar */}
           <div className="w-12 h-1.5 rounded-full bg-white/20 mx-auto -mt-1 mb-3 sm:hidden" />
           

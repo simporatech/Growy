@@ -271,7 +271,7 @@ export default function CategoriesModule() {
               setInitialType(activeTabType);
               setIsModalOpen(true);
             }}
-            className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
+            className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-semibold rounded-xl bg-[#97F2CC] text-[#091E15] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#97F2CC]/10 flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
           >
             <Plus size={15} className="shrink-0" />
             <span className="hidden sm:inline">
@@ -523,11 +523,11 @@ export default function CategoriesModule() {
             onClick={() => setActiveTabType('expense')}
             className={`flex-1 sm:flex-initial h-11 px-5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
               activeTabType === 'expense'
-                ? 'bg-[#FF6B6B]/20 text-[#FF6B6B] border border-[#FF6B6B]/30 font-bold shadow'
+                ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30 font-bold shadow'
                 : 'text-slate-300 hover:text-white'
             }`}
           >
-            <ArrowDownRight className="w-3.5 h-3.5 text-[#FF6B6B]" />
+            <ArrowDownRight className="w-3.5 h-3.5 text-rose-400" />
             <span>{t('categories.expenseCategories', {}, 'Categorías de Gasto')}</span>
           </button>
 
@@ -535,11 +535,11 @@ export default function CategoriesModule() {
             onClick={() => setActiveTabType('income')}
             className={`flex-1 sm:flex-initial h-11 px-5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
               activeTabType === 'income'
-                ? 'bg-[var(--color-primary,#AEEDD0)]/20 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/30 font-bold shadow'
+                ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold shadow'
                 : 'text-slate-300 hover:text-white'
             }`}
           >
-            <ArrowUpRight className="w-3.5 h-3.5 text-[var(--color-primary,#AEEDD0)]" />
+            <ArrowUpRight className="w-3.5 h-3.5 text-emerald-400" />
             <span>{t('categories.incomeCategories', {}, 'Categorías de Ingreso')}</span>
           </button>
         </div>
@@ -548,7 +548,7 @@ export default function CategoriesModule() {
       {/* Cards Grid */}
       <div className="w-full min-w-full box-border relative z-10">
         {filteredCategories.length === 0 ? (
-          <div className="p-6 rounded-2xl bg-[#1E2D32]/60 border border-white/10 backdrop-blur-md text-center text-slate-300 space-y-3">
+          <div className="p-6 rounded-2xl glass-card text-center text-slate-300 space-y-3">
             <Tag className="w-12 h-12 text-slate-400 mx-auto" />
             <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">{t('categories.noCategoriesTitle', {}, 'Sin categorías registradas')}</h3>
             <p className="text-xs sm:text-sm text-slate-400 max-w-sm mx-auto font-normal">
@@ -574,8 +574,8 @@ export default function CategoriesModule() {
               const isExpense = cat.type === 'expense';
               const catPercentage = parseNumeric(cat.percentage, 0);
               const barColor = isExpense
-                ? catPercentage >= 90 ? '#FF6B6B' : catPercentage >= 75 ? '#F59E0B' : (cat.color || 'var(--color-primary, #AEEDD0)')
-                : (cat.color || 'var(--color-primary, #AEEDD0)');
+                ? catPercentage >= 90 ? '#F87171' : catPercentage >= 75 ? '#F59E0B' : (cat.color || '#F87171')
+                : (cat.color || '#34D399');
 
               return (
                 <div

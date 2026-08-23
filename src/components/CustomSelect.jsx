@@ -123,15 +123,15 @@ export const CustomSelect = ({
         type="button"
         disabled={disabled}
         onClick={handleToggle}
-        className={`w-full h-11 flex items-center justify-between px-3.5 bg-[#131E22] border border-white/10 rounded-xl text-white hover:border-[var(--color-primary)]/50 active:scale-[0.99] transition-all shadow-inner cursor-pointer select-none ${
+        className={`form-select w-full h-11 flex items-center justify-between px-3.5 bg-[#121721] border border-white/[0.08] rounded-xl text-white hover:border-[#97F2CC]/50 active:scale-[0.99] transition-all shadow-inner cursor-pointer select-none ${
           disabled ? 'opacity-50 cursor-not-allowed' : ''
-        } ${isOpen ? 'border-[var(--color-primary)]/60 ring-1 ring-[var(--color-primary)]/30' : ''}`}
+        } ${isOpen ? 'border-[#97F2CC] ring-1 ring-[#97F2CC]' : ''}`}
       >
         <span className={`text-xs sm:text-sm truncate font-medium ${selectedOption ? 'text-white' : 'text-slate-400'}`}>
           {selectedOption ? selectedOption.label : resolvedPlaceholder}
         </span>
         <ChevronDown 
-          className={`text-slate-400 transition-transform duration-200 shrink-0 ml-2 ${isOpen ? 'rotate-180 text-[var(--color-primary)]' : ''}`} 
+          className={`text-slate-400 transition-transform duration-200 shrink-0 ml-2 ${isOpen ? 'rotate-180 text-[var(--color-primary,#97F2CC)]' : ''}`} 
           size={16} 
         />
       </button>
@@ -145,7 +145,7 @@ export const CustomSelect = ({
             width: `${coords.width}px`,
             maxWidth: 'calc(100vw - 24px)'
           }}
-          className="custom-select-portal fixed z-[9999] p-2 bg-[#152328] border border-white/10 rounded-xl shadow-2xl flex flex-col animate-in fade-in zoom-in-95 duration-150 backdrop-blur-xl isolate"
+          className="custom-select-portal fixed z-[9999] p-2 bg-[#0A0D14] border border-white/[0.08] rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.7)] flex flex-col animate-in fade-in zoom-in-95 duration-150 backdrop-blur-xl isolate"
         >
           {/* Render search input ONLY for long lists (> 7 options) */}
           {showSearch && (
@@ -156,7 +156,7 @@ export const CustomSelect = ({
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={resolvedSearchPlaceholder}
-                className="w-full pl-9 pr-3 py-2 bg-black/40 border border-white/10 rounded-lg text-xs sm:text-sm text-white placeholder:text-slate-400 outline-none focus:border-[var(--color-primary)] transition-colors"
+                className="w-full pl-9 pr-3 py-2 bg-[#121721] border border-white/[0.08] rounded-lg text-xs sm:text-sm text-white placeholder:text-slate-400 outline-none focus:border-[#97F2CC] focus:ring-1 focus:ring-[#97F2CC] transition-colors"
                 autoFocus
               />
             </div>

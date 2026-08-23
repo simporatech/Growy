@@ -199,13 +199,13 @@ export default function TransactionModal({
         <div className="flex-1 overflow-y-auto overscroll-contain custom-scrollbar px-6 py-4 space-y-4">
           
           {/* Segmented Control */}
-          <div className="grid grid-cols-3 gap-1.5 p-1 rounded-2xl bg-white/[0.04] border border-white/10">
+          <div className="grid grid-cols-3 gap-1.5 p-1 rounded-2xl bg-[#121721] border border-white/[0.08]">
             <button
               type="button"
               onClick={() => handleTypeChange('expense')}
               className={`h-11 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
                 type === 'expense'
-                  ? 'bg-[#FF6B6B]/20 text-[#FF6B6B] border border-[#FF6B6B]/30 shadow-sm'
+                  ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30 shadow-sm'
                   : 'text-slate-300 hover:text-white'
               }`}
             >
@@ -218,7 +218,7 @@ export default function TransactionModal({
               onClick={() => handleTypeChange('income')}
               className={`h-11 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
                 type === 'income'
-                  ? 'bg-[var(--color-primary,#AEEDD0)]/20 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/30 shadow-sm'
+                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-sm'
                   : 'text-slate-300 hover:text-white'
               }`}
             >
@@ -332,24 +332,24 @@ export default function TransactionModal({
         </div>
 
         {/* Sticky Action Footer */}
-        <div className="sticky bottom-0 z-20 bg-[#111C20]/95 backdrop-blur-md px-6 py-4 border-t border-white/10 flex gap-3 shrink-0 pb-safe sm:pb-4">
+        <div className="modal-footer sticky bottom-0 z-20 bg-transparent px-6 py-4 border-t border-white/[0.06] flex gap-3 shrink-0 pb-safe sm:pb-4">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 px-4 rounded-xl bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 font-semibold border border-white/10 transition-colors cursor-pointer"
+            className="btn-cancel btn-secondary flex-1 py-3 px-4 rounded-xl font-semibold transition-colors cursor-pointer"
           >
             {t('common.cancel', {}, 'Cancelar')}
           </button>
           <button
             type="submit"
             disabled={isSubmitting || safeAccounts.length === 0}
-            className={`flex-1 py-3 px-4 rounded-xl btn-primary-mint font-bold hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md ${
+            className={`btn-primary btn-save flex-1 py-3 px-4 rounded-xl font-semibold hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md ${
               isSubmitting || safeAccounts.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
             {isSubmitting ? (
               <>
-                <div className="w-4 h-4 border-2 border-[#1E2D32] border-t-transparent rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-[#091E15] border-t-transparent rounded-full animate-spin" />
                 <span>{t('common.saving', {}, 'Guardando...')}</span>
               </>
             ) : (

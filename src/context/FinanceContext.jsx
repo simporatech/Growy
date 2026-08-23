@@ -23,6 +23,7 @@ const FinanceContext = createContext(null);
 function getActiveLang() {
   try {
     const stored =
+      localStorage.getItem('growy_lang') ||
       localStorage.getItem('growy_language_preference') ||
       localStorage.getItem('growy_language');
     if (stored) return stored.toLowerCase().startsWith('es') ? 'es' : 'en';
@@ -169,9 +170,9 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
         const loadedLoans = Array.isArray(dbLoans) ? dbLoans : [];
         const loadedSubs = Array.isArray(dbSubs) ? dbSubs : [];
 
-        // Seed default categories in Supabase DB if zero exist using detected browser language
+        // Seed default categories in Supabase DB if zero exist using user language or detected browser language
         if (loadedCategories.length === 0) {
-          const userLang = detectUserLanguage();
+          const userLang = language || detectUserLanguage();
           const seeded = await seedUserCategories(userId, userLang);
           if (Array.isArray(seeded)) loadedCategories = seeded;
         }

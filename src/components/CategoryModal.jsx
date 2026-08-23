@@ -80,9 +80,9 @@ export default function CategoryModal({
       title={categoryToEdit ? t('modals.category.editTitle', {}, 'Editar Categoría') : t('modals.category.newTitle', {}, 'Nueva Categoría')}
       subtitle={type === 'expense' ? t('modals.category.expenseSubtitle', {}, 'Organiza y presupuesta tus gastos') : t('modals.category.incomeSubtitle', {}, 'Registra tus fuentes de ingresos')}
       icon={Tag}
-      iconBgColor={type === 'expense' ? 'bg-[#FF6B6B]/15' : 'bg-[#AEEDD0]/15'}
-      iconBorderColor={type === 'expense' ? 'border-[#FF6B6B]/30' : 'border-[#AEEDD0]/30'}
-      iconTextColor={type === 'expense' ? 'text-[#FF6B6B]' : 'text-[#AEEDD0]'}
+      iconBgColor={type === 'expense' ? 'bg-[#FF6B6B]/15' : 'bg-[#97F2CC]/15'}
+      iconBorderColor={type === 'expense' ? 'border-[#FF6B6B]/30' : 'border-[#97F2CC]/30'}
+      iconTextColor={type === 'expense' ? 'text-[#FF6B6B]' : 'text-[#97F2CC]'}
       error={error}
     >
       <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
@@ -90,13 +90,13 @@ export default function CategoryModal({
         {/* Scrollable Form Body */}
         <div className="flex-1 overflow-y-auto overscroll-contain custom-scrollbar px-6 py-4 space-y-4">
           {!initialType && (
-            <div className="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-white/[0.04] border border-white/10 mb-2">
+            <div className="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-[#121721] border border-white/[0.08] mb-2">
               <button
                 type="button"
                 onClick={() => setType('expense')}
                 className={`h-10 rounded-xl text-xs font-bold transition-all ${
                   type === 'expense'
-                    ? 'bg-[#FF6B6B]/20 text-[#FF6B6B] border border-[#FF6B6B]/30 shadow-sm'
+                    ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30 shadow-sm'
                     : 'text-slate-300 hover:text-white'
                 }`}
               >
@@ -107,7 +107,7 @@ export default function CategoryModal({
                 onClick={() => setType('income')}
                 className={`h-10 rounded-xl text-xs font-bold transition-all ${
                   type === 'income'
-                    ? 'bg-[var(--color-primary,#AEEDD0)]/20 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/30 shadow-sm'
+                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-sm'
                     : 'text-slate-300 hover:text-white'
                 }`}
               >
@@ -130,7 +130,7 @@ export default function CategoryModal({
                   setEmoji(val);
                 }}
                 placeholder="🏷️"
-                className="w-11 h-11 rounded-xl growy-glass-input text-xl text-center font-bold flex items-center justify-center shrink-0 cursor-pointer placeholder:opacity-25 placeholder:grayscale caret-[#AEEDD0] transition-all"
+                className="w-11 h-11 rounded-xl form-input bg-[#121721] border border-white/[0.08] text-[#F1F5F9] text-xl text-center font-bold flex items-center justify-center shrink-0 cursor-pointer placeholder:opacity-25 placeholder:grayscale caret-[#97F2CC] focus:outline-none focus:border-[#97F2CC] focus:ring-1 focus:ring-[#97F2CC] transition-all"
                 title="Emoji"
               />
             </div>
@@ -149,7 +149,7 @@ export default function CategoryModal({
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <FormField label={t('modals.account.color', {}, 'Color')}>
-              <div className="flex items-center gap-3 h-11 px-3 bg-[#162226] border border-white/10 rounded-xl">
+              <div className="flex items-center gap-3 h-11 px-3 bg-[#121721] border border-white/[0.08] rounded-xl">
                 <input
                   type="color"
                   value={color}
@@ -181,17 +181,17 @@ export default function CategoryModal({
         </div>
 
         {/* Sticky Action Footer */}
-        <div className="sticky bottom-0 z-20 bg-[#111C20]/95 backdrop-blur-md px-6 py-4 border-t border-white/10 flex gap-3 shrink-0 pb-safe sm:pb-4">
+        <div className="modal-footer sticky bottom-0 z-20 bg-transparent px-6 py-4 border-t border-white/[0.06] flex gap-3 shrink-0 pb-safe sm:pb-4">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 px-4 rounded-xl bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 font-semibold border border-white/10 transition-colors cursor-pointer"
+            className="btn-cancel btn-secondary flex-1 py-3 px-4 rounded-xl font-semibold transition-colors cursor-pointer"
           >
             {t('common.cancel', {}, 'Cancelar')}
           </button>
           <button
             type="submit"
-            className="flex-1 py-3 px-4 rounded-xl btn-primary-mint font-bold hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer shadow-md"
+            className="btn-primary btn-save flex-1 py-3 px-4 rounded-xl font-semibold hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer shadow-md"
           >
             {categoryToEdit ? t('modals.category.updateBtn', {}, 'Actualizar Categoría') : t('modals.category.saveBtn', {}, 'Guardar Categoría')}
           </button>

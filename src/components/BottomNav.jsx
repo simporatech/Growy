@@ -31,7 +31,7 @@ export default function BottomNav({
           }}
           className={`flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
             activeTab === 'dashboard'
-              ? 'text-[var(--color-primary,#AEEDD0)] font-semibold'
+              ? 'text-[var(--color-primary,#97F2CC)] font-semibold'
               : 'text-slate-300 hover:text-white'
           }`}
         >
@@ -50,7 +50,7 @@ export default function BottomNav({
           }}
           className={`flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
             activeTab === 'transactions'
-              ? 'text-[var(--color-primary,#AEEDD0)] font-semibold'
+              ? 'text-[var(--color-primary,#97F2CC)] font-semibold'
               : 'text-slate-300 hover:text-white'
           }`}
         >
@@ -65,13 +65,13 @@ export default function BottomNav({
           <button
             type="button"
             onClick={onOpenNewTx}
-            className="w-12 h-12 rounded-full bg-[#AEEDD0] text-[#0E1517] shadow-lg shadow-[#AEEDD0]/20 flex items-center justify-center hover:scale-105 active:scale-95 transition-transform cursor-pointer"
+            className="w-12 h-12 rounded-full bg-[var(--color-primary,#97F2CC)] text-[var(--color-primary-text,#091E15)] shadow-lg shadow-[var(--color-primary,#97F2CC)]/20 flex items-center justify-center hover:scale-105 active:scale-95 transition-transform cursor-pointer"
             title={t('nav.fabTooltip', {}, 'Nuevo Movimiento')}
             aria-label={t('nav.fabTooltip', {}, 'Nuevo Movimiento')}
           >
             <Plus size={24} strokeWidth={2.5} />
           </button>
-          <span className="text-[11px] font-semibold text-[#AEEDD0] mt-1 leading-none tracking-tight">
+          <span className="text-[11px] font-semibold text-[var(--color-primary,#97F2CC)] mt-1 leading-none tracking-tight">
             {t('nav.fabRecord', {}, 'Registrar')}
           </span>
         </div>
@@ -85,7 +85,7 @@ export default function BottomNav({
           }}
           className={`flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
             activeTab === 'accounts'
-              ? 'text-[var(--color-primary,#AEEDD0)] font-semibold'
+              ? 'text-[var(--color-primary,#97F2CC)] font-semibold'
               : 'text-slate-300 hover:text-white'
           }`}
         >
@@ -101,14 +101,14 @@ export default function BottomNav({
           onClick={() => setIsMoreSheetOpen(prev => !prev)}
           className={`flex flex-col items-center justify-center gap-1 transition-all cursor-pointer relative ${
             isMoreSheetOpen || ['loans', 'subscriptions', 'categories', 'settings', 'feedback', 'about'].includes(activeTab)
-              ? 'text-[var(--color-primary,#AEEDD0)] font-semibold'
+              ? 'text-[var(--color-primary,#97F2CC)] font-semibold'
               : 'text-slate-300 hover:text-white'
           }`}
         >
           <div className="relative">
             <Menu size={20} />
             {['loans', 'subscriptions', 'categories', 'settings', 'feedback', 'about'].includes(activeTab) && (
-              <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[var(--color-primary,#AEEDD0)] animate-pulse" />
+              <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[var(--color-primary,#97F2CC)] animate-pulse" />
             )}
           </div>
           <span className="text-[11px] font-medium leading-none">

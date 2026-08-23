@@ -40,11 +40,11 @@ export default function ConfirmDeleteModal({
         </div>
 
         {/* Fixed Footer */}
-        <div className="shrink-0 z-10 bg-[#111C20] p-4 border-t border-white/10 flex gap-3">
+        <div className="modal-footer shrink-0 z-10 bg-transparent p-4 border-t border-white/[0.06] flex gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 px-4 rounded-xl bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 font-semibold border border-white/10 transition-colors cursor-pointer"
+            className="btn-cancel btn-secondary flex-1 py-3 px-4 rounded-xl font-semibold transition-colors cursor-pointer"
           >
             {cancelText || t('modals.cancel', {}, language === 'es' ? 'Cancelar' : 'Cancel')}
           </button>

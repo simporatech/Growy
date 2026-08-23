@@ -37,9 +37,9 @@ export function ForgotPasswordModal({ isOpen, onClose }) {
       title={sent ? t('modals.auth.linkSentTitle', {}, '¡Enlace Enviado!') : t('modals.auth.forgotModalTitle', {}, 'Recuperar Contraseña')}
       subtitle={sent ? undefined : t('modals.auth.forgotModalSub', {}, 'Ingresa el correo electrónico asociado a tu cuenta de Growy y te enviaremos las instrucciones de recuperación.')}
       icon={sent ? CheckCircle2 : Mail}
-      iconBgColor="bg-[#AEEDD0]/10"
-      iconBorderColor="border-[#AEEDD0]/30"
-      iconTextColor="text-[#AEEDD0]"
+      iconBgColor="bg-[#97F2CC]/10"
+      iconBorderColor="border-[#97F2CC]/30"
+      iconTextColor="text-[#97F2CC]"
     >
       {!sent ? (
         <form onSubmit={handleReset} className="flex-1 flex flex-col min-h-0">
@@ -54,11 +54,11 @@ export function ForgotPasswordModal({ isOpen, onClose }) {
             />
           </div>
           
-          <div className="sticky bottom-0 z-20 bg-[#111C20]/95 backdrop-blur-md px-6 py-4 border-t border-white/10 flex gap-3 shrink-0 pb-safe sm:pb-4">
+          <div className="modal-footer sticky bottom-0 z-20 bg-transparent px-6 py-4 border-t border-white/[0.06] flex gap-3 shrink-0 pb-safe sm:pb-4">
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 py-3 px-4 rounded-xl btn-primary-mint font-bold hover:brightness-105 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shadow-md"
+              className="btn-primary btn-save flex-1 py-3 px-4 rounded-xl font-semibold hover:brightness-105 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shadow-md"
             >
               {loading ? t('modals.auth.sendingLink', {}, 'Enviando enlace...') : (
                 <>
@@ -77,7 +77,7 @@ export function ForgotPasswordModal({ isOpen, onClose }) {
           <button
             type="button"
             onClick={handleClose}
-            className="w-full h-11 px-6 rounded-xl btn-primary-mint font-bold text-sm cursor-pointer"
+            className="btn-primary btn-save w-full h-11 px-6 rounded-xl font-semibold text-sm cursor-pointer"
           >
             {t('modals.auth.understood', {}, 'Entendido, Volver')}
           </button>
@@ -310,7 +310,7 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
                 value={formData.masterPin}
                 onChange={handleChange}
                 placeholder="••••••"
-                className={`w-full h-11 pl-4 pr-11 bg-[#162226] border ${error ? 'border-rose-500 bg-rose-500/10' : 'border-amber-500/40 focus:border-amber-400'} rounded-xl text-sm font-bold tracking-widest text-center text-white focus:outline-none transition-all`}
+                className={`w-full h-11 pl-4 pr-11 form-input bg-[#121721] border ${error ? 'border-rose-500 bg-rose-500/10' : 'border-amber-500/40 focus:border-amber-400'} rounded-xl text-sm font-bold tracking-widest text-center text-white focus:outline-none transition-all`}
                 autoComplete="off"
               />
               <button
@@ -320,7 +320,7 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
                 aria-label={showPin ? "Ocultar código" : "Mostrar código"}
               >
                 {showPin ? (
-                  <EyeOff className="w-4 h-4 text-[#AEEDD0]" />
+                  <EyeOff className="w-4 h-4 text-[#97F2CC]" />
                 ) : (
                   <Eye className="w-4 h-4" />
                 )}
@@ -331,11 +331,11 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
             </span>
           </div>
           </div>
-          <div className="sticky bottom-0 z-20 bg-[#111C20]/95 backdrop-blur-md px-6 py-4 border-t border-white/10 flex gap-3 shrink-0 pb-safe sm:pb-4">
+          <div className="modal-footer sticky bottom-0 z-20 bg-transparent px-6 py-4 border-t border-white/[0.06] flex gap-3 shrink-0 pb-safe sm:pb-4">
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 py-3 px-4 rounded-xl btn-primary-mint font-bold hover:brightness-105 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed shadow-md"
+              className="btn-primary btn-save flex-1 py-3 px-4 rounded-xl font-semibold hover:brightness-105 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed shadow-md"
             >
               {loading ? (
                 <span>{t('modals.auth.validating', {}, 'Procesando...')}</span>
@@ -356,7 +356,7 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
           <button
             type="button"
             onClick={handleClose}
-            className="w-full h-11 px-6 rounded-xl btn-primary-mint font-bold text-sm cursor-pointer"
+            className="btn-primary btn-save w-full h-11 px-6 rounded-xl font-semibold text-sm cursor-pointer"
           >
             {t('modals.auth.understood', {}, 'Entendido, Volver')}
           </button>

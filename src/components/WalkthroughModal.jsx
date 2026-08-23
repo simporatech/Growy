@@ -77,15 +77,18 @@ export default function WalkthroughModal({ isOpen, onComplete }) {
   };
 
   const modalContent = (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fadeIn">
       
-      {/* Centered Glassmorphism Container */}
-      <div className="w-full max-w-md p-6 sm:p-7 rounded-3xl bg-[#1E2D32]/95 border border-white/10 shadow-2xl backdrop-blur-xl relative overflow-hidden space-y-6">
+      <div 
+        role="dialog"
+        aria-modal="true"
+        className="modal-container w-full max-w-md p-6 sm:p-7 rounded-3xl bg-[#0A0D14] border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.7)] relative overflow-hidden space-y-6"
+      >
         
         {/* Top Header: Step Counter & Skip Link */}
         <div className="flex items-center justify-between border-b border-white/5 pb-4">
           <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-300">
-            <Sparkles className="w-3.5 h-3.5 text-[#AEEDD0]" />
+            <Sparkles className="w-3.5 h-3.5 text-[var(--color-primary,#97F2CC)]" />
             <span>{t('walkthrough.stepOf', { current: currentStep + 1, total: steps.length }, `Paso ${currentStep + 1} de ${steps.length}`)}</span>
           </div>
 
@@ -113,30 +116,35 @@ export default function WalkthroughModal({ isOpen, onComplete }) {
             </span>
           </div>
 
-          <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed max-w-xs mx-auto">
+          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
             {stepData.desc}
           </p>
         </div>
 
-        {/* Dots Progress Indicator */}
-        <div className="flex items-center justify-center gap-2 pt-1">
+        {/* Indicator Dots */}
+        <div className="flex items-center justify-center gap-1.5 py-1">
           {steps.map((_, idx) => (
-            <div
+            <button
               key={idx}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                idx === currentStep ? 'w-8 bg-[#AEEDD0]' : 'w-2 bg-white/20'
+              type="button"
+              onClick={() => setCurrentStep(idx)}
+              className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                currentStep === idx 
+                  ? 'w-6 bg-[var(--color-primary,#97F2CC)]' 
+                  : 'w-1.5 bg-white/20 hover:bg-white/40'
               }`}
+              title={`Paso ${idx + 1}`}
             />
           ))}
         </div>
 
         {/* Action Controls Footer */}
-        <div className="flex items-center gap-3 pt-2">
+        <div className="modal-footer flex items-center gap-3 pt-2">
           {currentStep > 0 ? (
             <button
               type="button"
               onClick={handlePrev}
-              className="h-11 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-white font-semibold text-xs border border-white/10 active:scale-[0.98] transition-all flex items-center gap-1.5 cursor-pointer"
+              className="btn-cancel btn-secondary h-11 px-4 rounded-xl font-semibold text-xs active:scale-[0.98] transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <ChevronLeft className="w-4 h-4" />
               <span>{t('walkthrough.prev', {}, 'Anterior')}</span>
@@ -146,7 +154,7 @@ export default function WalkthroughModal({ isOpen, onComplete }) {
           <button
             type="button"
             onClick={handleNext}
-            className="flex-1 h-11 px-5 rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] font-bold text-xs shadow-md shadow-[#AEEDD0]/10 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+            className="btn-primary btn-save flex-1 h-11 px-5 rounded-xl font-semibold text-xs hover:brightness-105 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
           >
             {isLastStep ? (
               <>
