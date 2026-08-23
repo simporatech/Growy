@@ -1,23 +1,34 @@
 /**
  * Universal Export Utilities with Consolidated Summary (CSV / PDF)
+ * Fully bilingual (ES / EN) supporting dynamic localized headers and formatting.
  */
 
 // 1. Exportar a CSV (Compatible con Excel, BOM UTF-8 y bloque de resumen consolidado)
-export const exportToCSV = (data, filename = 'export', columns = [], summary = null) => {
+export const exportToCSV = (data, filename = 'export', columns = [], summary = null, language = 'es') => {
+  const isEs = language === 'es';
   if (!data || !data.length) {
-    alert('No hay datos disponibles para exportar');
+    alert(isEs ? 'No hay datos disponibles para exportar' : 'No data available to export');
     return;
   }
 
-  const timestamp = `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  const locale = isEs ? 'es-ES' : 'en-US';
+  const timestamp = `${new Date().toLocaleDateString(locale)} ${new Date().toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}`;
   
   let summaryRows = [];
   if (summary) {
+    const reportTitle = isEs ? 'REPORTE OFICIAL GROWY - RESUMEN EJECUTIVO' : 'OFFICIAL GROWY REPORT - EXECUTIVE SUMMARY';
+    const dateLabel = isEs ? 'Fecha de Generación:' : 'Generation Date:';
+    const totalRecordsLabel = isEs ? 'Total Registros Filtrados:' : 'Total Filtered Records:';
+    const baseCurr = summary.baseCurrency || 'Base';
+    const totalConsolidatedLabel = isEs 
+      ? `Total Consolidado (${baseCurr}):` 
+      : `Total Consolidated (${baseCurr}):`;
+
     summaryRows = [
-      `"REPORTE OFICIAL GROWY - RESUMEN EJECUTIVO"`,
-      `"Fecha de Generación:","${timestamp}"`,
-      `"Total Registros Filtrados:","${summary.totalRecords ?? data.length}"`,
-      summary.consolidatedTotal ? `"Total Consolidado en [${summary.baseCurrency || 'Base'}]:","${summary.consolidatedTotal}"` : '',
+      `"${reportTitle}"`,
+      `"${dateLabel}","${timestamp}"`,
+      `"${totalRecordsLabel}","${summary.totalRecords ?? data.length}"`,
+      summary.consolidatedTotal ? `"${totalConsolidatedLabel}","${summary.consolidatedTotal}"` : '',
       `""` // Empty row separator
     ].filter(Boolean);
   }
@@ -41,36 +52,43 @@ export const exportToCSV = (data, filename = 'export', columns = [], summary = n
   const encodedUri = encodeURI(csvContent);
   const link = document.createElement('a');
   link.setAttribute('href', encodedUri);
-  link.setAttribute('download', `${filename}_${new Date().toISOString().split('T')[0]}.csv`);
+  const cleanFilename = filename.endsWith('.csv') ? filename : `${filename}_${new Date().toISOString().split('T')[0]}.csv`;
+  link.setAttribute('download', cleanFilename);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
 };
 
 // 2. Exportar a PDF (Impresión estilizada directa, membrete oficial y tarjeta de resumen)
-export const exportToPDF = (title, data, columns = [], summary = null) => {
+export const exportToPDF = (title, data, columns = [], summary = null, language = 'es') => {
+  const isEs = language === 'es';
   if (!data || !data.length) {
-    alert('No hay datos disponibles para exportar');
+    alert(isEs ? 'No hay datos disponibles para exportar' : 'No data available to export');
     return;
   }
 
   const printWindow = window.open('', '_blank');
   if (!printWindow) {
-    alert('Por favor permite ventanas emergentes para generar el PDF');
+    alert(isEs ? 'Por favor permite ventanas emergentes para generar el PDF' : 'Please allow popups to generate the PDF');
     return;
   }
 
-  const timestamp = `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  const locale = isEs ? 'es-ES' : 'en-US';
+  const timestamp = `${new Date().toLocaleDateString(locale)} ${new Date().toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}`;
+
+  const totalRecordsLabel = isEs ? 'Total Registros Filtrados' : 'Total Filtered Records';
+  const baseCurr = summary?.baseCurrency || 'Base';
+  const totalConsolidatedLabel = isEs ? `Total Consolidado (${baseCurr})` : `Total Consolidated (${baseCurr})`;
 
   const summaryHtml = summary ? `
     <div style="display: flex; gap: 15px; background: #f3f4f6; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; border-left: 4px solid #10b981;">
       <div style="flex: 1;">
-        <span style="font-size: 10px; text-transform: uppercase; color: #6b7280; font-weight: 700; display: block;">Total Registros Filtrados</span>
+        <span style="font-size: 10px; text-transform: uppercase; color: #6b7280; font-weight: 700; display: block;">${totalRecordsLabel}</span>
         <span style="font-size: 16px; font-weight: 800; color: #111827;">${summary.totalRecords ?? data.length}</span>
       </div>
       ${summary.consolidatedTotal ? `
       <div style="flex: 1; border-left: 1px solid #e5e7eb; padding-left: 15px;">
-        <span style="font-size: 10px; text-transform: uppercase; color: #6b7280; font-weight: 700; display: block;">Total Consolidado en [${summary.baseCurrency || 'Base'}]</span>
+        <span style="font-size: 10px; text-transform: uppercase; color: #6b7280; font-weight: 700; display: block;">${totalConsolidatedLabel}</span>
         <span style="font-size: 16px; font-weight: 800; color: #059669;">${summary.consolidatedTotal}</span>
       </div>` : ''}
     </div>
@@ -86,6 +104,10 @@ export const exportToPDF = (title, data, columns = [], summary = null) => {
     }).join('');
     return `<tr style="background-color: ${bg};">${cells}</tr>`;
   }).join('');
+
+  const docSubtitle = isEs ? `Reporte generado por Growy • ${timestamp}` : `Report generated by Growy • ${timestamp}`;
+  const confidentialLabel = isEs ? 'Confidencial • Finanzas Personales Growy' : 'Confidential • Growy Personal Finance';
+  const totalCountLabel = isEs ? `Total de Registros: ${data.length}` : `Total Records: ${data.length}`;
 
   printWindow.document.write(`
     <!DOCTYPE html>
@@ -107,7 +129,7 @@ export const exportToPDF = (title, data, columns = [], summary = null) => {
         <div class="header">
           <div>
             <h1 class="title">${title}</h1>
-            <p class="subtitle">Reporte generado por Growy • ${timestamp}</p>
+            <p class="subtitle">${docSubtitle}</p>
           </div>
           <div class="badge">GROWY APP</div>
         </div>
@@ -117,8 +139,8 @@ export const exportToPDF = (title, data, columns = [], summary = null) => {
           <tbody>${tableRows}</tbody>
         </table>
         <div class="footer">
-          <span>Confidencial • Finanzas Personales Growy</span>
-          <span>Total de Registros: ${data.length}</span>
+          <span>${confidentialLabel}</span>
+          <span>${totalCountLabel}</span>
         </div>
         <script>
           window.onload = function() { window.print(); window.close(); };
@@ -128,3 +150,4 @@ export const exportToPDF = (title, data, columns = [], summary = null) => {
   `);
   printWindow.document.close();
 };
+

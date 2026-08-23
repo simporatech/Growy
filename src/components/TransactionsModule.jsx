@@ -11,6 +11,7 @@ import Pagination from './Pagination';
 import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
 import { formatDateISO } from '../utils/formatters';
+import { convertCrossCurrency } from '../utils/currency';
 
 export default function TransactionsModule() {
   const { transactions, accounts, categories, addTransaction, updateTransaction, deleteTransaction } = useFinance();
@@ -21,22 +22,24 @@ export default function TransactionsModule() {
   const [txToEdit, setTxToEdit] = useState(null);
   const [txToDelete, setTxToDelete] = useState(null);
 
-  // Today & Month calculations for default filters
-  const today = useMemo(() => new Date(), []);
-  const currentYear = useMemo(() => today.getFullYear(), [today]);
-  const currentMonth = useMemo(() => today.getMonth(), [today]);
+  // Month Navigation
+  const [currentYear, setCurrentYear] = useState(() => new Date().getFullYear());
+  const [currentMonth, setCurrentMonth] = useState(() => new Date().getMonth());
 
-  const currentMonthStart = useMemo(() => formatDateISO(new Date(currentYear, currentMonth, 1)), [currentYear, currentMonth]);
-  const currentMonthEnd = useMemo(() => formatDateISO(new Date(currentYear, currentMonth + 1, 0)), [currentYear, currentMonth]);
-
-  // Multivariable Filter States
-  const [datePreset, setDatePreset] = useState('this_month');
-  const [startDate, setStartDate] = useState(currentMonthStart);
-  const [endDate, setEndDate] = useState(currentMonthEnd);
+  // Filter States
   const [typeFilter, setTypeFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [datePreset, setDatePreset] = useState('this_month');
+  const [startDate, setStartDate] = useState(() => {
+    const now = new Date();
+    return formatDateISO(new Date(now.getFullYear(), now.getMonth(), 1));
+  });
+  const [endDate, setEndDate] = useState(() => {
+    const now = new Date();
+    return formatDateISO(new Date(now.getFullYear(), now.getMonth() + 1, 0));
+  });
   const [accountIdFilter, setAccountIdFilter] = useState('all');
   const [categoryIdFilter, setCategoryIdFilter] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
 
   const safeTxList = useMemo(() => Array.isArray(transactions) ? transactions.filter(Boolean) : [], [transactions]);
   const safeAccountsList = useMemo(() => Array.isArray(accounts) ? accounts.filter(Boolean) : [], [accounts]);
@@ -88,33 +91,32 @@ export default function TransactionsModule() {
 
   // Filter Active check & count
   const isFilterActive = useMemo(() => {
-    return datePreset !== 'this_month' ||
+    return (
       typeFilter !== 'all' ||
+      searchQuery.trim() !== '' ||
+      datePreset !== 'this_month' ||
       accountIdFilter !== 'all' ||
-      categoryIdFilter !== 'all' ||
-      searchQuery.trim() !== '';
-  }, [datePreset, typeFilter, accountIdFilter, categoryIdFilter, searchQuery]);
+      categoryIdFilter !== 'all'
+    );
+  }, [typeFilter, searchQuery, datePreset, accountIdFilter, categoryIdFilter]);
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
     if (typeFilter !== 'all') count++;
+    if (searchQuery.trim() !== '') count++;
+    if (datePreset !== 'this_month') count++;
     if (accountIdFilter !== 'all') count++;
     if (categoryIdFilter !== 'all') count++;
-    if (datePreset !== 'this_month') count++;
-    if (searchQuery.trim() !== '') count++;
     return count;
-  }, [typeFilter, accountIdFilter, categoryIdFilter, datePreset, searchQuery]);
+  }, [typeFilter, searchQuery, datePreset, accountIdFilter, categoryIdFilter]);
 
-  // Reset all filters
   const resetFilters = useCallback(() => {
-    setDatePreset('this_month');
-    setStartDate(currentMonthStart);
-    setEndDate(currentMonthEnd);
     setTypeFilter('all');
+    setSearchQuery('');
+    handlePresetChange('this_month');
     setAccountIdFilter('all');
     setCategoryIdFilter('all');
-    setSearchQuery('');
-  }, [currentMonthStart, currentMonthEnd]);
+  }, [handlePresetChange]);
 
   // Options for Dropdowns
   const datePresetOptions = useMemo(() => [
@@ -247,20 +249,61 @@ export default function TransactionsModule() {
     return monthName.charAt(0).toUpperCase() + monthName.slice(1);
   }, [currentYear, currentMonth, language]);
 
-  const transactionColumns = useMemo(() => [
-    { label: t('modals.transaction.date', {}, 'Fecha'), accessor: (tx) => tx.date || '-' },
-    { label: t('modals.transaction.description', {}, 'Descripción'), accessor: (tx) => tx.description || '-' },
-    { label: t('modals.transaction.type', {}, 'Tipo'), accessor: (tx) => tx.type === 'expense' ? t('modals.transaction.typeExpense', {}, 'Gasto') : tx.type === 'income' ? t('modals.transaction.typeIncome', {}, 'Ingreso') : t('modals.transaction.typeTransfer', {}, 'Transferencia') },
-    { label: t('modals.transaction.category', {}, 'Categoría'), accessor: (tx) => safeCategoriesList.find(c => c?.id === tx.categoryId)?.name || t('common.general', {}, 'General') },
-    { label: t('modals.transaction.account', {}, 'Cuenta'), accessor: (tx) => safeAccountsList.find(a => a?.id === tx.accountId)?.name || t('common.general', {}, 'General') },
-    { label: t('modals.transaction.amount', {}, 'Monto'), accessor: (tx) => `${tx.currency || 'USD'} ${Number(tx.amount || 0).toFixed(2)}` }
-  ], [safeCategoriesList, safeAccountsList, t]);
+  const isEs = language === 'es';
 
-    const transactionSummary = useMemo(() => ({
+  const transactionColumns = useMemo(() => [
+    { 
+      label: isEs ? 'Fecha' : 'Date', 
+      accessor: (tx) => tx?.date || tx?.transactionDate || tx?.transaction_date || '-' 
+    },
+    { 
+      label: isEs ? 'Descripción' : 'Description', 
+      accessor: (tx) => {
+        if (tx?.type === 'transfer') {
+          const src = safeAccountsList.find(a => a?.id === (tx?.accountId || tx?.account_id))?.name || '-';
+          const dest = safeAccountsList.find(a => a?.id === (tx?.targetAccountId || tx?.destinationAccountId || tx?.destination_account_id))?.name || '';
+          return dest ? `${src} ➔ ${dest}` : (tx?.description || (isEs ? 'Transferencia' : 'Transfer'));
+        }
+        return tx?.description || '-';
+      }
+    },
+    { 
+      label: isEs ? 'Cuenta Origen' : 'Account', 
+      accessor: (tx) => safeAccountsList.find(a => a?.id === (tx?.accountId || tx?.account_id))?.name || '-' 
+    },
+    { 
+      label: isEs ? 'Cuenta Destino' : 'Destination Account', 
+      accessor: (tx) => tx?.type === 'transfer' ? (safeAccountsList.find(a => a?.id === (tx?.targetAccountId || tx?.destinationAccountId || tx?.destination_account_id))?.name || '-') : '-' 
+    },
+    { 
+      label: isEs ? 'Categoría' : 'Category', 
+      accessor: (tx) => safeCategoriesList.find(c => c?.id === (tx?.categoryId || tx?.category_id))?.name || (isEs ? 'General' : 'General') 
+    },
+    { 
+      label: isEs ? 'Tipo' : 'Type', 
+      accessor: (tx) => tx?.type === 'expense' ? (isEs ? 'Gasto' : 'Expense') : tx?.type === 'income' ? (isEs ? 'Ingreso' : 'Income') : (isEs ? 'Transferencia' : 'Transfer') 
+    },
+    { 
+      label: isEs ? 'Monto' : 'Amount', 
+      accessor: (tx) => Number(tx?.amount || 0).toFixed(2) 
+    },
+    { 
+      label: isEs ? 'Moneda' : 'Currency', 
+      accessor: (tx) => tx?.currency || 'USD' 
+    },
+    { 
+      label: isEs ? `Monto Base (${baseCurrency})` : `Base Amount (${baseCurrency})`, 
+      accessor: (tx) => convertCrossCurrency(Number(tx?.amount || 0), tx?.currency || 'USD', baseCurrency, exchangeRates).toFixed(2) 
+    }
+  ], [safeCategoriesList, safeAccountsList, isEs, baseCurrency, exchangeRates]);
+
+  const transactionSummary = useMemo(() => ({
     totalRecords: filteredTx.length,
-    consolidatedTotal: `${formatCurrency(netFlow, baseCurrency)} (Net Flow)`,
+    consolidatedTotal: `${formatCurrency(netFlow, baseCurrency)}`,
     baseCurrency
   }), [filteredTx.length, netFlow, baseCurrency, formatCurrency]);
+
+  const exportFilename = isEs ? 'Growy_Transacciones' : 'Growy_Transactions';
 
   return (
     <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-32 md:pb-6">
@@ -387,7 +430,7 @@ export default function TransactionsModule() {
               data={filteredTx}
               columns={transactionColumns}
               title={t('transactions.title', {}, 'Historial de Transacciones')}
-              filename="transacciones_growy"
+              filename={exportFilename}
               summary={transactionSummary}
             />
           </div>
@@ -483,7 +526,7 @@ export default function TransactionsModule() {
               data={filteredTx}
               columns={transactionColumns}
               title={t('transactions.title', {}, 'Historial de Transacciones')}
-              filename="transacciones_growy"
+              filename={exportFilename}
               summary={transactionSummary}
             />
             {isFilterActive && (
@@ -575,16 +618,28 @@ export default function TransactionsModule() {
 
                 <div className="space-y-2">
                   {list.map((tx) => {
-                    const acc = safeAccountsList.find(a => a?.id === tx.accountId) || { name: t('common.generalAccount', {}, 'Cuenta General') };
-                    const cat = safeCategoriesList.find(c => c?.id === tx.categoryId) || { name: t('common.general', {}, 'General'), emoji: '📌' };
+                    const sourceAcc = safeAccountsList.find(a => a?.id === (tx?.accountId || tx?.account_id));
+                    const destAcc = safeAccountsList.find(a => a?.id === (tx?.targetAccountId || tx?.destinationAccountId || tx?.destination_account_id));
+                    const cat = safeCategoriesList.find(c => c?.id === (tx?.categoryId || tx?.category_id));
 
-                    const isIncome = tx.type === 'income';
-                    const isExpense = tx.type === 'expense';
-                    const emoji = tx.type === 'transfer' ? '🔁' : (cat?.emoji || '💰');
+                    const sourceAccName = sourceAcc?.name || t('transactions.accountFilter', {}, 'Cuenta');
+                    const destAccName = destAcc?.name || '';
+                    const catName = cat?.name || t('transactions.categoryFilter', {}, 'General');
+
+                    const isIncome = tx?.type === 'income';
+                    const isExpense = tx?.type === 'expense';
+                    const isTransfer = tx?.type === 'transfer';
+                    const emoji = isTransfer ? '🔁' : (cat?.emoji || '💰');
+
+                    const txTitle = isTransfer && destAccName
+                      ? `${sourceAccName} ➔ ${destAccName}`
+                      : (tx?.description || catName || t('transactions.movement', {}, 'Movimiento'));
+
+                    const displayDate = tx?.date || tx?.transactionDate || tx?.transaction_date || dateStr;
 
                     return (
                       <div
-                        key={tx.id}
+                        key={tx?.id || Math.random()}
                         onClick={() => {
                           setTxToEdit(tx);
                           setIsModalOpen(true);
@@ -601,10 +656,10 @@ export default function TransactionsModule() {
 
                           <div className="min-w-0 flex-1">
                             <h4 className="line-clamp-2 sm:truncate text-sm font-semibold text-white group-hover:text-[var(--color-primary,#AEEDD0)] transition-colors">
-                              {tx.description || cat?.name || t('transactions.movement', {}, 'Movimiento')}
+                              {txTitle}
                             </h4>
                             <p className="text-xs text-slate-300 font-medium sm:hidden truncate mt-0.5">
-                              {acc?.name} • {cat?.name}
+                              {sourceAccName} • {catName}
                             </p>
                           </div>
                         </div>
@@ -612,23 +667,23 @@ export default function TransactionsModule() {
                         {/* Col 2 (Centro-Izquierda): Badge de Cuenta y Categoría (Desktop) */}
                         <div className="hidden sm:flex items-center gap-2 min-w-0 flex-1">
                           <span className="text-xs font-medium text-slate-300 px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 truncate max-w-[140px]">
-                            🏦 {acc?.name || t('transactions.accountFilter', {}, 'Cuenta')}
+                            🏦 {sourceAccName}
                           </span>
                           <span className="text-xs font-medium text-slate-300 px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 truncate max-w-[140px]">
-                            🏷️ {cat?.name || t('transactions.categoryFilter', {}, 'Categoría')}
+                            🏷️ {catName}
                           </span>
                         </div>
 
                         {/* Col 3 (Centro-Derecha): Fecha legible (Desktop) */}
                         <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-400 font-medium shrink-0 w-28">
-                          <span>🕒 {tx.date}</span>
+                          <span>🕒 {displayDate}</span>
                         </div>
 
                         {/* Col 4 (Derecha): Monto formateado grande + Botones en hover */}
                         <div className="flex items-center gap-3 shrink-0">
                           <div className={`text-base font-bold tabular-nums ${isIncome ? 'text-[var(--color-primary,#AEEDD0)]' : isExpense ? 'text-[#FF6B6B]' : 'text-sky-300'}`}>
                             {isIncome ? '+ ' : isExpense ? '- ' : ''}
-                            {formatCurrency(tx.amount, tx.currency || acc?.currency || 'USD')}
+                            {formatCurrency ? formatCurrency(tx?.amount, tx?.currency || sourceAcc?.currency || 'USD') : `${tx?.amount}`}
                           </div>
 
                           <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">

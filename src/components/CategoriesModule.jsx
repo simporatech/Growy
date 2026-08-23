@@ -87,13 +87,38 @@ export default function CategoriesModule() {
     return filteredCategories.slice(start, start + pageSize);
   }, [filteredCategories, currentPage, pageSize]);
 
+  const isEs = language === 'es';
+
   const categoryColumns = useMemo(() => [
-    { label: t('modals.category.name', {}, 'Categoría'), accessor: (c) => c?.name || '-' },
-    { label: t('modals.category.type', {}, 'Tipo'), accessor: (c) => c?.type === 'expense' ? t('modals.transaction.typeExpense', {}, 'Gasto') : t('modals.transaction.typeIncome', {}, 'Ingreso') },
-    { label: t('categories.budgetOrGoal', {}, 'Presupuesto / Meta'), accessor: (c) => parseNumeric(c?.target, 0).toFixed(2) },
-    { label: t('categories.executedMonth', {}, 'Ejecutado Mes'), accessor: (c) => parseNumeric(c?.executed, 0).toFixed(2) },
-    { label: t('categories.consumptionPct', {}, 'Consumo %'), accessor: (c) => `${c?.percentage || 0}%` }
-  ], [t]);
+    { 
+      label: isEs ? 'Categoría' : 'Category', 
+      accessor: (c) => c?.name || '-' 
+    },
+    { 
+      label: isEs ? 'Tipo' : 'Type', 
+      accessor: (c) => c?.type === 'expense' ? (isEs ? 'Gasto' : 'Expense') : (isEs ? 'Ingreso' : 'Income') 
+    },
+    { 
+      label: isEs ? 'Límite Presupuestado' : 'Budget Limit', 
+      accessor: (c) => parseNumeric(c?.targetAmount !== undefined ? c.targetAmount : (c?.target_amount !== undefined ? c.target_amount : c?.monthly_budget), 0).toFixed(2) 
+    },
+    { 
+      label: isEs ? 'Gasto Actual' : 'Current Spent', 
+      accessor: (c) => parseNumeric(c?.executed, 0).toFixed(2) 
+    },
+    { 
+      label: isEs ? 'Moneda' : 'Currency', 
+      accessor: (c) => c?.currency || baseCurrency 
+    },
+    { 
+      label: isEs ? '% Ejecutado' : '% Executed', 
+      accessor: (c) => `${c?.percentage || 0}%` 
+    },
+    { 
+      label: isEs ? `Monto en ${baseCurrency}` : `Amount in ${baseCurrency}`, 
+      accessor: (c) => parseNumeric(c?.target, 0).toFixed(2) 
+    }
+  ], [isEs, baseCurrency]);
 
   // Expense Budget Calculations (converted to Base Currency)
   const totalTargetExpense = useMemo(() => {
@@ -210,6 +235,8 @@ export default function CategoriesModule() {
     baseCurrency
   }), [filteredCategories.length, activeTabType, totalTargetExpense, totalTargetIncome, baseCurrency, formatCurrency]);
 
+  const exportFilename = isEs ? 'Growy_Categorias_Presupuestos' : 'Growy_Categories_Budgets';
+
   return (
     <div 
       className="w-full min-w-full box-border categories-container space-y-4 md:space-y-6 animate-fadeIn pb-32 md:pb-6"
@@ -233,7 +260,7 @@ export default function CategoriesModule() {
               data={filteredCategories}
               columns={categoryColumns}
               title={t('categories.title', {}, 'Categorías y Presupuestos')}
-              filename="categorias_growy"
+              filename={exportFilename}
               summary={categorySummary}
             />
           </div>
@@ -274,7 +301,7 @@ export default function CategoriesModule() {
             data={filteredCategories}
             columns={categoryColumns}
             title={t('categories.title', {}, 'Categorías y Presupuestos')}
-            filename="categorias_growy"
+            filename={exportFilename}
             summary={categorySummary}
           />
         </div>

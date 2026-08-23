@@ -17,9 +17,11 @@ export const ExportDropdown = ({
   const buttonRef = useRef(null);
 
   let tFunc = null;
+  let language = 'es';
   try {
     const settings = useSettings();
     tFunc = settings?.t;
+    language = settings?.language || 'es';
   } catch (e) {}
 
   const exportLabel = tFunc ? tFunc('common.export', {}, 'Exportar') : 'Exportar';
@@ -89,7 +91,7 @@ export const ExportDropdown = ({
         >
           <button
             type="button"
-            onClick={() => { exportToCSV(data, filename, columns, summary); setIsOpen(false); }}
+            onClick={() => { exportToCSV(data, filename, columns, summary, language); setIsOpen(false); }}
             className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-slate-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors text-left cursor-pointer"
           >
             <FileSpreadsheet className="text-emerald-400 shrink-0" size={15} />
@@ -97,7 +99,7 @@ export const ExportDropdown = ({
           </button>
           <button
             type="button"
-            onClick={() => { exportToPDF(title, data, columns, summary); setIsOpen(false); }}
+            onClick={() => { exportToPDF(title, data, columns, summary, language); setIsOpen(false); }}
             className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-slate-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors text-left cursor-pointer"
           >
             <FileText className="text-rose-400 shrink-0" size={15} />

@@ -127,9 +127,10 @@ export const translations = {
         "debtRegistered": "Deuda Registrada",
         "multiCurrencyAlert": "La deuda está en {loanCurr} pero pagarás desde {accCurr}.",
         "debitAmountLabel": "Monto exacto debitado (en {accCurr})",
-        "keepRecord": "Conservar registro en Saldos Pendientes",
-        "keepRecordStatusPaid": "El saldo se marcará como Pagado y se mantendrá guardado.",
+        "keepRecord": "Conservar registro en Deudas Pendientes",
+        "keepRecordStatusPaid": "El registro se marcará como Pagado y se guardará en el historial.",
         "keepRecordStatusRemove": "Se registrará el gasto y el saldo se eliminará de la lista.",
+        "paymentDate": "Fecha de Pago",
         "payBtn": "Pagar Ahora"
       },
       "resetDataTitle": "¿Restablecer datos de fábrica?",
@@ -487,6 +488,20 @@ export const translations = {
       "prev": "Anterior",
       "startBtn": "¡Comenzar Ahora!",
       "next": "Siguiente"
+    },
+    "titles": {
+      "login": "Iniciar Sesión",
+      "dashboard": "Panel Principal",
+      "transactions": "Transacciones",
+      "accounts": "Cuentas",
+      "pending_debts": "Deudas Pendientes",
+      "debts": "Deudas Pendientes",
+      "loans": "Deudas Pendientes",
+      "subscriptions": "Suscripciones",
+      "categories": "Categorías y Presupuestos",
+      "settings": "Ajustes del Sistema",
+      "feedback": "Reportes y Sugerencias",
+      "about": "Acerca de SIMPORA"
     }
   },
   "en": {
@@ -617,9 +632,10 @@ export const translations = {
         "debtRegistered": "Registered Debt",
         "multiCurrencyAlert": "Debt is in {loanCurr} but you pay from {accCurr}.",
         "debitAmountLabel": "Exact amount debited (in {accCurr})",
-        "keepRecord": "Keep record in Pending Balances",
-        "keepRecordStatusPaid": "Balance will be marked as Paid and saved.",
+        "keepRecord": "Keep record in Pending Debts",
+        "keepRecordStatusPaid": "Record will be marked as Paid and saved in history.",
         "keepRecordStatusRemove": "Expense will be logged and balance removed from list.",
+        "paymentDate": "Payment Date",
         "payBtn": "Pay Now"
       },
       "resetDataTitle": "Reset to Factory Defaults?",
@@ -977,6 +993,20 @@ export const translations = {
       "prev": "Previous",
       "startBtn": "Get Started Now!",
       "next": "Next"
+    },
+    "titles": {
+      "login": "Sign In",
+      "dashboard": "Dashboard",
+      "transactions": "Transactions",
+      "accounts": "Accounts",
+      "pending_debts": "Pending Debts",
+      "debts": "Pending Debts",
+      "loans": "Pending Debts",
+      "subscriptions": "Subscriptions",
+      "categories": "Categories & Budgets",
+      "settings": "System Settings",
+      "feedback": "Reports & Feedback",
+      "about": "About SIMPORA"
     }
   }
 };

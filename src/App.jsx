@@ -10,9 +10,11 @@ import { markWalkthroughCompleted, getActiveSessionUserId, setActiveSessionUserI
 import { dbFetchUserById } from './services/supabaseService';
 import { ShieldCheck } from 'lucide-react';
 import DbConnectionGuard from './components/DbConnectionGuard';
+import { useDocumentTitle } from './hooks/useDocumentTitle';
 
 function LoginScreen({ onLoginSuccess, onOpenForgotPassword, onOpenRegister }) {
   const { t } = useSettings();
+  useDocumentTitle('login');
 
   return (
     <div className="h-screen w-screen overflow-hidden bg-[#0A0F11] relative flex flex-col justify-between selection:bg-[var(--color-primary,#AEEDD0)] selection:text-[#1E2D32]">

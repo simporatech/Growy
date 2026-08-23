@@ -8,7 +8,7 @@ import SectionKpiHero from './SectionKpiHero';
 import Pagination from './Pagination';
 import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
-import { formatCurrency, parseNumeric } from '../utils/formatters';
+import { parseNumeric } from '../utils/formatters';
 
 export default function AccountsModule() {
   const { accounts, addAccount, updateAccount, deleteAccount } = useFinance();
@@ -54,26 +54,44 @@ export default function AccountsModule() {
     return filteredAccounts.slice(start, start + pageSize);
   }, [filteredAccounts, currentPage, pageSize]);
 
+  const isEs = language === 'es';
+
   const accountColumns = useMemo(() => [
-    { label: t('modals.account.name', {}, 'Nombre'), accessor: (a) => a.name || '-' },
-    { label: t('modals.account.currency', {}, 'Divisa'), accessor: (a) => a.currency || 'USD' },
-    { label: t('modals.account.balance', {}, 'Balance Actual'), accessor: (a) => `${a.currencySymbol || '$'}${Number(a.balance || 0).toFixed(2)}` }
-  ], [t]);
+    { 
+      label: isEs ? 'Nombre de Cuenta' : 'Account Name', 
+      accessor: (a) => a.name || '-' 
+    },
+    { 
+      label: isEs ? 'Moneda' : 'Currency', 
+      accessor: (a) => a.currency || 'USD' 
+    },
+    { 
+      label: isEs ? 'Balance Disponible' : 'Available Balance', 
+      accessor: (a) => Number(a.balance || 0).toFixed(2) 
+    },
+    { 
+      label: isEs ? `Balance en ${baseCurrency}` : `Balance in ${baseCurrency}`, 
+      accessor: (a) => convertToGlobal(parseNumeric(a.balance, 0), a.currency || 'USD').toFixed(2) 
+    }
+  ], [isEs, baseCurrency, convertToGlobal]);
 
   // Reactive Consolidated Balance converted to Base Currency
   const totalConsolidatedBalance = useMemo(() => {
-    return filteredAccounts.reduce((sum, acc) => {
+    return (filteredAccounts || []).reduce((sum, acc) => {
       if (!acc) return sum;
-      const accCurr = acc.currency || 'USD';
-      return sum + convertToGlobal(parseNumeric(acc.balance, 0), accCurr);
+      const accCurr = acc?.currency || 'USD';
+      const balance = parseNumeric(acc?.balance, 0);
+      return sum + (convertToGlobal ? convertToGlobal(balance, accCurr) : balance);
     }, 0);
   }, [filteredAccounts, convertToGlobal]);
 
   const accountSummary = useMemo(() => ({
-    totalRecords: filteredAccounts.length,
-    consolidatedTotal: `${formatCurrency(totalConsolidatedBalance, baseCurrency)}`,
+    totalRecords: filteredAccounts?.length || 0,
+    consolidatedTotal: `${formatCurrency ? formatCurrency(totalConsolidatedBalance, baseCurrency) : totalConsolidatedBalance}`,
     baseCurrency
-  }), [filteredAccounts.length, totalConsolidatedBalance, baseCurrency, formatCurrency]);
+  }), [filteredAccounts?.length, totalConsolidatedBalance, baseCurrency, formatCurrency]);
+
+  const exportFilename = isEs ? 'Growy_Cuentas' : 'Growy_Accounts';
 
   const handleSaveAccount = useCallback((accountData) => {
     if (!accountData) return;
@@ -111,7 +129,7 @@ export default function AccountsModule() {
               data={filteredAccounts}
               columns={accountColumns}
               title={t('accounts.title', {}, 'Gestión de Cuentas')}
-              filename="cuentas_growy"
+              filename={exportFilename}
               summary={accountSummary}
             />
           </div>
@@ -129,24 +147,27 @@ export default function AccountsModule() {
         </div>
       </header>
 
-      {/* KPI HERO BANNER: CONSOLIDATED GLOBAL BALANCE */}
+      {/* KPI HERO BANNER */}
       <SectionKpiHero
         title={t('accounts.totalConsolidatedBalance', {}, language === 'es' ? 'BALANCE TOTAL CONSOLIDADO' : 'TOTAL CONSOLIDATED BALANCE')}
-        formattedAmount={formatCurrency(totalConsolidatedBalance, baseCurrency)}
+        formattedAmount={formatCurrency ? formatCurrency(totalConsolidatedBalance, baseCurrency) : `${totalConsolidatedBalance}`}
+        amount={totalConsolidatedBalance}
         currency={baseCurrency}
         icon={Wallet}
         iconBgColor="bg-emerald-500/15"
         iconBorderColor="border-emerald-500/30"
         iconTextColor="text-emerald-400"
-        secondaryLabel={t('accounts.showingRecords', { count: filteredAccounts.length }, `${filteredAccounts.length} ${language === 'es' ? 'cuentas' : 'accounts'}`)}
+        badge={language === 'es' ? 'TIEMPO REAL' : 'LIVE'}
+        badgeColor="emerald"
+        secondaryLabel={t('accounts.showingRecords', { count: filteredAccounts?.length || 0 }, `${filteredAccounts?.length || 0} ${language === 'es' ? 'cuentas' : 'accounts'}`)}
         secondaryValue={baseCurrency}
       />
 
-      {/* Responsive Toolbar: Search (Row 1 on mobile), Currency Filter & Export (Row 2 on mobile), Single row on desktop */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-2 w-full relative z-20">
-        {/* Search Bar */}
-        <div className="relative w-full sm:flex-1 order-1 sm:order-2">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+      {/* RESPONSIVE TOOLBAR: 2 Rows on Mobile (< sm), 1 Row on Desktop (sm:) */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 relative z-20">
+        {/* Search Input - Full width on mobile */}
+        <div className="w-full sm:flex-1 relative order-1 sm:order-2">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchTerm}
@@ -170,7 +191,7 @@ export default function AccountsModule() {
               data={filteredAccounts}
               columns={accountColumns}
               title={t('accounts.title', {}, 'Gestión de Cuentas')}
-              filename="cuentas_growy"
+              filename={exportFilename}
               summary={accountSummary}
             />
           </div>

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle } from 'lucide-react';
 import CustomSelect from './CustomSelect';
+import CustomDatePicker from './CustomDatePicker';
 import ModalWrapper from './ModalWrapper';
 import FormField from './FormField';
 import { useSettings } from '../context/SettingsContext';
-import { formatCurrency, parseNumeric } from '../utils/formatters';
+import { formatCurrency, parseNumeric, formatDateISO } from '../utils/formatters';
 import { getCurrencySymbol } from '../utils/currency';
 
 export default function PayLoanModal({ 
@@ -17,8 +18,9 @@ export default function PayLoanModal({
   const { t } = useSettings();
 
   const [accountId, setAccountId] = useState('');
+  const [paymentDate, setPaymentDate] = useState(formatDateISO());
   const [customDebitAmount, setCustomDebitAmount] = useState('');
-  const [keepRecord, setKeepRecord] = useState(true);
+  const [keepRecord, setKeepRecord] = useState(false);
   const [error, setError] = useState('');
 
   const safeAccounts = Array.isArray(accounts) ? accounts.filter(Boolean) : [];
@@ -32,8 +34,9 @@ export default function PayLoanModal({
       setAccountId('');
     }
 
+    setPaymentDate(formatDateISO());
     setCustomDebitAmount(loan.amount !== undefined ? Math.abs(loan.amount).toString() : '');
-    setKeepRecord(true);
+    setKeepRecord(false);
     setError('');
   }, [isOpen, loan]);
 
@@ -65,7 +68,7 @@ export default function PayLoanModal({
       return;
     }
 
-    onConfirmPay(loan.id, accountId, numDebit, keepRecord);
+    onConfirmPay(loan.id, accountId, numDebit, keepRecord, paymentDate);
   };
 
   return (
@@ -89,7 +92,7 @@ export default function PayLoanModal({
           <div className="p-4 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
             <div>
               <span className="text-xs text-slate-300 font-semibold uppercase block mb-0.5">{t('modals.payLoan.concept', {}, 'Concepto de Saldo')}</span>
-              <h4 className="text-sm font-bold text-white truncate max-w-[200px] sm:max-w-[260px]">{loan.description}</h4>
+              <h4 className="text-sm font-bold text-white truncate max-w-[200px] sm:max-w-[260px]">{loan.description || loan.concept}</h4>
             </div>
             <div className="text-right">
               <span className="text-xs text-slate-300 font-semibold uppercase block mb-0.5">{t('modals.payLoan.debtRegistered', {}, 'Deuda Registrada')}</span>
@@ -105,6 +108,13 @@ export default function PayLoanModal({
               value={accountId}
               onChange={setAccountId}
               placeholder={safeAccounts.length > 0 ? "Selecciona cuenta" : "No hay cuentas disponibles"}
+            />
+          </FormField>
+
+          <FormField label={t('modals.payLoan.paymentDate', {}, 'Fecha de Pago')}>
+            <CustomDatePicker
+              value={paymentDate}
+              onChange={setPaymentDate}
             />
           </FormField>
 
@@ -128,10 +138,10 @@ export default function PayLoanModal({
           {/* Keep Record Option Tile */}
           <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
             <div>
-              <span className="text-xs font-bold text-white block">{t('modals.payLoan.keepRecord', {}, 'Conservar registro en Saldos Pendientes')}</span>
+              <span className="text-xs font-bold text-white block">{t('modals.payLoan.keepRecord', {}, 'Conservar registro en Deudas Pendientes')}</span>
               <span className="text-xs text-slate-300 font-medium block mt-0.5">
                 {keepRecord 
-                  ? t('modals.payLoan.keepRecordStatusPaid', {}, 'El saldo se marcará como Pagado y se mantendrá guardado.')
+                  ? t('modals.payLoan.keepRecordStatusPaid', {}, 'El registro se marcará como Pagado y se guardará en el historial.')
                   : t('modals.payLoan.keepRecordStatusRemove', {}, 'Se registrará el gasto y el saldo se eliminará de la lista.')}
               </span>
             </div>

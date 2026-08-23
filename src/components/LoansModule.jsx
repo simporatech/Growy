@@ -71,21 +71,46 @@ export default function LoansModule() {
     return filteredLoans.slice(start, start + pageSize);
   }, [filteredLoans, currentPage, pageSize]);
 
+  const isEs = language === 'es';
+
   const loanColumns = useMemo(() => [
-    { label: t('modals.loan.desc', {}, 'Concepto'), accessor: (l) => (l?.concept || l?.description || '-') },
     { 
-      label: t('modals.loan.category', {}, 'Categoría'), 
+      label: isEs ? 'Concepto' : 'Concept', 
+      accessor: (l) => (l?.concept || l?.description || '-') 
+    },
+    { 
+      label: isEs ? 'Categoría' : 'Category', 
       accessor: (l) => {
         const catId = l?.categoryId || l?.category_id;
         const catObj = safeCategoriesList.find(c => c && c.id === catId);
-        return catObj?.name || 'General';
+        return catObj?.name || (isEs ? 'General' : 'General');
       }
     },
-    { label: t('modals.loan.amount', {}, 'Monto'), accessor: (l) => `${l?.currency || 'USD'} ${parseNumeric(l?.amount, 0).toFixed(2)}` },
-    { label: t('modals.loan.startDate', {}, 'Fecha Inicio'), accessor: (l) => (l?.startDate || l?.start_date || 'N/A') },
-    { label: t('modals.loan.dueDate', {}, 'Fecha Límite'), accessor: (l) => (l?.dueDate || l?.due_date || 'N/A') },
-    { label: t('loans.status', {}, 'Estado'), accessor: (l) => (l?.status === 'paid' || l?.status === 'settled') ? t('loans.paid', {}, 'Pagado') : t('loans.pending', {}, 'Pendiente') }
-  ], [safeCategoriesList, t]);
+    { 
+      label: isEs ? 'Monto Original' : 'Original Amount', 
+      accessor: (l) => parseNumeric(l?.amount, 0).toFixed(2) 
+    },
+    { 
+      label: isEs ? 'Moneda' : 'Currency', 
+      accessor: (l) => l?.currency || 'USD' 
+    },
+    { 
+      label: isEs ? 'Fecha Inicio' : 'Start Date', 
+      accessor: (l) => (l?.startDate || l?.start_date || 'N/A') 
+    },
+    { 
+      label: isEs ? 'Fecha Vencimiento' : 'Due Date', 
+      accessor: (l) => (l?.dueDate || l?.due_date || 'N/A') 
+    },
+    { 
+      label: isEs ? 'Estado' : 'Status', 
+      accessor: (l) => (l?.status === 'paid' || l?.status === 'settled') ? (isEs ? 'Pagado' : 'Paid') : (isEs ? 'Pendiente' : 'Pending') 
+    },
+    { 
+      label: isEs ? `Monto en ${baseCurrency}` : `Amount in ${baseCurrency}`, 
+      accessor: (l) => convertCrossCurrency(parseNumeric(l?.amount, 0), l?.currency || 'USD', baseCurrency, exchangeRates).toFixed(2) 
+    }
+  ], [safeCategoriesList, isEs, baseCurrency, exchangeRates]);
 
   // Reactive Consolidated Total Debt based on filtered view
   const totalPendingDebt = useMemo(() => {
@@ -108,6 +133,8 @@ export default function LoansModule() {
     baseCurrency
   }), [filteredLoans.length, totalPendingDebt, baseCurrency, formatCurrency]);
 
+  const exportFilename = isEs ? 'Growy_Deudas_Pendientes' : 'Growy_Pending_Debts';
+
   const handleSaveLoan = useCallback((loanData) => {
     if (!loanData) return;
     if (loanToEdit) {
@@ -124,8 +151,8 @@ export default function LoansModule() {
     setLoanToDelete(null);
   }, [loanToDelete, deleteLoan]);
 
-  const handleConfirmPayLoan = useCallback((loanId, accountId, customDebitAmount, keepRecord) => {
-    markLoanAsPaid(loanId, accountId, customDebitAmount, keepRecord);
+  const handleConfirmPayLoan = useCallback((loanId, accountId, customDebitAmount, keepRecord, paymentDate) => {
+    markLoanAsPaid(loanId, accountId, customDebitAmount, keepRecord, paymentDate);
     setLoanToPay(null);
   }, [markLoanAsPaid]);
 
@@ -139,10 +166,11 @@ export default function LoansModule() {
     try {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      const due = new Date(dueDateStr + 'T00:00:00');
-      if (isNaN(due.getTime())) return { color: 'border-white/10 bg-white/5 text-slate-300', label: t('loans.onTrack', {}, 'Al día') };
+      const due = new Date(dueDateStr);
+      due.setHours(0, 0, 0, 0);
 
-      const diffDays = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
+      const diffTime = due - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
       if (diffDays < 0) return { color: 'border-rose-500/40 bg-rose-500/15 text-rose-300', label: t('loans.overdue', {}, '¡Vencido!') };
       if (diffDays <= 3) return { color: 'border-rose-500/40 bg-rose-500/10 text-rose-300', label: t('loans.dueInDays', { days: diffDays }, `Vence en ${diffDays}d`) };
@@ -173,7 +201,7 @@ export default function LoansModule() {
               data={filteredLoans}
               columns={loanColumns}
               title={t('loans.title', {}, 'Deudas y Compromisos')}
-              filename="deudas_growy"
+              filename={exportFilename}
               summary={loanSummary}
             />
           </div>
@@ -233,7 +261,7 @@ export default function LoansModule() {
               data={filteredLoans}
               columns={loanColumns}
               title={t('loans.title', {}, 'Deudas y Compromisos')}
-              filename="deudas_growy"
+              filename={exportFilename}
               summary={loanSummary}
             />
           </div>

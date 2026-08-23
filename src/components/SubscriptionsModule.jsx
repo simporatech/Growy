@@ -50,14 +50,50 @@ export default function SubscriptionsModule() {
     return filteredSubs.slice(start, start + pageSize);
   }, [filteredSubs, currentPage, pageSize]);
 
+  const isEs = language === 'es';
+
   const subColumns = useMemo(() => [
-    { label: t('modals.subscription.name', {}, 'Servicio'), accessor: (s) => s.name || '-' },
-    { label: t('modals.subscription.billingDay', {}, 'Día de Corte'), accessor: (s) => `${t('subscriptions.dayBadge', {}, 'Día')} ${s.billingDay || 1}` },
-    { label: t('modals.subscription.frequency', {}, 'Frecuencia'), accessor: (s) => s.frequency === 'yearly' ? t('subscriptions.yearly', {}, 'Anual') : t('subscriptions.monthly', {}, 'Mensual') },
-    { label: t('modals.subscription.account', {}, 'Cuenta Pagadora'), accessor: (s) => safeAccountsList.find(a => a?.id === s.accountId)?.name || t('common.general', {}, 'General') },
-    { label: t('modals.subscription.amount', {}, 'Monto'), accessor: (s) => `${s.currency || 'USD'} ${Number(s.amount || 0).toFixed(2)}` },
-    { label: t('common.status', {}, 'Estado'), accessor: (s) => (s.isActive !== undefined ? s.isActive : s.is_active !== false) ? t('common.active', {}, 'Activo') : t('common.paused', {}, 'Pausado') }
-  ], [safeAccountsList, t]);
+    { 
+      label: isEs ? 'Servicio' : 'Service', 
+      accessor: (s) => s.name || '-' 
+    },
+    { 
+      label: isEs ? 'Cuenta de Pago' : 'Paying Account', 
+      accessor: (s) => safeAccountsList.find(a => a?.id === s.accountId)?.name || (isEs ? 'General' : 'General') 
+    },
+    { 
+      label: isEs ? 'Categoría' : 'Category', 
+      accessor: (s) => safeCategoriesList.find(c => c?.id === s.categoryId)?.name || (isEs ? 'General' : 'General') 
+    },
+    { 
+      label: isEs ? 'Monto' : 'Amount', 
+      accessor: (s) => Number(s.amount || 0).toFixed(2) 
+    },
+    { 
+      label: isEs ? 'Moneda' : 'Currency', 
+      accessor: (s) => s.currency || safeAccountsList.find(a => a?.id === s.accountId)?.currency || 'USD' 
+    },
+    { 
+      label: isEs ? 'Día de Cobro' : 'Billing Day', 
+      accessor: (s) => `${s.billingDay || 1}` 
+    },
+    { 
+      label: isEs ? 'Frecuencia' : 'Frequency', 
+      accessor: (s) => s.frequency === 'yearly' ? (isEs ? 'Anual' : 'Yearly') : (isEs ? 'Mensual' : 'Monthly') 
+    },
+    { 
+      label: isEs ? 'Estado' : 'Status', 
+      accessor: (s) => (s.isActive !== undefined ? s.isActive : s.is_active !== false) ? (isEs ? 'Activo' : 'Active') : (isEs ? 'Pausado' : 'Paused') 
+    },
+    { 
+      label: isEs ? `Monto Mensual en ${baseCurrency}` : `Monthly Amount in ${baseCurrency}`, 
+      accessor: (s) => {
+        const subCurrency = s.currency || safeAccountsList.find(a => a?.id === s.accountId)?.currency || 'USD';
+        const monthlyAmount = s.frequency === 'yearly' ? (Number(s.amount || 0) / 12) : Number(s.amount || 0);
+        return convertCrossCurrency(monthlyAmount, subCurrency, baseCurrency, exchangeRates).toFixed(2);
+      }
+    }
+  ], [safeAccountsList, safeCategoriesList, isEs, baseCurrency, exchangeRates]);
 
   // Calculate monthly total commitment in Base Currency based on active subscriptions
   const monthlyTotal = useMemo(() => {
@@ -75,6 +111,8 @@ export default function SubscriptionsModule() {
     consolidatedTotal: `${formatCurrency(monthlyTotal, baseCurrency)}/mes`,
     baseCurrency
   }), [filteredSubs.length, monthlyTotal, baseCurrency, formatCurrency]);
+
+  const exportFilename = isEs ? 'Growy_Suscripciones' : 'Growy_Subscriptions';
 
   const handleSaveSub = useCallback((subData) => {
     if (!subData) return;
@@ -112,7 +150,7 @@ export default function SubscriptionsModule() {
               data={filteredSubs}
               columns={subColumns}
               title={t('subscriptions.title', {}, 'Gestión de Suscripciones')}
-              filename="suscripciones_growy"
+              filename={exportFilename}
               summary={subSummary}
             />
           </div>
@@ -160,7 +198,7 @@ export default function SubscriptionsModule() {
             data={filteredSubs}
             columns={subColumns}
             title={t('subscriptions.title', {}, 'Gestión de Suscripciones')}
-            filename="suscripciones_growy"
+            filename={exportFilename}
             summary={subSummary}
           />
         </div>

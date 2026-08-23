@@ -2,6 +2,13 @@ import { supabase } from '../lib/supabaseClient';
 import { SEED_CATEGORIES, detectUserLanguage } from '../utils/defaultCategories';
 
 /**
+ * Validates whether a string is a standard PostgreSQL UUID (v4)
+ */
+export const isValidUuid = (id) => {
+  return typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id.trim());
+};
+
+/**
  * Utility functions for key mapping between JS camelCase and DB snake_case with Schema Aliases
  */
 export const toCamel = (obj) => {
@@ -565,29 +572,46 @@ export const dbSaveTransaction = async (userId, txData) => {
   }
 
   const numAmount = parseFloat(txData.amount || 0);
-  const cleanCurrency = txData.currency || 'USD';
+  const cleanCurrency = (txData.currency || 'USD').toUpperCase();
   const cleanDate = txData.transactionDate || txData.date || new Date().toISOString().split('T')[0];
-  const destAccountId = txData.destinationAccountId || txData.destination_account_id || txData.targetAccountId || txData.target_account_id || null;
-  const numTargetAmount = parseFloat(txData.targetAmount || txData.target_amount || txData.amount || 0);
+  const txType = txData.type || 'expense';
+
+  const rawAccountId = txData.accountId || txData.account_id;
+  const validAccountId = isValidUuid(rawAccountId) ? rawAccountId : null;
+
+  const rawCategoryId = txData.categoryId || txData.category_id;
+  const validCategoryId = isValidUuid(rawCategoryId) ? rawCategoryId : null;
 
   // Base payload with standard columns strictly existing in Supabase transactions table
   const payload = {
     user_id: userId,
-    account_id: txData.accountId || txData.account_id || null,
-    destination_account_id: destAccountId,
-    target_account_id: destAccountId,
-    target_amount: isNaN(numTargetAmount) ? (isNaN(numAmount) ? 0 : numAmount) : numTargetAmount,
-    category_id: txData.categoryId || txData.category_id || null,
-    type: txData.type || 'expense',
+    account_id: validAccountId,
+    category_id: validCategoryId,
+    type: txType,
     amount: isNaN(numAmount) ? 0 : numAmount,
     currency: cleanCurrency,
     description: txData.description ? txData.description.trim() : null,
-    transaction_date: cleanDate,
-    exchange_rate_to_usd: txData.exchangeRateToUsd || txData.exchangeRateAtTransaction || null
+    transaction_date: cleanDate
   };
 
+  // Only include transfer-specific columns when transaction is actually a transfer
+  if (txType === 'transfer') {
+    const rawDestId = txData.destinationAccountId || txData.destination_account_id || txData.targetAccountId || txData.target_account_id;
+    if (isValidUuid(rawDestId)) {
+      payload.destination_account_id = rawDestId;
+    }
+    const numTargetAmount = parseFloat(txData.targetAmount || txData.target_amount || txData.amount || 0);
+    if (!isNaN(numTargetAmount) && numTargetAmount > 0) {
+      payload.target_amount = numTargetAmount;
+    }
+  }
+
+  if (txData.exchangeRateToUsd || txData.exchangeRateAtTransaction) {
+    payload.exchange_rate_to_usd = txData.exchangeRateToUsd || txData.exchangeRateAtTransaction;
+  }
+
   // Only pass id when updating an existing UUID record from PostgreSQL
-  if (txData.id && typeof txData.id === 'string' && !txData.id.startsWith('tx_') && !txData.id.startsWith('auto_')) {
+  if (txData.id && isValidUuid(txData.id)) {
     payload.id = txData.id;
   }
 
@@ -595,30 +619,54 @@ export const dbSaveTransaction = async (userId, txData) => {
 
   try {
     let currentPayload = { ...payload };
-    let { data, error } = await (currentPayload.id 
-      ? supabase.from('transactions').upsert([currentPayload]).select()
-      : supabase.from('transactions').insert([currentPayload]).select());
+    let data = null;
+    let error = null;
 
-    // Schema fallback if optional columns don't exist in PostgreSQL table schema
-    if (error && error.message) {
-      if (error.message.includes('destination_account_id')) {
-        delete currentPayload.destination_account_id;
-      }
-      if (error.message.includes('target_account_id')) {
-        delete currentPayload.target_account_id;
-      }
-      if (error.message.includes('target_amount')) {
-        delete currentPayload.target_amount;
-      }
-      if (error.message.includes('exchange_rate_to_usd')) {
-        delete currentPayload.exchange_rate_to_usd;
-      }
-      const retryQuery = currentPayload.id 
+    // Retry loop that dynamically handles schema mismatch / missing optional columns
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const query = currentPayload.id 
         ? supabase.from('transactions').upsert([currentPayload]).select()
         : supabase.from('transactions').insert([currentPayload]).select();
-      const res = await retryQuery;
+
+      const res = await query;
       data = res.data;
       error = res.error;
+
+      if (!error) break;
+
+      console.warn(`⚠️ [Supabase DB] Error guardando transacción (intento ${attempt + 1}):`, error.message);
+
+      // Extract missing column name if schema cache error
+      const colMatch = error.message.match(/Could not find the '([^']+)' column/i) ||
+                       error.message.match(/column "([^"]+)" of relation/i) ||
+                       error.message.match(/column ([a-zA-Z0-9_]+) does not exist/i);
+
+      if (colMatch && colMatch[1] && currentPayload[colMatch[1]] !== undefined) {
+        delete currentPayload[colMatch[1]];
+        continue;
+      }
+
+      // Foreign key fallback on category_id
+      if (error.message.includes('category_id') && currentPayload.category_id) {
+        delete currentPayload.category_id;
+        continue;
+      }
+
+      // Optional transfer columns fallback
+      if (currentPayload.destination_account_id) {
+        delete currentPayload.destination_account_id;
+        continue;
+      }
+      if (currentPayload.target_amount) {
+        delete currentPayload.target_amount;
+        continue;
+      }
+      if (currentPayload.exchange_rate_to_usd) {
+        delete currentPayload.exchange_rate_to_usd;
+        continue;
+      }
+
+      break;
     }
 
     if (error) {
@@ -682,31 +730,63 @@ export const dbSaveLoan = async (userId, loanData) => {
 
   const numAmount = parseFloat(loanData.amount || 0);
   const conceptText = (loanData.concept || loanData.description || 'Deuda/Préstamo').trim();
+  const rawCategoryId = loanData.categoryId || loanData.category_id;
+  const validCategoryId = isValidUuid(rawCategoryId) ? rawCategoryId : null;
+  const statusVal = (loanData.status === 'paid' || loanData.status === 'settled') ? 'paid' : 'pending';
 
   const payload = {
     user_id: userId,
-    category_id: loanData.categoryId || null,
+    category_id: validCategoryId,
     concept: conceptText,
     amount: isNaN(numAmount) ? 0 : numAmount,
     currency: loanData.currency || 'USD',
-    start_date: loanData.startDate || new Date().toISOString().split('T')[0],
-    due_date: loanData.dueDate || null,
-    status: (loanData.status === 'paid' || loanData.status === 'settled') ? 'settled' : 'pending'
+    start_date: loanData.startDate || loanData.start_date || new Date().toISOString().split('T')[0],
+    due_date: loanData.dueDate || loanData.due_date || null,
+    status: statusVal
   };
 
   // Only pass id when updating an existing UUID record from PostgreSQL
-  if (loanData.id && typeof loanData.id === 'string' && !loanData.id.startsWith('loan_')) {
+  if (loanData.id && isValidUuid(loanData.id)) {
     payload.id = loanData.id;
   }
 
   console.log('🚀 [Supabase DB] Guardando deuda/préstamo en Supabase DB:', payload);
 
   try {
-    const query = payload.id 
-      ? supabase.from('pending_debts').upsert([payload]).select()
-      : supabase.from('pending_debts').insert([payload]).select();
+    let currentPayload = { ...payload };
+    let data = null;
+    let error = null;
 
-    const { data, error } = await query;
+    for (let attempt = 0; attempt < 4; attempt++) {
+      const query = currentPayload.id 
+        ? supabase.from('pending_debts').upsert([currentPayload]).select()
+        : supabase.from('pending_debts').insert([currentPayload]).select();
+
+      const res = await query;
+      data = res.data;
+      error = res.error;
+
+      if (!error) break;
+
+      console.warn(`⚠️ [Supabase DB] Error guardando deuda (intento ${attempt + 1}):`, error.message);
+
+      // If status check constraint failed on 'paid', try 'settled'
+      if (error.message.includes('status') && currentPayload.status === 'paid') {
+        currentPayload.status = 'settled';
+        continue;
+      }
+      if (error.message.includes('category_id') && currentPayload.category_id) {
+        delete currentPayload.category_id;
+        continue;
+      }
+      const colMatch = error.message.match(/Could not find the '([^']+)' column/i) ||
+                       error.message.match(/column "([^"]+)" of relation/i);
+      if (colMatch && colMatch[1] && currentPayload[colMatch[1]] !== undefined) {
+        delete currentPayload[colMatch[1]];
+        continue;
+      }
+      break;
+    }
 
     if (error) {
       console.error('❌ Error exacto de Supabase al guardar deuda/préstamo:', error);

@@ -24,6 +24,7 @@ import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
 import { formatCurrency, formatDateLabel, formatHeaderDate, parseNumeric } from '../utils/formatters';
 import { safeGetStorage, safeSetStorage } from '../utils/storage';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export default function DashboardPreview({ user, onLogout }) {
   const { 
@@ -38,6 +39,9 @@ export default function DashboardPreview({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [chartPeriod, setChartPeriod] = useState('this_month'); // 'this_month' | '3_months' | 'year'
   const [isMoreSheetOpen, setIsMoreSheetOpen] = useState(false);
+
+  // Dynamic Fault-Tolerant Document Title Synchronization
+  useDocumentTitle(activeTab);
 
   // Sidebar Collapse State with LocalStorage Persistence
   const [isCollapsed, setIsCollapsed] = useState(() => safeGetStorage('growy_sidebar_collapsed', false));
@@ -311,8 +315,8 @@ export default function DashboardPreview({ user, onLogout }) {
     if (accData) addAccount(accData);
   }, [addAccount]);
 
-  const handleConfirmPayLoan = useCallback((loanId, accountId, customDebitAmount, keepRecord) => {
-    markLoanAsPaid(loanId, accountId, customDebitAmount, keepRecord);
+  const handleConfirmPayLoan = useCallback((loanId, accountId, customDebitAmount, keepRecord, paymentDate) => {
+    markLoanAsPaid(loanId, accountId, customDebitAmount, keepRecord, paymentDate);
     setLoanToPay(null);
   }, [markLoanAsPaid]);
 

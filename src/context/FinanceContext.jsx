@@ -9,7 +9,8 @@ import {
   dbFetchLoans, dbSaveLoan, dbDeleteLoan,
   dbFetchSubscriptions, dbSaveSubscription, dbDeleteSubscription,
   processSubscriptionsCron,
-  consolidateOldTransactions
+  consolidateOldTransactions,
+  isValidUuid
 } from '../services/supabaseService';
 import { useSettings } from './SettingsContext';
 
@@ -408,32 +409,39 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
     }
   }, [triggerToast]);
 
-  const markLoanAsPaid = useCallback(async (loanId, sourceAccountId, customDebitAmount = null, keepRecord = true) => {
+  const markLoanAsPaid = useCallback(async (loanId, sourceAccountId, customDebitAmount = null, keepRecord = true, paymentDate = null) => {
     const safeLoans = Array.isArray(loans) ? loans.filter(Boolean) : [];
     const targetLoan = safeLoans.find(l => l.id === loanId);
     if (!targetLoan) return;
 
     const actualAmount = customDebitAmount !== null && !isNaN(parseFloat(customDebitAmount))
       ? parseFloat(customDebitAmount)
-      : targetLoan.amount;
+      : Math.abs(parseFloat(targetLoan.amount) || 0);
 
     const conceptLabel = targetLoan.concept || targetLoan.description || i18nMsg('Deuda', 'Debt');
-    const txCurrency = targetLoan.currency || 'USD';
+    const safeAccounts = Array.isArray(accounts) ? accounts.filter(Boolean) : [];
+    const sourceAcc = safeAccounts.find(a => a.id === sourceAccountId);
+    const txCurrency = (sourceAcc?.currency || targetLoan.currency || 'USD').toUpperCase();
     const safeRates = (exchangeRates && typeof exchangeRates === 'object') ? exchangeRates : FALLBACK_EXCHANGE_RATES;
-    const exchangeRateToUsd = Number(safeRates[txCurrency]) || Number(FALLBACK_EXCHANGE_RATES[txCurrency]) || 1;
+    const exchangeRateToUsd = txCurrency === 'USD' ? 1 : (Number(safeRates[txCurrency]) || Number(FALLBACK_EXCHANGE_RATES[txCurrency]) || 1);
+    const crossRate = getCrossRate(txCurrency, baseCurrency, safeRates);
+
+    const rawCatId = targetLoan.categoryId || targetLoan.category_id;
+    const validCategoryId = isValidUuid(rawCatId) ? rawCatId : null;
+    const validAccountId = isValidUuid(sourceAccountId) ? sourceAccountId : null;
 
     const newTx = {
       type: 'expense',
-      transactionDate: formatDateISO(),
-      accountId: sourceAccountId,
-      categoryId: targetLoan.categoryId || null,
+      transactionDate: paymentDate || formatDateISO(),
+      accountId: validAccountId,
+      categoryId: validCategoryId,
       amount: actualAmount,
       currency: txCurrency,
       exchangeRateToUsd,
-      exchangeRateAtTransaction: exchangeRateToUsd,
+      exchangeRateAtTransaction: crossRate,
       description: i18nMsg(
-        `Pago de Saldo Pendiente: ${conceptLabel}`,
-        `Pending Balance Payment: ${conceptLabel}`
+        `Pago de deuda: ${conceptLabel}`,
+        `Debt payment: ${conceptLabel}`
       )
     };
 
@@ -447,9 +455,12 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
         return;
       }
 
-      let updatedLoan;
       if (keepRecord) {
-        updatedLoan = { ...targetLoan, status: 'settled' };
+        const updatedLoan = { 
+          ...targetLoan, 
+          status: 'paid',
+          updatedAt: new Date().toISOString()
+        };
         await dbSaveLoan(userId, updatedLoan);
         setLoans(prev => (Array.isArray(prev) ? prev.filter(Boolean) : []).map(l => l.id === loanId ? updatedLoan : l));
       } else {
@@ -459,12 +470,12 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
 
       setTransactions(prevTx => [savedTx, ...(Array.isArray(prevTx) ? prevTx.filter(Boolean) : [])]);
 
-      triggerToast('success', i18nMsg('Saldo marcado como pagado correctamente', 'Balance marked as paid successfully'));
+      triggerToast('success', i18nMsg('Deuda liquidada y transacción registrada correctamente', 'Debt settled and transaction registered successfully'));
     } catch (err) {
       console.error('❌ Error en markLoanAsPaid:', err);
       triggerToast('error', syncErrMsg(err));
     }
-  }, [userId, loans, triggerToast, exchangeRates]);
+  }, [userId, loans, accounts, triggerToast, exchangeRates, baseCurrency]);
 
   // --- SUBSCRIPTIONS ACTIONS ---
   const addSubscription = useCallback(async (newSub) => {
