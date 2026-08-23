@@ -30,12 +30,9 @@ export default function AccountModal({
       setEmoji(accountToEdit.emoji || '💳');
       setColor(accountToEdit.color || '#AEEDD0');
       setCurrency(accountToEdit.currency || 'USD');
-      const hasInitial = (accountToEdit.initialBalance !== undefined && accountToEdit.initialBalance !== null) ||
-                         (accountToEdit.initial_balance !== undefined && accountToEdit.initial_balance !== null);
-      const initialVal = hasInitial
-        ? (accountToEdit.initialBalance !== undefined ? accountToEdit.initialBalance : accountToEdit.initial_balance)
-        : '';
-      setInitialBalance(initialVal !== undefined && initialVal !== null && initialVal !== '' ? initialVal.toString() : '');
+      const rawInit = accountToEdit.initialBalance ?? accountToEdit.initial_balance ?? accountToEdit.balance;
+      const initialVal = (rawInit !== undefined && rawInit !== null && rawInit !== '') ? String(rawInit) : '0';
+      setInitialBalance(initialVal);
     } else {
       setName('');
       setEmoji('💳');

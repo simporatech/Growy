@@ -3,6 +3,10 @@ import { parseNumeric, formatDateISO } from '../utils/formatters';
 import { getCrossRate, FALLBACK_EXCHANGE_RATES } from '../utils/currency';
 import { detectUserLanguage } from '../utils/defaultCategories';
 import { 
+  calculateAccountAvailableBalance,
+  hydrateAccountsWithLedgerBalances 
+} from '../utils/accountBalanceSelectors';
+import { 
   dbFetchAccounts, dbSaveAccount, dbDeleteAccount,
   dbFetchCategories, dbSaveCategory, dbDeleteCategory, seedUserCategories,
   dbFetchTransactions, dbSaveTransaction, dbDeleteTransaction,
@@ -77,67 +81,10 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
     setTimeout(() => setDbStatusToast(null), 4500);
   }, []);
 
-  // Strict dynamic calculation of current_balance for each account:
-  // - If the account stores initial_balance, available_balance = account.initial_balance + total_transactions_sum
-  // - If the account only contains accumulated balance from Supabase and no initial_balance, DO NOT sum transactions again
-  // - Ensure initial_balance is the starting point (0.00 by default if not specified)
+  // Strict dynamic calculation of Available Balance under Ledger Model:
+  // Available Balance = Initial Balance (accounts.balance) + Incomes - Expenses + Transfers In - Transfers Out
   const accounts = useMemo(() => {
-    const safeAccs = Array.isArray(rawAccounts) ? rawAccounts.filter(Boolean) : [];
-    const safeTx = Array.isArray(transactions) ? transactions.filter(Boolean) : [];
-
-    return safeAccs.map(acc => {
-      if (!acc) return acc;
-      
-      const initialBal = parseNumeric(
-        acc.initialBalance !== undefined && acc.initialBalance !== null
-          ? acc.initialBalance
-          : (acc.initial_balance !== undefined && acc.initial_balance !== null ? acc.initial_balance : 0),
-        0
-      );
-
-      let totalIncomes = 0;
-      let totalExpenses = 0;
-      let totalTransfersOut = 0;
-      let totalTransfersIn = 0;
-
-      safeTx.forEach(tx => {
-        if (!tx) return;
-        const amt = parseNumeric(tx.amount, 0);
-        const targetAmt = parseNumeric(tx.targetAmount ?? tx.target_amount ?? tx.amount, 0);
-
-        const txAccountId = tx.accountId || tx.account_id;
-        const txTargetAccountId = tx.targetAccountId || tx.target_account_id || tx.destinationAccountId || tx.destination_account_id;
-
-        if (tx.type === 'income' && txAccountId === acc.id) {
-          totalIncomes += amt;
-        } else if (tx.type === 'expense' && txAccountId === acc.id) {
-          totalExpenses += amt;
-        } else if (tx.type === 'transfer') {
-          if (txAccountId === acc.id) {
-            totalTransfersOut += amt;
-          }
-          if (txTargetAccountId === acc.id) {
-            totalTransfersIn += targetAmt;
-          }
-        }
-      });
-
-      const txNetSum = totalIncomes - totalExpenses - totalTransfersOut + totalTransfersIn;
-      const currentBalance = initialBal + txNetSum;
-
-      return {
-        ...acc,
-        initialBalance: initialBal,
-        initial_balance: initialBal,
-        balance: currentBalance,
-        currentBalance,
-        current_balance: currentBalance,
-        totalIncomes,
-        totalExpenses,
-        totalTransfersOut,
-        totalTransfersIn
-      };
-    });
+    return hydrateAccountsWithLedgerBalances(rawAccounts, transactions);
   }, [rawAccounts, transactions]);
 
   // Load state 100% connected to Supabase DB
@@ -595,7 +542,9 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
     addSubscription,
     updateSubscription,
     deleteSubscription,
-    toggleSubscription
+    toggleSubscription,
+    calculateAccountAvailableBalance,
+    hydrateAccountsWithLedgerBalances
   }), [
     safeAccountsList,
     safeCategoriesList,
