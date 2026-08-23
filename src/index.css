@@ -236,3 +236,15 @@ html, body, #root {
   -webkit-overflow-scrolling: touch;
 }
 
+/* Layout shift prevention utilities */
+.categories-container {
+  width: 100%;
+  box-sizing: border-box;
+  scrollbar-gutter: stable;
+}
+
+.categories-grid {
+  width: 100%;
+  box-sizing: border-box;
+}
+

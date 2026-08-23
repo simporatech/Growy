@@ -1,20 +1,27 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import { Plus, RefreshCw, Edit2, Trash2, Search } from 'lucide-react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { Plus, RefreshCw, Edit2, Trash2, Search, Calendar } from 'lucide-react';
 import SubscriptionModal from './SubscriptionModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import ExportDropdown from './ExportDropdown';
+import SectionKpiHero from './SectionKpiHero';
+import Pagination from './Pagination';
 import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
 import { parseNumeric } from '../utils/formatters';
+import { convertCrossCurrency } from '../utils/currency';
 
 export default function SubscriptionsModule() {
   const { subscriptions, accounts, categories, addSubscription, updateSubscription, deleteSubscription, toggleSubscription } = useFinance();
-  const { formatCurrency, t } = useSettings();
+  const { formatCurrency, t, baseCurrency, exchangeRates, language } = useSettings();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [subToEdit, setSubToEdit] = useState(null);
   const [subToDelete, setSubToDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const safeSubsList = useMemo(() => Array.isArray(subscriptions) ? subscriptions.filter(Boolean) : [], [subscriptions]);
   const safeAccountsList = useMemo(() => Array.isArray(accounts) ? accounts.filter(Boolean) : [], [accounts]);
@@ -33,6 +40,16 @@ export default function SubscriptionsModule() {
     );
   }, [sortedSubs, searchTerm]);
 
+  // Reset page when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const paginatedSubs = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredSubs.slice(start, start + pageSize);
+  }, [filteredSubs, currentPage, pageSize]);
+
   const subColumns = useMemo(() => [
     { label: t('modals.subscription.name', {}, 'Servicio'), accessor: (s) => s.name || '-' },
     { label: t('modals.subscription.billingDay', {}, 'Día de Corte'), accessor: (s) => `Día ${s.billingDay || 1}` },
@@ -42,15 +59,22 @@ export default function SubscriptionsModule() {
     { label: 'Estado', accessor: (s) => s.isActive ? 'Activo' : 'Pausado' }
   ], [safeAccountsList, t]);
 
-  // Calculate monthly total commitment
+  // Calculate monthly total commitment in Base Currency based on active subscriptions
   const monthlyTotal = useMemo(() => {
-    return safeSubsList
-      .filter(s => s && s.isActive)
-      .reduce((sum, s) => {
-        const amt = parseNumeric(s.amount, 0);
-        return sum + (s.frequency === 'yearly' ? amt / 12 : amt);
+    return filteredSubs
+      .filter(sub => (sub.isActive !== undefined ? sub.isActive : sub.is_active !== false))
+      .reduce((acc, sub) => {
+        const monthlyAmount = sub.frequency === 'yearly' ? (Number(sub.amount) / 12) : Number(sub.amount);
+        const subCurrency = sub.currency || safeAccountsList.find(a => a?.id === sub.accountId)?.currency || 'USD';
+        return acc + convertCrossCurrency(monthlyAmount, subCurrency, baseCurrency, exchangeRates);
       }, 0);
-  }, [safeSubsList]);
+  }, [filteredSubs, safeAccountsList, baseCurrency, exchangeRates]);
+
+  const subSummary = useMemo(() => ({
+    totalRecords: filteredSubs.length,
+    consolidatedTotal: `${formatCurrency(monthlyTotal, baseCurrency)}/mes`,
+    baseCurrency
+  }), [filteredSubs.length, monthlyTotal, baseCurrency, formatCurrency]);
 
   const handleSaveSub = useCallback((subData) => {
     if (!subData) return;
@@ -74,13 +98,11 @@ export default function SubscriptionsModule() {
       {/* Standardized Header */}
       <header className="flex items-center justify-between gap-2.5 w-full relative z-30">
         <div className="min-w-0 flex-1">
-          <h1 className="text-lg md:text-xl font-bold tracking-tight text-white">
+          <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white truncate">
             {t('subscriptions.title', {}, 'Gestión de Suscripciones')}
           </h1>
           <p className="text-xs md:text-sm text-slate-400 mt-0.5 block font-normal truncate">
-            <span className="tabular-nums">
-              {t('subscriptions.estimatedMonthlyTotal', { amount: formatCurrency(monthlyTotal) }, `Total Mensual Estimado: ${formatCurrency(monthlyTotal)}`)}
-            </span>
+            {t('subscriptions.subtitle', {}, 'Servicios recurrentes y débitos automáticos mensuales')}
           </p>
         </div>
 
@@ -91,6 +113,7 @@ export default function SubscriptionsModule() {
               columns={subColumns}
               title={t('subscriptions.title', {}, 'Gestión de Suscripciones')}
               filename="suscripciones_growy"
+              summary={subSummary}
             />
           </div>
 
@@ -107,6 +130,19 @@ export default function SubscriptionsModule() {
         </div>
       </header>
 
+      {/* KPI HERO BANNER: MONTHLY SUBSCRIPTIONS TOTAL */}
+      <SectionKpiHero
+        title={t('subscriptions.totalMonthly', {}, language === 'es' ? 'TOTAL MENSUAL EN SUSCRIPCIONES' : 'TOTAL MONTHLY SUBSCRIPTIONS')}
+        formattedAmount={formatCurrency(monthlyTotal, baseCurrency)}
+        currency={baseCurrency}
+        icon={RefreshCw}
+        iconBgColor="bg-sky-500/15"
+        iconBorderColor="border-sky-500/30"
+        iconTextColor="text-sky-400"
+        secondaryLabel={t('subscriptions.activeServices', { count: filteredSubs.filter(s => (s.isActive !== undefined ? s.isActive : s.is_active !== false)).length }, `${filteredSubs.filter(s => (s.isActive !== undefined ? s.isActive : s.is_active !== false)).length} ${language === 'es' ? 'servicios activos' : 'active services'}`)}
+        secondaryValue={baseCurrency}
+      />
+
       {/* Toolbar: Search and Mobile Export */}
       <div className="flex items-center gap-2 w-full relative z-20">
         <div className="relative flex-1">
@@ -115,7 +151,7 @@ export default function SubscriptionsModule() {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder={t('placeholders.search', {}, 'Buscar por nombre...')}
+            placeholder={t('placeholders.search', {}, 'Buscar por nombre de servicio...')}
             className="w-full h-11 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#AEEDD0] shadow-inner transition-colors"
           />
         </div>
@@ -125,13 +161,14 @@ export default function SubscriptionsModule() {
             columns={subColumns}
             title={t('subscriptions.title', {}, 'Gestión de Suscripciones')}
             filename="suscripciones_growy"
+            summary={subSummary}
           />
         </div>
       </div>
 
       {/* Chronological Timeline List */}
       <div className="w-full space-y-2.5 relative z-10">
-        {filteredSubs.length === 0 ? (
+        {paginatedSubs.length === 0 ? (
           <div className="p-6 rounded-2xl bg-[#1E2D32]/60 border border-white/10 backdrop-blur-md text-center text-slate-300 space-y-3">
             <RefreshCw className="w-12 h-12 text-slate-400 mx-auto" />
             <h3 className="text-base md:text-lg font-bold text-white tracking-tight">
@@ -150,9 +187,12 @@ export default function SubscriptionsModule() {
             )}
           </div>
         ) : (
-          filteredSubs.map((sub) => {
-            const acc = safeAccountsList.find(a => a?.id === sub.accountId) || { name: 'Cuenta General', currencySymbol: '$' };
-            const cat = safeCategoriesList.find(c => c?.id === sub.categoryId) || { name: 'General', emoji: '📌' };
+          paginatedSubs.map((sub) => {
+            const acc = safeAccountsList.find(a => a?.id === sub.accountId);
+            const cat = safeCategoriesList.find(c => c?.id === sub.categoryId);
+            const isYearly = sub.frequency === 'yearly';
+            const subCurrency = sub.currency || acc?.currency || 'USD';
+            const convertedInBase = convertCrossCurrency(sub.amount, subCurrency, baseCurrency, exchangeRates);
 
             return (
               <div
@@ -161,75 +201,89 @@ export default function SubscriptionsModule() {
                   setSubToEdit(sub);
                   setIsModalOpen(true);
                 }}
-                className={`rounded-2xl p-3.5 sm:p-4 bg-[#162226] border flex flex-col justify-between gap-2.5 transition-all group cursor-pointer ${
-                  sub.isActive ? 'border-white/10 hover:bg-white/[0.06]' : 'border-white/5 bg-white/[0.01] opacity-50'
+                className={`p-3.5 sm:p-4 rounded-2xl bg-[#162226] border flex items-center justify-between gap-3 sm:gap-4 transition-all group cursor-pointer ${
+                  sub.isActive 
+                    ? 'border-white/10 hover:border-[#AEEDD0]/30 hover:bg-white/[0.04]' 
+                    : 'border-white/5 opacity-60 bg-black/20'
                 }`}
               >
-                {/* FILA 1: Día + Emoji + Nombre Completo + Badge de Frecuencia */}
-                <div className="flex items-center justify-between gap-2.5">
-                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                    <div className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex flex-col items-center justify-center shrink-0">
-                      <span className="text-[8px] uppercase font-bold text-[#AEEDD0] leading-none">{t('subscriptions.dayBadge', {}, 'Día')}</span>
-                      <span className="text-xs font-extrabold text-white leading-none tabular-nums mt-0.5">{sub.billingDay || 1}</span>
-                    </div>
-
-                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-sm sm:text-base shrink-0">
-                      {sub.emoji || '🍿'}
-                    </div>
-
-                    <h4 className="line-clamp-2 text-sm leading-snug font-medium text-white group-hover:text-[var(--color-primary,#AEEDD0)] transition-colors">
-                      {sub.name}
-                    </h4>
+                {/* Left Block: Day Badge + Emoji + Name */}
+                <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex flex-col items-center justify-center shrink-0">
+                    <span className="text-[9px] uppercase font-bold text-slate-400 leading-none">
+                      {t('subscriptions.dayBadge', {}, 'DÍA')}
+                    </span>
+                    <span className="text-sm font-extrabold text-[var(--color-primary,#AEEDD0)] leading-none mt-0.5 tabular-nums">
+                      {sub.billingDay || 1}
+                    </span>
                   </div>
 
-                  <span className="text-xs text-slate-300 font-semibold uppercase px-2.5 py-0.5 rounded-md bg-white/5 border border-white/10 shrink-0">
-                    {sub.frequency === 'yearly' ? t('subscriptions.yearly', {}, 'Anual') : t('subscriptions.monthly', {}, 'Mensual')}
-                  </span>
-                </div>
+                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-lg shrink-0">
+                    {sub.emoji || '🔄'}
+                  </div>
 
-                {/* FILA 2: Cuenta & Categoría + Monto Grande + Switch Toggle / Acciones */}
-                <div className="flex items-center justify-between gap-3 pt-2 border-t border-white/5">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs text-slate-300 font-medium truncate">
-                      {acc?.name} • {cat?.name}
+                  <div className="min-w-0 flex-1 pr-1">
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-sm font-bold text-white group-hover:text-[var(--color-primary,#AEEDD0)] transition-colors truncate">
+                        {sub.name}
+                      </h4>
+                      {isYearly && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30 uppercase shrink-0">
+                          {t('subscriptions.yearly', {}, 'Anual')}
+                        </span>
+                      )}
+                    </div>
+
+                    <p className="text-xs text-slate-400 font-medium truncate mt-0.5">
+                      {acc ? acc.name : t('common.generalAccount', {}, 'Cuenta General')} • {cat ? cat.name : t('common.general', {}, 'General')}
                     </p>
                   </div>
+                </div>
 
-                  <div className="flex items-center gap-3 shrink-0">
-                    <div className="text-right">
-                      <div className="text-sm sm:text-base font-extrabold text-[var(--color-primary,#AEEDD0)] tabular-nums">
-                        {formatCurrency(sub.amount, acc?.currency || sub.currency || 'USD')}
-                      </div>
+                {/* Right Block: Amount + Active Toggle Switch + Actions */}
+                <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+                  <div className="text-right">
+                    <div className="text-sm sm:text-base font-extrabold text-white tabular-nums">
+                      {formatCurrency(sub.amount, subCurrency)}
+                      <span className="text-[10px] text-slate-400 font-normal ml-1">
+                        {isYearly ? '/ año' : '/ mes'}
+                      </span>
                     </div>
+                    {subCurrency !== baseCurrency && (
+                      <div className="text-[10px] text-slate-400 font-medium tabular-nums">
+                        ≈ {formatCurrency(convertedInBase, baseCurrency)}
+                      </div>
+                    )}
+                  </div>
 
-                    {/* Custom Toggle Switch */}
-                    <div
+                  {/* iOS Style Micro Toggle */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleSubscription(sub.id);
+                    }}
+                    className={`w-10 h-6 rounded-full transition-colors relative p-0.5 cursor-pointer shrink-0 ${
+                      sub.isActive ? 'bg-[var(--color-primary,#AEEDD0)]' : 'bg-white/10'
+                    }`}
+                    title={sub.isActive ? t('common.active', {}, 'Activo') : t('common.paused', {}, 'Pausado')}
+                  >
+                    <div className={`w-5 h-5 rounded-full bg-[#131E22] transition-transform shadow-sm ${
+                      sub.isActive ? 'translate-x-4' : 'translate-x-0'
+                    }`} />
+                  </button>
+
+                  <div className="flex items-center gap-0.5 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                    <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        toggleSubscription(sub.id);
+                        setSubToDelete(sub);
                       }}
-                      className={`w-9 sm:w-11 h-5 sm:h-6 rounded-full p-0.5 transition-all cursor-pointer flex items-center shrink-0 ${
-                        sub.isActive ? 'bg-[var(--color-primary,#AEEDD0)] justify-end' : 'bg-[#1E2D32] border border-white/20 justify-start'
-                      }`}
-                      title={sub.isActive ? 'Suscripción Activa (Click para pausar)' : 'Suscripción Pausada (Click para activar)'}
+                      className="p-1.5 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                      title={t('common.delete', {}, 'Eliminar')}
                     >
-                      <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full shadow-md transition-all ${
-                        sub.isActive ? 'bg-[#1E2D32]' : 'bg-slate-400'
-                      }`} />
-                    </div>
-
-                    <div className="flex items-center gap-0.5 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSubToDelete(sub);
-                        }}
-                        className="p-1.5 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
-                        title={t('common.delete', {}, 'Eliminar')}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
 
@@ -238,6 +292,19 @@ export default function SubscriptionsModule() {
           })
         )}
       </div>
+
+      {/* Universal Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalItems={filteredSubs.length}
+        pageSize={pageSize}
+        pageSizeOptions={[10, 30, 50]}
+        onPageChange={setCurrentPage}
+        onPageSizeChange={(newSize) => {
+          setPageSize(newSize);
+          setCurrentPage(1);
+        }}
+      />
 
       <SubscriptionModal
         isOpen={isModalOpen}

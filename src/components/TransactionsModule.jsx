@@ -1,15 +1,17 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Plus, ArrowLeftRight, Search, Edit2, Trash2, Calendar, RotateCcw, Filter, X, SlidersHorizontal, Check } from 'lucide-react';
+import { Plus, ArrowLeftRight, Search, Edit2, Trash2, Calendar, RotateCcw, Filter, X, SlidersHorizontal, Check, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
 import TransactionModal from './TransactionModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import AdvancedFiltersModal from './AdvancedFiltersModal';
 import CustomSelect from './CustomSelect';
 import CustomDatePicker from './CustomDatePicker';
 import ExportDropdown from './ExportDropdown';
+import SectionKpiHero from './SectionKpiHero';
+import Pagination from './Pagination';
 import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
 import { formatDateISO } from '../utils/formatters';
-import { convertToGlobal } from '../utils/currency';
+import { convertCrossCurrency } from '../utils/currency';
 
 export default function TransactionsModule() {
   const { transactions, accounts, categories, addTransaction, updateTransaction, deleteTransaction } = useFinance();
@@ -255,6 +257,12 @@ export default function TransactionsModule() {
     { label: t('modals.transaction.amount', {}, 'Monto'), accessor: (tx) => `${tx.currency || 'USD'} ${Number(tx.amount || 0).toFixed(2)}` }
   ], [safeCategoriesList, safeAccountsList, t]);
 
+    const transactionSummary = useMemo(() => ({
+    totalRecords: filteredTx.length,
+    consolidatedTotal: `${formatCurrency(netFlow, baseCurrency)} (Net Flow)`,
+    baseCurrency
+  }), [filteredTx.length, netFlow, baseCurrency, formatCurrency]);
+
   return (
     <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-28 md:pb-6">
       
@@ -264,11 +272,8 @@ export default function TransactionsModule() {
           <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white truncate">
             {t('transactions.title', {}, 'Historial de Transacciones')}
           </h1>
-          <p className="text-xs md:text-sm text-slate-400 mt-0.5 block font-normal flex items-center gap-1.5 truncate">
-            <Calendar className="w-3.5 h-3.5 text-[var(--color-primary,#AEEDD0)] shrink-0" />
-            <span className="truncate">
-              {t('transactions.showingFor', { month: currentMonthLabel }, `Movimientos de ${currentMonthLabel}`)}
-            </span>
+          <p className="text-xs md:text-sm text-slate-400 mt-0.5 block font-normal truncate">
+            {t('transactions.subtitle', {}, 'Registro detallado de ingresos, gastos y transferencias')}
           </p>
         </div>
 
@@ -285,6 +290,38 @@ export default function TransactionsModule() {
           </button>
         </div>
       </header>
+
+      {/* KPI HERO BANNER: CONSOLIDATED NET CASH FLOW */}
+      <SectionKpiHero
+        title={t('transactions.netFlowHero', {}, language === 'es' ? 'FLUJO NETO CONSOLIDADO' : 'CONSOLIDATED NET FLOW')}
+        formattedAmount={formatCurrency(netFlow, baseCurrency)}
+        currency={baseCurrency}
+        icon={netFlow >= 0 ? TrendingUp : TrendingDown}
+        iconBgColor={netFlow >= 0 ? 'bg-emerald-500/15' : 'bg-rose-500/15'}
+        iconBorderColor={netFlow >= 0 ? 'border-emerald-500/30' : 'border-rose-500/30'}
+        iconTextColor={netFlow >= 0 ? 'text-emerald-400' : 'text-rose-400'}
+        badgeText={currentMonthLabel}
+        badgeColor="bg-white/5 text-slate-300 border-white/10"
+      >
+        <div className="flex items-center gap-4 sm:gap-6">
+          <div className="text-left sm:text-right">
+            <span className="text-[10px] sm:text-[11px] text-slate-400 font-semibold uppercase block">
+              {t('transactions.filterIncomes', {}, 'Ingresos')}
+            </span>
+            <span className="text-sm sm:text-base font-bold text-[var(--color-primary,#AEEDD0)] tabular-nums block mt-0.5">
+              +{formatCurrency(totalIncome, baseCurrency)}
+            </span>
+          </div>
+          <div className="text-left sm:text-right border-l border-white/10 pl-4 sm:pl-6">
+            <span className="text-[10px] sm:text-[11px] text-slate-400 font-semibold uppercase block">
+              {t('transactions.filterExpenses', {}, 'Gastos')}
+            </span>
+            <span className="text-sm sm:text-base font-bold text-[#FF6B6B] tabular-nums block mt-0.5">
+              -{formatCurrency(totalExpense, baseCurrency)}
+            </span>
+          </div>
+        </div>
+      </SectionKpiHero>
 
       {/* MOBILE COMPACT FILTER TOOLBAR (< lg) */}
       <div className="lg:hidden space-y-2.5 w-full relative z-20">
@@ -352,6 +389,7 @@ export default function TransactionsModule() {
               columns={transactionColumns}
               title={t('transactions.title', {}, 'Historial de Transacciones')}
               filename="transacciones_growy"
+              summary={transactionSummary}
             />
           </div>
 
@@ -447,14 +485,16 @@ export default function TransactionsModule() {
               columns={transactionColumns}
               title={t('transactions.title', {}, 'Historial de Transacciones')}
               filename="transacciones_growy"
+              summary={transactionSummary}
             />
             {isFilterActive && (
               <button
                 onClick={resetFilters}
-                className="h-9 px-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-rose-300 border border-rose-500/20 flex items-center gap-1 transition-all shrink-0 cursor-pointer"
+                className="h-11 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-rose-300 border border-rose-500/20 flex items-center gap-1.5 transition-all shrink-0 cursor-pointer"
                 title={t('transactions.clearFilters', {}, 'Limpiar')}
               >
                 <RotateCcw className="w-3.5 h-3.5" />
+                <span>{t('transactions.clearFilters', {}, 'Limpiar')}</span>
               </button>
             )}
           </div>
@@ -508,25 +548,7 @@ export default function TransactionsModule() {
         categoryOptions={categoryOptions}
         activeFilterCount={activeFilterCount}
         resetFilters={resetFilters}
-      />
-
-      {/* DYNAMIC TOTALS (Visible when filtering or always as a summary) */}
-      <div className="w-full relative z-10 grid grid-cols-3 gap-3 bg-[#131E22]/60 p-4 rounded-2xl border border-white/5 mb-4">
-        <div className="flex flex-col">
-          <span className="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">{t('transactions.filterIncomes', {}, 'Ingresos')}</span>
-          <span className="text-sm md:text-base font-bold text-[var(--color-primary,#AEEDD0)] tabular-nums">{formatCurrency(totalIncome, baseCurrency)}</span>
-        </div>
-        <div className="flex flex-col">
-          <span className="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">{t('transactions.filterExpenses', {}, 'Gastos')}</span>
-          <span className="text-sm md:text-base font-bold text-[#FF6B6B] tabular-nums">{formatCurrency(totalExpense, baseCurrency)}</span>
-        </div>
-        <div className="flex flex-col border-l border-white/10 pl-3">
-          <span className="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">{t('dashboard.netWealth', {}, 'Flujo Neto')}</span>
-          <span className={`text-sm md:text-base font-bold tabular-nums ${netFlow >= 0 ? 'text-white' : 'text-[#FF6B6B]'}`}>
-            {formatCurrency(netFlow, baseCurrency)}
-          </span>
-        </div>
-      </div>      {/* Structured High-Density Feed */}
+      />      {/* Structured High-Density Feed */}
       <div className="w-full space-y-6 relative z-10">
         {sortedDates.length === 0 ? (
           <div className="p-6 rounded-2xl bg-[#1E2D32]/60 border border-white/10 backdrop-blur-md text-center text-slate-300 space-y-3">
@@ -634,48 +656,18 @@ export default function TransactionsModule() {
         )}
       </div>
 
-      {/* Pagination Controls */}
-      {totalPages > 1 && (
-        <div className="w-full relative z-10 flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-3 py-4 border-t border-white/5 mt-4">
-          
-          {/* Info & Page Size Selector */}
-          <div className="flex flex-col sm:flex-row items-center gap-3">
-            <span className="text-xs text-slate-400">
-              {t('transactions.showingPage', { page: currentPage, total: totalPages }, `Página ${currentPage} de ${totalPages}`)} &bull; ({(currentPage - 1) * pageSize + 1} - {Math.min(currentPage * pageSize, filteredTx.length)} de {filteredTx.length})
-            </span>
-            
-            <div className="flex items-center gap-1.5 p-1 bg-[#131E22] rounded-xl border border-white/5">
-              {[10, 30, 50].map((size) => (
-                <button
-                  key={size}
-                  onClick={() => { setPageSize(size); setCurrentPage(1); }}
-                  className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition-colors ${pageSize === size ? 'bg-[#18252A] text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/20' : 'text-slate-500 hover:text-slate-300'}`}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
-          </div>
-          
-          {/* Navigation Buttons */}
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <button
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="flex-1 sm:flex-none h-9 px-4 rounded-xl text-xs font-bold bg-[#18252A] border border-white/10 text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/10 transition-all active:scale-95"
-            >
-              {t('transactions.prevPage', {}, 'Anterior')}
-            </button>
-            <button
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              className="flex-1 sm:flex-none h-9 px-4 rounded-xl text-xs font-bold bg-[#18252A] border border-white/10 text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/10 transition-all active:scale-95"
-            >
-              {t('transactions.nextPage', {}, 'Siguiente')}
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Universal Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalItems={filteredTx.length}
+        pageSize={pageSize}
+        pageSizeOptions={[10, 30, 50]}
+        onPageChange={setCurrentPage}
+        onPageSizeChange={(newSize) => {
+          setPageSize(newSize);
+          setCurrentPage(1);
+        }}
+      />
 
       <TransactionModal
         isOpen={isModalOpen}

@@ -58,7 +58,7 @@ export function ForgotPasswordModal({ isOpen, onClose }) {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 py-3 px-4 rounded-xl bg-[#5EEAD4] text-[#0A1316] font-semibold hover:bg-[#2DD4BF] transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              className="flex-1 py-3 px-4 rounded-xl btn-primary-mint font-bold hover:brightness-105 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shadow-md"
             >
               {loading ? t('modals.auth.sendingLink', {}, 'Enviando enlace...') : (
                 <>
@@ -337,7 +337,7 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 py-3 px-4 rounded-xl bg-[#5EEAD4] text-[#0A1316] font-semibold hover:bg-[#2DD4BF] transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+              className="flex-1 py-3 px-4 rounded-xl btn-primary-mint font-bold hover:brightness-105 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed shadow-md"
             >
               {loading ? (
                 <span>{t('modals.auth.validating', {}, 'Procesando...')}</span>

@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { SlidersHorizontal, X, RotateCcw, Check } from 'lucide-react';
 import CustomSelect from './CustomSelect';
@@ -232,7 +232,7 @@ export default function AdvancedFiltersModal({
               resetFilters();
               onClose();
             }}
-            className="flex-1 py-3 border border-white/10 text-slate-300 font-medium rounded-xl hover:bg-white/5 transition-colors cursor-pointer flex items-center justify-center gap-2 text-sm"
+            className="flex-1 py-3 bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 font-semibold border border-white/10 rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-2 text-sm"
           >
             <RotateCcw className="w-4 h-4" />
             <span>{t('transactions.clearFilters', {}, 'Limpiar')}</span>
@@ -241,7 +241,7 @@ export default function AdvancedFiltersModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 bg-[#5EEAD4] text-[#0A1316] font-semibold rounded-xl hover:bg-[#2DD4BF] transition-colors cursor-pointer flex items-center justify-center gap-2 text-sm shadow-md"
+            className="flex-1 py-3 btn-primary-mint font-bold rounded-xl hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 text-sm shadow-md"
           >
             <Check className="w-4 h-4" />
             <span>{t('common.apply', {}, 'Aplicar Filtros')}</span>

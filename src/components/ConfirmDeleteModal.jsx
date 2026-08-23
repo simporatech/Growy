@@ -44,14 +44,14 @@ export default function ConfirmDeleteModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 px-4 rounded-xl border border-white/10 text-slate-300 font-medium hover:bg-white/5 transition-colors cursor-pointer"
+            className="flex-1 py-3 px-4 rounded-xl bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 font-semibold border border-white/10 transition-colors cursor-pointer"
           >
             {cancelText || t('modals.cancel', {}, language === 'es' ? 'Cancelar' : 'Cancel')}
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className="flex-1 py-3 px-4 rounded-xl bg-rose-500 text-white font-semibold hover:bg-rose-600 transition-colors cursor-pointer"
+            className="flex-1 py-3 px-4 rounded-xl bg-rose-500 text-white font-bold hover:bg-rose-600 active:scale-[0.98] transition-all cursor-pointer shadow-md shadow-rose-500/20"
           >
             {confirmText || t('modals.delete', {}, language === 'es' ? 'Eliminar' : 'Delete')}
           </button>

@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronDown, Search, Check } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
@@ -123,15 +123,15 @@ export const CustomSelect = ({
         type="button"
         disabled={disabled}
         onClick={handleToggle}
-        className={`w-full h-11 flex items-center justify-between px-3.5 bg-[#131E22] border border-white/10 rounded-xl text-white hover:border-[#5EEAD4]/50 active:scale-[0.99] transition-all shadow-inner cursor-pointer select-none ${
+        className={`w-full h-11 flex items-center justify-between px-3.5 bg-[#131E22] border border-white/10 rounded-xl text-white hover:border-[var(--color-primary)]/50 active:scale-[0.99] transition-all shadow-inner cursor-pointer select-none ${
           disabled ? 'opacity-50 cursor-not-allowed' : ''
-        } ${isOpen ? 'border-[#5EEAD4]/60 ring-1 ring-[#5EEAD4]/30' : ''}`}
+        } ${isOpen ? 'border-[var(--color-primary)]/60 ring-1 ring-[var(--color-primary)]/30' : ''}`}
       >
         <span className={`text-xs sm:text-sm truncate font-medium ${selectedOption ? 'text-white' : 'text-slate-400'}`}>
           {selectedOption ? selectedOption.label : resolvedPlaceholder}
         </span>
         <ChevronDown 
-          className={`text-slate-400 transition-transform duration-200 shrink-0 ml-2 ${isOpen ? 'rotate-180 text-[#5EEAD4]' : ''}`} 
+          className={`text-slate-400 transition-transform duration-200 shrink-0 ml-2 ${isOpen ? 'rotate-180 text-[var(--color-primary)]' : ''}`} 
           size={16} 
         />
       </button>
@@ -156,7 +156,7 @@ export const CustomSelect = ({
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={resolvedSearchPlaceholder}
-                className="w-full pl-9 pr-3 py-2 bg-black/40 border border-white/10 rounded-lg text-xs sm:text-sm text-white placeholder:text-slate-400 outline-none focus:border-[#5EEAD4] transition-colors"
+                className="w-full pl-9 pr-3 py-2 bg-black/40 border border-white/10 rounded-lg text-xs sm:text-sm text-white placeholder:text-slate-400 outline-none focus:border-[var(--color-primary)] transition-colors"
                 autoFocus
               />
             </div>
@@ -178,13 +178,13 @@ export const CustomSelect = ({
                     }}
                     className={`w-full px-4 py-3 text-sm rounded-xl flex items-center justify-between gap-3 cursor-pointer transition-all text-left ${
                       isSelected
-                        ? 'bg-[#5EEAD4]/10 text-[#5EEAD4] font-medium'
+                        ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-medium'
                         : 'text-slate-200 hover:bg-white/10 hover:text-white'
                     }`}
                   >
                     <span className="truncate flex-1">{opt.label}</span>
                     {isSelected && (
-                      <Check className="text-[#5EEAD4] shrink-0 ml-1" size={16} strokeWidth={2.5} />
+                      <Check className="text-[var(--color-primary)] shrink-0 ml-1" size={16} strokeWidth={2.5} />
                     )}
                   </button>
                 );

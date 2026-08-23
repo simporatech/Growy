@@ -1,22 +1,28 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import { Plus, Edit2, Trash2, Wallet, Search } from 'lucide-react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { Plus, Edit2, Trash2, Wallet, Search, CreditCard } from 'lucide-react';
 import AccountModal from './AccountModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import ExportDropdown from './ExportDropdown';
 import CustomSelect from './CustomSelect';
+import SectionKpiHero from './SectionKpiHero';
+import Pagination from './Pagination';
 import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
 import { formatCurrency, parseNumeric } from '../utils/formatters';
 
 export default function AccountsModule() {
   const { accounts, addAccount, updateAccount, deleteAccount } = useFinance();
-  const { convertToGlobal, baseCurrency, formatCurrency, t } = useSettings();
+  const { convertToGlobal, baseCurrency, formatCurrency, t, language } = useSettings();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [accountToEdit, setAccountToEdit] = useState(null);
   const [accountToDelete, setAccountToDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [currencyFilter, setCurrencyFilter] = useState('all');
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const safeAccountsList = useMemo(() => Array.isArray(accounts) ? accounts.filter(Boolean) : [], [accounts]);
 
@@ -38,34 +44,36 @@ export default function AccountsModule() {
     });
   }, [safeAccountsList, searchTerm, currencyFilter]);
 
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, currencyFilter]);
+
+  const paginatedAccounts = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredAccounts.slice(start, start + pageSize);
+  }, [filteredAccounts, currentPage, pageSize]);
+
   const accountColumns = useMemo(() => [
     { label: t('modals.account.name', {}, 'Nombre'), accessor: (a) => a.name || '-' },
     { label: t('modals.account.currency', {}, 'Divisa'), accessor: (a) => a.currency || 'USD' },
     { label: t('modals.account.balance', {}, 'Balance Actual'), accessor: (a) => `${a.currencySymbol || '$'}${Number(a.balance || 0).toFixed(2)}` }
   ], [t]);
 
-  // Group balances by currency code
-  const currencyGroupedBalances = useMemo(() => {
-    return safeAccountsList.reduce((acc, account) => {
-      if (!account) return acc;
-      const code = account.currency || 'USD';
-      const symbol = account.currencySymbol || '$';
-      if (!acc[code]) {
-        acc[code] = { symbol, total: 0 };
-      }
-      acc[code].total += parseNumeric(account.balance, 0);
-      return acc;
-    }, {});
-  }, [safeAccountsList]);
-
-  // RULE 2: Total Consolidated Balance converted to Base Currency
+  // Reactive Consolidated Balance converted to Base Currency
   const totalConsolidatedBalance = useMemo(() => {
-    return safeAccountsList.reduce((sum, acc) => {
+    return filteredAccounts.reduce((sum, acc) => {
       if (!acc) return sum;
       const accCurr = acc.currency || 'USD';
       return sum + convertToGlobal(parseNumeric(acc.balance, 0), accCurr);
     }, 0);
-  }, [safeAccountsList, convertToGlobal]);
+  }, [filteredAccounts, convertToGlobal]);
+
+  const accountSummary = useMemo(() => ({
+    totalRecords: filteredAccounts.length,
+    consolidatedTotal: `${formatCurrency(totalConsolidatedBalance, baseCurrency)}`,
+    baseCurrency
+  }), [filteredAccounts.length, totalConsolidatedBalance, baseCurrency, formatCurrency]);
 
   const handleSaveAccount = useCallback((accountData) => {
     if (!accountData) return;
@@ -83,8 +91,6 @@ export default function AccountsModule() {
     setAccountToDelete(null);
   }, [accountToDelete, deleteAccount]);
 
-  const currencyKeys = useMemo(() => Object.keys(currencyGroupedBalances), [currencyGroupedBalances]);
-
   return (
     <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-28 md:pb-6">
       
@@ -95,9 +101,7 @@ export default function AccountsModule() {
             {t('accounts.title', {}, 'Gestión de Cuentas')}
           </h1>
           <p className="text-xs md:text-sm text-slate-400 mt-0.5 block font-normal truncate">
-            <span>
-              {t('accounts.consolidatedBalance', {}, 'Balance Consolidado')}: <strong className="text-white font-bold tabular-nums">{formatCurrency(totalConsolidatedBalance)} {baseCurrency}</strong>
-            </span>
+            {t('accounts.subtitle', {}, 'Billeteras, cuentas de débito y tarjetas de crédito')}
           </p>
         </div>
 
@@ -108,6 +112,7 @@ export default function AccountsModule() {
               columns={accountColumns}
               title={t('accounts.title', {}, 'Gestión de Cuentas')}
               filename="cuentas_growy"
+              summary={accountSummary}
             />
           </div>
 
@@ -124,9 +129,22 @@ export default function AccountsModule() {
         </div>
       </header>
 
+      {/* KPI HERO BANNER: CONSOLIDATED GLOBAL BALANCE */}
+      <SectionKpiHero
+        title={t('accounts.totalConsolidatedBalance', {}, language === 'es' ? 'BALANCE TOTAL CONSOLIDADO' : 'TOTAL CONSOLIDATED BALANCE')}
+        formattedAmount={formatCurrency(totalConsolidatedBalance, baseCurrency)}
+        currency={baseCurrency}
+        icon={Wallet}
+        iconBgColor="bg-emerald-500/15"
+        iconBorderColor="border-emerald-500/30"
+        iconTextColor="text-emerald-400"
+        secondaryLabel={t('accounts.showingRecords', { count: filteredAccounts.length }, `${filteredAccounts.length} ${language === 'es' ? 'cuentas' : 'accounts'}`)}
+        secondaryValue={baseCurrency}
+      />
+
       {/* Toolbar: Search, Currency Filter and Mobile Export */}
       <div className="flex items-center gap-2 w-full relative z-20">
-        <div className="w-36 shrink-0">
+        <div className="w-40 shrink-0">
           <CustomSelect
             options={uniqueCurrencies}
             value={currencyFilter}
@@ -149,6 +167,7 @@ export default function AccountsModule() {
             columns={accountColumns}
             title={t('accounts.title', {}, 'Gestión de Cuentas')}
             filename="cuentas_growy"
+            summary={accountSummary}
           />
         </div>
       </div>
@@ -174,8 +193,8 @@ export default function AccountsModule() {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {filteredAccounts.map((account) => {
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+            {paginatedAccounts.map((account) => {
               const bgGradient = account.color 
                 ? `linear-gradient(135deg, ${account.color}25 0%, rgba(30, 45, 50, 0.9) 100%)`
                 : 'linear-gradient(135deg, rgba(174, 237, 208, 0.15) 0%, rgba(30, 45, 50, 0.9) 100%)';
@@ -258,6 +277,19 @@ export default function AccountsModule() {
           </div>
         )}
       </div>
+
+      {/* Universal Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalItems={filteredAccounts.length}
+        pageSize={pageSize}
+        pageSizeOptions={[10, 30, 50]}
+        onPageChange={setCurrentPage}
+        onPageSizeChange={(newSize) => {
+          setPageSize(newSize);
+          setCurrentPage(1);
+        }}
+      />
 
       <AccountModal
         isOpen={isModalOpen}

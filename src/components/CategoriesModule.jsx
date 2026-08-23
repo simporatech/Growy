@@ -1,8 +1,9 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Plus, Tag, Edit2, Trash2, ArrowDownRight, ArrowUpRight, Clock, Search } from 'lucide-react';
 import CategoryModal from './CategoryModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import ExportDropdown from './ExportDropdown';
+import Pagination from './Pagination';
 import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
 import { parseNumeric } from '../utils/formatters';
@@ -18,6 +19,10 @@ export default function CategoriesModule() {
   const [initialType, setInitialType] = useState('expense');
   const [activeTabType, setActiveTabType] = useState('expense');
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const safeAccountsList = useMemo(() => Array.isArray(accounts) ? accounts.filter(Boolean) : [], [accounts]);
   const safeCategoriesList = useMemo(() => Array.isArray(categories) ? categories.filter(Boolean) : [], [categories]);
@@ -71,6 +76,16 @@ export default function CategoriesModule() {
       return true;
     });
   }, [categoriesWithSpent, activeTabType, searchTerm]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, activeTabType]);
+
+  const paginatedCategories = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredCategories.slice(start, start + pageSize);
+  }, [filteredCategories, currentPage, pageSize]);
 
   const categoryColumns = useMemo(() => [
     { label: t('modals.category.name', {}, 'Categoría'), accessor: (c) => c?.name || '-' },
@@ -187,8 +202,19 @@ export default function CategoriesModule() {
     setCategoryToDelete(null);
   }, [categoryToDelete, deleteCategory]);
 
+  const categorySummary = useMemo(() => ({
+    totalRecords: filteredCategories.length,
+    consolidatedTotal: activeTabType === 'expense'
+      ? `${formatCurrency(totalTargetExpense, baseCurrency)} (Límite)`
+      : `${formatCurrency(totalTargetIncome, baseCurrency)} (Meta)`,
+    baseCurrency
+  }), [filteredCategories.length, activeTabType, totalTargetExpense, totalTargetIncome, baseCurrency, formatCurrency]);
+
   return (
-    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-28 md:pb-6">
+    <div 
+      className="w-full min-w-full box-border categories-container space-y-4 md:space-y-6 animate-fadeIn pb-28 md:pb-6"
+      style={{ scrollbarGutter: 'stable', boxSizing: 'border-box', width: '100%' }}
+    >
       
       {/* Standardized Header */}
       <header className="flex items-center justify-between gap-2.5 w-full relative z-30">
@@ -208,6 +234,7 @@ export default function CategoriesModule() {
               columns={categoryColumns}
               title={t('categories.title', {}, 'Categorías y Presupuestos')}
               filename="categorias_growy"
+              summary={categorySummary}
             />
           </div>
 
@@ -248,6 +275,7 @@ export default function CategoriesModule() {
             columns={categoryColumns}
             title={t('categories.title', {}, 'Categorías y Presupuestos')}
             filename="categorias_growy"
+            summary={categorySummary}
           />
         </div>
       </div>
@@ -263,7 +291,7 @@ export default function CategoriesModule() {
               {/* Gasto actual vs Límite */}
               <div className="lg:col-span-4">
                 <span className="text-xs font-semibold tracking-wider text-[#AEEDD0] uppercase block">
-                  {t('categories.globalBudgetLabel', {}, 'PRESUPUESTO MENSUAL GLOBAL')}
+                  {t('categories.globalBudgetLabel', {}, language === 'es' ? 'PRESUPUESTO GLOBAL MENSUAL' : 'GLOBAL MONTHLY BUDGET')}
                 </span>
                 <div className="flex items-baseline gap-2 mt-1">
                   <span className="text-2xl sm:text-3xl font-bold text-white tabular-nums tracking-tight">
@@ -364,7 +392,7 @@ export default function CategoriesModule() {
               {/* Recaudado vs Meta Total */}
               <div className="lg:col-span-4">
                 <span className="text-[10px] sm:text-xs font-semibold tracking-wider text-cyan-400 uppercase block">
-                  {t('categories.globalIncomeGoalLabel', {}, 'META GLOBAL DE INGRESOS')}
+                  {t('categories.globalIncomeGoalLabel', {}, language === 'es' ? 'META GLOBAL DE INGRESOS' : 'GLOBAL INCOME GOAL')}
                 </span>
                 <div className="flex items-baseline gap-2 mt-1">
                   <span className="text-2xl sm:text-3xl font-bold text-white tabular-nums tracking-tight">
@@ -461,12 +489,12 @@ export default function CategoriesModule() {
 
       </div>
 
-      {/* Segmented Tab Filter: Gastos vs Ingresos (Horizontal Touch Slider) */}
-      <div className="flex items-center justify-between gap-3 relative z-10">
-        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-white/[0.03] border border-white/5 overflow-x-auto no-scrollbar w-full sm:w-auto">
+      {/* Segmented Tab Filter: Gastos vs Ingresos (Locked symmetric width without layout shift) */}
+      <div className="flex items-center justify-between gap-3 relative z-10 w-full min-w-full box-border">
+        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-white/[0.03] border border-white/5 w-full sm:w-auto overflow-hidden">
           <button
             onClick={() => setActiveTabType('expense')}
-            className={`flex-1 sm:flex-initial h-10 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+            className={`flex-1 sm:flex-initial h-11 px-5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
               activeTabType === 'expense'
                 ? 'bg-[#FF6B6B]/20 text-[#FF6B6B] border border-[#FF6B6B]/30 font-bold shadow'
                 : 'text-slate-300 hover:text-white'
@@ -478,7 +506,7 @@ export default function CategoriesModule() {
 
           <button
             onClick={() => setActiveTabType('income')}
-            className={`flex-1 sm:flex-initial h-10 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+            className={`flex-1 sm:flex-initial h-11 px-5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
               activeTabType === 'income'
                 ? 'bg-[var(--color-primary,#AEEDD0)]/20 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/30 font-bold shadow'
                 : 'text-slate-300 hover:text-white'
@@ -491,7 +519,7 @@ export default function CategoriesModule() {
       </div>
 
       {/* Cards Grid */}
-      <div className="w-full relative z-10">
+      <div className="w-full min-w-full box-border relative z-10">
         {filteredCategories.length === 0 ? (
           <div className="p-6 rounded-2xl bg-[#1E2D32]/60 border border-white/10 backdrop-blur-md text-center text-slate-300 space-y-3">
             <Tag className="w-12 h-12 text-slate-400 mx-auto" />
@@ -510,8 +538,11 @@ export default function CategoriesModule() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCategories.map((cat) => {
+          <div 
+            className="categories-grid grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 w-full min-w-full box-border"
+            style={{ boxSizing: 'border-box', width: '100%' }}
+          >
+            {paginatedCategories.map((cat) => {
               if (!cat) return null;
               const isExpense = cat.type === 'expense';
               const catPercentage = parseNumeric(cat.percentage, 0);
@@ -588,6 +619,19 @@ export default function CategoriesModule() {
           </div>
         )}
       </div>
+
+      {/* Universal Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalItems={filteredCategories.length}
+        pageSize={pageSize}
+        pageSizeOptions={[10, 30, 50]}
+        onPageChange={setCurrentPage}
+        onPageSizeChange={(newSize) => {
+          setPageSize(newSize);
+          setCurrentPage(1);
+        }}
+      />
 
       <CategoryModal
         isOpen={isModalOpen}

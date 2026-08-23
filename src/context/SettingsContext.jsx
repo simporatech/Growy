@@ -31,11 +31,50 @@ export const THEMES = [
 const SettingsContext = createContext(null);
 
 export function SettingsProvider({ children }) {
-  const [isAutoLanguage, setIsAutoLanguage] = useState(true);
-  const [language, setLanguageState] = useState('es');
-  const [theme, setThemeState] = useState('mint');
-  const [glassIntensity, setGlassIntensityState] = useState('high');
-  const [baseCurrency, setBaseCurrencyState] = useState(() => safeGetStorage(BASE_CURRENCY_KEY, 'USD'));
+  const [isAutoLanguage, setIsAutoLanguage] = useState(() => {
+    try {
+      const savedLang = safeGetStorage(LANGUAGE_KEY, null);
+      return !savedLang;
+    } catch {
+      return true;
+    }
+  });
+  const [language, setLanguageState] = useState(() => {
+    try {
+      const savedLang = safeGetStorage(LANGUAGE_KEY, null);
+      if (savedLang === 'es' || savedLang === 'en') return savedLang;
+      const detected = detectUserLocaleAndCurrency();
+      return detected?.language || 'es';
+    } catch {
+      return 'es';
+    }
+  });
+  const [theme, setThemeState] = useState(() => {
+    try {
+      const savedTheme = safeGetStorage(THEME_KEY, 'mint');
+      return THEMES.some(t => t.id === savedTheme) ? savedTheme : 'mint';
+    } catch {
+      return 'mint';
+    }
+  });
+  const [glassIntensity, setGlassIntensityState] = useState(() => {
+    try {
+      const savedGlass = safeGetStorage(GLASS_KEY, 'high');
+      return savedGlass === 'light' ? 'light' : 'high';
+    } catch {
+      return 'high';
+    }
+  });
+  const [baseCurrency, setBaseCurrencyState] = useState(() => {
+    try {
+      const savedCurr = safeGetStorage(BASE_CURRENCY_KEY, null);
+      if (savedCurr && SUPPORTED_CURRENCIES.some(c => c.code === savedCurr)) return savedCurr;
+      const detected = detectUserLocaleAndCurrency();
+      return detected?.currency || 'USD';
+    } catch {
+      return 'USD';
+    }
+  });
   const [exchangeRates, setExchangeRates] = useState(FALLBACK_EXCHANGE_RATES);
   const [lastUpdated, setLastUpdated] = useState('Hoy');
   const [isFetchingRates, setIsFetchingRates] = useState(false);

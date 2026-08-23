@@ -4,7 +4,14 @@ import { Download, FileSpreadsheet, FileText, ChevronDown } from 'lucide-react';
 import { exportToCSV, exportToPDF } from '../utils/exportUtils';
 import { useSettings } from '../context/SettingsContext';
 
-export const ExportDropdown = ({ data, columns, title = "Report", filename = "export", className = "" }) => {
+export const ExportDropdown = ({ 
+  data, 
+  columns, 
+  title = "Report", 
+  filename = "export", 
+  summary = null,
+  className = "" 
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [coords, setCoords] = useState({ top: 0, left: 0 });
   const buttonRef = useRef(null);
@@ -68,7 +75,7 @@ export const ExportDropdown = ({ data, columns, title = "Report", filename = "ex
         ref={buttonRef}
         type="button"
         onClick={handleToggle}
-        className="h-10 px-4 bg-[#131E22] hover:bg-white/5 border border-white/10 rounded-xl text-xs font-semibold text-white flex items-center gap-2 transition-all shadow-inner shrink-0 cursor-pointer"
+        className="h-11 px-4 bg-[#131E22] hover:bg-white/5 border border-white/10 rounded-xl text-xs font-semibold text-white flex items-center gap-2 transition-all shadow-inner shrink-0 cursor-pointer"
       >
         <Download className="text-[#AEEDD0]" size={15} />
         <span>{exportLabel}</span>
@@ -82,7 +89,7 @@ export const ExportDropdown = ({ data, columns, title = "Report", filename = "ex
         >
           <button
             type="button"
-            onClick={() => { exportToCSV(data, filename, columns); setIsOpen(false); }}
+            onClick={() => { exportToCSV(data, filename, columns, summary); setIsOpen(false); }}
             className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-slate-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors text-left cursor-pointer"
           >
             <FileSpreadsheet className="text-emerald-400 shrink-0" size={15} />
@@ -90,7 +97,7 @@ export const ExportDropdown = ({ data, columns, title = "Report", filename = "ex
           </button>
           <button
             type="button"
-            onClick={() => { exportToPDF(title, data, columns); setIsOpen(false); }}
+            onClick={() => { exportToPDF(title, data, columns, summary); setIsOpen(false); }}
             className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-slate-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors text-left cursor-pointer"
           >
             <FileText className="text-rose-400 shrink-0" size={15} />

@@ -1,14 +1,16 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Plus, Percent, Edit2, Trash2, CheckCircle, Search } from 'lucide-react';
 import LoanModal from './LoanModal';
 import PayLoanModal from './PayLoanModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import CustomSelect from './CustomSelect';
 import ExportDropdown from './ExportDropdown';
+import SectionKpiHero from './SectionKpiHero';
+import Pagination from './Pagination';
 import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
 import { parseNumeric } from '../utils/formatters';
-import { convertToGlobal } from '../utils/currency';
+import { convertCrossCurrency } from '../utils/currency';
 
 export default function LoansModule() {
   const { loans, categories, accounts, addLoan, updateLoan, deleteLoan, markLoanAsPaid } = useFinance();
@@ -23,6 +25,10 @@ export default function LoansModule() {
   // Status Filter: 'pending' (default) | 'paid' | 'all'
   const [statusFilter, setStatusFilter] = useState('pending');
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
   const safeLoansList = useMemo(() => Array.isArray(loans) ? loans.filter(Boolean) : [], [loans]);
   const safeCategoriesList = useMemo(() => Array.isArray(categories) ? categories.filter(Boolean) : [], [categories]);
   const safeAccountsList = useMemo(() => Array.isArray(accounts) ? accounts.filter(Boolean) : [], [accounts]);
@@ -31,7 +37,7 @@ export default function LoansModule() {
   const statusOptions = useMemo(() => [
     { value: 'pending', label: t('loans.pendingPayment', {}, 'Pendientes por pagar') },
     { value: 'paid', label: t('loans.paidHistory', {}, 'Historial de pagados') },
-    { value: 'all', label: t('loans.allBalances', {}, 'Todos los saldos') }
+    { value: 'all', label: t('loans.allBalances', {}, 'Todos los registros') }
   ], [t]);
 
   const filteredLoans = useMemo(() => {
@@ -55,6 +61,16 @@ export default function LoansModule() {
     });
   }, [safeLoansList, statusFilter, searchTerm, safeCategoriesList]);
 
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, searchTerm]);
+
+  const paginatedLoans = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredLoans.slice(start, start + pageSize);
+  }, [filteredLoans, currentPage, pageSize]);
+
   const loanColumns = useMemo(() => [
     { label: t('modals.loan.desc', {}, 'Concepto'), accessor: (l) => (l?.concept || l?.description || '-') },
     { 
@@ -71,25 +87,26 @@ export default function LoansModule() {
     { label: t('loans.status', {}, 'Estado'), accessor: (l) => (l?.status === 'paid' || l?.status === 'settled') ? t('loans.paid', {}, 'Pagado') : t('loans.pending', {}, 'Pendiente') }
   ], [safeCategoriesList, t]);
 
-  const { totalReceivable, totalPayable, totalPendingAmount } = useMemo(() => {
-    let receivable = 0;
-    let payable = 0;
-    let total = 0;
-    
-    safeLoansList
+  // Reactive Consolidated Total Debt based on filtered view
+  const totalPendingDebt = useMemo(() => {
+    return filteredLoans
       .filter(l => l && (l.status === 'pending' || !l.status))
-      .forEach(l => {
-        const val = convertToGlobal(parseNumeric(l.amount, 0), l.currency || 'USD', baseCurrency, exchangeRates);
-        total += val;
-        if (val < 0) {
-          receivable += Math.abs(val); // Amounts < 0 are receivables
-        } else {
-          payable += val; // Amounts > 0 are payables
-        }
-      });
-      
-    return { totalReceivable: receivable, totalPayable: payable, totalPendingAmount: total };
-  }, [safeLoansList, baseCurrency, exchangeRates]);
+      .reduce((sum, l) => {
+        const val = convertCrossCurrency(
+          parseNumeric(l.amount, 0),
+          l.currency || 'USD',
+          baseCurrency,
+          exchangeRates
+        );
+        return sum + Math.abs(val);
+      }, 0);
+  }, [filteredLoans, baseCurrency, exchangeRates]);
+
+  const loanSummary = useMemo(() => ({
+    totalRecords: filteredLoans.length,
+    consolidatedTotal: `${formatCurrency(totalPendingDebt, baseCurrency)}`,
+    baseCurrency
+  }), [filteredLoans.length, totalPendingDebt, baseCurrency, formatCurrency]);
 
   const handleSaveLoan = useCallback((loanData) => {
     if (!loanData) return;
@@ -143,12 +160,10 @@ export default function LoansModule() {
       <header className="flex items-center justify-between gap-2.5 w-full relative z-30">
         <div className="min-w-0 flex-1">
           <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white truncate">
-            {t('loans.title', {}, 'Saldos Pendientes')}
+            {t('loans.title', {}, 'Deudas y Compromisos')}
           </h1>
           <p className="text-xs md:text-sm text-slate-400 mt-0.5 block font-normal truncate">
-            <span className="tabular-nums">
-              {t('loans.totalPendingLabel', { amount: formatCurrency(totalPendingAmount) }, `Total Pendiente: ${formatCurrency(totalPendingAmount)}`)}
-            </span>
+            {t('loans.subtitle', {}, 'Control y seguimiento de deudas pendientes por pagar')}
           </p>
         </div>
 
@@ -161,30 +176,23 @@ export default function LoansModule() {
             className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
           >
             <Plus size={15} className="shrink-0" />
-            <span>{t('loans.newLoan', {}, 'Nuevo Saldo')}</span>
+            <span>{t('loans.newLoan', {}, 'Nueva Deuda')}</span>
           </button>
         </div>
       </header>
 
-      {/* CONSOLIDATED BALANCES CARD */}
-      <div className="w-full relative z-10 bg-[#131E22]/60 p-4 rounded-2xl border border-white/5 mb-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col">
-            <span className="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">{t('loans.netBalance', {}, 'Balance Neto Pendiente')}</span>
-            <span className="text-base md:text-lg font-extrabold text-white tabular-nums">{formatCurrency(totalPendingAmount, baseCurrency)}</span>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-3 pt-2 border-t border-white/5">
-          <div className="flex flex-col">
-            <span className="text-[10px] sm:text-xs text-slate-400 font-semibold">{t('loans.receivableShort', {}, 'Por Cobrar')}</span>
-            <span className="text-sm font-bold text-[var(--color-primary,#AEEDD0)] tabular-nums">{formatCurrency(totalReceivable, baseCurrency)}</span>
-          </div>
-          <div className="flex flex-col border-l border-white/10 pl-3">
-            <span className="text-[10px] sm:text-xs text-slate-400 font-semibold">{t('loans.payableShort', {}, 'Por Pagar')}</span>
-            <span className="text-sm font-bold text-[#FF6B6B] tabular-nums">{formatCurrency(totalPayable, baseCurrency)}</span>
-          </div>
-        </div>
-      </div>
+      {/* KPI HERO BANNER: TOTAL PENDING DEBT */}
+      <SectionKpiHero
+        title={t('loans.totalPendingDebt', {}, language === 'es' ? 'TOTAL DEUDA PENDIENTE' : 'TOTAL PENDING DEBT')}
+        formattedAmount={formatCurrency(totalPendingDebt, baseCurrency)}
+        currency={baseCurrency}
+        icon={Percent}
+        iconBgColor="bg-amber-500/15"
+        iconBorderColor="border-amber-500/30"
+        iconTextColor="text-amber-400"
+        secondaryLabel={t('loans.showingRecords', { count: filteredLoans.length }, `${language === 'es' ? 'Mostrando' : 'Showing'} ${filteredLoans.length} ${language === 'es' ? 'registros' : 'records'}`)}
+        secondaryValue={baseCurrency}
+      />
 
       {/* Filter Bar */}
       <div className="p-4 md:p-6 rounded-2xl md:rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] space-y-3 relative z-30">
@@ -221,8 +229,9 @@ export default function LoansModule() {
               <ExportDropdown
                 data={filteredLoans}
                 columns={loanColumns}
-                title={t('loans.title', {}, 'Saldos Pendientes')}
-                filename="saldos_pendientes_growy"
+                title={t('loans.title', {}, 'Deudas y Compromisos')}
+                filename="deudas_growy"
+                summary={loanSummary}
               />
             </div>
           </div>
@@ -254,8 +263,8 @@ export default function LoansModule() {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder={t('placeholders.search', {}, 'Buscar por concepto...')}
-                  className="w-full h-10 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#AEEDD0] shadow-inner transition-colors"
+                  placeholder={t('placeholders.search', {}, 'Buscar por concepto o categoría...')}
+                  className="w-full h-11 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#AEEDD0] shadow-inner transition-colors"
                 />
               </div>
             </div>
@@ -265,12 +274,10 @@ export default function LoansModule() {
             <ExportDropdown
               data={filteredLoans}
               columns={loanColumns}
-              title={t('loans.title', {}, 'Saldos Pendientes')}
-              filename="saldos_pendientes_growy"
+              title={t('loans.title', {}, 'Deudas y Compromisos')}
+              filename="deudas_growy"
+              summary={loanSummary}
             />
-            <div className="text-xs text-slate-300 font-medium tabular-nums">
-              {t('loans.showingRecords', { count: filteredLoans.length }, `${filteredLoans.length} registros`)}
-            </div>
           </div>
         </div>
 
@@ -278,22 +285,22 @@ export default function LoansModule() {
 
       {/* List View */}
       <div className="w-full space-y-2.5 relative z-10">
-        {filteredLoans.length === 0 ? (
+        {paginatedLoans.length === 0 ? (
           <div className="p-6 sm:p-8 rounded-2xl sm:rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] text-center text-slate-300 space-y-3">
             <Percent className="w-12 h-12 text-slate-400 mx-auto" />
-            <h3 className="text-base md:text-lg font-bold text-white tracking-tight">{t('loans.noLoansTitle', {}, 'Sin saldos pendientes')}</h3>
+            <h3 className="text-base md:text-lg font-bold text-white tracking-tight">{t('loans.noLoansTitle', {}, 'Sin deudas pendientes')}</h3>
             <p className="text-xs md:text-sm text-slate-400 max-w-sm mx-auto font-normal">
-              {t('loans.noLoansDesc', {}, '¡Excelente! No tienes compromisos financieros registrados en esta categoría.')}
+              {t('loans.noLoansDesc', {}, '¡Excelente! No tienes compromisos financieros pendientes de pago en esta categoría.')}
             </p>
             <button
               onClick={() => setIsModalOpen(true)}
               className="h-11 md:h-10 px-4 rounded-xl btn-primary-mint font-bold text-xs inline-flex items-center gap-2 shadow cursor-pointer"
             >
-              <Plus className="w-4 h-4" /> {t('loans.newLoan', {}, 'Nuevo Saldo Pendiente')}
+              <Plus className="w-4 h-4" /> {t('loans.newLoan', {}, 'Nueva Deuda')}
             </button>
           </div>
         ) : (
-          filteredLoans.map((loan) => {
+          paginatedLoans.map((loan) => {
             if (!loan) return null;
             const catId = loan.categoryId || loan.category_id;
             const cat = safeCategoriesList.find(c => c && c.id === catId) || { name: 'Uncategorized', emoji: '📄' };
@@ -384,6 +391,19 @@ export default function LoansModule() {
         )}
       </div>
 
+      {/* Universal Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalItems={filteredLoans.length}
+        pageSize={pageSize}
+        pageSizeOptions={[10, 30, 50]}
+        onPageChange={setCurrentPage}
+        onPageSizeChange={(newSize) => {
+          setPageSize(newSize);
+          setCurrentPage(1);
+        }}
+      />
+
       <LoanModal
         isOpen={isModalOpen}
         onClose={() => {
@@ -407,8 +427,8 @@ export default function LoansModule() {
         isOpen={!!loanToDelete}
         onClose={() => setLoanToDelete(null)}
         onConfirm={handleDeleteLoan}
-        itemName={loanToDelete?.concept || loanToDelete?.description || 'saldo pendiente'}
-        itemType="saldo pendiente"
+        itemName={loanToDelete?.concept || loanToDelete?.description || 'deuda pendiente'}
+        itemType="deuda pendiente"
       />
 
     </div>

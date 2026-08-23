@@ -336,20 +336,20 @@ export default function TransactionModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 px-4 rounded-xl border border-white/10 text-slate-300 font-medium hover:bg-white/5 transition-colors cursor-pointer"
+            className="flex-1 py-3 px-4 rounded-xl bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 font-semibold border border-white/10 transition-colors cursor-pointer"
           >
             {t('common.cancel', {}, 'Cancelar')}
           </button>
           <button
             type="submit"
             disabled={isSubmitting || safeAccounts.length === 0}
-            className={`flex-1 py-3 px-4 rounded-xl bg-[#5EEAD4] text-[#0A1316] font-semibold hover:bg-[#2DD4BF] transition-colors cursor-pointer flex items-center justify-center gap-2 ${
+            className={`flex-1 py-3 px-4 rounded-xl btn-primary-mint font-bold hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md ${
               isSubmitting || safeAccounts.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
             {isSubmitting ? (
               <>
-                <div className="w-4 h-4 border-2 border-[#0A1316] border-t-transparent rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-[#1E2D32] border-t-transparent rounded-full animate-spin" />
                 <span>{t('common.saving', {}, 'Guardando...')}</span>
               </>
             ) : (
