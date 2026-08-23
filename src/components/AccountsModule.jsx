@@ -11,7 +11,7 @@ import { useSettings } from '../context/SettingsContext';
 import { parseNumeric } from '../utils/formatters';
 
 export default function AccountsModule() {
-  const { accounts, addAccount, updateAccount, deleteAccount } = useFinance();
+  const { accounts, addAccount, updateAccount, deleteAccount, isLoading, isInitialized } = useFinance();
   const { convertToGlobal, baseCurrency, formatCurrency, t, language } = useSettings();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -158,10 +158,11 @@ export default function AccountsModule() {
         iconBgColor="bg-emerald-500/15"
         iconBorderColor="border-emerald-500/30"
         iconTextColor="text-emerald-400"
-        badge={language === 'es' ? 'TIEMPO REAL' : 'LIVE'}
-        badgeColor="emerald"
+        badgeText={language === 'es' ? 'TIEMPO REAL' : 'LIVE'}
+        badgeColor="bg-emerald-500/10 text-emerald-300 border-emerald-500/20"
         secondaryLabel={t('accounts.showingRecords', { count: filteredAccounts?.length || 0 }, `${filteredAccounts?.length || 0} ${language === 'es' ? 'cuentas' : 'accounts'}`)}
         secondaryValue={baseCurrency}
+        isLoading={isLoading || !isInitialized}
       />
 
       {/* RESPONSIVE TOOLBAR: 2 Rows on Mobile (< sm), 1 Row on Desktop (sm:) */}

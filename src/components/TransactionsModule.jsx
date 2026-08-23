@@ -14,7 +14,7 @@ import { formatDateISO } from '../utils/formatters';
 import { convertCrossCurrency } from '../utils/currency';
 
 export default function TransactionsModule() {
-  const { transactions, accounts, categories, addTransaction, updateTransaction, deleteTransaction } = useFinance();
+  const { transactions, accounts, categories, addTransaction, updateTransaction, deleteTransaction, isLoading, isInitialized } = useFinance();
   const { formatCurrency, t, language, exchangeRates, baseCurrency, formatToGlobal } = useSettings();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -344,6 +344,7 @@ export default function TransactionsModule() {
         iconTextColor={netFlow >= 0 ? 'text-emerald-400' : 'text-rose-400'}
         badgeText={currentMonthLabel}
         badgeColor="bg-white/5 text-slate-300 border-white/10"
+        isLoading={isLoading || !isInitialized}
       >
         <div className="flex items-center gap-4 sm:gap-6">
           <div className="text-left sm:text-right">

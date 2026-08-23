@@ -12,6 +12,7 @@ import { ShieldCheck } from 'lucide-react';
 import DbConnectionGuard from './components/DbConnectionGuard';
 import { useDocumentTitle } from './hooks/useDocumentTitle';
 import AmbientBackground from './components/AmbientBackground';
+import SplashScreen from './components/SplashScreen';
 
 function LoginScreen({ onLoginSuccess, onOpenForgotPassword, onOpenRegister }) {
   const { t } = useSettings();
@@ -63,6 +64,7 @@ function LoginScreen({ onLoginSuccess, onOpenForgotPassword, onOpenRegister }) {
 
 export default function App() {
   const [user, setUser] = useState(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [showWalkthrough, setShowWalkthrough] = useState(false);
   const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
@@ -70,27 +72,33 @@ export default function App() {
   // Auto session restoration on reload (F5) with live Supabase DB user validation
   useEffect(() => {
     async function initSession() {
-      const storedId = getActiveSessionUserId();
-      if (!storedId) {
-        setUser(null);
-        return;
-      }
+      try {
+        const storedId = getActiveSessionUserId();
+        if (!storedId) {
+          setUser(null);
+          return;
+        }
 
-      console.log('🔄 Sincronizando sesión desde Supabase DB para:', storedId);
+        console.log('🔄 Sincronizando sesión desde Supabase DB para:', storedId);
 
-      // Validate that user STILL EXISTS in Supabase DB
-      const liveUser = await dbFetchUserById(storedId);
+        // Validate that user STILL EXISTS in Supabase DB
+        const liveUser = await dbFetchUserById(storedId);
 
-      if (!liveUser) {
-        console.warn('⚠️ La sesión guardada pertenece a un usuario eliminado en Supabase DB. Purgando sesión.');
-        setActiveSessionUserId(null);
-        setUser(null);
-        return;
-      }
+        if (!liveUser) {
+          console.warn('⚠️ La sesión guardada pertenece a un usuario eliminado en Supabase DB. Purgando sesión.');
+          setActiveSessionUserId(null);
+          setUser(null);
+          return;
+        }
 
-      setUser(liveUser);
-      if (!liveUser.hasCompletedWalkthrough) {
-        setShowWalkthrough(true);
+        setUser(liveUser);
+        if (!liveUser.hasCompletedWalkthrough) {
+          setShowWalkthrough(true);
+        }
+      } catch (err) {
+        console.error('❌ Error al inicializar sesión:', err);
+      } finally {
+        setIsAuthLoading(false);
       }
     }
     initSession();
@@ -117,6 +125,10 @@ export default function App() {
     setUser(prev => prev ? { ...prev, hasCompletedWalkthrough: true } : null);
     setShowWalkthrough(false);
   };
+
+  if (isAuthLoading) {
+    return <SplashScreen />;
+  }
 
   return (
     <ErrorBoundary>

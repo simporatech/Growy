@@ -643,14 +643,23 @@ export default function DashboardPreview({ user, onLogout }) {
                       {baseCurrency}
                     </span>
                   </div>
-                  <div className="text-xl lg:text-2xl font-bold tracking-tight text-white tabular-nums">
-                    {formatCurrency(netWealth, baseCurrency)}
-                  </div>
-                  <div className="flex items-center gap-2 sm:gap-3 text-xs text-slate-300 font-medium tabular-nums flex-wrap pt-0.5">
-                    <span className="text-emerald-400 font-semibold">{formatCurrency(totalBalance, baseCurrency)} {t('dashboard.assets', {}, 'Activos')}</span>
-                    <span className="text-slate-400">•</span>
-                    <span className="text-rose-400 font-semibold">{formatCurrency(totalPendingDebt, baseCurrency)} {t('dashboard.liabilities', {}, 'Pasivos')}</span>
-                  </div>
+                  {isLoading || !isInitialized ? (
+                    <div className="space-y-2 py-1">
+                      <div className="h-7 w-36 bg-white/5 rounded-lg animate-pulse" />
+                      <div className="h-4 w-44 bg-white/5 rounded-md animate-pulse" />
+                    </div>
+                  ) : (
+                    <>
+                      <div className="text-xl lg:text-2xl font-bold tracking-tight text-white tabular-nums">
+                        {formatCurrency(netWealth, baseCurrency)}
+                      </div>
+                      <div className="flex items-center gap-2 sm:gap-3 text-xs text-slate-300 font-medium tabular-nums flex-wrap pt-0.5">
+                        <span className="text-emerald-400 font-semibold">{formatCurrency(totalBalance, baseCurrency)} {t('dashboard.assets', {}, 'Activos')}</span>
+                        <span className="text-slate-400">•</span>
+                        <span className="text-rose-400 font-semibold">{formatCurrency(totalPendingDebt, baseCurrency)} {t('dashboard.liabilities', {}, 'Pasivos')}</span>
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 {/* KPI 2: Ingresos del Mes (Col 1 en mobile, 1 en desktop) */}
@@ -658,14 +667,23 @@ export default function DashboardPreview({ user, onLogout }) {
                   <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 truncate block">
                     {t('dashboard.monthlyIncome', {}, 'Ingresos')}
                   </span>
-                  <div className="text-lg lg:text-2xl font-bold tracking-tight text-emerald-400 tabular-nums truncate">
-                    {formatCurrency(monthlyIncomes, baseCurrency)}
-                  </div>
-                  <p className="text-xs text-slate-300 font-medium truncate">
-                    <span className="text-emerald-400 font-bold tabular-nums">
-                      {incomeDiffPercentage >= 0 ? `+${incomeDiffPercentage}%` : `${incomeDiffPercentage}%`}
-                    </span> <span className="hidden sm:inline">{t('dashboard.vsPrevMonth', {}, 'vs. mes anterior')}</span><span className="sm:hidden">vs mes ant.</span>
-                  </p>
+                  {isLoading || !isInitialized ? (
+                    <div className="space-y-2 py-0.5">
+                      <div className="h-6 lg:h-7 w-24 bg-white/5 rounded-lg animate-pulse" />
+                      <div className="h-3 w-16 bg-white/5 rounded-md animate-pulse" />
+                    </div>
+                  ) : (
+                    <>
+                      <div className="text-lg lg:text-2xl font-bold tracking-tight text-emerald-400 tabular-nums truncate">
+                        {formatCurrency(monthlyIncomes, baseCurrency)}
+                      </div>
+                      <p className="text-xs text-slate-300 font-medium truncate">
+                        <span className="text-emerald-400 font-bold tabular-nums">
+                          {incomeDiffPercentage >= 0 ? `+${incomeDiffPercentage}%` : `${incomeDiffPercentage}%`}
+                        </span> <span className="hidden sm:inline">{t('dashboard.vsPrevMonth', {}, 'vs. mes anterior')}</span><span className="sm:hidden">vs mes ant.</span>
+                      </p>
+                    </>
+                  )}
                 </div>
 
                 {/* KPI 3: Gastos del Mes & Burn Rate (Col 2 en mobile, 1 en desktop) */}
@@ -673,14 +691,23 @@ export default function DashboardPreview({ user, onLogout }) {
                   <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 truncate block">
                     {t('dashboard.monthlyExpenses', {}, 'Gastos')}
                   </span>
-                  <div className="text-lg lg:text-2xl font-bold tracking-tight text-rose-400 tabular-nums truncate">
-                    {formatCurrency(monthlyExpenses, baseCurrency)}
-                  </div>
-                  <p className="text-xs text-slate-300 font-medium truncate">
-                    <span className="text-rose-400 font-bold tabular-nums">
-                      {expenseDiffPercentage >= 0 ? `+${expenseDiffPercentage}%` : `${expenseDiffPercentage}%`}
-                    </span> <span className="hidden sm:inline">{t('dashboard.vsPrevMonth', {}, 'vs. mes anterior')}</span><span className="sm:hidden">vs mes ant.</span>
-                  </p>
+                  {isLoading || !isInitialized ? (
+                    <div className="space-y-2 py-0.5">
+                      <div className="h-6 lg:h-7 w-24 bg-white/5 rounded-lg animate-pulse" />
+                      <div className="h-3 w-16 bg-white/5 rounded-md animate-pulse" />
+                    </div>
+                  ) : (
+                    <>
+                      <div className="text-lg lg:text-2xl font-bold tracking-tight text-rose-400 tabular-nums truncate">
+                        {formatCurrency(monthlyExpenses, baseCurrency)}
+                      </div>
+                      <p className="text-xs text-slate-300 font-medium truncate">
+                        <span className="text-rose-400 font-bold tabular-nums">
+                          {expenseDiffPercentage >= 0 ? `+${expenseDiffPercentage}%` : `${expenseDiffPercentage}%`}
+                        </span> <span className="hidden sm:inline">{t('dashboard.vsPrevMonth', {}, 'vs. mes anterior')}</span><span className="sm:hidden">vs mes ant.</span>
+                      </p>
+                    </>
+                  )}
                 </div>
 
                 {/* KPI 4: Tasa de Ahorro Real (Colspan 2 en mobile, 1 en desktop) */}
@@ -693,12 +720,21 @@ export default function DashboardPreview({ user, onLogout }) {
                       Score {financialScore}/100
                     </span>
                   </div>
-                  <div className="text-lg lg:text-2xl font-bold tracking-tight text-white tabular-nums">
-                    {savingsRate}%
-                  </div>
-                  <p className="text-xs text-slate-300 font-medium truncate">
-                    {netSavingsAmount >= 0 ? t('dashboard.positiveCashflow', {}, 'Superávit:') : t('dashboard.deficitCashflow', {}, 'Déficit:')} <span className="text-white font-semibold tabular-nums">{formatCurrency(netSavingsAmount, baseCurrency)}</span>
-                  </p>
+                  {isLoading || !isInitialized ? (
+                    <div className="space-y-2 py-0.5">
+                      <div className="h-6 lg:h-7 w-20 bg-white/5 rounded-lg animate-pulse" />
+                      <div className="h-3 w-32 bg-white/5 rounded-md animate-pulse" />
+                    </div>
+                  ) : (
+                    <>
+                      <div className="text-lg lg:text-2xl font-bold tracking-tight text-white tabular-nums">
+                        {savingsRate}%
+                      </div>
+                      <p className="text-xs text-slate-300 font-medium truncate">
+                        {netSavingsAmount >= 0 ? t('dashboard.positiveCashflow', {}, 'Superávit:') : t('dashboard.deficitCashflow', {}, 'Déficit:')} <span className="text-white font-semibold tabular-nums">{formatCurrency(netSavingsAmount, baseCurrency)}</span>
+                      </p>
+                    </>
+                  )}
                 </div>
 
               </div>

@@ -18,7 +18,8 @@ export default function SectionKpiHero({
   iconBorderColor = 'border-amber-500/30',
   iconTextColor = 'text-amber-400',
   children,
-  className = ''
+  className = '',
+  isLoading = false
 }) {
   return (
     <div className={`w-full p-4 sm:p-5 md:p-6 rounded-2xl md:rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10 transition-all ${className}`}>
@@ -43,16 +44,20 @@ export default function SectionKpiHero({
             )}
           </div>
           
-          <div className="flex items-baseline gap-2 mt-0.5">
-            <span className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight tabular-nums block truncate">
-              {formattedAmount || amount}
-            </span>
-            {currency && (
-              <span className="text-xs sm:text-sm font-bold text-[var(--color-primary,#AEEDD0)] uppercase tracking-wider">
-                {currency}
+          {isLoading ? (
+            <div className="h-8 sm:h-9 w-44 bg-white/5 rounded-lg animate-pulse my-1" />
+          ) : (
+            <div className="flex items-baseline gap-2 mt-0.5">
+              <span className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight tabular-nums block truncate">
+                {formattedAmount || amount}
               </span>
-            )}
-          </div>
+              {currency && (
+                <span className="text-xs sm:text-sm font-bold text-[var(--color-primary,#AEEDD0)] uppercase tracking-wider">
+                  {currency}
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
