@@ -607,7 +607,7 @@ export default function TransactionsModule() {
                         <div className="flex items-center gap-3 shrink-0">
                           <div className={`text-base font-bold tabular-nums ${isIncome ? 'text-[var(--color-primary,#AEEDD0)]' : isExpense ? 'text-[#FF6B6B]' : 'text-sky-300'}`}>
                             {isIncome ? '+ ' : isExpense ? '- ' : ''}
-                            {formatCurrency(tx.amount, acc.currency || tx.currency)}
+                            {formatCurrency(tx.amount, tx.currency || acc?.currency || 'USD')}
                           </div>
 
                           <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">

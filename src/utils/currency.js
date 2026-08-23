@@ -1,8 +1,17 @@
 import { safeGetStorage, safeSetStorage } from './storage';
 import { dbFetchExchangeRates, dbUpsertExchangeRates } from '../services/supabaseService';
+import { 
+  fetchLiveExchangeRates, 
+  convertCrossCurrency, 
+  getCrossRate, 
+  purgeExchangeRatesCache,
+  FALLBACK_RATES 
+} from '../services/currencyService';
+
+export { fetchLiveExchangeRates, convertCrossCurrency, getCrossRate, purgeExchangeRatesCache };
 
 export const BASE_CURRENCY_KEY = 'growy_base_currency';
-export const EXCHANGE_RATES_CACHE_KEY = 'growy_exchange_rates_cache';
+export const EXCHANGE_RATES_CACHE_KEY = 'growy_fx_rates_cache';
 
 export const CURRENCY_MAP = {
   USD: { symbol: '$', name: 'Dólar Estadounidense', nameEn: 'US Dollar', code: 'USD', flag: '🇺🇸' },
@@ -48,28 +57,7 @@ export const SUPPORTED_CURRENCIES = Object.keys(CURRENCY_MAP).map(code => ({
   flag: CURRENCY_MAP[code].flag
 }));
 
-export const FALLBACK_EXCHANGE_RATES = {
-  USD: 1,
-  HNL: 25.50,
-  EUR: 0.92,
-  GBP: 0.79,
-  MXN: 18.20,
-  GTQ: 7.75,
-  COP: 4050.00,
-  CAD: 1.36,
-  BRL: 5.45,
-  ARS: 940.00,
-  CLP: 930.00,
-  PEN: 3.75,
-  CRC: 520.00,
-  DOP: 59.50,
-  JPY: 155.00,
-  CHF: 0.89,
-  AUD: 1.50,
-  CNY: 7.25,
-  INR: 83.50,
-  KRW: 1380.00
-};
+export const FALLBACK_EXCHANGE_RATES = FALLBACK_RATES;
 
 export const getCurrencySymbol = (currencyCode = 'USD') => {
   return CURRENCY_SYMBOLS[currencyCode] || '$';
@@ -112,12 +100,35 @@ export const detectUserLocaleAndCurrency = () => {
 };
 
 /**
- * Format currency amount with decoupled symbol mapping by currency code
+ * Format currency amount with decoupled symbol mapping by currency code or symbol
  */
 export const formatCurrency = (amount, currency = null, globalCurrency = 'USD') => {
   const num = Number(amount) || 0;
-  const targetCurrency = currency || globalCurrency || 'USD';
-  const symbol = CURRENCY_SYMBOLS[targetCurrency] || '$';
+  let targetCurrency = currency || globalCurrency || 'USD';
+  
+  // Check if targetCurrency is a recognized currency code
+  let symbol = CURRENCY_SYMBOLS[targetCurrency];
+  
+  if (!symbol) {
+    // If targetCurrency is not directly in CURRENCY_SYMBOLS, match against code case-insensitively or find by symbol
+    const upperCode = typeof targetCurrency === 'string' ? targetCurrency.toUpperCase() : '';
+    if (CURRENCY_SYMBOLS[upperCode]) {
+      symbol = CURRENCY_SYMBOLS[upperCode];
+      targetCurrency = upperCode;
+    } else {
+      const matchedCode = Object.keys(CURRENCY_MAP).find(
+        code => CURRENCY_MAP[code].symbol === targetCurrency || code.toLowerCase() === String(targetCurrency).toLowerCase()
+      );
+      if (matchedCode) {
+        symbol = CURRENCY_MAP[matchedCode].symbol;
+        targetCurrency = matchedCode;
+      } else if (typeof targetCurrency === 'string' && (targetCurrency.includes('$') || targetCurrency.includes('L.') || targetCurrency.includes('€') || targetCurrency.includes('£'))) {
+        symbol = targetCurrency;
+      } else {
+        symbol = CURRENCY_SYMBOLS[globalCurrency] || '$';
+      }
+    }
+  }
 
   const formattedNum = new Intl.NumberFormat('es-HN', {
     minimumFractionDigits: 2,
@@ -130,53 +141,10 @@ export const formatCurrency = (amount, currency = null, globalCurrency = 'USD') 
 };
 
 /**
- * Fetch daily exchange rates from Supabase DB or API (https://open.er-api.com/v6/latest/USD)
- * and cache with 24-hour / daily validation.
+ * Fetch daily exchange rates using currencyService with smart caching.
  */
 export const fetchExchangeRates = async (force = false) => {
-  const todayStr = new Date().toISOString().split('T')[0];
-
-  if (!force) {
-    const dbCached = await dbFetchExchangeRates();
-    if (dbCached && dbCached.lastFetchDate === todayStr && dbCached.rates) {
-      return dbCached;
-    }
-  }
-
-  const cached = safeGetStorage(EXCHANGE_RATES_CACHE_KEY, null);
-  if (!force && cached && cached.last_fetch_date === todayStr && cached.rates) {
-    return cached;
-  }
-
-  try {
-    const res = await fetch('https://open.er-api.com/v6/latest/USD');
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data.rates) {
-        const mergedRates = { ...FALLBACK_EXCHANGE_RATES, ...data.rates };
-        const payload = {
-          last_fetch_date: todayStr,
-          last_updated_at: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          rates: mergedRates
-        };
-        safeSetStorage(EXCHANGE_RATES_CACHE_KEY, payload);
-        await dbUpsertExchangeRates(payload);
-        return payload;
-      }
-    }
-  } catch (e) {
-    console.warn('Network error or API offline. Using cached or fallback rates:', e);
-  }
-
-  if (cached && cached.rates) {
-    return cached;
-  }
-
-  return {
-    last_fetch_date: todayStr,
-    last_updated_at: 'Hoy',
-    rates: FALLBACK_EXCHANGE_RATES
-  };
+  return fetchLiveExchangeRates(force);
 };
 
 /**
@@ -187,32 +155,12 @@ export const fetchExchangeRates = async (force = false) => {
  * @param {number|string} amount - Nominal original amount
  * @param {string} fromCurrency - Original currency (e.g. 'HNL', 'USD', 'EUR')
  * @param {string} toCurrency - Target currency (e.g. 'USD', 'HNL', 'EUR')
- * @param {number|null} exchangeRateToUsd - Historical exchange rate snapshot (1 USD = X fromCurrency units)
+ * @param {number|null} exchangeRateToUsd - Historical exchange rate snapshot
  * @param {object} liveRates - Active exchange rates map pegged to USD
  * @returns {number} Converted amount in target currency
  */
 export const convertCurrency = (amount, fromCurrency = 'USD', toCurrency = 'USD', exchangeRateToUsd = null, liveRates = FALLBACK_EXCHANGE_RATES) => {
-  const num = Number(amount) || 0;
-  const from = fromCurrency || 'USD';
-  const to = toCurrency || 'USD';
-
-  // Strict Rule: Same currency -> Factor = 1.0
-  if (!from || !to || from === to) {
-    return num;
-  }
-
-  const safeRates = (liveRates && typeof liveRates === 'object') ? liveRates : FALLBACK_EXCHANGE_RATES;
-  
-  // Rate from USD to 'fromCurrency' (1 USD = X 'fromCurrency' units)
-  const fromRate = Number(exchangeRateToUsd) || Number(safeRates[from]) || Number(FALLBACK_EXCHANGE_RATES[from]) || 1;
-  // Rate from USD to 'toCurrency' (1 USD = Y 'toCurrency' units)
-  const toRate = Number(safeRates[to]) || Number(FALLBACK_EXCHANGE_RATES[to]) || 1;
-
-  // Convert: fromCurrency -> USD Pivot -> toCurrency
-  const amountInUSD = num / fromRate;
-  const amountInTarget = amountInUSD * toRate;
-
-  return amountInTarget;
+  return convertCrossCurrency(amount, fromCurrency, toCurrency, liveRates);
 };
 
 /**
@@ -220,25 +168,25 @@ export const convertCurrency = (amount, fromCurrency = 'USD', toCurrency = 'USD'
  * @param {object} tx - Transaction object
  * @param {string} globalCurrency - Active global base currency (e.g. 'USD', 'HNL')
  * @param {object} liveRates - Active exchange rates
- * @returns {number}
+ * @returns {number} Converted amount in base global currency
  */
 export const formatToGlobal = (tx, globalCurrency = 'USD', liveRates = FALLBACK_EXCHANGE_RATES) => {
   if (!tx) return 0;
   const amount = Number(tx.amount) || 0;
-  const txCurrency = tx.currency || 'USD';
+  const txCurrency = (tx.currency || 'USD').toUpperCase();
+  const targetCurrency = (globalCurrency || 'USD').toUpperCase();
 
   // Strict Rule: If transaction is already in globalCurrency, return original amount directly
-  if (txCurrency === globalCurrency) {
+  if (txCurrency === targetCurrency) {
     return amount;
   }
 
-  const snapshotRate = tx.exchangeRateToUsd ?? tx.exchange_rate_to_usd ?? tx.exchangeRateAtTransaction ?? tx.exchange_rate_at_transaction;
-  return convertCurrency(amount, txCurrency, globalCurrency, snapshotRate, liveRates);
+  return convertCrossCurrency(amount, txCurrency, targetCurrency, liveRates);
 };
 
 /**
  * Conversion function strictly for consolidated account balances / net wealth calculation.
  */
 export const convertToGlobal = (amount, accountCurrency = 'USD', globalCurrency = 'USD', rates = FALLBACK_EXCHANGE_RATES) => {
-  return convertCurrency(amount, accountCurrency, globalCurrency, null, rates);
+  return convertCrossCurrency(amount, accountCurrency, globalCurrency, rates);
 };

@@ -258,7 +258,7 @@ export default function DashboardPreview({ user, onLogout }) {
       .filter(c => c && c.type === 'expense')
       .map(cat => {
         const totalSpent = currentMonthTx
-          .filter(t => t && t.categoryId === cat.id && t.type === 'expense')
+          .filter(t => t && (t.categoryId === cat.id || t.category_id === cat.id) && t.type === 'expense')
           .reduce((sum, t) => sum + Math.abs(formatToGlobal(t)), 0);
         return { ...cat, totalSpent };
       })
@@ -270,18 +270,25 @@ export default function DashboardPreview({ user, onLogout }) {
 
   const criticalBudgets = useMemo(() => {
     return safeCategoriesList
-      .filter(c => c && c.type === 'expense' && parseNumeric(c.targetAmount, 0) > 0)
+      .filter(c => {
+        const rawTarget = c?.targetAmount !== undefined ? c.targetAmount : (c?.target_amount !== undefined ? c.target_amount : c?.monthly_budget);
+        return c && c.type === 'expense' && parseNumeric(rawTarget, 0) > 0;
+      })
       .map(cat => {
         const executed = currentMonthTx
-          .filter(t => t && t.categoryId === cat.id && t.type === 'expense')
+          .filter(t => t && (t.categoryId === cat.id || t.category_id === cat.id) && t.type === 'expense')
           .reduce((sum, t) => sum + Math.abs(formatToGlobal(t)), 0);
-        const target = parseNumeric(cat.targetAmount, 0);
+        const rawTarget = cat.targetAmount !== undefined ? cat.targetAmount : (cat.target_amount !== undefined ? cat.target_amount : cat.monthly_budget);
+        const numTarget = parseNumeric(rawTarget, 0);
+        const target = (!cat.currency || cat.currency === baseCurrency)
+          ? numTarget
+          : convertToGlobal(numTarget, cat.currency);
         const percentage = target > 0 ? Math.round((executed / target) * 100) : 0;
         return { ...cat, executed, target, percentage };
       })
       .filter(c => c.percentage >= 70)
       .sort((a, b) => b.percentage - a.percentage);
-  }, [safeCategoriesList, currentMonthTx, formatToGlobal]);
+  }, [safeCategoriesList, currentMonthTx, formatToGlobal, convertToGlobal, baseCurrency]);
 
   const topExpenses = useMemo(() => categoryExpenses.slice(0, 3), [categoryExpenses]);
   const pendingLoansList = useMemo(() => safeLoansList.filter(l => l && l.status === 'pending'), [safeLoansList]);
@@ -931,7 +938,7 @@ export default function DashboardPreview({ user, onLogout }) {
 
                           <div className="flex items-center gap-2 shrink-0">
                             <span className="text-xs font-bold text-white tabular-nums">
-                              {formatCurrency(acc.balance, acc.currencySymbol || '$')}
+                              {formatCurrency(acc.balance, acc.currency || 'USD')}
                             </span>
                             <button
                               onClick={() => {
@@ -1161,7 +1168,7 @@ export default function DashboardPreview({ user, onLogout }) {
                     {recentTransactions.map((tx) => {
                       if (!tx) return null;
                       
-                      const acc = safeAccountsList.find(a => a?.id === tx.accountId) || { name: 'Cuenta General', currencySymbol: '$', emoji: '💳' };
+                      const acc = safeAccountsList.find(a => a?.id === tx.accountId) || { name: 'Cuenta General', currency: 'USD', currencySymbol: '$', emoji: '💳' };
                       const cat = safeCategoriesList.find(c => c?.id === tx.categoryId) || { name: 'General', emoji: '📌' };
 
                       const isIncome = tx.type === 'income';
@@ -1189,7 +1196,7 @@ export default function DashboardPreview({ user, onLogout }) {
 
                           <div className={`text-xs font-bold shrink-0 tabular-nums ${isIncome ? 'text-[var(--color-primary,#AEEDD0)]' : 'text-[#FF6B6B]'}`}>
                             {isIncome ? '+ ' : '- '}
-                            {formatCurrency(tx.amount, acc.currencySymbol || '$')}
+                            {formatCurrency(tx.amount, tx.currency || acc.currency || 'USD')}
                           </div>
                         </div>
                       );

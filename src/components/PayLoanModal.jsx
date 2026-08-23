@@ -5,6 +5,7 @@ import ModalWrapper from './ModalWrapper';
 import FormField from './FormField';
 import { useSettings } from '../context/SettingsContext';
 import { formatCurrency, parseNumeric } from '../utils/formatters';
+import { getCurrencySymbol } from '../utils/currency';
 
 export default function PayLoanModal({ 
   isOpen, 
@@ -23,7 +24,7 @@ export default function PayLoanModal({
   const safeAccounts = Array.isArray(accounts) ? accounts.filter(Boolean) : [];
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || !loan) return;
 
     if (safeAccounts.length > 0) {
       setAccountId(safeAccounts[0].id);
@@ -31,27 +32,22 @@ export default function PayLoanModal({
       setAccountId('');
     }
 
-    if (loan) {
-      setCustomDebitAmount(loan.amount !== undefined ? loan.amount.toString() : '');
-    } else {
-      setCustomDebitAmount('');
-    }
-
+    setCustomDebitAmount(loan.amount !== undefined ? Math.abs(loan.amount).toString() : '');
     setKeepRecord(true);
     setError('');
-  }, [loan, isOpen]);
+  }, [isOpen, loan]);
 
   if (!isOpen || !loan) return null;
 
   const selectedAccount = safeAccounts.find(a => a.id === accountId) || safeAccounts[0] || null;
   const loanCurr = loan.currency || 'USD';
   const accCurr = selectedAccount?.currency || 'USD';
-  const accSymbol = selectedAccount?.currencySymbol || '$';
+  const accSymbol = selectedAccount?.currencySymbol || getCurrencySymbol(accCurr);
   const isMultiCurrency = loanCurr !== accCurr;
 
   const accountSelectOptions = safeAccounts.map(acc => ({
     value: acc.id,
-    label: `${acc.emoji || '🏦'} ${acc.name} (${acc.currencySymbol || '$'}${acc.currency || 'USD'}) - Balance: ${formatCurrency(acc.balance, acc.currencySymbol)}`
+    label: `${acc.emoji || '🏦'} ${acc.name} (${getCurrencySymbol(acc.currency)} ${acc.currency || 'USD'}) - Balance: ${formatCurrency(acc.balance, acc.currency || 'USD')}`
   }));
 
   const handleSubmit = (e) => {

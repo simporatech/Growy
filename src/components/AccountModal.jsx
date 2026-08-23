@@ -32,10 +32,12 @@ export default function AccountModal({
       setEmoji(accountToEdit.emoji || '💳');
       setColor(accountToEdit.color || '#AEEDD0');
       setCurrency(accountToEdit.currency || 'USD');
-      const initialVal = accountToEdit.initialBalance !== undefined 
-        ? accountToEdit.initialBalance 
-        : (accountToEdit.initial_balance !== undefined ? accountToEdit.initial_balance : (accountToEdit.balance ?? ''));
-      setInitialBalance(initialVal !== undefined && initialVal !== null ? initialVal.toString() : '');
+      const hasInitial = (accountToEdit.initialBalance !== undefined && accountToEdit.initialBalance !== null) ||
+                         (accountToEdit.initial_balance !== undefined && accountToEdit.initial_balance !== null);
+      const initialVal = hasInitial
+        ? (accountToEdit.initialBalance !== undefined ? accountToEdit.initialBalance : accountToEdit.initial_balance)
+        : '';
+      setInitialBalance(initialVal !== undefined && initialVal !== null && initialVal !== '' ? initialVal.toString() : '');
     } else {
       setName('');
       setEmoji('💳');

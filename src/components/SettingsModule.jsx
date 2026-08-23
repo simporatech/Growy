@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Settings as SettingsIcon, Languages, Palette, Sparkles, Download, RotateCcw, Check, ShieldAlert, Coins, RefreshCw, ArrowLeftRight, Trash2, Lock, Eye, EyeOff } from 'lucide-react';
 import { useSettings, THEMES } from '../context/SettingsContext';
 import { useFinance } from '../context/FinanceContext';
-import { SUPPORTED_CURRENCIES, FALLBACK_EXCHANGE_RATES, CURRENCY_MAP, AVAILABLE_CURRENCIES } from '../utils/currency';
+import { SUPPORTED_CURRENCIES, FALLBACK_EXCHANGE_RATES, CURRENCY_MAP, AVAILABLE_CURRENCIES, getCrossRate, convertCrossCurrency } from '../utils/currency';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import DeleteAccountModal from './DeleteAccountModal';
 import CustomSelect from './CustomSelect';
@@ -101,14 +101,11 @@ export default function SettingsModule() {
     }));
   }, []);
 
-  // Calculation Logic
+  // Calculation Logic using Cross-Rate Engine
   const { unitRateFormatted, calcResultFormatted } = useMemo(() => {
     const amt = Number(calcAmount) || 0;
-    const rateFrom = Number(safeRates[calcFromCurrency]) || 1;
-    const rateTo = Number(safeRates[calcToCurrency]) || 1;
-
-    const unitRate = rateTo / rateFrom;
-    const totalResult = amt * unitRate;
+    const unitRate = getCrossRate(calcFromCurrency, calcToCurrency, safeRates);
+    const totalResult = convertCrossCurrency(amt, calcFromCurrency, calcToCurrency, safeRates);
 
     let unitStr = unitRate.toFixed(2);
     if (unitRate < 1 && unitRate >= 0.0001) {

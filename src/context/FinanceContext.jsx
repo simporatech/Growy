@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { parseNumeric, formatDateISO } from '../utils/formatters';
-import { convertToGlobal, FALLBACK_EXCHANGE_RATES } from '../utils/currency';
+import { convertToGlobal, getCrossRate, FALLBACK_EXCHANGE_RATES } from '../utils/currency';
 import { detectUserLanguage } from '../utils/defaultCategories';
 import { 
   dbFetchAccounts, dbSaveAccount, dbDeleteAccount, dbUpdateAccountBalance,
@@ -76,17 +76,20 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
   }, []);
 
   // Strict dynamic calculation of current_balance for each account:
-  // current_balance = initial_balance + total_incomes - total_expenses - total_transfers_out + total_transfers_in
+  // - If the account stores initial_balance, available_balance = account.initial_balance + total_transactions_sum
+  // - If the account only contains accumulated balance from Supabase and no initial_balance, DO NOT sum transactions again
+  // - Ensure initial_balance is the starting point (0.00 by default if not specified)
   const accounts = useMemo(() => {
     const safeAccs = Array.isArray(rawAccounts) ? rawAccounts.filter(Boolean) : [];
     const safeTx = Array.isArray(transactions) ? transactions.filter(Boolean) : [];
 
     return safeAccs.map(acc => {
       if (!acc) return acc;
+      
       const initialBal = parseNumeric(
-        acc.initialBalance !== undefined 
-          ? acc.initialBalance 
-          : (acc.initial_balance !== undefined ? acc.initial_balance : acc.balance), 
+        acc.initialBalance !== undefined && acc.initialBalance !== null
+          ? acc.initialBalance
+          : (acc.initial_balance !== undefined && acc.initial_balance !== null ? acc.initial_balance : 0),
         0
       );
 
@@ -98,23 +101,27 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
       safeTx.forEach(tx => {
         if (!tx) return;
         const amt = parseNumeric(tx.amount, 0);
-        const targetAmt = parseNumeric(tx.targetAmount || tx.amount, 0);
+        const targetAmt = parseNumeric(tx.targetAmount ?? tx.target_amount ?? tx.amount, 0);
 
-        if (tx.type === 'income' && tx.accountId === acc.id) {
+        const txAccountId = tx.accountId || tx.account_id;
+        const txTargetAccountId = tx.targetAccountId || tx.target_account_id || tx.destinationAccountId || tx.destination_account_id;
+
+        if (tx.type === 'income' && txAccountId === acc.id) {
           totalIncomes += amt;
-        } else if (tx.type === 'expense' && tx.accountId === acc.id) {
+        } else if (tx.type === 'expense' && txAccountId === acc.id) {
           totalExpenses += amt;
         } else if (tx.type === 'transfer') {
-          if (tx.accountId === acc.id) {
+          if (txAccountId === acc.id) {
             totalTransfersOut += amt;
           }
-          if (tx.targetAccountId === acc.id) {
+          if (txTargetAccountId === acc.id) {
             totalTransfersIn += targetAmt;
           }
         }
       });
 
-      const currentBalance = initialBal + totalIncomes - totalExpenses - totalTransfersOut + totalTransfersIn;
+      const txNetSum = totalIncomes - totalExpenses - totalTransfersOut + totalTransfersIn;
+      const currentBalance = initialBal + txNetSum;
 
       return {
         ...acc,
@@ -286,15 +293,16 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
   // --- TRANSACTIONS ACTIONS ---
   const addTransaction = useCallback(async (newTx) => {
     try {
-      const txCurrency = newTx.currency || 'USD';
+      const txCurrency = (newTx.currency || 'USD').toUpperCase();
       const safeRates = (exchangeRates && typeof exchangeRates === 'object') ? exchangeRates : FALLBACK_EXCHANGE_RATES;
-      const exchangeRateToUsd = Number(safeRates[txCurrency]) || Number(FALLBACK_EXCHANGE_RATES[txCurrency]) || 1;
+      const exchangeRateToUsd = txCurrency === 'USD' ? 1 : (Number(safeRates[txCurrency]) || Number(FALLBACK_EXCHANGE_RATES[txCurrency]) || 1);
+      const crossRate = getCrossRate(txCurrency, baseCurrency, safeRates);
 
       const txWithSnapshot = {
         ...newTx,
         currency: txCurrency,
         exchangeRateToUsd,
-        exchangeRateAtTransaction: exchangeRateToUsd
+        exchangeRateAtTransaction: crossRate
       };
 
       const saved = await dbSaveTransaction(userId, txWithSnapshot);
@@ -309,25 +317,28 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
       triggerToast('error', syncErrMsg(err));
       throw err;
     }
-  }, [userId, triggerToast, exchangeRates]);
+  }, [userId, triggerToast, exchangeRates, baseCurrency]);
 
   const updateTransaction = useCallback(async (updatedTx) => {
     try {
       const oldTx = transactions.find(t => t && t.id === updatedTx.id);
       const currencyChanged = oldTx && oldTx.currency !== updatedTx.currency;
-      const txCurrency = updatedTx.currency || (oldTx && oldTx.currency) || 'USD';
+      const txCurrency = (updatedTx.currency || (oldTx && oldTx.currency) || 'USD').toUpperCase();
 
-      let exchangeRateToUsd = updatedTx.exchangeRateToUsd || (oldTx && (oldTx.exchangeRateToUsd || oldTx.exchangeRateAtTransaction));
-      if (currencyChanged || !exchangeRateToUsd) {
-        const safeRates = (exchangeRates && typeof exchangeRates === 'object') ? exchangeRates : FALLBACK_EXCHANGE_RATES;
-        exchangeRateToUsd = Number(safeRates[txCurrency]) || Number(FALLBACK_EXCHANGE_RATES[txCurrency]) || 1;
+      const safeRates = (exchangeRates && typeof exchangeRates === 'object') ? exchangeRates : FALLBACK_EXCHANGE_RATES;
+      let exchangeRateToUsd = updatedTx.exchangeRateToUsd || (oldTx && oldTx.exchangeRateToUsd);
+      let exchangeRateAtTransaction = updatedTx.exchangeRateAtTransaction || (oldTx && oldTx.exchangeRateAtTransaction);
+
+      if (currencyChanged || !exchangeRateToUsd || !exchangeRateAtTransaction) {
+        exchangeRateToUsd = txCurrency === 'USD' ? 1 : (Number(safeRates[txCurrency]) || Number(FALLBACK_EXCHANGE_RATES[txCurrency]) || 1);
+        exchangeRateAtTransaction = getCrossRate(txCurrency, baseCurrency, safeRates);
       }
 
       const txWithSnapshot = {
         ...updatedTx,
         currency: txCurrency,
         exchangeRateToUsd,
-        exchangeRateAtTransaction: exchangeRateToUsd
+        exchangeRateAtTransaction
       };
 
       const saved = await dbSaveTransaction(userId, txWithSnapshot);
@@ -342,7 +353,7 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
       triggerToast('error', syncErrMsg(err));
       throw err;
     }
-  }, [userId, triggerToast, exchangeRates, transactions]);
+  }, [userId, triggerToast, exchangeRates, baseCurrency, transactions]);
 
   const deleteTransaction = useCallback(async (txId) => {
     try {

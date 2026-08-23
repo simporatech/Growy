@@ -32,6 +32,24 @@ export const toCamel = (obj) => {
   if (n.exchangeRateAtTransaction !== undefined && n.exchangeRateToUsd === undefined) {
     n.exchangeRateToUsd = n.exchangeRateAtTransaction;
   }
+  if (n.destinationAccountId && !n.targetAccountId) {
+    n.targetAccountId = n.destinationAccountId;
+  }
+  if (n.targetAccountId && !n.destinationAccountId) {
+    n.destinationAccountId = n.targetAccountId;
+  }
+  if (n.initialBalance !== undefined && n.initial_balance === undefined) {
+    n.initial_balance = n.initialBalance;
+  }
+  if (n.initial_balance !== undefined && n.initialBalance === undefined) {
+    n.initialBalance = n.initial_balance;
+  }
+  if (n.targetAmount !== undefined && n.target_amount === undefined) {
+    n.target_amount = n.targetAmount;
+  }
+  if (n.target_amount !== undefined && n.targetAmount === undefined) {
+    n.targetAmount = n.target_amount;
+  }
   return n;
 };
 
@@ -455,6 +473,7 @@ export const dbSaveCategory = async (userId, categoryData) => {
     name: categoryData.name ? categoryData.name.trim() : 'Categoría',
     emoji: categoryData.emoji || '📁',
     color: categoryData.color || '#AEEDD0',
+    currency: categoryData.currency || 'USD',
     target_amount: isNaN(numTarget) ? 0 : numTarget
   };
 
@@ -466,11 +485,24 @@ export const dbSaveCategory = async (userId, categoryData) => {
   console.log('🚀 [Supabase DB] Guardando categoría en Supabase DB:', payload);
 
   try {
-    const query = payload.id 
+    let query = payload.id 
       ? supabase.from('categories').upsert([payload]).select()
       : supabase.from('categories').insert([payload]).select();
 
-    const { data, error } = await query;
+    let { data, error } = await query;
+
+    // Fallback if currency column does not exist in Postgres categories schema
+    if (error && error.message && error.message.includes('currency')) {
+      console.warn('⚠️ Columna currency no existe en categories, reintentando sin currency...');
+      const fallbackPayload = { ...payload };
+      delete fallbackPayload.currency;
+      const fallbackQuery = fallbackPayload.id 
+        ? supabase.from('categories').upsert([fallbackPayload]).select()
+        : supabase.from('categories').insert([fallbackPayload]).select();
+      const res = await fallbackQuery;
+      data = res.data;
+      error = res.error;
+    }
 
     if (error) {
       console.error('❌ Error exacto de Supabase al guardar categoría:', error);
@@ -535,17 +567,23 @@ export const dbSaveTransaction = async (userId, txData) => {
   const numAmount = parseFloat(txData.amount || 0);
   const cleanCurrency = txData.currency || 'USD';
   const cleanDate = txData.transactionDate || txData.date || new Date().toISOString().split('T')[0];
+  const destAccountId = txData.destinationAccountId || txData.destination_account_id || txData.targetAccountId || txData.target_account_id || null;
+  const numTargetAmount = parseFloat(txData.targetAmount || txData.target_amount || txData.amount || 0);
 
   // Base payload with standard columns strictly existing in Supabase transactions table
   const payload = {
     user_id: userId,
-    account_id: txData.accountId || null,
-    category_id: txData.categoryId || null,
+    account_id: txData.accountId || txData.account_id || null,
+    destination_account_id: destAccountId,
+    target_account_id: destAccountId,
+    target_amount: isNaN(numTargetAmount) ? (isNaN(numAmount) ? 0 : numAmount) : numTargetAmount,
+    category_id: txData.categoryId || txData.category_id || null,
     type: txData.type || 'expense',
     amount: isNaN(numAmount) ? 0 : numAmount,
     currency: cleanCurrency,
     description: txData.description ? txData.description.trim() : null,
-    transaction_date: cleanDate
+    transaction_date: cleanDate,
+    exchange_rate_to_usd: txData.exchangeRateToUsd || txData.exchangeRateAtTransaction || null
   };
 
   // Only pass id when updating an existing UUID record from PostgreSQL
@@ -556,11 +594,32 @@ export const dbSaveTransaction = async (userId, txData) => {
   console.log('🚀 [Supabase DB] Guardando transacción en Supabase DB:', payload);
 
   try {
-    const query = payload.id 
-      ? supabase.from('transactions').upsert([payload]).select()
-      : supabase.from('transactions').insert([payload]).select();
+    let currentPayload = { ...payload };
+    let { data, error } = await (currentPayload.id 
+      ? supabase.from('transactions').upsert([currentPayload]).select()
+      : supabase.from('transactions').insert([currentPayload]).select());
 
-    const { data, error } = await query;
+    // Schema fallback if optional columns don't exist in PostgreSQL table schema
+    if (error && error.message) {
+      if (error.message.includes('destination_account_id')) {
+        delete currentPayload.destination_account_id;
+      }
+      if (error.message.includes('target_account_id')) {
+        delete currentPayload.target_account_id;
+      }
+      if (error.message.includes('target_amount')) {
+        delete currentPayload.target_amount;
+      }
+      if (error.message.includes('exchange_rate_to_usd')) {
+        delete currentPayload.exchange_rate_to_usd;
+      }
+      const retryQuery = currentPayload.id 
+        ? supabase.from('transactions').upsert([currentPayload]).select()
+        : supabase.from('transactions').insert([currentPayload]).select();
+      const res = await retryQuery;
+      data = res.data;
+      error = res.error;
+    }
 
     if (error) {
       console.error("SUPABASE ERROR:", error);

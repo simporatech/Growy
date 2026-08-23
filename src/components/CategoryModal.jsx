@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Tag } from 'lucide-react';
 import ModalWrapper from './ModalWrapper';
 import FormField from './FormField';
+import CustomSelect from './CustomSelect';
 import { useSettings } from '../context/SettingsContext';
 import { parseNumeric } from '../utils/formatters';
-import { getCurrencySymbol } from '../utils/currency';
+import { AVAILABLE_CURRENCIES, getCurrencySymbol } from '../utils/currency';
 
 export default function CategoryModal({ 
   isOpen, 
@@ -13,13 +14,13 @@ export default function CategoryModal({
   categoryToEdit,
   initialType = 'expense' 
 }) {
-  const { baseCurrency, baseCurrencySymbol, t } = useSettings();
-  const resolvedCurrencySymbol = baseCurrencySymbol || getCurrencySymbol(baseCurrency);
+  const { baseCurrency, t } = useSettings();
 
   const [type, setType] = useState('expense');
   const [name, setName] = useState('');
   const [emoji, setEmoji] = useState('🏷️');
   const [color, setColor] = useState('#AEEDD0');
+  const [currency, setCurrency] = useState('USD');
   const [targetAmount, setTargetAmount] = useState('');
   const [error, setError] = useState('');
 
@@ -31,18 +32,22 @@ export default function CategoryModal({
       setName(categoryToEdit.name || '');
       setEmoji(categoryToEdit.emoji || '🏷️');
       setColor(categoryToEdit.color || '#AEEDD0');
+      setCurrency(categoryToEdit.currency || 'USD');
       setTargetAmount(categoryToEdit.targetAmount !== undefined ? categoryToEdit.targetAmount.toString() : '');
     } else {
       setType(initialType || 'expense');
       setName('');
       setEmoji('🏷️');
       setColor(initialType === 'expense' ? '#FF6B6B' : '#AEEDD0');
+      setCurrency(baseCurrency || 'USD');
       setTargetAmount('');
     }
     setError('');
-  }, [categoryToEdit, isOpen, initialType]);
+  }, [categoryToEdit, isOpen, initialType, baseCurrency]);
 
   if (!isOpen) return null;
+
+  const resolvedCurrencySymbol = getCurrencySymbol(currency);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -61,6 +66,7 @@ export default function CategoryModal({
       emoji: emoji.trim() || '🏷️',
       color,
       type,
+      currency,
       targetAmount: numTarget
     });
 
@@ -136,13 +142,13 @@ export default function CategoryModal({
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder={t('modals.category.namePlaceholder', {}, 'Ej. Alimentación, Salario, Transporte')}
+                placeholder={t('modals.category.namePlaceholder', {}, 'Ej. Alimentación, Salario, Transporte, SaaS')}
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <FormField label={t('modals.account.color', {}, 'Color de Identificación')}>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <FormField label={t('modals.account.color', {}, 'Color')}>
               <div className="flex items-center gap-3 h-11 px-3 bg-[#162226] border border-white/10 rounded-xl">
                 <input
                   type="color"
@@ -154,8 +160,16 @@ export default function CategoryModal({
               </div>
             </FormField>
 
+            <FormField label={t('modals.account.currency', {}, 'Divisa')}>
+              <CustomSelect
+                options={AVAILABLE_CURRENCIES}
+                value={currency}
+                onChange={setCurrency}
+              />
+            </FormField>
+
             <FormField
-              label={type === 'expense' ? t('modals.category.expenseBudget', {}, 'Presupuesto Mensual') : t('modals.category.incomeGoal', {}, 'Meta Mensual')}
+              label={type === 'expense' ? t('modals.category.expenseBudget', {}, 'Presupuesto') : t('modals.category.incomeGoal', {}, 'Meta')}
               prefix={resolvedCurrencySymbol}
               type="number"
               step="0.01"

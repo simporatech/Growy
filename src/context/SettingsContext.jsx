@@ -7,6 +7,8 @@ import {
   FALLBACK_EXCHANGE_RATES,
   fetchExchangeRates, 
   convertCurrency as convertCurrencyUtil,
+  convertCrossCurrency as convertCrossCurrencyUtil,
+  getCrossRate as getCrossRateUtil,
   formatToGlobal as formatToGlobalUtil,
   convertToGlobal as convertToGlobalUtil, 
   formatCurrency as formatCurrencyUtil,
@@ -139,14 +141,51 @@ export function SettingsProvider({ children }) {
   }, []);
 
   // Manual Refresh of Exchange Rates
-  const refreshExchangeRates = useCallback(() => {
-    return loadExchangeRates(true);
+  const refreshExchangeRates = useCallback(async () => {
+    setIsFetchingRates(true);
+    try {
+      localStorage.removeItem('growy_fx_rates_cache');
+      localStorage.removeItem('growy_exchange_rates_cache');
+
+      const res = await fetch('https://open.er-api.com/v6/latest/USD');
+      if (!res.ok) throw new Error(`FX API Error: ${res.status}`);
+      const data = await res.json();
+      console.log('Tasa HNL recibida:', data?.rates?.HNL);
+
+      if (data && data.rates) {
+        const mergedRates = { ...FALLBACK_EXCHANGE_RATES, ...data.rates };
+        setExchangeRates(mergedRates);
+        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        setLastUpdated(timeStr);
+        safeSetStorage('growy_fx_rates_cache', {
+          timestamp: Date.now(),
+          rates: mergedRates,
+          last_updated_at: timeStr,
+          last_fetch_date: new Date().toISOString().split('T')[0]
+        });
+      }
+    } catch (err) {
+      console.error('Error fetching live FX rates:', err);
+      await loadExchangeRates(true);
+    } finally {
+      setIsFetchingRates(false);
+    }
   }, [loadExchangeRates]);
 
   // Mathematical Dynamic Calculation to Global Currency for Transactions
   const formatToGlobal = useCallback((tx) => {
     return formatToGlobalUtil(tx, baseCurrency, exchangeRates);
   }, [baseCurrency, exchangeRates]);
+
+  // Mathematical Cross-Rate calculation (1 fromCurrency = X toCurrency)
+  const getCrossRate = useCallback((fromCurrency, toCurrency) => {
+    return getCrossRateUtil(fromCurrency, toCurrency, exchangeRates);
+  }, [exchangeRates]);
+
+  // Mathematical Cross-Currency conversion between any two currencies
+  const convertCrossCurrency = useCallback((amount, fromCurrency, toCurrency) => {
+    return convertCrossCurrencyUtil(amount, fromCurrency, toCurrency, exchangeRates);
+  }, [exchangeRates]);
 
   // Mathematical Dynamic Conversion between any two currencies
   const convertCurrency = useCallback((amount, fromCurrency, toCurrency, exchangeRateToUsd = null) => {
@@ -268,6 +307,8 @@ export function SettingsProvider({ children }) {
     lastUpdated,
     isFetchingRates,
     refreshExchangeRates,
+    getCrossRate,
+    convertCrossCurrency,
     formatToGlobal,
     convertCurrency,
     convertToGlobal,
@@ -290,6 +331,8 @@ export function SettingsProvider({ children }) {
     lastUpdated,
     isFetchingRates,
     refreshExchangeRates,
+    getCrossRate,
+    convertCrossCurrency,
     formatToGlobal,
     convertCurrency,
     convertToGlobal,
