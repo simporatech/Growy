@@ -20,6 +20,7 @@ import SubscriptionModal from './SubscriptionModal';
 import AccountModal from './AccountModal';
 import PayLoanModal from './PayLoanModal';
 import BottomNav from './BottomNav';
+import AmbientBackground from './AmbientBackground';
 import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
 import { formatCurrency, formatDateLabel, formatHeaderDate, parseNumeric } from '../utils/formatters';
@@ -322,19 +323,8 @@ export default function DashboardPreview({ user, onLogout }) {
 
   return (
     <div className="relative min-h-screen bg-[#090C10] text-white overflow-hidden font-sans">
-      {/* Fondo Ambiental Reactivo con Glow Controlado */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10 bg-[#090C10]">
-        {/* Glow MINT Superior */}
-        <div 
-          className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full blur-[150px] opacity-40 transition-colors duration-500"
-          style={{ backgroundColor: 'var(--color-glow, rgba(151, 242, 204, 0.12))' }}
-        />
-        {/* Glow MINT Inferior */}
-        <div 
-          className="absolute -bottom-40 -right-40 w-[600px] h-[600px] rounded-full blur-[180px] opacity-30 transition-colors duration-500"
-          style={{ backgroundColor: 'var(--color-glow, rgba(151, 242, 204, 0.08))' }}
-        />
-      </div>
+      {/* Fondo Ambiental Dinámico con Anti-Banding Dithering y Aceleración GPU */}
+      <AmbientBackground />
       
       {/* Contenedor de la aplicación con aislamiento */}
       <div className="relative z-10 flex h-screen w-screen overflow-hidden">

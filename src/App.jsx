@@ -11,6 +11,7 @@ import { dbFetchUserById } from './services/supabaseService';
 import { ShieldCheck } from 'lucide-react';
 import DbConnectionGuard from './components/DbConnectionGuard';
 import { useDocumentTitle } from './hooks/useDocumentTitle';
+import AmbientBackground from './components/AmbientBackground';
 
 function LoginScreen({ onLoginSuccess, onOpenForgotPassword, onOpenRegister }) {
   const { t } = useSettings();
@@ -19,15 +20,8 @@ function LoginScreen({ onLoginSuccess, onOpenForgotPassword, onOpenRegister }) {
   return (
     <div className="h-screen w-screen overflow-hidden bg-[#090C10] relative flex flex-col justify-between selection:bg-[var(--color-primary,#97F2CC)] selection:text-[#091E15]">
       
-      {/* BACKGROUND GRAPHICS (Ambient Glow Blobs with Texture) */}
-      <div 
-        className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full blur-[150px] opacity-40 transition-colors duration-500 pointer-events-none"
-        style={{ backgroundColor: 'var(--color-glow, rgba(151, 242, 204, 0.12))' }}
-      />
-      <div 
-        className="absolute -bottom-40 -right-40 w-[600px] h-[600px] rounded-full blur-[180px] opacity-30 transition-colors duration-500 pointer-events-none"
-        style={{ backgroundColor: 'var(--color-glow, rgba(151, 242, 204, 0.08))' }}
-      />
+      {/* Fondo Ambiental Dinámico con Anti-Banding Dithering y Aceleración GPU */}
+      <AmbientBackground />
 
       {/* TOP DECORATIVE HEADER */}
       <header className="relative z-10 p-6 flex items-center justify-between max-w-7xl mx-auto w-full">

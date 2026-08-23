@@ -55,6 +55,14 @@ html.theme-coral {
 }
 
 
+/* Forzar renderizado suave de gradientes en Chromium y Gecko */
+html, body {
+  background-color: #090C10;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 html, body, #root {
   height: 100%;
   width: 100%;
@@ -65,7 +73,7 @@ html, body, #root {
 
 @layer base {
   body {
-    background-color: var(--bg-base);
+    background-color: var(--bg-base, #090C10);
     color: #FFFFFF;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     min-height: 100vh;
@@ -93,6 +101,12 @@ html, body, #root {
 }
 
 /* GPU Layer & Stacking Context Isolation */
+.transform-gpu {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
 .transform-gpu-layer {
   transform: translateZ(0);
   backface-visibility: hidden;
