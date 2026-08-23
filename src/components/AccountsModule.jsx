@@ -267,11 +267,9 @@ export default function AccountsModule() {
                       <span className="text-xs uppercase tracking-wider text-slate-300 font-semibold block mb-0.5">
                         {t('accounts.availableBalance', {}, 'Balance Disponible')}
                       </span>
-                      {account.initialBalance !== undefined && (
-                        <span className="text-[11px] text-slate-400 font-medium tabular-nums">
-                          {t('modals.account.initialBalance', {}, 'Inicial')}: {formatCurrency(account.initialBalance, account.currency)}
-                        </span>
-                      )}
+                      <span className="text-[11px] text-slate-400 font-medium tabular-nums">
+                        {t('accounts.initial_balance_label', {}, t('modals.account.initialBalance', {}, 'Inicial'))}: {formatCurrency(account.initialBalance ?? account.balance ?? 0, account.currency)}
+                      </span>
                     </div>
                     <div className="text-xl sm:text-3xl font-extrabold text-white tracking-tight tabular-nums truncate">
                       {formatCurrency(account.balance, account.currency)}

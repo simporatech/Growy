@@ -159,7 +159,18 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
     return () => { isMounted = false; };
   }, [userId, triggerToast]);
 
-  // --- ACCOUNTS ACTIONS ---
+  const refetchAccounts = useCallback(async () => {
+    if (!userId) return;
+    try {
+      const dbAccs = await dbFetchAccounts(userId);
+      if (Array.isArray(dbAccs)) {
+        setRawAccounts(dbAccs);
+      }
+    } catch (e) {
+      console.error('Error refetching accounts:', e);
+    }
+  }, [userId]);
+
   const addAccount = useCallback(async (newAccount) => {
     try {
       const saved = await dbSaveAccount(userId, newAccount);
@@ -177,8 +188,18 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
     try {
       const saved = await dbSaveAccount(userId, updatedAccount);
       if (saved) {
-        setRawAccounts(prev => (Array.isArray(prev) ? prev.filter(Boolean) : []).map(a => a.id === saved.id ? saved : a));
+        const cleanSaved = {
+          ...saved,
+          id: updatedAccount.id || saved.id,
+          balance: Number(saved.balance ?? updatedAccount.balance ?? 0),
+          initialBalance: Number(saved.initialBalance ?? saved.balance ?? updatedAccount.initialBalance ?? 0),
+          initial_balance: Number(saved.initial_balance ?? saved.balance ?? updatedAccount.initial_balance ?? 0)
+        };
+        setRawAccounts(prev => (Array.isArray(prev) ? prev.filter(Boolean) : []).map(a => 
+          (a.id === cleanSaved.id || a.id === updatedAccount.id) ? cleanSaved : a
+        ));
         triggerToast('success', i18nMsg('Cuenta actualizada correctamente', 'Account updated successfully'));
+        return cleanSaved;
       }
     } catch (err) {
       console.error('❌ Error en updateAccount:', err);
@@ -529,6 +550,7 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
     addAccount,
     updateAccount,
     deleteAccount,
+    refetchAccounts,
     addCategory,
     updateCategory,
     deleteCategory,
@@ -561,6 +583,7 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
     addAccount,
     updateAccount,
     deleteAccount,
+    refetchAccounts,
     addCategory,
     updateCategory,
     deleteCategory,

@@ -173,17 +173,29 @@ export default function AccountModal({
             </FormField>
           </div>
 
-          <FormField
-            label={t('modals.account.initialBalance', {}, 'Saldo Inicial')}
-            helperText={t('modals.account.initialBalanceHelper', {}, 'Monto de apertura con el que comienza la cuenta')}
-            prefix={currencySymbol}
-            type="number"
-            step="0.01"
-            required
-            value={initialBalance}
-            onChange={(e) => setInitialBalance(e.target.value)}
-            placeholder="0.00"
-          />
+          <div>
+            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              {t('modals.account.initialBalance', {}, 'Saldo Inicial')}
+            </label>
+            <div className="relative">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-primary,#97F2CC)] font-bold text-sm pointer-events-none">
+                {currencySymbol}
+              </span>
+              <input
+                type="number"
+                step="any"
+                name="balance"
+                value={initialBalance}
+                onChange={(e) => setInitialBalance(e.target.value)}
+                placeholder="0.00"
+                required
+                className="form-input w-full pl-10 pr-4 h-11 rounded-xl bg-[#121721] border border-white/[0.08] text-[#F1F5F9] font-semibold placeholder:text-slate-500 focus:border-[#97F2CC] focus:ring-1 focus:ring-[#97F2CC] focus:outline-none transition-all"
+              />
+            </div>
+            <p className="text-[11px] text-slate-400 mt-1">
+              {t('modals.account.initialBalanceHelper', {}, 'Monto de apertura con el que comienza la cuenta')}
+            </p>
+          </div>
         </div>
 
         {/* Sticky Action Footer */}

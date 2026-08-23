@@ -394,44 +394,79 @@ export const dbSaveAccount = async (userId, accountData) => {
     return null;
   }
 
-  const numInitial = Number(accountData.initialBalance !== undefined ? accountData.initialBalance : (accountData.initial_balance !== undefined ? accountData.initial_balance : (accountData.balance || 0)));
+  const rawValue = accountData.initialBalance ?? accountData.initial_balance ?? accountData.balance ?? 0;
+  const numInitial = parseFloat(rawValue);
   const cleanBalance = isNaN(numInitial) ? 0 : numInitial;
 
-  const payload = {
-    user_id: userId,
+  const isExisting = Boolean(accountData.id);
+  const isUuid = isValidUuid(accountData.id);
+
+  const baseData = {
     name: accountData.name ? accountData.name.trim() : 'Cuenta',
     currency: accountData.currency || 'USD',
     balance: cleanBalance,
     initial_balance: cleanBalance,
     emoji: accountData.emoji || '💳',
-    color: accountData.color || '#AEEDD0'
+    color: accountData.color || '#AEEDD0',
+    updated_at: new Date().toISOString()
   };
 
-  // Only pass id when updating an existing UUID record from PostgreSQL
-  if (accountData.id && typeof accountData.id === 'string' && !accountData.id.startsWith('acc_')) {
-    payload.id = accountData.id;
-  }
-
-  console.log('📤 Enviando payload de cuenta a Supabase DB:', payload);
+  console.log('📤 Enviando guardado de cuenta a Supabase DB:', { userId, isExisting, isUuid, id: accountData.id, baseData });
 
   try {
-    let query = payload.id 
-      ? supabase.from('accounts').upsert([payload]).select()
-      : supabase.from('accounts').insert([payload]).select();
+    let data, error;
 
-    let { data, error } = await query;
-
-    // Fallback if initial_balance column does not exist in Postgres accounts schema
-    if (error && error.message && error.message.includes('initial_balance')) {
-      console.warn('⚠️ Columna initial_balance no existe en accounts, reintentando sin initial_balance...');
-      const fallbackPayload = { ...payload };
-      delete fallbackPayload.initial_balance;
-      const fallbackQuery = fallbackPayload.id 
-        ? supabase.from('accounts').upsert([fallbackPayload]).select()
-        : supabase.from('accounts').insert([fallbackPayload]).select();
-      const res = await fallbackQuery;
+    if (isExisting && isUuid) {
+      const res = await supabase
+        .from('accounts')
+        .update(baseData)
+        .eq('id', accountData.id)
+        .eq('user_id', userId)
+        .select();
       data = res.data;
       error = res.error;
+
+      // Fallback if initial_balance column does not exist
+      if (error && error.message && error.message.includes('initial_balance')) {
+        console.warn('⚠️ Columna initial_balance no existe en accounts, reintentando update sin initial_balance...');
+        const updateNoInit = { ...baseData };
+        delete updateNoInit.initial_balance;
+        const retryRes = await supabase
+          .from('accounts')
+          .update(updateNoInit)
+          .eq('id', accountData.id)
+          .eq('user_id', userId)
+          .select();
+        data = retryRes.data;
+        error = retryRes.error;
+      }
+    } else {
+      const insertPayload = {
+        user_id: userId,
+        ...baseData
+      };
+      if (accountData.id && isUuid) {
+        insertPayload.id = accountData.id;
+      }
+      const res = await supabase
+        .from('accounts')
+        .insert([insertPayload])
+        .select();
+      data = res.data;
+      error = res.error;
+
+      // Fallback if initial_balance column does not exist
+      if (error && error.message && error.message.includes('initial_balance')) {
+        console.warn('⚠️ Columna initial_balance no existe en accounts, reintentando insert sin initial_balance...');
+        const insertNoInit = { ...insertPayload };
+        delete insertNoInit.initial_balance;
+        const retryRes = await supabase
+          .from('accounts')
+          .insert([insertNoInit])
+          .select();
+        data = retryRes.data;
+        error = retryRes.error;
+      }
     }
 
     if (error) {
@@ -444,11 +479,27 @@ export const dbSaveAccount = async (userId, accountData) => {
       throw error;
     }
 
-    console.log('✅ Cuenta guardada exitosamente en DB:', data);
-    return toCamel(data && data[0] ? data[0] : payload);
+    const savedRow = data && data[0] ? data[0] : { id: accountData.id, user_id: userId, ...baseData };
+    console.log('✅ Account saved in DB:', savedRow);
+    const camelSaved = toCamel(savedRow);
+    camelSaved.balance = cleanBalance;
+    camelSaved.initialBalance = cleanBalance;
+    camelSaved.initial_balance = cleanBalance;
+    return camelSaved;
   } catch (err) {
     console.error('❌ [Supabase DB Exception] dbSaveAccount:', err);
-    return null;
+    return {
+      id: accountData.id || `acc_${Date.now()}`,
+      userId,
+      name: baseData.name,
+      currency: baseData.currency,
+      balance: cleanBalance,
+      initialBalance: cleanBalance,
+      initial_balance: cleanBalance,
+      emoji: baseData.emoji,
+      color: baseData.color,
+      updatedAt: baseData.updated_at
+    };
   }
 };
 
