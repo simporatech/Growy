@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Plus, ArrowLeftRight, Search, Trash2, RotateCcw, Filter, TrendingUp, TrendingDown } from 'lucide-react';
 import Button from './Button';
 import TransactionModal from './TransactionModal';
