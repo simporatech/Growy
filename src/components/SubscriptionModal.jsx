@@ -7,6 +7,7 @@ import FormField from './FormField';
 import { useSettings } from '../context/SettingsContext';
 import { parseNumeric } from '../utils/formatters';
 import { getCurrencySymbol } from '../utils/currency';
+import UniversalIconPicker from './UniversalIconPicker';
 
 export default function SubscriptionModal({ 
   isOpen, 
@@ -174,23 +175,11 @@ export default function SubscriptionModal({
         <div className="flex-1 overflow-y-auto overscroll-contain custom-scrollbar px-6 py-4 space-y-4">
           {/* Nombre & Emoji Tile */}
           <div className="flex items-start gap-3">
-            <div>
-              <label className="whitespace-nowrap text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5 block">
-                Emoji
-              </label>
-              <input
-                type="text"
-                maxLength={4}
-                value={emoji}
-                onChange={(e) => {
-                  const val = Array.from(e.target.value).pop() || '';
-                  setEmoji(val);
-                }}
-                placeholder="🍿"
-                className="w-11 h-11 rounded-xl form-input bg-[#121721] border border-white/[0.08] text-[#F1F5F9] text-xl text-center font-bold flex items-center justify-center shrink-0 cursor-pointer placeholder:opacity-25 placeholder:grayscale caret-[var(--accent,#97F2CC)] focus:outline-none focus:border-[var(--accent,#97F2CC)] focus:ring-1 focus:ring-[var(--accent,#97F2CC)] transition-all"
-                title="Emoji"
-              />
-            </div>
+            <UniversalIconPicker
+              value={emoji}
+              onChange={setEmoji}
+              label={t('modals.subscription.icon', {}, 'Icono / Logo')}
+            />
 
             <div className="flex-1">
               <FormField

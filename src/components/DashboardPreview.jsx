@@ -22,6 +22,7 @@ import PayLoanModal from './PayLoanModal';
 import DebtDueBanner from './DebtDueBanner';
 import BottomNav from './BottomNav';
 import AmbientBackground from './AmbientBackground';
+import DynamicIcon from './DynamicIcon';
 import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
 import { formatCurrency, formatDateLabel, formatHeaderDate, parseNumeric } from '../utils/formatters';
@@ -975,7 +976,10 @@ export default function DashboardPreview({ user, onLogout }) {
                                 className="w-2 h-2 rounded-full shrink-0" 
                                 style={{ backgroundColor: cat.color || '#FF6B6B' }}
                               />
-                              <span className="text-white font-medium truncate">{cat.emoji} {cat.name}</span>
+                              <span className="text-white font-medium truncate flex items-center gap-1.5">
+                                <DynamicIcon value={cat.emoji} fallback="🏷️" className="w-4 h-4 text-xs" />
+                                <span>{cat.name}</span>
+                              </span>
                             </div>
                             <div className="flex items-center gap-2 shrink-0">
                               <span className="text-slate-300 font-semibold tabular-nums">{pct}%</span>
@@ -1028,8 +1032,8 @@ export default function DashboardPreview({ user, onLogout }) {
                           title={t('dashboard.viewAccounts', {}, 'Ver Cuentas')}
                         >
                           <div className="flex items-center gap-3 min-w-0 pr-2">
-                            <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-base shrink-0 group-hover:scale-110 transition-transform">
-                              {acc.emoji || '🏦'}
+                            <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-base shrink-0 group-hover:scale-110 transition-transform overflow-hidden">
+                              <DynamicIcon value={acc.emoji} fallback="🏦" className="w-5 h-5 text-base" />
                             </div>
                             <div className="min-w-0">
                               <h4 className="text-xs font-semibold text-white truncate group-hover:text-[var(--accent)] transition-colors">{acc.name}</h4>
@@ -1094,7 +1098,7 @@ export default function DashboardPreview({ user, onLogout }) {
                           >
                             <div className="flex items-center justify-between text-xs">
                               <span className="font-semibold text-white flex items-center gap-1.5 group-hover:text-[var(--accent)] transition-colors">
-                                <span>{cat.emoji}</span>
+                                <DynamicIcon value={cat.emoji} fallback="🏷️" className="w-4 h-4 text-xs" />
                                 <span>{cat.name}</span>
                               </span>
                               
@@ -1137,7 +1141,7 @@ export default function DashboardPreview({ user, onLogout }) {
                           >
                             <div className="flex items-center justify-between text-xs">
                               <span className="font-semibold text-white flex items-center gap-1.5 group-hover:text-[var(--accent)] transition-colors">
-                                <span>{cat.emoji}</span>
+                                <DynamicIcon value={cat.emoji} fallback="🏷️" className="w-4 h-4 text-xs" />
                                 <span>{cat.name}</span>
                               </span>
                               <span className="font-bold text-white tabular-nums">{formatCurrency(cat.totalSpent)}</span>
@@ -1232,8 +1236,8 @@ export default function DashboardPreview({ user, onLogout }) {
                             title={t('nav.subscriptions', {}, 'Suscripciones')}
                           >
                             <div className="min-w-0 flex-1 pr-2">
-                              <h4 className="text-xs font-semibold text-white group-hover:text-[var(--accent)] transition-colors truncate flex items-center gap-1">
-                                <span>{sub.emoji}</span>
+                              <h4 className="text-xs font-semibold text-white group-hover:text-[var(--accent)] transition-colors truncate flex items-center gap-1.5">
+                                <DynamicIcon value={sub.emoji} fallback="🔄" className="w-4 h-4 text-xs" />
                                 <span>{sub.name}</span>
                               </h4>
                               <p className="text-[11px] text-slate-300 font-medium">
@@ -1305,10 +1309,10 @@ export default function DashboardPreview({ user, onLogout }) {
                           title={t('autoDebitToast.viewTransaction', {}, 'Haz clic para ver o editar el movimiento')}
                         >
                           <div className="flex items-center gap-3 min-w-0 pr-2">
-                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm shrink-0 group-hover:scale-105 transition-transform ${
+                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm shrink-0 group-hover:scale-105 transition-transform overflow-hidden ${
                               isIncome ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' : isExpense ? 'bg-rose-500/15 text-rose-400 border border-rose-500/20' : 'bg-sky-500/15 text-sky-400 border border-sky-500/20'
                             }`}>
-                              {emoji}
+                              <DynamicIcon value={emoji} fallback="💰" className="w-5 h-5 text-sm" />
                             </div>
                             <div className="min-w-0">
                               <h4 className="text-xs font-semibold text-white group-hover:text-[var(--accent)] transition-colors truncate">

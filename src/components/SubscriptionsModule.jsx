@@ -10,6 +10,7 @@ import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
 import { parseNumeric } from '../utils/formatters';
 import { convertCrossCurrency } from '../utils/currency';
+import DynamicIcon from './DynamicIcon';
 
 export default function SubscriptionsModule() {
   const { subscriptions, accounts, categories, addSubscription, updateSubscription, deleteSubscription, toggleSubscription } = useFinance();
@@ -260,8 +261,8 @@ export default function SubscriptionsModule() {
                     </span>
                   </div>
 
-                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-lg shrink-0">
-                    {sub.emoji || '🔄'}
+                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-lg shrink-0 overflow-hidden">
+                    <DynamicIcon value={sub.emoji} fallback="🔄" className="w-6 h-6 text-lg" />
                   </div>
 
                   <div className="min-w-0 flex-1 pr-1">

@@ -13,6 +13,7 @@ import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
 import { formatDateISO } from '../utils/formatters';
 import { convertCrossCurrency } from '../utils/currency';
+import DynamicIcon from './DynamicIcon';
 
 export default function TransactionsModule() {
   const { transactions, accounts, categories, addTransaction, updateTransaction, deleteTransaction, isLoading, isInitialized } = useFinance();
@@ -653,10 +654,10 @@ export default function TransactionsModule() {
                       >
                         {/* Col 1 (Izquierda): Icono + Concepto */}
                         <div className="flex items-center gap-3.5 min-w-0 flex-1 sm:max-w-xs lg:max-w-sm">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 ${
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 overflow-hidden ${
                             isIncome ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' : isExpense ? 'bg-rose-500/15 text-rose-400 border border-rose-500/20' : 'bg-sky-500/15 text-sky-400 border border-sky-500/20'
                           }`}>
-                            {emoji}
+                            <DynamicIcon value={emoji} fallback="💰" className="w-5 h-5 text-lg" />
                           </div>
 
                           <div className="min-w-0 flex-1">

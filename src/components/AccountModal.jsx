@@ -8,6 +8,7 @@ import { useSettings } from '../context/SettingsContext';
 import { parseNumeric } from '../utils/formatters';
 import { getCurrencySymbol, AVAILABLE_CURRENCIES } from '../utils/currency';
 import { PRESET_COLOR_DETAILS } from '../constants/colors';
+import UniversalIconPicker from './UniversalIconPicker';
 
 export default function AccountModal({ 
   isOpen, 
@@ -111,23 +112,11 @@ export default function AccountModal({
           )}
 
           <div className="flex items-start gap-3">
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2 block">
-                Emoji
-              </label>
-              <input
-                type="text"
-                maxLength={4}
-                value={emoji}
-                onChange={(e) => {
-                  const val = Array.from(e.target.value).pop() || '';
-                  setEmoji(val);
-                }}
-                placeholder="🏦"
-                className="w-11 h-11 rounded-xl form-input bg-[#121721] border border-white/[0.08] text-[#F1F5F9] text-xl text-center font-bold flex items-center justify-center shrink-0 cursor-pointer placeholder:opacity-25 placeholder:grayscale caret-[var(--accent,#97F2CC)] focus:outline-none focus:border-[var(--accent,#97F2CC)] focus:ring-1 focus:ring-[var(--accent,#97F2CC)] transition-all"
-                title="Emoji"
-              />
-            </div>
+            <UniversalIconPicker
+              value={emoji}
+              onChange={setEmoji}
+              label={t('modals.account.icon', {}, 'Icono / Logo')}
+            />
 
             <div className="flex-1">
               <FormField

@@ -10,6 +10,7 @@ import Pagination from './Pagination';
 import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
 import { parseNumeric } from '../utils/formatters';
+import DynamicIcon from './DynamicIcon';
 
 export default function AccountsModule() {
   const { accounts, addAccount, updateAccount, deleteAccount, isLoading, isInitialized } = useFinance();
@@ -244,8 +245,8 @@ export default function AccountsModule() {
                   {/* Top Bar: Bank Brand & EMV Chip */}
                   <div className="flex items-start justify-between relative z-10">
                     <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 pr-2">
-                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-lg sm:text-xl border border-white/10 shadow-inner shrink-0">
-                        {account.emoji || '💳'}
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-lg sm:text-xl border border-white/10 shadow-inner shrink-0 overflow-hidden">
+                        <DynamicIcon value={account.emoji} fallback="💳" className="w-5 h-5 sm:w-6 sm:h-6 text-lg sm:text-xl" />
                       </div>
                       <div className="min-w-0">
                         <h3 className="text-sm sm:text-base font-bold text-white tracking-tight truncate">

@@ -12,6 +12,7 @@ import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
 import { parseNumeric, getDaysDifference } from '../utils/formatters';
 import { convertCrossCurrency } from '../utils/currency';
+import DynamicIcon from './DynamicIcon';
 
 export default function LoansModule() {
   const { loans, categories, accounts, addLoan, updateLoan, deleteLoan, markLoanAsPaid } = useFinance();
@@ -313,8 +314,8 @@ export default function LoansModule() {
                       isPaid ? 'bg-emerald-400' : urgency.label.includes('Vence') || urgency.label.includes('Vencido') || urgency.label.includes('Overdue') ? 'bg-rose-400 animate-pulse' : 'bg-[var(--accent,#97F2CC)]'
                     }`} />
 
-                    <div className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-base sm:text-lg shrink-0">
-                      {cat?.emoji || '📄'}
+                    <div className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-base sm:text-lg shrink-0 overflow-hidden">
+                      <DynamicIcon value={cat?.emoji} fallback="📄" className="w-6 h-6 text-base sm:text-lg" />
                     </div>
 
                     <h4 className="line-clamp-2 text-sm leading-snug font-medium text-white group-hover:text-[var(--accent,#97F2CC)] transition-colors">

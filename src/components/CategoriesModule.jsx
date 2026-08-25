@@ -9,6 +9,7 @@ import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
 import { parseNumeric } from '../utils/formatters';
 import { convertToGlobal } from '../utils/currency';
+import DynamicIcon from './DynamicIcon';
 
 export default function CategoriesModule() {
   const { accounts, categories, transactions, addCategory, updateCategory, deleteCategory } = useFinance();
@@ -593,10 +594,10 @@ export default function CategoriesModule() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3 min-w-0 pr-2">
                       <div 
-                        className="w-10 h-10 rounded-2xl flex items-center justify-center text-xl shrink-0 border border-white/10"
+                        className="w-10 h-10 rounded-2xl flex items-center justify-center text-xl shrink-0 border border-white/10 overflow-hidden"
                         style={{ backgroundColor: `${cat.color || '#AEEDD0'}20` }}
                       >
-                        {cat.emoji || '🏷️'}
+                        <DynamicIcon value={cat.emoji} fallback="🏷️" className="w-6 h-6 text-xl" />
                       </div>
 
                       <div className="min-w-0">
