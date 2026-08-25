@@ -119,7 +119,7 @@ export default function CategoryModal({
             <UniversalIconPicker
               value={emoji}
               onChange={setEmoji}
-              label={t('modals.category.icon', {}, 'Icono / Emoji')}
+              label={t('icon_picker.label', {}, 'ICONO / LOGO')}
             />
 
             <div className="flex-1">

@@ -547,6 +547,58 @@ export const translations = {
       "settings": "Ajustes del Sistema",
       "feedback": "Reportes y Sugerencias",
       "about": "Acerca de SIMPORA"
+    },
+    "icon_picker": {
+      "label": "ICONO / LOGO",
+      "title": "Seleccionar Icono",
+      "subtitle": "Elige un emoji, logotipo oficial o ingresa una URL",
+      "tabs": {
+        "emojis": "Emojis",
+        "banks": "Bancos & Finanzas",
+        "services": "Suscripciones & Apps",
+        "custom_url": "URL Personalizada"
+      },
+      "search_placeholder": "Buscar emoji...",
+      "search_banks": "Buscar banco o entidad financiera...",
+      "search_services": "Buscar plataforma, app o suscripción...",
+      "categories": {
+        "all": "Todos",
+        "smileys": "Emoticonos",
+        "food": "Comida",
+        "travel": "Viajes",
+        "objects": "Objetos",
+        "symbols": "Símbolos",
+        "activities": "Actividades",
+        "flags": "Banderas"
+      },
+      "bank_categories": {
+        "Centroamérica & LATAM": "Centroamérica & LATAM",
+        "Estados Unidos & Global": "Estados Unidos & Global",
+        "Europa": "Europa"
+      },
+      "service_categories": {
+        "Streaming & Entretenimiento": "Streaming & Entretenimiento",
+        "Gaming": "Gaming",
+        "IA & Productividad": "IA & Productividad",
+        "Telecomunicaciones & Conectividad": "Telecomunicaciones & Conectividad",
+        "Fitness & Estilo de Vida": "Fitness & Estilo de Vida"
+      },
+      "custom": {
+        "preview_title": "Vista Previa",
+        "preview_success": "Imagen cargada correctamente",
+        "preview_error": "No se pudo cargar la imagen",
+        "url_label": "ENLACE DE LA IMAGEN (URL)",
+        "url_placeholder": "https://ejemplo.com/logo.png",
+        "tips_title": "Sugerencia de enlaces:",
+        "tip_transparency": "Logos con fondo transparente en formato .PNG o .SVG",
+        "tip_favicons": "Favicons e iconos oficiales web",
+        "clear_btn": "Limpiar",
+        "apply_btn": "Aplicar Icono",
+        "paste_hint": "Pega un enlace PNG, SVG o ICO"
+      },
+      "current_icon": "Icono actual:",
+      "no_results": "No se encontraron resultados",
+      "change_icon": "Cambiar icono o logo"
     }
   },
   "en": {
@@ -1097,6 +1149,58 @@ export const translations = {
       "settings": "System Settings",
       "feedback": "Reports & Feedback",
       "about": "About SIMPORA"
+    },
+    "icon_picker": {
+      "label": "ICON / LOGO",
+      "title": "Select Icon",
+      "subtitle": "Choose an emoji, official logo, or enter a URL",
+      "tabs": {
+        "emojis": "Emojis",
+        "banks": "Banks & Finance",
+        "services": "Subscriptions & Apps",
+        "custom_url": "Custom URL"
+      },
+      "search_placeholder": "Search emoji...",
+      "search_banks": "Search bank or financial institution...",
+      "search_services": "Search platform, app, or subscription...",
+      "categories": {
+        "all": "All",
+        "smileys": "Smileys",
+        "food": "Food",
+        "travel": "Travel",
+        "objects": "Objects",
+        "symbols": "Symbols",
+        "activities": "Activities",
+        "flags": "Flags"
+      },
+      "bank_categories": {
+        "Centroamérica & LATAM": "Central America & LATAM",
+        "Estados Unidos & Global": "United States & Global",
+        "Europa": "Europe"
+      },
+      "service_categories": {
+        "Streaming & Entretenimiento": "Streaming & Entertainment",
+        "Gaming": "Gaming",
+        "IA & Productividad": "AI & Productivity",
+        "Telecomunicaciones & Conectividad": "Telecom & Connectivity",
+        "Fitness & Estilo de Vida": "Fitness & Lifestyle"
+      },
+      "custom": {
+        "preview_title": "Preview",
+        "preview_success": "Image loaded successfully",
+        "preview_error": "Could not load image",
+        "url_label": "IMAGE LINK (URL)",
+        "url_placeholder": "https://example.com/logo.png",
+        "tips_title": "Link recommendations:",
+        "tip_transparency": "Logos with transparent backgrounds in .PNG or .SVG",
+        "tip_favicons": "Favicons and official web icons",
+        "clear_btn": "Clear",
+        "apply_btn": "Apply Icon",
+        "paste_hint": "Paste a PNG, SVG, or ICO link"
+      },
+      "current_icon": "Current icon:",
+      "no_results": "No results found",
+      "change_icon": "Change icon or logo"
     }
   }
 };

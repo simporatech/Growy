@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Search, Globe, Landmark, Sparkles, Link as LinkIcon, X, Check, Edit2, Image as ImageIcon } from 'lucide-react';
 import { EMOJI_CATEGORIES, BANK_PRESETS, SERVICE_PRESETS } from '../constants/emojis';
 import DynamicIcon from './DynamicIcon';
@@ -7,10 +7,11 @@ import { useSettings } from '../context/SettingsContext';
 export default function UniversalIconPicker({
   value = '💳',
   onChange,
-  label = 'Icono / Logo',
+  label,
   className = ''
 }) {
   const { t } = useSettings();
+  const displayLabel = label !== undefined ? label : t('icon_picker.label', {}, 'ICONO / LOGO');
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('emojis'); // 'emojis' | 'banks' | 'services' | 'custom'
   const [searchQuery, setSearchQuery] = useState('');
@@ -57,12 +58,13 @@ export default function UniversalIconPicker({
     }
 
     return EMOJI_CATEGORIES.map(cat => {
+      const translatedCatName = t(`icon_picker.categories.${cat.id}`, {}, cat.name).toLowerCase();
       const matching = cat.emojis.filter(emoji => {
-        return emoji.includes(query) || cat.name.toLowerCase().includes(query);
+        return emoji.includes(query) || cat.name.toLowerCase().includes(query) || translatedCatName.includes(query);
       });
       return { ...cat, emojis: matching };
     }).filter(cat => cat.emojis.length > 0);
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategory, t]);
 
   // Filtered Bank Presets
   const filteredBankPresets = useMemo(() => {
@@ -70,12 +72,13 @@ export default function UniversalIconPicker({
     if (!query) return BANK_PRESETS;
 
     return BANK_PRESETS.map(cat => {
+      const translatedCat = t(`icon_picker.bank_categories.${cat.category}`, {}, cat.category).toLowerCase();
       const matching = cat.items.filter(item => 
-        item.name.toLowerCase().includes(query) || cat.category.toLowerCase().includes(query)
+        item.name.toLowerCase().includes(query) || cat.category.toLowerCase().includes(query) || translatedCat.includes(query)
       );
       return { ...cat, items: matching };
     }).filter(cat => cat.items.length > 0);
-  }, [searchQuery]);
+  }, [searchQuery, t]);
 
   // Filtered Service Presets
   const filteredServicePresets = useMemo(() => {
@@ -83,12 +86,13 @@ export default function UniversalIconPicker({
     if (!query) return SERVICE_PRESETS;
 
     return SERVICE_PRESETS.map(cat => {
+      const translatedCat = t(`icon_picker.service_categories.${cat.category}`, {}, cat.category).toLowerCase();
       const matching = cat.items.filter(item => 
-        item.name.toLowerCase().includes(query) || cat.category.toLowerCase().includes(query)
+        item.name.toLowerCase().includes(query) || cat.category.toLowerCase().includes(query) || translatedCat.includes(query)
       );
       return { ...cat, items: matching };
     }).filter(cat => cat.items.length > 0);
-  }, [searchQuery]);
+  }, [searchQuery, t]);
 
   const handleSelectIcon = (iconVal) => {
     if (onChange) {
@@ -106,9 +110,9 @@ export default function UniversalIconPicker({
 
   return (
     <div className={`relative ${className}`}>
-      {label && (
+      {displayLabel && (
         <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2 block">
-          {label}
+          {displayLabel}
         </label>
       )}
 
@@ -117,7 +121,7 @@ export default function UniversalIconPicker({
         type="button"
         onClick={() => setIsOpen(true)}
         className="group relative w-12 h-12 rounded-2xl bg-[#121721] border border-white/[0.08] hover:border-[var(--accent,#97F2CC)]/50 hover:bg-white/[0.04] p-1.5 flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95"
-        title={t('icons.changeIcon', {}, 'Cambiar icono o logo')}
+        title={t('icon_picker.change_icon', {}, 'Cambiar icono o logo')}
       >
         <DynamicIcon 
           value={value} 
@@ -146,10 +150,10 @@ export default function UniversalIconPicker({
             <div className="p-4 sm:p-5 border-b border-white/[0.08] flex items-center justify-between">
               <div>
                 <h3 className="text-base font-bold text-white tracking-tight">
-                  {t('icons.selectIconTitle', {}, 'Seleccionar Icono')}
+                  {t('icon_picker.title', {}, 'Seleccionar Icono')}
                 </h3>
                 <p className="text-xs text-slate-400 font-medium mt-0.5">
-                  {t('icons.selectIconSubtitle', {}, 'Elige un emoji, logotipo oficial o ingresa una URL')}
+                  {t('icon_picker.subtitle', {}, 'Elige un emoji, logotipo oficial o ingresa una URL')}
                 </p>
               </div>
 
@@ -174,7 +178,7 @@ export default function UniversalIconPicker({
                 }`}
               >
                 <Globe className="w-3.5 h-3.5" />
-                <span>{t('icons.emojis', {}, 'Emojis')}</span>
+                <span>{t('icon_picker.tabs.emojis', {}, 'Emojis')}</span>
               </button>
 
               <button
@@ -187,7 +191,7 @@ export default function UniversalIconPicker({
                 }`}
               >
                 <Landmark className="w-3.5 h-3.5" />
-                <span>{t('icons.banks', {}, 'Bancos & Finanzas')}</span>
+                <span>{t('icon_picker.tabs.banks', {}, 'Bancos & Finanzas')}</span>
               </button>
 
               <button
@@ -200,7 +204,7 @@ export default function UniversalIconPicker({
                 }`}
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>{t('icons.services', {}, 'Suscripciones & Apps')}</span>
+                <span>{t('icon_picker.tabs.services', {}, 'Suscripciones & Apps')}</span>
               </button>
 
               <button
@@ -213,7 +217,7 @@ export default function UniversalIconPicker({
                 }`}
               >
                 <LinkIcon className="w-3.5 h-3.5" />
-                <span>{t('icons.custom_url', {}, 'URL Personalizada')}</span>
+                <span>{t('icon_picker.tabs.custom_url', {}, 'URL Personalizada')}</span>
               </button>
             </div>
 
@@ -228,10 +232,10 @@ export default function UniversalIconPicker({
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder={
                       activeTab === 'emojis' 
-                        ? t('icons.searchEmoji', {}, 'Buscar emoji...')
+                        ? t('icon_picker.search_placeholder', {}, 'Buscar emoji...')
                         : activeTab === 'banks'
-                          ? t('icons.searchBank', {}, 'Buscar banco o entidad financiera...')
-                          : t('icons.searchService', {}, 'Buscar plataforma, app o suscripción...')
+                          ? t('icon_picker.search_banks', {}, 'Buscar banco o entidad financiera...')
+                          : t('icon_picker.search_services', {}, 'Buscar plataforma, app o suscripción...')
                     }
                     className="w-full pl-9 pr-8 h-9 text-xs rounded-xl bg-[#0E131D] border border-white/[0.08] text-white placeholder:text-slate-500 focus:outline-none focus:border-[var(--accent,#97F2CC)] focus:ring-1 focus:ring-[var(--accent,#97F2CC)] transition-all"
                   />
@@ -258,7 +262,7 @@ export default function UniversalIconPicker({
                           : 'bg-white/5 text-slate-400 hover:text-white'
                       }`}
                     >
-                      {t('common.all', {}, 'Todos')}
+                      {t('icon_picker.categories.all', {}, 'Todos')}
                     </button>
                     {EMOJI_CATEGORIES.map((cat) => (
                       <button
@@ -272,7 +276,7 @@ export default function UniversalIconPicker({
                         }`}
                       >
                         <span>{cat.icon}</span>
-                        <span>{cat.name.split(' ')[0]}</span>
+                        <span>{t(`icon_picker.categories.${cat.id}`, {}, cat.name.split(' ')[0])}</span>
                       </button>
                     ))}
                   </div>
@@ -285,14 +289,14 @@ export default function UniversalIconPicker({
               <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4 custom-scrollbar max-h-[50vh]">
                 {filteredEmojiCategories.length === 0 ? (
                   <div className="text-center py-10 text-xs text-slate-400">
-                    {t('icons.noResults', {}, 'No se encontraron resultados')}
+                    {t('icon_picker.no_results', {}, 'No se encontraron resultados')}
                   </div>
                 ) : (
                   filteredEmojiCategories.map((cat) => (
                     <div key={cat.id} className="space-y-1.5">
                       <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                         <span>{cat.icon}</span>
-                        <span>{cat.name}</span>
+                        <span>{t(`icon_picker.categories.${cat.id}`, {}, cat.name)}</span>
                       </span>
 
                       <div className="grid grid-cols-7 sm:grid-cols-8 gap-1">
@@ -324,13 +328,13 @@ export default function UniversalIconPicker({
               <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4 custom-scrollbar max-h-[50vh]">
                 {filteredBankPresets.length === 0 ? (
                   <div className="text-center py-10 text-xs text-slate-400">
-                    {t('icons.noResults', {}, 'No se encontraron resultados')}
+                    {t('icon_picker.no_results', {}, 'No se encontraron resultados')}
                   </div>
                 ) : (
                   filteredBankPresets.map((cat, catIdx) => (
                     <div key={catIdx} className="space-y-2">
                       <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
-                        {cat.category}
+                        {t(`icon_picker.bank_categories.${cat.category}`, {}, cat.category)}
                       </span>
 
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -366,13 +370,13 @@ export default function UniversalIconPicker({
               <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4 custom-scrollbar max-h-[50vh]">
                 {filteredServicePresets.length === 0 ? (
                   <div className="text-center py-10 text-xs text-slate-400">
-                    {t('icons.noResults', {}, 'No se encontraron resultados')}
+                    {t('icon_picker.no_results', {}, 'No se encontraron resultados')}
                   </div>
                 ) : (
                   filteredServicePresets.map((cat, catIdx) => (
                     <div key={catIdx} className="space-y-2">
                       <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
-                        {cat.category}
+                        {t(`icon_picker.service_categories.${cat.category}`, {}, cat.category)}
                       </span>
 
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -412,7 +416,7 @@ export default function UniversalIconPicker({
                       {customUrlPreview ? (
                         <img 
                           src={customUrlPreview} 
-                          alt="Vista previa" 
+                          alt={t('icon_picker.custom.preview_title', {}, 'Vista previa')} 
                           className="w-10 h-10 object-contain rounded-lg"
                           onError={() => setCustomUrlError(true)}
                           onLoad={() => setCustomUrlError(false)}
@@ -424,21 +428,21 @@ export default function UniversalIconPicker({
 
                     <div className="min-w-0 flex-1">
                       <span className="text-xs font-bold text-white block">
-                        {t('icons.preview', {}, 'Vista Previa')}
+                        {t('icon_picker.custom.preview_title', {}, 'Vista Previa')}
                       </span>
                       <span className="text-[11px] text-slate-400 block mt-0.5">
                         {customUrlError 
-                          ? `⚠️ ${t('icons.loadError', {}, 'No se pudo cargar la imagen')}`
+                          ? `⚠️ ${t('icon_picker.custom.preview_error', {}, 'No se pudo cargar la imagen')}`
                           : customUrlPreview 
-                            ? t('icons.loadSuccess', {}, 'Imagen cargada correctamente') 
-                            : t('icons.pasteHint', {}, 'Pega un enlace PNG, SVG o ICO')}
+                            ? t('icon_picker.custom.preview_success', {}, 'Imagen cargada correctamente') 
+                            : t('icon_picker.custom.paste_hint', {}, 'Pega un enlace PNG, SVG o ICO')}
                       </span>
                     </div>
                   </div>
 
                   <div>
                     <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5 block">
-                      {t('icons.imageUrlLabel', {}, 'Enlace de la imagen (URL)')}
+                      {t('icon_picker.custom.url_label', {}, 'ENLACE DE LA IMAGEN (URL)')}
                     </label>
                     <input
                       type="url"
@@ -448,15 +452,15 @@ export default function UniversalIconPicker({
                         setCustomUrlPreview(e.target.value.trim());
                         setCustomUrlError(false);
                       }}
-                      placeholder="https://ejemplo.com/logo.png"
+                      placeholder={t('icon_picker.custom.url_placeholder', {}, 'https://ejemplo.com/logo.png')}
                       className="w-full px-3.5 h-11 text-xs rounded-xl bg-[#0E131D] border border-white/[0.08] text-white placeholder:text-slate-500 focus:outline-none focus:border-[var(--accent,#97F2CC)] focus:ring-1 focus:ring-[var(--accent,#97F2CC)] transition-all font-mono"
                     />
                   </div>
 
                   <div className="text-[11px] text-slate-400 space-y-1 bg-white/[0.02] p-3 rounded-xl border border-white/5">
-                    <p className="font-semibold text-slate-300">{t('icons.tipsTitle', {}, '💡 Sugerencia de enlaces:')}</p>
-                    <p>• {t('icons.tip1', {}, 'Logos con fondo transparente en formato .PNG o .SVG')}</p>
-                    <p>• {t('icons.tip2', {}, 'Favicons e iconos oficiales web')}</p>
+                    <p className="font-semibold text-slate-300">💡 {t('icon_picker.custom.tips_title', {}, 'Sugerencia de enlaces:')}</p>
+                    <p>• {t('icon_picker.custom.tip_transparency', {}, 'Logos con fondo transparente en formato .PNG o .SVG')}</p>
+                    <p>• {t('icon_picker.custom.tip_favicons', {}, 'Favicons e iconos oficiales web')}</p>
                   </div>
                 </form>
 
@@ -469,7 +473,7 @@ export default function UniversalIconPicker({
                     }}
                     className="flex-1 h-11 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-slate-300 transition-all cursor-pointer"
                   >
-                    {t('common.clear', {}, 'Limpiar')}
+                    {t('icon_picker.custom.clear_btn', {}, 'Limpiar')}
                   </button>
 
                   <button
@@ -479,7 +483,7 @@ export default function UniversalIconPicker({
                     className="flex-1 h-11 rounded-xl bg-[var(--accent,#97F2CC)] text-[var(--accent-text,#0B101B)] text-xs font-bold flex items-center justify-center gap-1.5 shadow hover:brightness-105 active:scale-95 transition-all disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
                   >
                     <Check className="w-4 h-4 stroke-[2.5]" />
-                    <span>{t('icons.applyIcon', {}, 'Aplicar Icono')}</span>
+                    <span>{t('icon_picker.custom.apply_btn', {}, 'Aplicar Icono')}</span>
                   </button>
                 </div>
               </div>
@@ -487,7 +491,7 @@ export default function UniversalIconPicker({
 
             {/* Footer Summary */}
             <div className="p-3 bg-[#0E131D] border-t border-white/[0.06] flex items-center justify-between text-xs text-slate-400 px-4">
-              <span>{t('icons.currentIcon', {}, 'Icono actual:')}</span>
+              <span>{t('icon_picker.current_icon', {}, 'Icono actual:')}</span>
               <div className="flex items-center gap-2">
                 <div className="w-5 h-5 flex items-center justify-center overflow-hidden">
                   <DynamicIcon value={value} className="w-4 h-4 text-sm" />

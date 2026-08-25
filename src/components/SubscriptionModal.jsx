@@ -178,7 +178,7 @@ export default function SubscriptionModal({
             <UniversalIconPicker
               value={emoji}
               onChange={setEmoji}
-              label={t('modals.subscription.icon', {}, 'Icono / Logo')}
+              label={t('icon_picker.label', {}, 'ICONO / LOGO')}
             />
 
             <div className="flex-1">

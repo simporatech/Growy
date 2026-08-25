@@ -1,0 +1,37 @@
+﻿{
+  "icon_picker": {
+    "label": "ICON / LOGO",
+    "title": "Select Icon",
+    "subtitle": "Choose an emoji, official logo, or enter a URL",
+    "tabs": {
+      "emojis": "Emojis",
+      "banks": "Banks & Finance",
+      "services": "Subscriptions & Apps",
+      "custom_url": "Custom URL"
+    },
+    "search_placeholder": "Search emoji...",
+    "categories": {
+      "all": "All",
+      "smileys": "Smileys",
+      "food": "Food",
+      "travel": "Travel",
+      "objects": "Objects",
+      "symbols": "Symbols",
+      "activities": "Activities",
+      "flags": "Flags"
+    },
+    "custom": {
+      "preview_title": "Preview",
+      "preview_success": "Image loaded successfully",
+      "preview_error": "Could not load image",
+      "url_label": "IMAGE LINK (URL)",
+      "url_placeholder": "https://example.com/logo.png",
+      "tips_title": "Link recommendations:",
+      "tip_transparency": "Logos with transparent backgrounds in .PNG or .SVG",
+      "tip_favicons": "Favicons and official web icons",
+      "clear_btn": "Clear",
+      "apply_btn": "Apply Icon"
+    },
+    "current_icon": "Current icon:"
+  }
+}
