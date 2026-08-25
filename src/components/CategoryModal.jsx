@@ -3,10 +3,9 @@ import { Tag } from 'lucide-react';
 import Button from './Button';
 import ModalWrapper from './ModalWrapper';
 import FormField from './FormField';
-import CustomSelect from './CustomSelect';
 import { useSettings } from '../context/SettingsContext';
 import { parseNumeric } from '../utils/formatters';
-import { AVAILABLE_CURRENCIES, getCurrencySymbol } from '../utils/currency';
+import { getCurrencySymbol } from '../utils/currency';
 
 export default function CategoryModal({ 
   isOpen, 
@@ -21,7 +20,6 @@ export default function CategoryModal({
   const [name, setName] = useState('');
   const [emoji, setEmoji] = useState('🏷️');
   const [color, setColor] = useState('#AEEDD0');
-  const [currency, setCurrency] = useState(categoryToEdit?.currency || baseCurrency || 'USD');
   const [targetAmount, setTargetAmount] = useState('');
   const [error, setError] = useState('');
 
@@ -33,22 +31,20 @@ export default function CategoryModal({
       setName(categoryToEdit.name || '');
       setEmoji(categoryToEdit.emoji || '🏷️');
       setColor(categoryToEdit.color || '#AEEDD0');
-      setCurrency(categoryToEdit.currency || baseCurrency || 'USD');
       setTargetAmount(categoryToEdit.targetAmount !== undefined ? categoryToEdit.targetAmount.toString() : '');
     } else {
       setType(initialType || 'expense');
       setName('');
       setEmoji('🏷️');
       setColor(initialType === 'expense' ? '#FF6B6B' : '#AEEDD0');
-      setCurrency(baseCurrency || 'USD');
       setTargetAmount('');
     }
     setError('');
-  }, [categoryToEdit, isOpen, initialType, baseCurrency]);
+  }, [categoryToEdit, isOpen, initialType]);
 
   if (!isOpen) return null;
 
-  const resolvedCurrencySymbol = getCurrencySymbol(currency);
+  const resolvedCurrencySymbol = getCurrencySymbol(baseCurrency || 'USD');
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -67,7 +63,7 @@ export default function CategoryModal({
       emoji: emoji.trim() || '🏷️',
       color,
       type,
-      currency,
+      currency: baseCurrency || 'USD',
       targetAmount: numTarget
     });
 
@@ -148,7 +144,7 @@ export default function CategoryModal({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField label={t('modals.account.color', {}, 'Color')}>
               <div className="flex items-center gap-3 h-11 px-3 bg-[#121721] border border-white/[0.08] rounded-xl">
                 <input
@@ -159,14 +155,6 @@ export default function CategoryModal({
                 />
                 <span className="text-xs font-mono font-bold text-slate-200 uppercase">{color}</span>
               </div>
-            </FormField>
-
-            <FormField label={t('modals.account.currency', {}, 'Divisa')}>
-              <CustomSelect
-                options={AVAILABLE_CURRENCIES}
-                value={currency}
-                onChange={setCurrency}
-              />
             </FormField>
 
             <FormField
