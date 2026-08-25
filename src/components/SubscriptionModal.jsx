@@ -35,8 +35,19 @@ export default function SubscriptionModal({
     { value: 'yearly', label: t('subscriptions.yearly', {}, 'Anual') }
   ], [t]);
 
-  const safeAccounts = useMemo(() => Array.isArray(accounts) ? accounts.filter(Boolean) : [], [accounts]);
-  const safeCategories = useMemo(() => Array.isArray(categories) ? categories.filter(Boolean) : [], [categories]);
+  const safeAccounts = useMemo(() => {
+    const list = Array.isArray(accounts) ? accounts.filter(Boolean) : [];
+    return [...list].sort((a, b) => 
+      (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' })
+    );
+  }, [accounts]);
+
+  const safeCategories = useMemo(() => {
+    const list = Array.isArray(categories) ? categories.filter(Boolean) : [];
+    return [...list].sort((a, b) => 
+      (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' })
+    );
+  }, [categories]);
   
   const availableCategories = useMemo(() => {
     const expenseOnly = safeCategories.filter(c => !c.type || c.type.toLowerCase() === 'expense');
@@ -78,12 +89,17 @@ export default function SubscriptionModal({
 
   const accountSelectOptions = safeAccounts.map(acc => ({
     value: acc.id,
-    label: `${acc.emoji || '💳'} ${acc.name} (${getCurrencySymbol(acc.currency)} ${acc.currency || 'USD'})`
+    name: acc.name,
+    emoji: acc.emoji || '💳',
+    currency: acc.currency || 'USD',
+    label: acc.name
   }));
 
   const categorySelectOptions = availableCategories.map(cat => ({
     value: cat.id,
-    label: `${cat.emoji || '🏷️'} ${cat.name}`
+    name: cat.name,
+    emoji: cat.emoji || '🏷️',
+    label: cat.name
   }));
 
   const handleSubmit = async (e) => {

@@ -26,7 +26,12 @@ export default function LoanModal({
   const [dueDate, setDueDate] = useState('');
   const [error, setError] = useState('');
 
-  const safeCategories = Array.isArray(categories) ? categories.filter(c => c && c.type === 'expense') : [];
+  const safeCategories = useMemo(() => {
+    const list = Array.isArray(categories) ? categories.filter(c => c && c.type === 'expense') : [];
+    return [...list].sort((a, b) => 
+      (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' })
+    );
+  }, [categories]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -47,7 +52,7 @@ export default function LoanModal({
       setDueDate('');
     }
     setError('');
-  }, [loanToEdit, isOpen, baseCurrency]);
+  }, [loanToEdit, isOpen, baseCurrency, safeCategories]);
 
   if (!isOpen) return null;
 
@@ -55,7 +60,9 @@ export default function LoanModal({
 
   const categorySelectOptions = safeCategories.map(cat => ({
     value: cat.id,
-    label: `${cat.emoji || '🏷️'} ${cat.name}`
+    name: cat.name,
+    emoji: cat.emoji || '🏷️',
+    label: cat.name
   }));
 
   const handleSubmit = (e) => {

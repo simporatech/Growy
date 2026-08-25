@@ -3,6 +3,58 @@ import { createPortal } from 'react-dom';
 import { ChevronDown, Search, Check } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 
+const parseOption = (opt) => {
+  if (!opt) return null;
+  if (typeof opt === 'string' || typeof opt === 'number') {
+    return {
+      value: opt,
+      name: String(opt),
+      displayName: String(opt),
+      emoji: null,
+      isImage: false,
+      currency: null,
+      extra: null
+    };
+  }
+
+  let emoji = opt.emoji || opt.icon || null;
+  let name = opt.name || null;
+  let currency = opt.currency || null;
+  let label = opt.label;
+  let extra = opt.extra || null;
+
+  // If emoji was not provided explicitly on object, check if label has leading URL or image
+  if (!emoji && typeof label === 'string') {
+    const urlMatch = label.match(/^(https?:\/\/[^\s]+|data:image\/[^\s]+|\/[^\s]+)\s*(.*)$/);
+    if (urlMatch) {
+      emoji = urlMatch[1];
+      if (!name) {
+        name = urlMatch[2] || '';
+      }
+    }
+  }
+
+  const isImage = typeof emoji === 'string' && (
+    emoji.startsWith('http://') || 
+    emoji.startsWith('https://') || 
+    emoji.startsWith('data:image') || 
+    emoji.startsWith('/')
+  );
+
+  const displayName = name || (typeof label === 'string' ? label : String(opt.value || ''));
+
+  return {
+    ...opt,
+    value: opt.value,
+    emoji,
+    isImage,
+    name: displayName,
+    displayName,
+    currency,
+    extra
+  };
+};
+
 export const CustomSelect = ({ 
   value, 
   onChange, 
@@ -22,6 +74,7 @@ export const CustomSelect = ({
   const resolvedPlaceholder = placeholder || t('common.select', {}, 'Seleccionar...');
   const safeOptions = Array.isArray(options) ? options : [];
   const selectedOption = safeOptions.find(opt => opt && String(opt.value) === String(value));
+  const selectedParsed = selectedOption ? parseOption(selectedOption) : null;
 
   // Activate search input ONLY when options count > 7
   const showSearch = safeOptions.length > 7;
@@ -30,11 +83,17 @@ export const CustomSelect = ({
   const resolvedNoResults = t('common.noData', {}, 'Sin resultados');
 
   const filteredOptions = showSearch
-    ? safeOptions.filter(opt =>
-        opt &&
-        (String(opt.label || '').toLowerCase().includes(search.toLowerCase()) ||
-         String(opt.value || '').toLowerCase().includes(search.toLowerCase()))
-      )
+    ? safeOptions.filter(opt => {
+        if (!opt) return false;
+        const parsed = parseOption(opt);
+        const q = search.toLowerCase();
+        return (
+          String(parsed.displayName || '').toLowerCase().includes(q) ||
+          String(parsed.currency || '').toLowerCase().includes(q) ||
+          String(parsed.value || '').toLowerCase().includes(q) ||
+          String(opt.label || '').toLowerCase().includes(q)
+        );
+      })
     : safeOptions;
 
   const updatePosition = useCallback(() => {
@@ -127,9 +186,31 @@ export const CustomSelect = ({
           disabled ? 'opacity-50 cursor-not-allowed' : ''
         } ${isOpen ? 'border-[var(--accent,#97F2CC)] ring-1 ring-[var(--accent,#97F2CC)]' : ''}`}
       >
-        <span className={`text-xs sm:text-sm truncate font-medium ${selectedOption ? 'text-white' : 'text-slate-400'}`}>
-          {selectedOption ? selectedOption.label : resolvedPlaceholder}
-        </span>
+        {selectedParsed ? (
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            {selectedParsed.emoji ? (
+              <div className="w-5 h-5 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                {selectedParsed.isImage ? (
+                  <img 
+                    src={selectedParsed.emoji} 
+                    alt={selectedParsed.displayName} 
+                    className="w-4.5 h-4.5 object-contain rounded"
+                    onError={(e) => { e.target.style.display = 'none'; }} 
+                  />
+                ) : (
+                  <span className="text-sm leading-none">{selectedParsed.emoji}</span>
+                )}
+              </div>
+            ) : null}
+            <span className="text-xs sm:text-sm font-medium text-white truncate flex-1">
+              {selectedParsed.displayName} {selectedParsed.currency ? `(${selectedParsed.currency === 'HNL' ? 'L.' : '$'} ${selectedParsed.currency})` : ''}
+            </span>
+          </div>
+        ) : (
+          <span className="text-xs sm:text-sm truncate font-medium text-slate-400">
+            {resolvedPlaceholder}
+          </span>
+        )}
         <ChevronDown 
           className={`text-slate-400 transition-transform duration-200 shrink-0 ml-2 ${isOpen ? 'rotate-180 text-[var(--accent,#97F2CC)]' : ''}`} 
           size={16} 
@@ -165,23 +246,48 @@ export const CustomSelect = ({
           <div className="max-h-60 overflow-y-auto space-y-1 custom-scrollbar py-0.5 pr-1">
             {filteredOptions.length > 0 ? (
               filteredOptions.map((opt) => {
-                const isSelected = String(opt.value) === String(value);
+                const parsed = parseOption(opt);
+                if (!parsed) return null;
+                const isSelected = String(parsed.value) === String(value);
+
                 return (
                   <button
-                    key={opt.value}
+                    key={String(parsed.value)}
                     type="button"
                     onClick={() => {
-                      onChange(opt.value);
+                      onChange(parsed.value);
                       setIsOpen(false);
                       setSearch('');
                     }}
-                    className={`w-full px-4 py-3 text-sm rounded-xl flex items-center justify-between gap-3 cursor-pointer transition-all text-left ${
+                    className={`w-full px-2.5 py-2 rounded-xl flex items-center justify-between gap-3 cursor-pointer transition-all text-left group ${
                       isSelected
                         ? 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] font-medium'
                         : 'text-slate-200 hover:bg-white/10 hover:text-white'
                     }`}
                   >
-                    <span className="truncate flex-1">{opt.label}</span>
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      {/* Contenedor del Icono / Imagen */}
+                      {parsed.emoji ? (
+                        <div className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
+                          {parsed.isImage ? (
+                            <img 
+                              src={parsed.emoji} 
+                              alt={parsed.displayName} 
+                              className="w-5 h-5 object-contain rounded"
+                              onError={(e) => { e.target.style.display = 'none'; }} 
+                            />
+                          ) : (
+                            <span className="text-base leading-none">{parsed.emoji}</span>
+                          )}
+                        </div>
+                      ) : null}
+
+                      {/* Nombre y Moneda */}
+                      <span className={`text-sm font-medium truncate flex-1 ${isSelected ? 'text-[var(--accent,#97F2CC)]' : 'text-slate-200 group-hover:text-white'}`}>
+                        {parsed.displayName} {parsed.currency ? `(${parsed.currency === 'HNL' ? 'L.' : '$'} ${parsed.currency})` : ''} {parsed.extra ? <span className="text-xs text-slate-400 ml-1">{parsed.extra}</span> : ''}
+                      </span>
+                    </div>
+
                     {isSelected && (
                       <Check className="text-[var(--accent,#97F2CC)] shrink-0 ml-1" size={16} strokeWidth={2.5} />
                     )}

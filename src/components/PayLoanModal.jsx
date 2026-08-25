@@ -24,7 +24,12 @@ export default function PayLoanModal({
   const [keepRecord, setKeepRecord] = useState(false);
   const [error, setError] = useState('');
 
-  const safeAccounts = Array.isArray(accounts) ? accounts.filter(Boolean) : [];
+  const safeAccounts = useMemo(() => {
+    const list = Array.isArray(accounts) ? accounts.filter(Boolean) : [];
+    return [...list].sort((a, b) => 
+      (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' })
+    );
+  }, [accounts]);
 
   useEffect(() => {
     if (!isOpen || !loan) return;
@@ -52,7 +57,11 @@ export default function PayLoanModal({
 
   const accountSelectOptions = safeAccounts.map(acc => ({
     value: acc.id,
-    label: `${acc.emoji || '🏦'} ${acc.name} (${getCurrencySymbol(acc.currency)} ${acc.currency || 'USD'}) - Balance: ${formatCurrency(acc.balance, acc.currency || 'USD')}`
+    name: acc.name,
+    emoji: acc.emoji || '🏦',
+    currency: acc.currency || 'USD',
+    extra: `- Balance: ${formatCurrency(acc.balance, acc.currency || 'USD')}`,
+    label: acc.name
   }));
 
   const handleSubmit = (e) => {

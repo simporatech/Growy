@@ -81,10 +81,11 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
     setTimeout(() => setDbStatusToast(null), 4500);
   }, []);
 
-  // Strict dynamic calculation of Available Balance under Ledger Model:
-  // Available Balance = Initial Balance (accounts.balance) + Incomes - Expenses + Transfers In - Transfers Out
   const accounts = useMemo(() => {
-    return hydrateAccountsWithLedgerBalances(rawAccounts, transactions);
+    const hydrated = hydrateAccountsWithLedgerBalances(rawAccounts, transactions);
+    return [...hydrated].sort((a, b) => 
+      (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' })
+    );
   }, [rawAccounts, transactions]);
 
   // Load state 100% connected to Supabase DB
@@ -530,7 +531,12 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
   }, [userId, triggerToast]);
 
   const safeAccountsList = useMemo(() => Array.isArray(accounts) ? accounts.filter(Boolean) : [], [accounts]);
-  const safeCategoriesList = useMemo(() => Array.isArray(categories) ? categories.filter(Boolean) : [], [categories]);
+  const safeCategoriesList = useMemo(() => {
+    const list = Array.isArray(categories) ? categories.filter(Boolean) : [];
+    return [...list].sort((a, b) => 
+      (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' })
+    );
+  }, [categories]);
   const safeTransactionsList = useMemo(() => Array.isArray(transactions) ? transactions.filter(Boolean) : [], [transactions]);
   const safeLoansList = useMemo(() => Array.isArray(loans) ? loans.filter(Boolean) : [], [loans]);
   const safeSubsList = useMemo(() => Array.isArray(subscriptions) ? subscriptions.filter(Boolean) : [], [subscriptions]);

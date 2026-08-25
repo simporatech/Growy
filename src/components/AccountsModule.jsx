@@ -26,7 +26,12 @@ export default function AccountsModule() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const safeAccountsList = useMemo(() => Array.isArray(accounts) ? accounts.filter(Boolean) : [], [accounts]);
+  const safeAccountsList = useMemo(() => {
+    const list = Array.isArray(accounts) ? accounts.filter(Boolean) : [];
+    return [...list].sort((a, b) => 
+      (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' })
+    );
+  }, [accounts]);
 
   const uniqueCurrencies = useMemo(() => {
     const codes = [...new Set(safeAccountsList.map(a => a?.currency || 'USD'))];

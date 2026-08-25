@@ -31,10 +31,23 @@ export default function TransactionModal({
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const safeAccounts = Array.isArray(accounts) ? accounts.filter(Boolean) : [];
-  const safeCategories = Array.isArray(categories) ? categories.filter(Boolean) : [];
+  const safeAccounts = useMemo(() => {
+    const list = Array.isArray(accounts) ? accounts.filter(Boolean) : [];
+    return [...list].sort((a, b) => 
+      (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' })
+    );
+  }, [accounts]);
 
-  const availableCategories = safeCategories.filter(c => c && c.type === type);
+  const safeCategories = useMemo(() => {
+    const list = Array.isArray(categories) ? categories.filter(Boolean) : [];
+    return [...list].sort((a, b) => 
+      (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' })
+    );
+  }, [categories]);
+
+  const availableCategories = useMemo(() => {
+    return safeCategories.filter(c => c && c.type === type);
+  }, [safeCategories, type]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -88,7 +101,7 @@ export default function TransactionModal({
     }
     setError('');
     setIsSubmitting(false);
-  }, [transactionToEdit, isOpen, initialType, baseCurrency]);
+  }, [transactionToEdit, isOpen, initialType, baseCurrency, safeAccounts, safeCategories]);
 
   if (!isOpen) return null;
 
@@ -103,12 +116,17 @@ export default function TransactionModal({
 
   const accountSelectOptions = safeAccounts.map(acc => ({
     value: acc.id,
-    label: `${acc.emoji || '💳'} ${acc.name} (${getCurrencySymbol(acc.currency)} ${acc.currency || 'USD'})`
+    name: acc.name,
+    emoji: acc.emoji || '💳',
+    currency: acc.currency || 'USD',
+    label: acc.name
   }));
 
   const categorySelectOptions = availableCategories.map(cat => ({
     value: cat.id,
-    label: `${cat.emoji || '🏷️'} ${cat.name}`
+    name: cat.name,
+    emoji: cat.emoji || '🏷️',
+    label: cat.name
   }));
 
   const handleTypeChange = (newType) => {

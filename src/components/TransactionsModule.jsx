@@ -44,8 +44,18 @@ export default function TransactionsModule() {
   const [categoryIdFilter, setCategoryIdFilter] = useState('all');
 
   const safeTxList = useMemo(() => Array.isArray(transactions) ? transactions.filter(Boolean) : [], [transactions]);
-  const safeAccountsList = useMemo(() => Array.isArray(accounts) ? accounts.filter(Boolean) : [], [accounts]);
-  const safeCategoriesList = useMemo(() => Array.isArray(categories) ? categories.filter(Boolean) : [], [categories]);
+  const safeAccountsList = useMemo(() => {
+    const list = Array.isArray(accounts) ? accounts.filter(Boolean) : [];
+    return [...list].sort((a, b) => 
+      (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' })
+    );
+  }, [accounts]);
+  const safeCategoriesList = useMemo(() => {
+    const list = Array.isArray(categories) ? categories.filter(Boolean) : [];
+    return [...list].sort((a, b) => 
+      (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' })
+    );
+  }, [categories]);
 
   // Handle Date Preset Changes
   const handlePresetChange = useCallback((preset) => {
@@ -132,12 +142,23 @@ export default function TransactionsModule() {
 
   const accountOptions = useMemo(() => [
     { value: 'all', label: t('transactions.allAccounts', {}, 'Todas las Cuentas') },
-    ...safeAccountsList.map(a => ({ value: a.id, label: `${a.emoji || '🏦'} ${a.name}` }))
+    ...safeAccountsList.map(a => ({ 
+      value: a.id, 
+      name: a.name, 
+      emoji: a.emoji || '🏦', 
+      currency: a.currency || 'USD',
+      label: a.name 
+    }))
   ], [safeAccountsList, t]);
 
   const categoryOptions = useMemo(() => [
     { value: 'all', label: t('transactions.allCategories', {}, 'Todas las Categorías') },
-    ...safeCategoriesList.map(c => ({ value: c.id, label: `${c.emoji || '🏷️'} ${c.name}` }))
+    ...safeCategoriesList.map(c => ({ 
+      value: c.id, 
+      name: c.name, 
+      emoji: c.emoji || '🏷️', 
+      label: c.name 
+    }))
   ], [safeCategoriesList, t]);
 
   // Filtering Logic
