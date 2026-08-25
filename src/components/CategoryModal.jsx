@@ -21,7 +21,7 @@ export default function CategoryModal({
   const [name, setName] = useState('');
   const [emoji, setEmoji] = useState('🏷️');
   const [color, setColor] = useState('#AEEDD0');
-  const [currency, setCurrency] = useState('USD');
+  const [currency, setCurrency] = useState(categoryToEdit?.currency || baseCurrency || 'USD');
   const [targetAmount, setTargetAmount] = useState('');
   const [error, setError] = useState('');
 
@@ -33,7 +33,7 @@ export default function CategoryModal({
       setName(categoryToEdit.name || '');
       setEmoji(categoryToEdit.emoji || '🏷️');
       setColor(categoryToEdit.color || '#AEEDD0');
-      setCurrency(categoryToEdit.currency || 'USD');
+      setCurrency(categoryToEdit.currency || baseCurrency || 'USD');
       setTargetAmount(categoryToEdit.targetAmount !== undefined ? categoryToEdit.targetAmount.toString() : '');
     } else {
       setType(initialType || 'expense');

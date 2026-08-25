@@ -16,7 +16,7 @@ export default function PayLoanModal({
   loan, 
   accounts = [] 
 }) {
-  const { t } = useSettings();
+  const { t, baseCurrency } = useSettings();
 
   const [accountId, setAccountId] = useState('');
   const [paymentDate, setPaymentDate] = useState(formatDateISO());
@@ -30,7 +30,8 @@ export default function PayLoanModal({
     if (!isOpen || !loan) return;
 
     if (safeAccounts.length > 0) {
-      setAccountId(safeAccounts[0].id);
+      const matchingLoanAcc = safeAccounts.find(a => (a?.currency || '').toUpperCase() === (loan?.currency || baseCurrency || 'USD').toUpperCase()) || safeAccounts[0];
+      setAccountId(matchingLoanAcc.id);
     } else {
       setAccountId('');
     }
@@ -39,13 +40,13 @@ export default function PayLoanModal({
     setCustomDebitAmount(loan.amount !== undefined ? Math.abs(loan.amount).toString() : '');
     setKeepRecord(false);
     setError('');
-  }, [isOpen, loan]);
+  }, [isOpen, loan, safeAccounts, baseCurrency]);
 
   if (!isOpen || !loan) return null;
 
   const selectedAccount = safeAccounts.find(a => a.id === accountId) || safeAccounts[0] || null;
-  const loanCurr = loan.currency || 'USD';
-  const accCurr = selectedAccount?.currency || 'USD';
+  const loanCurr = loan.currency || baseCurrency || 'USD';
+  const accCurr = selectedAccount?.currency || baseCurrency || 'USD';
   const accSymbol = selectedAccount?.currencySymbol || getCurrencySymbol(accCurr);
   const isMultiCurrency = loanCurr !== accCurr;
 

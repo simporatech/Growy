@@ -18,7 +18,7 @@ export default function TransactionModal({
   categories = [],
   initialType = 'expense'
 }) {
-  const { t } = useSettings();
+  const { t, baseCurrency } = useSettings();
 
   const [type, setType] = useState('expense');
   const [date, setDate] = useState(() => formatDateISO());
@@ -72,8 +72,10 @@ export default function TransactionModal({
       setType(initialType || 'expense');
       setDate(formatDateISO());
       if (safeAccounts.length > 0) {
-        setAccountId(safeAccounts[0].id);
-        setTargetAccountId(safeAccounts[1]?.id || safeAccounts[0].id);
+        const matchingBaseAcc = safeAccounts.find(a => (a?.currency || '').toUpperCase() === (baseCurrency || 'USD').toUpperCase()) || safeAccounts[0];
+        setAccountId(matchingBaseAcc.id);
+        const fallbackTarget = safeAccounts.find(a => a?.id !== matchingBaseAcc.id)?.id || safeAccounts[0].id;
+        setTargetAccountId(fallbackTarget);
       } else {
         setAccountId('');
         setTargetAccountId('');
@@ -86,7 +88,7 @@ export default function TransactionModal({
     }
     setError('');
     setIsSubmitting(false);
-  }, [transactionToEdit, isOpen, initialType]);
+  }, [transactionToEdit, isOpen, initialType, baseCurrency]);
 
   if (!isOpen) return null;
 

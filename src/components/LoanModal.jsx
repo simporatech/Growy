@@ -16,11 +16,11 @@ export default function LoanModal({
   loanToEdit,
   categories = [] 
 }) {
-  const { t } = useSettings();
+  const { t, baseCurrency } = useSettings();
 
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
-  const [currency, setCurrency] = useState('USD');
+  const [currency, setCurrency] = useState(loanToEdit?.currency || baseCurrency || 'USD');
   const [categoryId, setCategoryId] = useState('');
   const [startDate, setStartDate] = useState(() => formatDateISO());
   const [dueDate, setDueDate] = useState('');
@@ -34,20 +34,20 @@ export default function LoanModal({
     if (loanToEdit) {
       setDescription(loanToEdit.description || '');
       setAmount(loanToEdit.amount !== undefined ? loanToEdit.amount.toString() : '');
-      setCurrency(loanToEdit.currency || 'USD');
+      setCurrency(loanToEdit.currency || baseCurrency || 'USD');
       setCategoryId(loanToEdit.categoryId || (safeCategories[0]?.id || ''));
       setStartDate(loanToEdit.startDate || formatDateISO());
       setDueDate(loanToEdit.dueDate || '');
     } else {
       setDescription('');
       setAmount('');
-      setCurrency('USD');
+      setCurrency(baseCurrency || 'USD');
       setCategoryId(safeCategories[0]?.id || '');
       setStartDate(formatDateISO());
       setDueDate('');
     }
     setError('');
-  }, [loanToEdit, isOpen]);
+  }, [loanToEdit, isOpen, baseCurrency]);
 
   if (!isOpen) return null;
 

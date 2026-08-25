@@ -58,7 +58,8 @@ export default function SubscriptionModal({
       setName('');
       setEmoji('🍿');
       setAmount('');
-      setAccountId(safeAccounts[0]?.id || '');
+      const matchingBaseAcc = safeAccounts.find(a => (a?.currency || '').toUpperCase() === (baseCurrency || 'USD').toUpperCase()) || safeAccounts[0];
+      setAccountId(matchingBaseAcc?.id || '');
       setCategoryId(availableCategories[0]?.id || '');
       setBillingDay(5);
       setFrequency('monthly');
@@ -66,7 +67,7 @@ export default function SubscriptionModal({
     }
     setError('');
     setIsSubmitting(false);
-  }, [subscriptionToEdit, isOpen, safeAccounts, availableCategories]);
+  }, [subscriptionToEdit, isOpen, safeAccounts, availableCategories, baseCurrency]);
 
   if (!isOpen) return null;
 

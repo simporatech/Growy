@@ -14,12 +14,12 @@ export default function AccountModal({
   onSave, 
   accountToEdit 
 }) {
-  const { t, baseCurrency: settingsBaseCurrency } = useSettings();
+  const { t, baseCurrency } = useSettings();
 
   const [name, setName] = useState('');
   const [emoji, setEmoji] = useState('💳');
   const [color, setColor] = useState('#AEEDD0');
-  const [currency, setCurrency] = useState(settingsBaseCurrency || 'USD');
+  const [currency, setCurrency] = useState(accountToEdit?.currency || baseCurrency || 'USD');
   const [initialBalance, setInitialBalance] = useState('');
   const [error, setError] = useState('');
 
@@ -30,7 +30,7 @@ export default function AccountModal({
       setName(accountToEdit.name || '');
       setEmoji(accountToEdit.emoji || '💳');
       setColor(accountToEdit.color || '#AEEDD0');
-      setCurrency(accountToEdit.currency || 'USD');
+      setCurrency(accountToEdit.currency || baseCurrency || 'USD');
       const rawInit = accountToEdit.initialBalance ?? accountToEdit.initial_balance ?? accountToEdit.balance;
       const initialVal = (rawInit !== undefined && rawInit !== null && rawInit !== '') ? String(rawInit) : '0';
       setInitialBalance(initialVal);
@@ -38,11 +38,11 @@ export default function AccountModal({
       setName('');
       setEmoji('💳');
       setColor('#AEEDD0');
-      setCurrency(settingsBaseCurrency || 'USD');
+      setCurrency(baseCurrency || 'USD');
       setInitialBalance('');
     }
     setError('');
-  }, [accountToEdit, isOpen, settingsBaseCurrency]);
+  }, [accountToEdit, isOpen, baseCurrency]);
 
   if (!isOpen) return null;
 

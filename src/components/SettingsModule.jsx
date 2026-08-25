@@ -177,7 +177,7 @@ export default function SettingsModule({ onLogout }) {
   // Live Exchange Rate Calculator State
   const [calcAmount, setCalcAmount] = useState('1');
   const [calcFromCurrency, setCalcFromCurrency] = useState('USD');
-  const [calcToCurrency, setCalcToCurrency] = useState('HNL');
+  const [calcToCurrency, setCalcToCurrency] = useState(baseCurrency || 'HNL');
 
   const safeRates = exchangeRates || FALLBACK_EXCHANGE_RATES;
 
