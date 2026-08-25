@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle } from 'lucide-react';
+import Button from './Button';
 import CustomSelect from './CustomSelect';
 import CustomDatePicker from './CustomDatePicker';
 import ModalWrapper from './ModalWrapper';
@@ -149,11 +150,11 @@ export default function PayLoanModal({
             <div 
               onClick={() => setKeepRecord(!keepRecord)}
               className={`w-12 h-6.5 rounded-full p-1 transition-all cursor-pointer flex items-center shrink-0 ${
-                keepRecord ? 'bg-[#97F2CC] justify-end' : 'bg-[#121721] border border-white/[0.08] justify-start'
+                keepRecord ? 'bg-[var(--accent,#97F2CC)] justify-end' : 'bg-[#121721] border border-white/[0.08] justify-start'
               }`}
             >
               <div className={`w-4.5 h-4.5 rounded-full shadow-md transition-all ${
-                keepRecord ? 'bg-[#091E15]' : 'bg-[#8EA7A8]'
+                keepRecord ? 'bg-[var(--accent-text,#091E15)]' : 'bg-[#8EA7A8]'
               }`} />
             </div>
           </div>
@@ -161,22 +162,24 @@ export default function PayLoanModal({
 
         {/* Sticky Action Footer */}
         <div className="modal-footer sticky bottom-0 z-20 bg-transparent px-6 py-4 border-t border-white/[0.06] flex gap-3 shrink-0 pb-safe sm:pb-4">
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="md"
             onClick={onClose}
-            className="btn-cancel btn-secondary flex-1 py-3 px-4 rounded-xl font-semibold transition-colors cursor-pointer"
+            className="flex-1"
           >
             {t('common.cancel', {}, 'Cancelar')}
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
+            variant="primary"
+            size="md"
             disabled={safeAccounts.length === 0}
-            className={`btn-primary btn-save flex-1 py-3 px-4 rounded-xl font-semibold hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer shadow-md ${
-              safeAccounts.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
+            className="flex-1"
           >
             {t('modals.payLoan.payBtn', {}, 'Pagar Ahora')}
-          </button>
+          </Button>
         </div>
       </form>
     </ModalWrapper>

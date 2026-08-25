@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Wallet } from 'lucide-react';
+import Button from './Button';
 import CustomSelect from './CustomSelect';
 import ModalWrapper from './ModalWrapper';
 import FormField from './FormField';
@@ -81,9 +82,9 @@ export default function AccountModal({
       title={accountToEdit ? t('modals.account.editTitle', {}, 'Editar Cuenta') : t('modals.account.newTitle', {}, 'Nueva Cuenta')}
       subtitle={accountToEdit ? t('modals.account.editSubtitle', {}, 'Modifica los detalles de tu cuenta') : t('modals.account.newSubtitle', {}, 'Agrega una nueva fuente de saldo')}
       icon={Wallet}
-      iconBgColor="bg-[#97F2CC]/15"
-      iconBorderColor="border-[#97F2CC]/30"
-      iconTextColor="text-[#97F2CC]"
+      iconBgColor="bg-[var(--accent-muted,rgba(151,242,204,0.15))]"
+      iconBorderColor="border-[var(--accent,#97F2CC)]/30"
+      iconTextColor="text-[var(--accent,#97F2CC)]"
       error={error}
     >
       <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
@@ -102,7 +103,7 @@ export default function AccountModal({
                   {t('modals.account.currentBalanceNote', {}, '(Saldo inicial + ingresos - gastos ± traspasos)')}
                 </span>
               </div>
-              <span className="text-base sm:text-lg font-black text-[var(--color-primary,#97F2CC)] tabular-nums">
+              <span className="text-base sm:text-lg font-black text-[var(--accent,#97F2CC)] tabular-nums">
                 {currencySymbol} {currentCalculatedBalance.toLocaleString('es-HN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
@@ -122,7 +123,7 @@ export default function AccountModal({
                   setEmoji(val);
                 }}
                 placeholder="🏦"
-                className="w-11 h-11 rounded-xl form-input bg-[#121721] border border-white/[0.08] text-[#F1F5F9] text-xl text-center font-bold flex items-center justify-center shrink-0 cursor-pointer placeholder:opacity-25 placeholder:grayscale caret-[#97F2CC] focus:outline-none focus:border-[#97F2CC] focus:ring-1 focus:ring-[#97F2CC] transition-all"
+                className="w-11 h-11 rounded-xl form-input bg-[#121721] border border-white/[0.08] text-[#F1F5F9] text-xl text-center font-bold flex items-center justify-center shrink-0 cursor-pointer placeholder:opacity-25 placeholder:grayscale caret-[var(--accent,#97F2CC)] focus:outline-none focus:border-[var(--accent,#97F2CC)] focus:ring-1 focus:ring-[var(--accent,#97F2CC)] transition-all"
                 title="Emoji"
               />
             </div>
@@ -178,7 +179,7 @@ export default function AccountModal({
               {t('modals.account.initialBalance', {}, 'Saldo Inicial')}
             </label>
             <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-primary,#97F2CC)] font-bold text-sm pointer-events-none">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--accent,#97F2CC)] font-bold text-sm pointer-events-none">
                 {currencySymbol}
               </span>
               <input
@@ -189,7 +190,7 @@ export default function AccountModal({
                 onChange={(e) => setInitialBalance(e.target.value)}
                 placeholder="0.00"
                 required
-                className="form-input w-full pl-10 pr-4 h-11 rounded-xl bg-[#121721] border border-white/[0.08] text-[#F1F5F9] font-semibold placeholder:text-slate-500 focus:border-[#97F2CC] focus:ring-1 focus:ring-[#97F2CC] focus:outline-none transition-all"
+                className="form-input w-full pl-10 pr-4 h-11 rounded-xl bg-[#121721] border border-white/[0.08] text-[#F1F5F9] font-semibold placeholder:text-slate-500 focus:border-[var(--accent,#97F2CC)] focus:ring-1 focus:ring-[var(--accent,#97F2CC)] focus:outline-none transition-all"
               />
             </div>
             <p className="text-[11px] text-slate-400 mt-1">
@@ -200,19 +201,23 @@ export default function AccountModal({
 
         {/* Sticky Action Footer */}
         <div className="modal-footer sticky bottom-0 z-20 bg-transparent px-6 py-4 border-t border-white/[0.06] flex gap-3 shrink-0 pb-safe sm:pb-4">
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="md"
             onClick={onClose}
-            className="btn-cancel btn-secondary flex-1 py-3 px-4 rounded-xl font-semibold transition-colors cursor-pointer"
+            className="flex-1"
           >
             {t('common.cancel', {}, 'Cancelar')}
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
-            className="btn-primary btn-save flex-1 py-3 px-4 rounded-xl font-semibold hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer shadow-md"
+            variant="primary"
+            size="md"
+            className="flex-1"
           >
             {accountToEdit ? t('modals.account.updateBtn', {}, 'Actualizar Cuenta') : t('modals.account.saveBtn', {}, 'Guardar Cuenta')}
-          </button>
+          </Button>
         </div>
 
       </form>

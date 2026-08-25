@@ -345,11 +345,11 @@ export default function DashboardPreview({ user, onLogout }) {
                     className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity group min-w-0"
                     title="Ir a Resumen / Dashboard"
                   >
-                    <div className="w-9 h-9 rounded-xl bg-[var(--color-primary,#AEEDD0)]/15 border border-[var(--color-primary,#AEEDD0)]/30 flex items-center justify-center p-2 shadow-inner group-hover:scale-105 transition-transform shrink-0">
+                    <div className="w-9 h-9 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex items-center justify-center p-2 shadow-inner group-hover:scale-105 transition-transform shrink-0">
                       <img src="/logos/Transparent.svg" alt="Growy" className="w-full h-full object-contain" />
                     </div>
                     <div className="min-w-0">
-                      <h1 className="text-lg font-bold text-white tracking-tight leading-none group-hover:text-[var(--color-primary,#AEEDD0)] transition-colors truncate">
+                      <h1 className="text-lg font-bold text-white tracking-tight leading-none group-hover:text-[var(--accent,#97F2CC)] transition-colors truncate">
                         Growy
                       </h1>
                       <span className="text-[11px] font-semibold text-slate-300 tracking-wider uppercase block truncate">
@@ -371,7 +371,7 @@ export default function DashboardPreview({ user, onLogout }) {
                 <div className="flex flex-col items-center gap-3 w-full">
                   <div 
                     onClick={() => setActiveTab('dashboard')}
-                    className="w-9 h-9 rounded-xl bg-[var(--color-primary,#AEEDD0)]/15 border border-[var(--color-primary,#AEEDD0)]/30 flex items-center justify-center p-2 shadow-inner hover:scale-105 transition-transform cursor-pointer"
+                    className="w-9 h-9 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex items-center justify-center p-2 shadow-inner hover:scale-105 transition-transform cursor-pointer"
                     title="Growy • Resumen"
                   >
                     <img src="/logos/Transparent.svg" alt="Growy" className="w-full h-full object-contain" />
@@ -392,7 +392,7 @@ export default function DashboardPreview({ user, onLogout }) {
             {/* USER PROFILE PILL */}
             {!isCollapsed ? (
               <div className="rounded-2xl p-3 border border-white/10 bg-[#141E22]/70 backdrop-blur-xl flex items-center gap-3 overflow-hidden group hover:border-white/15 transition-all shrink-0 isolate">
-                <div className="w-8 h-8 rounded-xl bg-[var(--color-primary,#AEEDD0)]/15 border border-[var(--color-primary,#AEEDD0)]/20 flex items-center justify-center text-[var(--color-primary,#AEEDD0)] shrink-0 font-bold">
+                <div className="w-8 h-8 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/20 flex items-center justify-center text-[var(--accent,#97F2CC)] shrink-0 font-bold">
                   <UserCheck className="w-4 h-4" />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -409,7 +409,7 @@ export default function DashboardPreview({ user, onLogout }) {
                 className="rounded-2xl p-2 border border-white/10 bg-[#141E22]/70 backdrop-blur-xl flex items-center justify-center shrink-0 isolate"
                 title={`${user?.username || 'Admin'} • ${t('common.planPro', {}, 'Plan Pro • Finanzas')}`}
               >
-                <div className="w-8 h-8 rounded-xl bg-[var(--color-primary,#AEEDD0)]/15 border border-[var(--color-primary,#AEEDD0)]/20 flex items-center justify-center text-[var(--color-primary,#AEEDD0)] font-bold">
+                <div className="w-8 h-8 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/20 flex items-center justify-center text-[var(--accent,#97F2CC)] font-bold">
                   <UserCheck className="w-4 h-4" />
                 </div>
               </div>
@@ -429,11 +429,11 @@ export default function DashboardPreview({ user, onLogout }) {
                       title={item.label}
                       className={`w-full flex items-center justify-center h-10 rounded-xl transition-all duration-150 group cursor-pointer ${
                         isActive
-                          ? 'bg-[var(--color-primary,#97F2CC)] text-[var(--color-primary-text,#091E15)] shadow-sm font-bold scale-105'
+                          ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-sm font-bold scale-105'
                           : 'text-slate-300 hover:text-white hover:bg-white/[0.06]'
                       }`}
                     >
-                      <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[var(--color-primary-text,#091E15)]' : 'text-slate-400 group-hover:text-white'}`} />
+                      <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[var(--accent-text)]' : 'text-slate-400 group-hover:text-white'}`} />
                     </button>
                   );
                 }
@@ -444,11 +444,11 @@ export default function DashboardPreview({ user, onLogout }) {
                     onClick={() => setActiveTab(item.id)}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 text-left group cursor-pointer ${
                       isActive
-                        ? 'bg-[var(--color-primary,#97F2CC)] text-[var(--color-primary-text,#091E15)] shadow-sm font-bold scale-[1.01]'
+                        ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-sm font-bold scale-[1.01]'
                         : 'text-slate-300 hover:text-white hover:bg-white/[0.04] hover:translate-x-1'
                     }`}
                   >
-                    <Icon className={`w-4 h-4 shrink-0 transition-transform duration-150 ${isActive ? 'text-[var(--color-primary-text,#091E15)]' : 'text-slate-400 group-hover:text-white'}`} />
+                    <Icon className={`w-4 h-4 shrink-0 transition-transform duration-150 ${isActive ? 'text-[var(--accent-text)]' : 'text-slate-400 group-hover:text-white'}`} />
                     <span className="truncate">{item.label}</span>
                   </button>
                 );
@@ -471,11 +471,11 @@ export default function DashboardPreview({ user, onLogout }) {
                       title={item.label}
                       className={`w-full flex items-center justify-center h-9 rounded-lg transition-colors cursor-pointer ${
                         isActive
-                          ? 'bg-white/10 text-white font-bold'
+                          ? 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] font-bold'
                           : 'text-slate-400 hover:text-white hover:bg-white/5'
                       }`}
                     >
-                      <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-[#AEEDD0]' : 'text-slate-400'}`} />
+                      <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-[var(--accent,#97F2CC)]' : 'text-slate-400'}`} />
                     </button>
                   );
                 }
@@ -486,11 +486,11 @@ export default function DashboardPreview({ user, onLogout }) {
                     onClick={() => setActiveTab(item.id)}
                     className={`w-full text-xs font-medium flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-left cursor-pointer ${
                       isActive
-                        ? 'bg-white/10 text-white font-bold'
+                        ? 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] font-bold'
                         : 'text-slate-400 hover:text-white hover:bg-white/5'
                     }`}
                   >
-                    <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-[#AEEDD0]' : 'text-slate-400'}`} />
+                    <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-[var(--accent,#97F2CC)]' : 'text-slate-400'}`} />
                     <span className="truncate">{item.label}</span>
                   </button>
                 );
@@ -536,13 +536,13 @@ export default function DashboardPreview({ user, onLogout }) {
 
                 {/* QUICK CREATION DROPDOWN */}
                 <div className="relative inline-block z-50 shrink-0" ref={menuRef}>
-                  <div className="inline-flex items-stretch bg-[var(--color-primary,#97F2CC)] rounded-xl overflow-hidden shadow-md shadow-[var(--color-primary,#97F2CC)]/10 h-11 md:h-10">
+                  <div className="inline-flex items-stretch bg-[var(--accent,#97F2CC)] rounded-xl overflow-hidden shadow-md shadow-[var(--accent,#97F2CC)]/15 h-11 md:h-10">
                     <button 
                       onClick={() => {
                         setInitialTxType('expense');
                         setIsTxModalOpen(true);
                       }}
-                      className="px-3 sm:px-4 font-bold text-xs sm:text-sm text-[var(--color-primary-text,#091E15)] hover:bg-black/5 active:scale-[0.98] transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
+                      className="px-3 sm:px-4 font-bold text-xs sm:text-sm text-[var(--accent-text,#091E15)] hover:brightness-105 active:scale-[0.98] transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
                     >
                       <Plus className="w-4 h-4 stroke-[2.5] shrink-0" />
                       <span className="hidden sm:inline">{t('speedActions.newMovement', {}, 'Nuevo Movimiento')}</span>
@@ -552,7 +552,7 @@ export default function DashboardPreview({ user, onLogout }) {
 
                     <button
                       onClick={() => setIsQuickMenuOpen(!isQuickMenuOpen)}
-                      className="px-2.5 sm:px-3 hover:bg-black/5 active:scale-[0.98] transition-colors flex items-center justify-center text-[var(--color-primary-text,#091E15)] cursor-pointer"
+                      className="px-2.5 sm:px-3 hover:brightness-105 active:scale-[0.98] transition-all flex items-center justify-center text-[var(--accent-text,#091E15)] cursor-pointer"
                       title="Opciones de registro rápido"
                     >
                       <ChevronDown className={`w-4 h-4 stroke-[2.5] transition-transform duration-200 ${isQuickMenuOpen ? 'rotate-180' : ''}`} />
@@ -593,11 +593,11 @@ export default function DashboardPreview({ user, onLogout }) {
                         }}
                         className="w-full hover:bg-white/10 rounded-xl p-3 transition-all flex items-center gap-3.5 text-left cursor-pointer group"
                       >
-                        <div className="w-10 h-10 rounded-xl bg-[var(--color-primary,#AEEDD0)]/10 border border-[var(--color-primary,#AEEDD0)]/20 text-[var(--color-primary,#AEEDD0)] flex items-center justify-center shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/20 text-[var(--accent,#97F2CC)] flex items-center justify-center shrink-0">
                           <RefreshCw className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                          <h4 className="text-sm font-bold text-white group-hover:text-[var(--color-primary,#AEEDD0)] transition-colors">
+                          <h4 className="text-sm font-bold text-white group-hover:text-[var(--accent,#97F2CC)] transition-colors">
                             {t('subscriptions.newSubscription', {}, 'Nueva Suscripción')}
                           </h4>
                           <p className="text-xs text-slate-400 font-medium truncate mt-0.5">
@@ -639,7 +639,7 @@ export default function DashboardPreview({ user, onLogout }) {
                     <span className="text-xs font-semibold uppercase tracking-wider text-slate-300">
                       {t('dashboard.netWealth', {}, 'Patrimonio Neto')}
                     </span>
-                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[var(--color-primary,#AEEDD0)]/15 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/20">
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] border border-[var(--accent,#97F2CC)]/20">
                       {baseCurrency}
                     </span>
                   </div>
@@ -716,7 +716,7 @@ export default function DashboardPreview({ user, onLogout }) {
                     <span className="text-xs font-semibold uppercase tracking-wider text-slate-300">
                       {t('dashboard.savingsRate', {}, 'Tasa de Ahorro')}
                     </span>
-                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[var(--color-primary,#AEEDD0)]/15 text-[var(--color-primary,#AEEDD0)] border border-[var(--color-primary,#AEEDD0)]/20 tabular-nums">
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] border border-[var(--accent,#97F2CC)]/20 tabular-nums">
                       Score {financialScore}/100
                     </span>
                   </div>
@@ -755,24 +755,24 @@ export default function DashboardPreview({ user, onLogout }) {
                     <div className="flex items-center gap-1 p-1 rounded-xl bg-white/[0.03] border border-white/10 shrink-0 overflow-x-auto no-scrollbar">
                       <button
                         onClick={() => setChartPeriod('this_month')}
-                        className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-medium active:scale-95 transition-all whitespace-nowrap ${
-                          chartPeriod === 'this_month' ? 'bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] font-bold shadow-sm' : 'text-slate-300 hover:text-white'
+                        className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold active:scale-95 transition-all whitespace-nowrap cursor-pointer ${
+                          chartPeriod === 'this_month' ? 'bg-[var(--accent)] text-[var(--accent-text)] font-bold shadow-sm' : 'text-slate-300 hover:text-white'
                         }`}
                       >
                         {t('common.thisMonth', {}, 'Este Mes')}
                       </button>
                       <button
                         onClick={() => setChartPeriod('3_months')}
-                        className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-medium active:scale-95 transition-all whitespace-nowrap ${
-                          chartPeriod === '3_months' ? 'bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] font-bold shadow-sm' : 'text-slate-300 hover:text-white'
+                        className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold active:scale-95 transition-all whitespace-nowrap cursor-pointer ${
+                          chartPeriod === '3_months' ? 'bg-[var(--accent)] text-[var(--accent-text)] font-bold shadow-sm' : 'text-slate-300 hover:text-white'
                         }`}
                       >
                         {t('common.threeMonths', {}, '3 Meses')}
                       </button>
                       <button
                         onClick={() => setChartPeriod('year')}
-                        className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-medium active:scale-95 transition-all whitespace-nowrap ${
-                          chartPeriod === 'year' ? 'bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] shadow-sm' : 'text-slate-300 hover:text-white'
+                        className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold active:scale-95 transition-all whitespace-nowrap cursor-pointer ${
+                          chartPeriod === 'year' ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-sm font-bold' : 'text-slate-300 hover:text-white'
                         }`}
                       >
                         {t('common.currentYear', {}, 'Año Actual')}
@@ -789,7 +789,7 @@ export default function DashboardPreview({ user, onLogout }) {
                           setInitialTxType('expense');
                           setIsTxModalOpen(true);
                         }}
-                        className="px-4 h-10 rounded-xl bg-[#AEEDD0] text-[#1E2D32] font-bold text-xs inline-flex items-center gap-1.5 shadow cursor-pointer"
+                        className="px-4 h-11 rounded-xl bg-[var(--accent)] text-[var(--accent-text)] font-semibold text-xs inline-flex items-center gap-1.5 shadow hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" /> {t('dashboard.registerMovement', {}, 'Registrar Movimiento')}
                       </button>
@@ -833,7 +833,7 @@ export default function DashboardPreview({ user, onLogout }) {
 
                   <div className="p-3 rounded-xl bg-[#162226] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                     <div className="flex items-center gap-2">
-                      <Activity className="w-3.5 h-3.5 text-[var(--color-primary,#AEEDD0)] shrink-0" />
+                      <Activity className="w-3.5 h-3.5 text-[var(--accent)] shrink-0" />
                       <span className="text-slate-300 font-medium">
                         {t('dashboard.projectedMonthEnd', { days: remainingDays }, `Proyección de saldo al cierre del mes (${remainingDays} días restantes):`)}
                       </span>
@@ -938,12 +938,12 @@ export default function DashboardPreview({ user, onLogout }) {
                 <div className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 h-full flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Landmark className="w-4 h-4 text-[var(--color-primary,#AEEDD0)]" />
+                      <Landmark className="w-4 h-4 text-[var(--accent)]" />
                       <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">{t('dashboard.miniPortfolio', {}, 'Mini Portfolio')}</h2>
                     </div>
                     <button 
                       onClick={() => setActiveTab('accounts')}
-                      className="text-xs font-semibold text-[var(--color-primary,#AEEDD0)] hover:underline"
+                      className="text-xs font-semibold text-[var(--accent)] hover:underline cursor-pointer"
                     >
                       {t('dashboard.viewAccounts', {}, 'Ver Cuentas')}
                     </button>
@@ -955,7 +955,7 @@ export default function DashboardPreview({ user, onLogout }) {
                         <p>{t('dashboard.noAccounts', {}, 'No tienes cuentas registradas.')}</p>
                         <button
                           onClick={() => setIsAccountModalOpen(true)}
-                          className="px-4 h-11 rounded-xl bg-[#AEEDD0] text-[#1E2D32] font-bold text-xs inline-flex items-center gap-1 shadow"
+                          className="px-4 h-11 rounded-xl bg-[var(--accent)] text-[var(--accent-text)] font-semibold text-xs inline-flex items-center gap-1 shadow hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer"
                         >
                           <Plus className="w-3.5 h-3.5" /> {t('dashboard.createAccount', {}, 'Crear Cuenta')}
                         </button>
@@ -985,7 +985,7 @@ export default function DashboardPreview({ user, onLogout }) {
                                 setInitialTxType('transfer');
                                 setIsTxModalOpen(true);
                               }}
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-[var(--color-primary,#AEEDD0)] hover:bg-white/10 active:scale-95 transition-all"
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-[var(--accent)] hover:bg-[var(--accent-muted)] active:scale-95 transition-all cursor-pointer"
                               title={t('dashboard.transferBetween', {}, 'Transferir entre cuentas')}
                             >
                               <ArrowLeftRight className="w-3 h-3" />
@@ -1001,7 +1001,7 @@ export default function DashboardPreview({ user, onLogout }) {
                 <div className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 h-full flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <AlertCircle className={`w-4 h-4 ${criticalBudgets.length > 0 ? 'text-amber-400' : 'text-[var(--color-primary,#AEEDD0)]'}`} />
+                      <AlertCircle className={`w-4 h-4 ${criticalBudgets.length > 0 ? 'text-amber-400' : 'text-[var(--accent)]'}`} />
                       <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
                         {criticalBudgets.length > 0
                           ? t('dashboard.budgetAlerts', {}, 'Alertas de Presupuesto')
@@ -1010,7 +1010,7 @@ export default function DashboardPreview({ user, onLogout }) {
                     </div>
                     <button 
                       onClick={() => setActiveTab('categories')}
-                      className="text-xs font-semibold text-[var(--color-primary,#AEEDD0)] hover:underline"
+                      className="text-xs font-semibold text-[var(--accent)] hover:underline cursor-pointer"
                     >
                       {t('dashboard.viewCategories', {}, 'Ver Categorías')}
                     </button>
@@ -1107,7 +1107,7 @@ export default function DashboardPreview({ user, onLogout }) {
                     </div>
                     <button 
                       onClick={() => setActiveTab('loans')}
-                      className="text-xs font-semibold text-[var(--color-primary,#AEEDD0)] hover:underline"
+                      className="text-xs font-semibold text-[var(--accent)] hover:underline cursor-pointer"
                     >
                       {t('dashboard.viewLoans', {}, 'Ver Saldos')}
                     </button>
@@ -1138,7 +1138,7 @@ export default function DashboardPreview({ user, onLogout }) {
                               </span>
                               <button
                                 onClick={() => setLoanToPay(loan)}
-                                className="py-1 px-2.5 rounded-lg bg-[#AEEDD0] text-[#1E2D32] text-xs font-bold flex items-center gap-1 shadow cursor-pointer"
+                                className="py-1 px-2.5 rounded-lg bg-[var(--accent)] text-[var(--accent-text)] text-xs font-semibold flex items-center gap-1 shadow hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer"
                               >
                                 <CheckCircle2 className="w-3.5 h-3.5" />
                                 <span>{t('common.payNow', {}, 'Pagar')}</span>
@@ -1179,12 +1179,12 @@ export default function DashboardPreview({ user, onLogout }) {
                 <div className="flex items-center justify-between">
                   <h2 className="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
                     <span>{t('dashboard.recentActivity', {}, 'Actividad Reciente')}</span>
-                    <span className="w-2 h-2 rounded-full bg-[var(--color-primary,#AEEDD0)] animate-pulse" />
+                    <span className="w-2 h-2 rounded-full bg-[var(--accent)] animate-pulse" />
                   </h2>
 
                   <button 
                     onClick={() => setActiveTab('transactions')}
-                    className="text-xs font-semibold text-[var(--color-primary,#AEEDD0)] hover:underline flex items-center gap-1"
+                    className="text-xs font-semibold text-[var(--accent)] hover:underline flex items-center gap-1 cursor-pointer"
                   >
                     <span>{t('common.viewFullHistory', {}, 'Ver historial completo →')}</span>
                   </button>
@@ -1198,7 +1198,7 @@ export default function DashboardPreview({ user, onLogout }) {
                         setInitialTxType('expense');
                         setIsTxModalOpen(true);
                       }}
-                      className="px-4 h-11 rounded-xl bg-[#AEEDD0] text-[#1E2D32] font-bold text-xs inline-flex items-center gap-1.5 shadow cursor-pointer"
+                      className="px-4 h-11 rounded-xl bg-[var(--accent)] text-[var(--accent-text)] font-semibold text-xs inline-flex items-center gap-1.5 shadow hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5" /> {t('dashboard.registerMovement', {}, 'Registrar Movimiento')}
                     </button>
@@ -1296,7 +1296,7 @@ export default function DashboardPreview({ user, onLogout }) {
 
             <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-[var(--color-primary,#AEEDD0)]/15 border border-[var(--color-primary,#AEEDD0)]/30 flex items-center justify-center p-1.5 shadow-inner">
+                <div className="w-8 h-8 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex items-center justify-center p-1.5 shadow-inner">
                   <img src="/logos/Transparent.svg" alt="Growy" className="w-full h-full object-contain" />
                 </div>
                 <div>
@@ -1328,7 +1328,7 @@ export default function DashboardPreview({ user, onLogout }) {
                   label: t('nav.subscriptions', {}, 'Suscripciones'), 
                   icon: RefreshCw, 
                   badge: activeSubsList.length > 0 ? `${activeSubsList.length}` : null, 
-                  color: 'text-[var(--color-primary,#AEEDD0)] bg-[var(--color-primary,#AEEDD0)]/10 border-[var(--color-primary,#AEEDD0)]/20' 
+                  color: 'text-[var(--accent,#97F2CC)] bg-[var(--accent-muted,rgba(151,242,204,0.15))] border-[var(--accent,#97F2CC)]/20' 
                 },
                 { 
                   id: 'categories', 
@@ -1368,12 +1368,12 @@ export default function DashboardPreview({ user, onLogout }) {
                     }}
                     className={`p-2.5 sm:p-3 rounded-2xl border flex items-center gap-2.5 text-left transition-all active:scale-95 cursor-pointer ${
                       isActive 
-                        ? 'bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] border-[var(--color-primary,#AEEDD0)] font-bold shadow-md' 
+                        ? 'bg-[var(--accent)] text-[var(--accent-text)] border-[var(--accent)] font-bold shadow-md' 
                         : 'bg-[#182428] border-white/10 text-white hover:bg-white/5'
                     }`}
                   >
                     <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl border flex items-center justify-center shrink-0 ${
-                      isActive ? 'bg-[#1E2D32]/10 border-[#1E2D32]/20 text-[#1E2D32]' : item.color
+                      isActive ? 'bg-black/10 border-black/20 text-current' : item.color
                     }`}>
                       <Icon className="w-4 h-4" />
                     </div>
@@ -1381,7 +1381,7 @@ export default function DashboardPreview({ user, onLogout }) {
                       <p className="text-[11px] sm:text-xs font-medium leading-snug break-words">{item.label}</p>
                       {item.badge && (
                         <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full inline-block mt-0.5 ${
-                          isActive ? 'bg-[#1E2D32] text-white' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                          isActive ? 'bg-[var(--accent-text)] text-[var(--accent)]' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
                         }`}>
                           {item.badge}
                         </span>
@@ -1451,8 +1451,8 @@ export default function DashboardPreview({ user, onLogout }) {
 
       {/* Toast Notification for Processed Auto-Debits */}
       {autoDebitsNotification && (
-        <div className="fixed bottom-6 right-6 z-50 p-4 rounded-2xl bg-[#141E22]/95 border border-[#AEEDD0]/30 shadow-2xl backdrop-blur-xl flex items-center gap-3 max-w-sm animate-fadeIn">
-          <div className="w-10 h-10 rounded-xl bg-[#AEEDD0]/10 flex items-center justify-center text-[#AEEDD0] shrink-0 font-bold">
+        <div className="fixed bottom-6 right-6 z-50 p-4 rounded-2xl bg-[#141E22]/95 border border-[var(--accent,#97F2CC)]/30 shadow-2xl backdrop-blur-xl flex items-center gap-3 max-w-sm animate-fadeIn">
+          <div className="w-10 h-10 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] flex items-center justify-center text-[var(--accent,#97F2CC)] shrink-0 font-bold">
             <RefreshCw className="w-5 h-5 animate-spin" />
           </div>
           <div className="flex-1 min-w-0 text-left">
@@ -1476,10 +1476,10 @@ export default function DashboardPreview({ user, onLogout }) {
       {/* Toast Notification for DB Operations */}
       {dbStatusToast && (
         <div className={`fixed bottom-6 left-6 z-50 p-4 rounded-2xl bg-[#141E22]/95 border shadow-2xl backdrop-blur-xl flex items-center gap-3 max-w-sm animate-fadeIn ${
-          dbStatusToast.type === 'error' ? 'border-rose-500/40 text-rose-300' : 'border-[#AEEDD0]/30 text-white'
+          dbStatusToast.type === 'error' ? 'border-rose-500/40 text-rose-300' : 'border-[var(--accent,#97F2CC)]/30 text-white'
         }`}>
           <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 font-bold ${
-            dbStatusToast.type === 'error' ? 'bg-rose-500/20 text-rose-400' : 'bg-[#AEEDD0]/15 text-[#AEEDD0]'
+            dbStatusToast.type === 'error' ? 'bg-rose-500/20 text-rose-400' : 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)]'
           }`}>
             {dbStatusToast.type === 'error' ? '⚠️' : '✅'}
           </div>

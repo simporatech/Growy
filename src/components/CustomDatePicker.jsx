@@ -216,14 +216,14 @@ export default function CustomDatePicker({
         type="button"
         disabled={disabled}
         onClick={handleToggle}
-        className={`form-input w-full h-11 px-3.5 bg-[#121721] border border-white/[0.08] rounded-xl text-xs sm:text-sm font-medium text-white flex items-center justify-between hover:border-[#97F2CC]/50 active:scale-[0.99] transition-all shadow-inner cursor-pointer select-none ${
+        className={`form-input w-full h-11 px-3.5 bg-[#121721] border border-white/[0.08] rounded-xl text-xs sm:text-sm font-medium text-white flex items-center justify-between hover:border-[var(--accent,#97F2CC)]/50 active:scale-[0.99] transition-all shadow-inner cursor-pointer select-none ${
           disabled ? 'opacity-50 cursor-not-allowed' : ''
-        } ${isOpen ? 'border-[#97F2CC] ring-1 ring-[#97F2CC]' : ''}`}
+        } ${isOpen ? 'border-[var(--accent,#97F2CC)] ring-1 ring-[var(--accent,#97F2CC)]' : ''}`}
       >
         <span className={`truncate ${!value ? 'text-slate-400 font-normal' : 'text-white font-medium'}`}>
           {formattedLabel}
         </span>
-        <CalendarIcon className={`w-4 h-4 text-slate-400 shrink-0 ml-1.5 transition-colors ${isOpen ? 'text-[var(--color-primary,#97F2CC)]' : ''}`} />
+        <CalendarIcon className={`w-4 h-4 text-slate-400 shrink-0 ml-1.5 transition-colors ${isOpen ? 'text-[var(--accent,#97F2CC)]' : ''}`} />
       </button>
 
       {/* Floating Dark Popover Calendar via React Portal */}
@@ -289,9 +289,9 @@ export default function CustomDatePicker({
                   onClick={() => handleSelectDay(item.dateStr)}
                   className={`h-9 w-9 mx-auto rounded-xl text-xs font-semibold flex items-center justify-center transition-all duration-150 cursor-pointer ${
                     item.isSelected
-                      ? 'bg-[var(--color-primary,#97F2CC)] text-[#091E15] font-bold shadow-lg shadow-[var(--color-primary,#97F2CC)]/20 scale-105'
+                      ? 'bg-[var(--accent,#97F2CC)] text-[var(--accent-text,#091E15)] font-bold shadow-lg shadow-[var(--accent,#97F2CC)]/20 scale-105'
                       : item.isToday
-                      ? 'border border-[var(--color-primary)]/60 text-[var(--color-primary)] font-bold hover:bg-white/10'
+                      ? 'border border-[var(--accent,#97F2CC)]/60 text-[var(--accent,#97F2CC)] font-bold hover:bg-white/10'
                       : 'text-slate-200 hover:bg-white/10 hover:text-white active:scale-95'
                   }`}
                 >
@@ -309,7 +309,7 @@ export default function CustomDatePicker({
                 const todayISO = formatDateISO(new Date());
                 handleSelectDay(todayISO);
               }}
-              className="text-xs font-semibold text-[var(--color-primary)] hover:underline cursor-pointer"
+              className="text-xs font-semibold text-[var(--accent,#97F2CC)] hover:underline cursor-pointer"
             >
               {language === 'es' ? 'Hoy' : 'Today'}
             </button>

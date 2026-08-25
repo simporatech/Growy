@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Button from './Button';
 import { supabase } from '../lib/supabaseClient';
 
 export default function DbConnectionGuard({ children }) {
@@ -52,13 +53,15 @@ export default function DbConnectionGuard({ children }) {
               {errorMessage}
             </p>
           )}
-          <button 
+          <Button 
             type="button"
+            variant="primary"
+            size="md"
             onClick={() => window.location.reload()}
-            className="w-full py-3.5 bg-[#AEEDD0] text-[#162226] font-bold rounded-xl hover:brightness-110 transition-all cursor-pointer shadow-lg mt-2"
+            className="w-full mt-2"
           >
             Reintentar Conexión
-          </button>
+          </Button>
         </div>
       </div>
     );

@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Plus, ArrowLeftRight, Search, Trash2, RotateCcw, Filter, TrendingUp, TrendingDown } from 'lucide-react';
+import Button from './Button';
 import TransactionModal from './TransactionModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import AdvancedFiltersModal from './AdvancedFiltersModal';
@@ -320,16 +321,17 @@ export default function TransactionsModule() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <button
+          <Button
+            size="md"
+            variant="primary"
+            icon={Plus}
             onClick={() => {
               setTxToEdit(null);
               setIsModalOpen(true);
             }}
-            className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-semibold rounded-xl bg-[#97F2CC] text-[#091E15] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#97F2CC]/10 flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
           >
-            <Plus size={15} className="shrink-0" />
             <span className="hidden sm:inline">{t('transactions.newTransaction', {}, 'Nueva Transacción')}</span>
-          </button>
+          </Button>
         </div>
       </header>
 
@@ -376,7 +378,7 @@ export default function TransactionsModule() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t('common.search', {}, 'Buscar por descripción, cuenta o categoría...')}
-            className="w-full h-10 pl-9 pr-3 rounded-xl bg-[#162226] border border-white/10 text-xs font-medium text-white focus:outline-none focus:border-[#97F2CC] shadow-inner transition-colors"
+            className="w-full h-10 pl-9 pr-3 rounded-xl bg-[#162226] border border-white/10 text-xs font-medium text-white focus:outline-none focus:border-[var(--accent,#97F2CC)] shadow-inner transition-colors"
           />
         </div>
 
@@ -496,7 +498,7 @@ export default function TransactionsModule() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t('common.search', {}, 'Buscar transacciones...')}
-              className="w-full h-9 pl-9 pr-3 text-sm bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-500 focus:outline-none focus:border-[#AEEDD0] transition-colors"
+              className="w-full h-9 pl-9 pr-3 text-sm bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-500 focus:outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
             />
           </div>
 
@@ -600,12 +602,14 @@ export default function TransactionsModule() {
             <p className="text-xs text-slate-300 max-w-sm mx-auto font-medium">
               {t('transactions.noTxDesc', {}, 'Tus movimientos aparecerán aquí conforme los vayas registrando.')}
             </p>
-            <button
+            <Button
+              size="md"
+              variant="primary"
+              icon={Plus}
               onClick={() => setIsModalOpen(true)}
-              className="h-11 px-5 rounded-xl btn-primary-mint font-bold text-sm inline-flex items-center gap-2 shadow cursor-pointer"
             >
-              <Plus className="w-4 h-4" /> {t('dashboard.registerMovement', {}, 'Registrar Movimiento')}
-            </button>
+              {t('dashboard.registerMovement', {}, 'Registrar Movimiento')}
+            </Button>
           </div>
         ) : (
           sortedDates.map((dateStr) => {

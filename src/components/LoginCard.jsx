@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { User, Lock, Eye, EyeOff, AlertCircle, ArrowRight } from 'lucide-react';
+import Button from './Button';
 import { useSettings } from '../context/SettingsContext';
 
 import { setActiveSessionUserId } from '../utils/userStorage';
@@ -62,18 +63,18 @@ export default function LoginCard({ onLoginSuccess, onOpenForgotPassword, onOpen
       <div className="growy-glass rounded-3xl p-6 sm:p-8 relative overflow-hidden">
         
         {/* Ambient interior glow highlights */}
-        <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#AEEDD0]/10 rounded-full blur-2xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-[#AEEDD0]/5 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute -top-24 -right-24 w-48 h-48 bg-[var(--accent,#97F2CC)]/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-[var(--accent,#97F2CC)]/5 rounded-full blur-2xl pointer-events-none" />
 
         {/* 1. Header: Logo & Branding */}
         <div className="flex flex-col items-center text-center mb-8 relative z-10">
           <div className="relative group mb-4">
-            <div className="absolute inset-0 bg-[#AEEDD0]/20 rounded-full blur-xl group-hover:bg-[#AEEDD0]/35 transition-all duration-500 scale-110" />
-            <div className="relative bg-[#1E2D32]/80 border border-[#AEEDD0]/25 rounded-2xl p-3.5 shadow-lg flex items-center justify-center">
+            <div className="absolute inset-0 bg-[var(--accent,#97F2CC)]/20 rounded-full blur-xl group-hover:bg-[var(--accent,#97F2CC)]/35 transition-all duration-500 scale-110" />
+            <div className="relative bg-[#1E2D32]/80 border border-[var(--accent,#97F2CC)]/25 rounded-2xl p-3.5 shadow-lg flex items-center justify-center">
               <img 
                 src="/logos/Transparent.svg" 
                 alt="Growy Logo" 
-                className="w-14 h-14 sm:w-16 sm:h-16 object-contain filter drop-shadow-[0_4px_12px_rgba(174,237,208,0.3)] transition-transform duration-300 group-hover:scale-105"
+                className="w-14 h-14 sm:w-16 sm:h-16 object-contain filter drop-shadow-[0_4px_12px_rgba(151,242,204,0.3)] transition-transform duration-300 group-hover:scale-105"
               />
             </div>
           </div>
@@ -104,7 +105,7 @@ export default function LoginCard({ onLoginSuccess, onOpenForgotPassword, onOpen
               {t('modals.auth.username', {}, 'Usuario')}
             </label>
             <div className="relative group">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8EA7A8] group-focus-within:text-[#AEEDD0] transition-colors">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8EA7A8] group-focus-within:text-[var(--accent,#97F2CC)] transition-colors">
                 <User className="w-5 h-5" />
               </div>
               <input
@@ -127,7 +128,7 @@ export default function LoginCard({ onLoginSuccess, onOpenForgotPassword, onOpen
               {t('modals.auth.password', {}, 'Contraseña')}
             </label>
             <div className="relative group">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8EA7A8] group-focus-within:text-[#AEEDD0] transition-colors">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8EA7A8] group-focus-within:text-[var(--accent,#97F2CC)] transition-colors">
                 <Lock className="w-5 h-5" />
               </div>
               <input
@@ -148,7 +149,7 @@ export default function LoginCard({ onLoginSuccess, onOpenForgotPassword, onOpen
                 aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
               >
                 {showPassword ? (
-                  <EyeOff className="w-5 h-5 text-[#AEEDD0]" />
+                  <EyeOff className="w-5 h-5 text-[var(--accent,#97F2CC)]" />
                 ) : (
                   <Eye className="w-5 h-5" />
                 )}
@@ -163,7 +164,7 @@ export default function LoginCard({ onLoginSuccess, onOpenForgotPassword, onOpen
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="w-4 h-4 rounded border-[#AEEDD0]/30 bg-[#1E2D32] text-[#AEEDD0] focus:ring-[#AEEDD0]/50 accent-[#AEEDD0]"
+                className="w-4 h-4 rounded border-[var(--accent,#97F2CC)]/30 bg-[#1E2D32] text-[var(--accent,#97F2CC)] focus:ring-[var(--accent,#97F2CC)]/50 accent-[var(--accent,#97F2CC)]"
               />
               <span>{t('modals.auth.rememberMe', {}, 'Recordarme')}</span>
             </label>
@@ -171,33 +172,24 @@ export default function LoginCard({ onLoginSuccess, onOpenForgotPassword, onOpen
             <button
               type="button"
               onClick={onOpenForgotPassword}
-              className="text-[#8EA7A8] hover:text-[#AEEDD0] transition-colors font-medium hover:underline underline-offset-4"
+              className="text-[#8EA7A8] hover:text-[var(--accent,#97F2CC)] transition-colors font-medium hover:underline underline-offset-4"
             >
               {t('modals.auth.forgotPassword', {}, '¿Olvidaste tu Contraseña?')}
             </button>
           </div>
 
           {/* Main Action Button */}
-          <button
+          <Button
             type="submit"
+            variant="primary"
+            size="lg"
             disabled={isLoading}
-            className="w-full py-4 px-6 rounded-2xl btn-primary-mint font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg disabled:opacity-70 disabled:cursor-not-allowed group mt-2"
+            isLoading={isLoading}
+            className="w-full mt-2"
           >
-            {isLoading ? (
-              <div className="flex items-center gap-2.5">
-                <svg className="animate-spin h-5 w-5 text-[#091E15]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span>{t('modals.auth.validating', {}, 'Validando sesión...')}</span>
-              </div>
-            ) : (
-              <>
-                <span>{t('modals.auth.loginBtn', {}, 'Iniciar Sesión')}</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </>
-            )}
-          </button>
+            <span>{isLoading ? t('modals.auth.validating', {}, 'Validando sesión...') : t('modals.auth.loginBtn', {}, 'Iniciar Sesión')}</span>
+            {!isLoading && <ArrowRight className="w-5 h-5 ml-1" />}
+          </Button>
         </form>
 
         {/* 3. Footer: Register prompt */}
@@ -206,7 +198,7 @@ export default function LoginCard({ onLoginSuccess, onOpenForgotPassword, onOpen
           <button
             type="button"
             onClick={onOpenRegister}
-            className="text-[#AEEDD0] font-bold hover:underline underline-offset-4 ml-1 transition-colors"
+            className="text-[var(--accent,#97F2CC)] font-bold hover:underline underline-offset-4 ml-1 transition-colors"
           >
             {t('modals.auth.createAccount', {}, 'Crear Cuenta')}
           </button>

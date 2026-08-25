@@ -136,9 +136,9 @@ export default function SubscriptionModal({
       title={subscriptionToEdit ? t('modals.subscription.editTitle', {}, 'Editar Suscripción') : t('modals.subscription.newTitle', {}, 'Nueva Suscripción')}
       subtitle={t('modals.subscription.subtitle', {}, 'Gestión de pagos recurrentes y debitado automático')}
       icon={RefreshCw}
-      iconBgColor="bg-[#AEEDD0]/15"
-      iconBorderColor="border-[#AEEDD0]/30"
-      iconTextColor="text-[#AEEDD0]"
+      iconBgColor="bg-[var(--accent-muted,rgba(151,242,204,0.15))]"
+      iconBorderColor="border-[var(--accent,#97F2CC)]/30"
+      iconTextColor="text-[var(--accent,#97F2CC)]"
       error={error}
     >
       {safeAccounts.length === 0 && (
@@ -170,7 +170,7 @@ export default function SubscriptionModal({
                   setEmoji(val);
                 }}
                 placeholder="🍿"
-                className="w-11 h-11 rounded-xl form-input bg-[#121721] border border-white/[0.08] text-[#F1F5F9] text-xl text-center font-bold flex items-center justify-center shrink-0 cursor-pointer placeholder:opacity-25 placeholder:grayscale caret-[#97F2CC] focus:outline-none focus:border-[#97F2CC] focus:ring-1 focus:ring-[#97F2CC] transition-all"
+                className="w-11 h-11 rounded-xl form-input bg-[#121721] border border-white/[0.08] text-[#F1F5F9] text-xl text-center font-bold flex items-center justify-center shrink-0 cursor-pointer placeholder:opacity-25 placeholder:grayscale caret-[var(--accent,#97F2CC)] focus:outline-none focus:border-[var(--accent,#97F2CC)] focus:ring-1 focus:ring-[var(--accent,#97F2CC)] transition-all"
                 title="Emoji"
               />
             </div>
@@ -257,11 +257,11 @@ export default function SubscriptionModal({
               <div 
                 onClick={() => setIsActive(!isActive)}
                 className={`w-12 h-6.5 p-1 rounded-full flex items-center transition-colors cursor-pointer ${
-                  isActive ? 'bg-[#97F2CC] justify-end' : 'bg-[#121721] border border-white/[0.08] justify-start'
+                  isActive ? 'bg-[var(--accent,#97F2CC)] justify-end' : 'bg-[#121721] border border-white/[0.08] justify-start'
                 }`}
               >
                 <div className={`w-4.5 h-4.5 rounded-full shadow-md transition-all ${
-                  isActive ? 'bg-[#091E15]' : 'bg-[#8EA7A8]'
+                  isActive ? 'bg-[var(--accent-text,#091E15)]' : 'bg-[#8EA7A8]'
                 }`} />
               </div>
             </div>
@@ -270,24 +270,26 @@ export default function SubscriptionModal({
 
         {/* Sticky Action Footer */}
         <div className="modal-footer sticky bottom-0 z-20 bg-transparent px-6 py-4 border-t border-white/[0.06] flex gap-3 shrink-0 pb-safe sm:pb-4">
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="md"
             onClick={onClose}
-            className="btn-cancel btn-secondary flex-1 py-3 px-4 rounded-xl font-semibold transition-colors cursor-pointer"
+            className="flex-1"
           >
             {t('common.cancel', {}, 'Cancelar')}
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
+            variant="primary"
+            size="md"
             disabled={safeAccounts.length === 0 || safeCategories.length === 0}
-            className={`btn-primary btn-save flex-1 py-3 px-4 rounded-xl font-semibold hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer shadow-md ${
-              safeAccounts.length === 0 || safeCategories.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
+            className="flex-1"
           >
             {subscriptionToEdit 
               ? t('modals.subscription.updateBtn', {}, 'Actualizar Suscripción') 
               : t('modals.subscription.saveBtn', {}, 'Guardar Suscripción')}
-          </button>
+          </Button>
         </div>
 
       </form>

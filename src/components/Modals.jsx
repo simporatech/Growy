@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, Send, CheckCircle2, UserPlus, Sparkles, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import Button from './Button';
 import ModalWrapper from './ModalWrapper';
 import FormField from './FormField';
 import { useSettings } from '../context/SettingsContext';
@@ -37,9 +38,9 @@ export function ForgotPasswordModal({ isOpen, onClose }) {
       title={sent ? t('modals.auth.linkSentTitle', {}, '¡Enlace Enviado!') : t('modals.auth.forgotModalTitle', {}, 'Recuperar Contraseña')}
       subtitle={sent ? undefined : t('modals.auth.forgotModalSub', {}, 'Ingresa el correo electrónico asociado a tu cuenta de Growy y te enviaremos las instrucciones de recuperación.')}
       icon={sent ? CheckCircle2 : Mail}
-      iconBgColor="bg-[#97F2CC]/10"
-      iconBorderColor="border-[#97F2CC]/30"
-      iconTextColor="text-[#97F2CC]"
+      iconBgColor="bg-[var(--accent-muted,rgba(151,242,204,0.15))]"
+      iconBorderColor="border-[var(--accent,#97F2CC)]/30"
+      iconTextColor="text-[var(--accent,#97F2CC)]"
     >
       {!sent ? (
         <form onSubmit={handleReset} className="flex-1 flex flex-col min-h-0">
@@ -55,18 +56,17 @@ export function ForgotPasswordModal({ isOpen, onClose }) {
           </div>
           
           <div className="modal-footer sticky bottom-0 z-20 bg-transparent px-6 py-4 border-t border-white/[0.06] flex gap-3 shrink-0 pb-safe sm:pb-4">
-            <button
+            <Button
               type="submit"
+              variant="primary"
+              size="md"
+              isLoading={loading}
               disabled={loading}
-              className="btn-primary btn-save flex-1 py-3 px-4 rounded-xl font-semibold hover:brightness-105 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shadow-md"
+              icon={Send}
+              className="flex-1"
             >
-              {loading ? t('modals.auth.sendingLink', {}, 'Enviando enlace...') : (
-                <>
-                  <span>{t('modals.auth.sendLink', {}, 'Enviar Enlace de Recuperación')}</span>
-                  <Send className="w-4 h-4" />
-                </>
-              )}
-            </button>
+              <span>{t('modals.auth.sendLink', {}, 'Enviar Enlace de Recuperación')}</span>
+            </Button>
           </div>
         </form>
       ) : (
@@ -74,13 +74,15 @@ export function ForgotPasswordModal({ isOpen, onClose }) {
           <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
             {t('modals.auth.linkSentSub', { email }, `Hemos enviado las instrucciones de recuperación a ${email}. Revisa tu bandeja de entrada o spam.`)}
           </p>
-          <button
+          <Button
             type="button"
+            variant="primary"
+            size="md"
             onClick={handleClose}
-            className="btn-primary btn-save w-full h-11 px-6 rounded-xl font-semibold text-sm cursor-pointer"
+            className="w-full"
           >
             {t('modals.auth.understood', {}, 'Entendido, Volver')}
-          </button>
+          </Button>
         </div>
       )}
     </ModalWrapper>
@@ -193,9 +195,9 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
       title={registeredUser ? t('modals.auth.registerSuccessTitle', {}, '¡Cuenta Creada con Éxito!') : t('modals.auth.registerModalTitle', {}, 'Únete a Growy')}
       subtitle={registeredUser ? undefined : t('modals.auth.registerModalSub', {}, 'Crea tu cuenta para tomar el control de tus finanzas personales.')}
       icon={registeredUser ? Sparkles : UserPlus}
-      iconBgColor="bg-[#AEEDD0]/10"
-      iconBorderColor="border-[#AEEDD0]/30"
-      iconTextColor="text-[#AEEDD0]"
+      iconBgColor="bg-[var(--accent-muted,rgba(151,242,204,0.15))]"
+      iconBorderColor="border-[var(--accent,#97F2CC)]/30"
+      iconTextColor="text-[var(--accent,#97F2CC)]"
       error={error}
     >
       {!registeredUser ? (
@@ -212,7 +214,7 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
               value={formData.fullName}
               onChange={handleChange}
               placeholder="Tu Nombre"
-              className="w-full h-11 px-4 bg-[#162226] border border-white/10 rounded-xl text-sm text-white outline-none focus:border-[#AEEDD0] transition-colors"
+              className="w-full h-11 px-4 bg-[#162226] border border-white/10 rounded-xl text-sm text-white outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
             />
           </div>
 
@@ -227,7 +229,7 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
               value={formData.username}
               onChange={handleChange}
               placeholder="ej. juanperez"
-              className="w-full h-11 px-4 bg-[#162226] border border-white/10 rounded-xl text-sm text-white outline-none focus:border-[#AEEDD0] transition-colors"
+              className="w-full h-11 px-4 bg-[#162226] border border-white/10 rounded-xl text-sm text-white outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
             />
           </div>
 
@@ -242,7 +244,7 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
               value={formData.email}
               onChange={handleChange}
               placeholder="tu@email.com"
-              className="w-full h-11 px-4 bg-[#162226] border border-white/10 rounded-xl text-sm text-white outline-none focus:border-[#AEEDD0] transition-colors"
+              className="w-full h-11 px-4 bg-[#162226] border border-white/10 rounded-xl text-sm text-white outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
             />
           </div>
 
@@ -260,7 +262,7 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="••••••••"
-                className="w-full h-11 pl-4 pr-11 bg-[#162226] border border-white/10 rounded-xl text-sm text-white outline-none focus:border-[#AEEDD0] transition-colors"
+                className="w-full h-11 pl-4 pr-11 bg-[#162226] border border-white/10 rounded-xl text-sm text-white outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
                 autoComplete="new-password"
               />
               <button
@@ -270,7 +272,7 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
                 aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
               >
                 {showPassword ? (
-                  <EyeOff className="w-4 h-4 text-[#AEEDD0]" />
+                  <EyeOff className="w-4 h-4 text-[var(--accent,#97F2CC)]" />
                 ) : (
                   <Eye className="w-4 h-4" />
                 )}
@@ -291,7 +293,7 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
               value={formData.confirmPassword}
               onChange={handleChange}
               placeholder="••••••••"
-              className="w-full h-11 px-4 bg-[#162226] border border-white/10 rounded-xl text-sm text-white outline-none focus:border-[#AEEDD0] transition-colors"
+              className="w-full h-11 px-4 bg-[#162226] border border-white/10 rounded-xl text-sm text-white outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
               autoComplete="new-password"
             />
           </div>
@@ -320,7 +322,7 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
                 aria-label={showPin ? "Ocultar código" : "Mostrar código"}
               >
                 {showPin ? (
-                  <EyeOff className="w-4 h-4 text-[#97F2CC]" />
+                  <EyeOff className="w-4 h-4 text-[var(--accent,#97F2CC)]" />
                 ) : (
                   <Eye className="w-4 h-4" />
                 )}
@@ -332,20 +334,17 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
           </div>
           </div>
           <div className="modal-footer sticky bottom-0 z-20 bg-transparent px-6 py-4 border-t border-white/[0.06] flex gap-3 shrink-0 pb-safe sm:pb-4">
-            <button
+            <Button
               type="submit"
+              variant="primary"
+              size="md"
+              isLoading={loading}
               disabled={loading}
-              className="btn-primary btn-save flex-1 py-3 px-4 rounded-xl font-semibold hover:brightness-105 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed shadow-md"
+              className="flex-1"
             >
-              {loading ? (
-                <span>{t('modals.auth.validating', {}, 'Procesando...')}</span>
-              ) : (
-                <>
-                  <span>{t('modals.auth.createFreeAccount', {}, 'Crear Cuenta Gratis')}</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
+              <span>{t('modals.auth.createFreeAccount', {}, 'Crear Cuenta Gratis')}</span>
+              <ArrowRight className="w-4 h-4 ml-1.5" />
+            </Button>
           </div>
         </form>
       ) : (
@@ -353,13 +352,15 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
           <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
             {t('modals.auth.registerSuccessSub', { fullName: registeredUser.fullName }, `Bienvenido ${registeredUser.fullName}. Tu cuenta ha sido creada. Ahora puedes iniciar sesión.`)}
           </p>
-          <button
+          <Button
             type="button"
+            variant="primary"
+            size="md"
             onClick={handleClose}
-            className="btn-primary btn-save w-full h-11 px-6 rounded-xl font-semibold text-sm cursor-pointer"
+            className="w-full"
           >
             {t('modals.auth.understood', {}, 'Entendido, Volver')}
-          </button>
+          </Button>
         </div>
       )}
     </ModalWrapper>

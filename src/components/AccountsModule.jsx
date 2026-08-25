@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Plus, Trash2, Wallet, Search } from 'lucide-react';
+import Button from './Button';
 import AccountModal from './AccountModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import ExportDropdown from './ExportDropdown';
@@ -134,17 +135,18 @@ export default function AccountsModule() {
             />
           </div>
 
-          <button
+          <Button
+            size="md"
+            variant="primary"
+            icon={Plus}
             onClick={() => {
               setAccountToEdit(null);
               setIsModalOpen(true);
             }}
-            className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-semibold rounded-xl bg-[#97F2CC] text-[#091E15] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#97F2CC]/10 flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
             title={t('accounts.newAccount', {}, 'Nueva Cuenta')}
           >
-            <Plus size={15} className="shrink-0" />
             <span className="hidden sm:inline">{t('accounts.newAccount', {}, 'Nueva Cuenta')}</span>
-          </button>
+          </Button>
         </div>
       </header>
 
@@ -155,11 +157,11 @@ export default function AccountsModule() {
         amount={totalConsolidatedBalance}
         currency={baseCurrency}
         icon={Wallet}
-        iconBgColor="bg-emerald-500/15"
-        iconBorderColor="border-emerald-500/30"
-        iconTextColor="text-emerald-400"
+        iconBgColor="bg-[var(--accent-muted,rgba(151,242,204,0.15))]"
+        iconBorderColor="border-[var(--accent,#97F2CC)]/30"
+        iconTextColor="text-[var(--accent,#97F2CC)]"
         badgeText={language === 'es' ? 'TIEMPO REAL' : 'LIVE'}
-        badgeColor="bg-emerald-500/10 text-emerald-300 border-emerald-500/20"
+        badgeColor="bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] border-[var(--accent,#97F2CC)]/30"
         secondaryLabel={t('accounts.showingRecords', { count: filteredAccounts?.length || 0 }, `${filteredAccounts?.length || 0} ${language === 'es' ? 'cuentas' : 'accounts'}`)}
         secondaryValue={baseCurrency}
         isLoading={isLoading || !isInitialized}
@@ -175,7 +177,7 @@ export default function AccountsModule() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={t('placeholders.search', {}, 'Buscar por nombre o divisa...')}
-            className="w-full h-11 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#AEEDD0] shadow-inner transition-colors"
+            className="w-full h-11 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[var(--accent,#97F2CC)] shadow-inner transition-colors"
           />
         </div>
 
@@ -212,12 +214,14 @@ export default function AccountsModule() {
               {safeAccountsList.length === 0 ? t('accounts.noAccountsDesc', {}, 'Agrega tus cuentas bancarias, tarjetas o efectivo para organizar tus finanzas.') : 'Prueba con otro término de búsqueda.'}
             </p>
             {safeAccountsList.length === 0 && (
-              <button
+              <Button
+                variant="primary"
+                size="md"
+                icon={Plus}
                 onClick={() => setIsModalOpen(true)}
-                className="h-10 px-4 rounded-xl btn-primary-mint font-bold text-xs inline-flex items-center gap-2 shadow cursor-pointer"
               >
-                <Plus className="w-4 h-4" /> {t('accounts.newAccount', {}, 'Nueva Cuenta')}
-              </button>
+                {t('accounts.newAccount', {}, 'Nueva Cuenta')}
+              </Button>
             )}
           </div>
         ) : (

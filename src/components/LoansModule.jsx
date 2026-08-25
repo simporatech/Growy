@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Plus, Percent, Trash2, CheckCircle, Search } from 'lucide-react';
+import Button from './Button';
 import LoanModal from './LoanModal';
 import PayLoanModal from './PayLoanModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
@@ -175,7 +176,7 @@ export default function LoansModule() {
       if (diffDays < 0) return { color: 'border-rose-500/40 bg-rose-500/15 text-rose-300', label: t('loans.overdue', {}, '¡Vencido!') };
       if (diffDays <= 3) return { color: 'border-rose-500/40 bg-rose-500/10 text-rose-300', label: t('loans.dueInDays', { days: diffDays }, `Vence en ${diffDays}d`) };
       if (diffDays <= 7) return { color: 'border-amber-500/40 bg-amber-500/10 text-amber-300', label: t('loans.dueInDays', { days: diffDays }, `Vence en ${diffDays}d`) };
-      return { color: 'border-[var(--color-primary,#AEEDD0)]/30 bg-[var(--color-primary,#AEEDD0)]/10 text-[var(--color-primary,#AEEDD0)]', label: t('loans.onTrack', {}, 'Al día') };
+      return { color: 'border-[var(--accent,#97F2CC)]/30 bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)]', label: t('loans.onTrack', {}, 'Al día') };
     } catch (e) {
       return { color: 'border-white/10 bg-white/5 text-slate-300', label: t('loans.onTrack', {}, 'Al día') };
     }
@@ -206,16 +207,17 @@ export default function LoansModule() {
             />
           </div>
 
-          <button
+          <Button
+            size="md"
+            variant="primary"
+            icon={Plus}
             onClick={() => {
               setLoanToEdit(null);
               setIsModalOpen(true);
             }}
-            className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-bold rounded-xl bg-[#AEEDD0] text-[#1E2D32] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
           >
-            <Plus size={15} className="shrink-0" />
             <span className="hidden sm:inline">{t('loans.newLoan', {}, 'Nueva Deuda')}</span>
-          </button>
+          </Button>
         </div>
       </header>
 
@@ -242,7 +244,7 @@ export default function LoansModule() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={t('placeholders.search', {}, 'Buscar por concepto o categoría...')}
-            className="w-full h-11 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#AEEDD0] shadow-inner transition-colors"
+            className="w-full h-11 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[var(--accent,#97F2CC)] shadow-inner transition-colors"
           />
         </div>
 
@@ -277,12 +279,14 @@ export default function LoansModule() {
             <p className="text-xs md:text-sm text-slate-400 max-w-sm mx-auto font-normal">
               {t('loans.noLoansDesc', {}, '¡Excelente! No tienes compromisos financieros pendientes de pago en esta categoría.')}
             </p>
-            <button
+            <Button
+              size="md"
+              variant="primary"
+              icon={Plus}
               onClick={() => setIsModalOpen(true)}
-              className="h-11 md:h-10 px-4 rounded-xl btn-primary-mint font-bold text-xs inline-flex items-center gap-2 shadow cursor-pointer"
             >
-              <Plus className="w-4 h-4" /> {t('loans.newLoan', {}, 'Nueva Deuda')}
-            </button>
+              {t('loans.newLoan', {}, 'Nueva Deuda')}
+            </Button>
           </div>
         ) : (
           paginatedLoans.map((loan) => {
@@ -290,7 +294,6 @@ export default function LoansModule() {
             const catId = loan.categoryId || loan.category_id;
             const cat = safeCategoriesList.find(c => c && c.id === catId) || { name: 'Uncategorized', emoji: '📄' };
             const dueDateValue = loan.dueDate || loan.due_date || '';
-            const startDateValue = loan.startDate || loan.start_date || 'N/A';
             const conceptValue = loan.concept || loan.description || 'Saldo Pendiente';
             const urgency = getUrgencyLevel(dueDateValue, loan.status);
             const isPaid = loan.status === 'paid' || loan.status === 'settled';
@@ -310,14 +313,14 @@ export default function LoansModule() {
                 <div className="flex items-center justify-between gap-2.5">
                   <div className="flex items-center gap-2.5 min-w-0 flex-1">
                     <div className={`w-1.5 h-8 rounded-full shrink-0 ${
-                      isPaid ? 'bg-emerald-400' : urgency.label.includes('Vence') || urgency.label.includes('Vencido') || urgency.label.includes('Overdue') ? 'bg-rose-400 animate-pulse' : 'bg-[var(--color-primary,#AEEDD0)]'
+                      isPaid ? 'bg-emerald-400' : urgency.label.includes('Vence') || urgency.label.includes('Vencido') || urgency.label.includes('Overdue') ? 'bg-rose-400 animate-pulse' : 'bg-[var(--accent,#97F2CC)]'
                     }`} />
 
                     <div className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-base sm:text-lg shrink-0">
                       {cat?.emoji || '📄'}
                     </div>
 
-                    <h4 className="line-clamp-2 text-sm leading-snug font-medium text-white group-hover:text-[var(--color-primary,#AEEDD0)] transition-colors">
+                    <h4 className="line-clamp-2 text-sm leading-snug font-medium text-white group-hover:text-[var(--accent,#97F2CC)] transition-colors">
                       {conceptValue}
                     </h4>
                   </div>
@@ -343,16 +346,17 @@ export default function LoansModule() {
                     </div>
 
                     {!isPaid && (
-                      <button
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        icon={CheckCircle}
                         onClick={(e) => {
                           e.stopPropagation();
                           setLoanToPay(loan);
                         }}
-                        className="h-8 px-2.5 sm:px-3 rounded-xl btn-primary-mint text-xs font-bold flex items-center gap-1.5 shadow cursor-pointer active:scale-95 transition-transform"
                       >
-                        <CheckCircle className="w-3.5 h-3.5" />
-                        <span>{t('common.payNow', {}, 'Pagar')}</span>
-                      </button>
+                        {t('common.payNow', {}, 'Pagar')}
+                      </Button>
                     )}
 
                     <div className="flex items-center gap-0.5 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">

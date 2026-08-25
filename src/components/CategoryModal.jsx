@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Tag } from 'lucide-react';
+import Button from './Button';
 import ModalWrapper from './ModalWrapper';
 import FormField from './FormField';
 import CustomSelect from './CustomSelect';
@@ -80,9 +81,9 @@ export default function CategoryModal({
       title={categoryToEdit ? t('modals.category.editTitle', {}, 'Editar Categoría') : t('modals.category.newTitle', {}, 'Nueva Categoría')}
       subtitle={type === 'expense' ? t('modals.category.expenseSubtitle', {}, 'Organiza y presupuesta tus gastos') : t('modals.category.incomeSubtitle', {}, 'Registra tus fuentes de ingresos')}
       icon={Tag}
-      iconBgColor={type === 'expense' ? 'bg-[#FF6B6B]/15' : 'bg-[#97F2CC]/15'}
-      iconBorderColor={type === 'expense' ? 'border-[#FF6B6B]/30' : 'border-[#97F2CC]/30'}
-      iconTextColor={type === 'expense' ? 'text-[#FF6B6B]' : 'text-[#97F2CC]'}
+      iconBgColor={type === 'expense' ? 'bg-[#FF6B6B]/15' : 'bg-[var(--accent-muted,rgba(151,242,204,0.15))]'}
+      iconBorderColor={type === 'expense' ? 'border-[#FF6B6B]/30' : 'border-[var(--accent,#97F2CC)]/30'}
+      iconTextColor={type === 'expense' ? 'text-[#FF6B6B]' : 'text-[var(--accent,#97F2CC)]'}
       error={error}
     >
       <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
@@ -130,7 +131,7 @@ export default function CategoryModal({
                   setEmoji(val);
                 }}
                 placeholder="🏷️"
-                className="w-11 h-11 rounded-xl form-input bg-[#121721] border border-white/[0.08] text-[#F1F5F9] text-xl text-center font-bold flex items-center justify-center shrink-0 cursor-pointer placeholder:opacity-25 placeholder:grayscale caret-[#97F2CC] focus:outline-none focus:border-[#97F2CC] focus:ring-1 focus:ring-[#97F2CC] transition-all"
+                className="w-11 h-11 rounded-xl form-input bg-[#121721] border border-white/[0.08] text-[#F1F5F9] text-xl text-center font-bold flex items-center justify-center shrink-0 cursor-pointer placeholder:opacity-25 placeholder:grayscale caret-[var(--accent,#97F2CC)] focus:outline-none focus:border-[var(--accent,#97F2CC)] focus:ring-1 focus:ring-[var(--accent,#97F2CC)] transition-all"
                 title="Emoji"
               />
             </div>
@@ -182,19 +183,23 @@ export default function CategoryModal({
 
         {/* Sticky Action Footer */}
         <div className="modal-footer sticky bottom-0 z-20 bg-transparent px-6 py-4 border-t border-white/[0.06] flex gap-3 shrink-0 pb-safe sm:pb-4">
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="md"
             onClick={onClose}
-            className="btn-cancel btn-secondary flex-1 py-3 px-4 rounded-xl font-semibold transition-colors cursor-pointer"
+            className="flex-1"
           >
             {t('common.cancel', {}, 'Cancelar')}
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
-            className="btn-primary btn-save flex-1 py-3 px-4 rounded-xl font-semibold hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer shadow-md"
+            variant="primary"
+            size="md"
+            className="flex-1"
           >
             {categoryToEdit ? t('modals.category.updateBtn', {}, 'Actualizar Categoría') : t('modals.category.saveBtn', {}, 'Guardar Categoría')}
-          </button>
+          </Button>
         </div>
 
       </form>

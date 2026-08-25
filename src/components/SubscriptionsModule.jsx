@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Plus, RefreshCw, Trash2, Search } from 'lucide-react';
+import Button from './Button';
 import SubscriptionModal from './SubscriptionModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import ExportDropdown from './ExportDropdown';
@@ -155,16 +156,17 @@ export default function SubscriptionsModule() {
             />
           </div>
 
-          <button
+          <Button
+            size="md"
+            variant="primary"
+            icon={Plus}
             onClick={() => {
               setSubToEdit(null);
               setIsModalOpen(true);
             }}
-            className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-semibold rounded-xl bg-[#97F2CC] text-[#091E15] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#97F2CC]/10 flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
           >
-            <Plus size={15} className="shrink-0" />
             <span className="hidden sm:inline">{t('subscriptions.newSubscription', {}, 'Nueva Suscripción')}</span>
-          </button>
+          </Button>
         </div>
       </header>
 
@@ -190,7 +192,7 @@ export default function SubscriptionsModule() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={t('placeholders.search', {}, 'Buscar por nombre de servicio...')}
-            className="w-full h-11 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#AEEDD0] shadow-inner transition-colors"
+            className="w-full h-11 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[var(--accent,#97F2CC)] shadow-inner transition-colors"
           />
         </div>
         <div className="sm:hidden shrink-0">
@@ -216,12 +218,14 @@ export default function SubscriptionsModule() {
               {safeSubsList.length === 0 ? t('subscriptions.noSubsDesc', {}, 'Agrega servicios como Netflix, Spotify o iCloud para gestionar tus cobros automáticos.') : 'Prueba con otro término de búsqueda.'}
             </p>
             {safeSubsList.length === 0 && (
-              <button
+              <Button
+                size="md"
+                variant="primary"
+                icon={Plus}
                 onClick={() => setIsModalOpen(true)}
-                className="h-11 md:h-10 px-4 rounded-xl btn-primary-mint font-bold text-xs inline-flex items-center gap-2 shadow cursor-pointer"
               >
-                <Plus className="w-4 h-4" /> {t('subscriptions.newSubscription', {}, 'Nueva Suscripción')}
-              </button>
+                {t('subscriptions.newSubscription', {}, 'Nueva Suscripción')}
+              </Button>
             )}
           </div>
         ) : (
@@ -241,7 +245,7 @@ export default function SubscriptionsModule() {
                 }}
                 className={`p-3.5 sm:p-4 rounded-2xl bg-[#162226] border flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 transition-all group cursor-pointer ${
                   sub.isActive 
-                    ? 'border-white/10 hover:border-[#AEEDD0]/30 hover:bg-white/[0.04]' 
+                    ? 'border-white/10 hover:border-[var(--accent,#97F2CC)]/30 hover:bg-white/[0.04]' 
                     : 'border-white/5 opacity-60 bg-black/20'
                 }`}
               >
@@ -251,7 +255,7 @@ export default function SubscriptionsModule() {
                     <span className="text-[9px] uppercase font-bold text-slate-400 leading-none">
                       {t('subscriptions.dayBadge', {}, 'DÍA')}
                     </span>
-                    <span className="text-sm font-extrabold text-[var(--color-primary,#AEEDD0)] leading-none mt-0.5 tabular-nums">
+                    <span className="text-sm font-extrabold text-[var(--accent,#97F2CC)] leading-none mt-0.5 tabular-nums">
                       {sub.billingDay || 1}
                     </span>
                   </div>
@@ -262,7 +266,7 @@ export default function SubscriptionsModule() {
 
                   <div className="min-w-0 flex-1 pr-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h4 className="text-sm font-bold text-white group-hover:text-[var(--color-primary,#AEEDD0)] transition-colors leading-snug">
+                      <h4 className="text-sm font-bold text-white group-hover:text-[var(--accent,#97F2CC)] transition-colors leading-snug">
                         {sub.name}
                       </h4>
                       {isYearly && (
@@ -303,7 +307,7 @@ export default function SubscriptionsModule() {
                         toggleSubscription(sub.id);
                       }}
                       className={`w-10 h-6 rounded-full transition-colors relative p-0.5 cursor-pointer shrink-0 ${
-                        sub.isActive ? 'bg-[var(--color-primary,#AEEDD0)]' : 'bg-white/10'
+                        sub.isActive ? 'bg-[var(--accent,#97F2CC)]' : 'bg-white/10'
                       }`}
                       title={sub.isActive ? t('common.active', {}, 'Activo') : t('common.paused', {}, 'Pausado')}
                     >

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Percent } from 'lucide-react';
+import Button from './Button';
 import CustomSelect from './CustomSelect';
 import CustomDatePicker from './CustomDatePicker';
 import ModalWrapper from './ModalWrapper';
@@ -155,19 +156,23 @@ export default function LoanModal({
 
         {/* Sticky Action Footer */}
         <div className="modal-footer sticky bottom-0 z-20 bg-transparent px-6 py-4 border-t border-white/[0.06] flex gap-3 shrink-0 pb-safe sm:pb-4">
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="md"
             onClick={onClose}
-            className="btn-cancel btn-secondary flex-1 py-3 px-4 rounded-xl font-semibold transition-colors cursor-pointer"
+            className="flex-1"
           >
             {t('common.cancel', {}, 'Cancelar')}
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
-            className="btn-primary btn-save flex-1 py-3 px-4 rounded-xl font-semibold hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer shadow-md"
+            variant="primary"
+            size="md"
+            className="flex-1"
           >
             {loanToEdit ? t('modals.loan.updateBtn', {}, 'Actualizar Saldo') : t('modals.loan.saveBtn', {}, 'Guardar Saldo')}
-          </button>
+          </Button>
         </div>
 
       </form>

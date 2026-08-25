@@ -14,9 +14,9 @@ export default function SectionKpiHero({
   badgeText,
   badgeColor,
   icon: Icon,
-  iconBgColor = 'bg-amber-500/15',
-  iconBorderColor = 'border-amber-500/30',
-  iconTextColor = 'text-amber-400',
+  iconBgColor = 'bg-[var(--accent-muted,rgba(151,242,204,0.15))]',
+  iconBorderColor = 'border-[var(--accent,#97F2CC)]/30',
+  iconTextColor = 'text-[var(--accent,#97F2CC)]',
   children,
   className = '',
   isLoading = false
@@ -38,7 +38,7 @@ export default function SectionKpiHero({
               {title}
             </span>
             {badgeText && (
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border shrink-0 ${badgeColor || 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20'}`}>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border shrink-0 ${badgeColor || 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] border-[var(--accent,#97F2CC)]/30'}`}>
                 {badgeText}
               </span>
             )}
@@ -52,7 +52,7 @@ export default function SectionKpiHero({
                 {formattedAmount || amount}
               </span>
               {currency && (
-                <span className="text-xs sm:text-sm font-bold text-[var(--color-primary,#AEEDD0)] uppercase tracking-wider">
+                <span className="text-xs sm:text-sm font-bold text-[var(--accent,#97F2CC)] uppercase tracking-wider">
                   {currency}
                 </span>
               )}

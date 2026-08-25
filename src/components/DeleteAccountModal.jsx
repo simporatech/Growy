@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { AlertTriangle, Trash2, X } from 'lucide-react';
+import Button from './Button';
 import { useSettings } from '../context/SettingsContext';
 import { registerModal } from '../utils/modalManager';
 
@@ -105,21 +106,26 @@ export default function DeleteAccountModal({ isOpen, onClose, onConfirmDelete, i
           </div>
 
           <div className="flex items-center gap-3 pt-2">
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="md"
               onClick={handleClose}
-              className="btn-cancel btn-secondary flex-1 h-11 rounded-xl font-bold text-xs cursor-pointer transition-colors"
+              className="flex-1"
             >
               {language === 'es' ? 'Cancelar' : 'Cancel'}
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
+              variant="danger-solid"
+              size="md"
+              icon={Trash2}
+              isLoading={isDeleting}
               disabled={!isUnlocked || isDeleting}
-              className="flex-1 h-11 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex-1"
             >
-              <Trash2 className="w-4 h-4" />
               <span>{isDeleting ? (language === 'es' ? 'Eliminando...' : 'Deleting...') : (language === 'es' ? 'Eliminar Mi Cuenta' : 'Delete My Account')}</span>
-            </button>
+            </Button>
           </div>
         </form>
       </div>

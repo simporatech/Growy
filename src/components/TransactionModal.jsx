@@ -167,7 +167,7 @@ export default function TransactionModal({
   };
 
   const IconComponent = type === 'expense' ? ArrowDownRight : type === 'income' ? ArrowUpRight : ArrowLeftRight;
-  const iconTextColor = type === 'expense' ? 'text-[#FF6B6B]' : type === 'income' ? 'text-[#AEEDD0]' : 'text-sky-400';
+  const iconTextColor = type === 'expense' ? 'text-[#FF6B6B]' : type === 'income' ? 'text-[var(--accent,#97F2CC)]' : 'text-sky-400';
 
   const categoryLabelText = type === 'expense' 
     ? t('modals.transaction.category', { type: t('modals.transaction.typeExpense', {}, 'Gasto') }, 'Categoría de Gasto')
@@ -333,33 +333,29 @@ export default function TransactionModal({
 
         {/* Sticky Action Footer */}
         <div className="modal-footer sticky bottom-0 z-20 bg-transparent px-6 py-4 border-t border-white/[0.06] flex gap-3 shrink-0 pb-safe sm:pb-4">
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="md"
             onClick={onClose}
-            className="btn-cancel btn-secondary flex-1 py-3 px-4 rounded-xl font-semibold transition-colors cursor-pointer"
+            className="flex-1"
           >
             {t('common.cancel', {}, 'Cancelar')}
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
+            variant="primary"
+            size="md"
+            isLoading={isSubmitting}
             disabled={isSubmitting || safeAccounts.length === 0}
-            className={`btn-primary btn-save flex-1 py-3 px-4 rounded-xl font-semibold hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md ${
-              isSubmitting || safeAccounts.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
+            className="flex-1"
           >
-            {isSubmitting ? (
-              <>
-                <div className="w-4 h-4 border-2 border-[#091E15] border-t-transparent rounded-full animate-spin" />
-                <span>{t('common.saving', {}, 'Guardando...')}</span>
-              </>
-            ) : (
-              <span>
-                {transactionToEdit 
-                  ? t('modals.transaction.updateBtn', {}, 'Actualizar Movimiento') 
-                  : t('modals.transaction.saveBtn', {}, 'Guardar Movimiento')}
-              </span>
-            )}
-          </button>
+            <span>
+              {transactionToEdit 
+                ? t('modals.transaction.updateBtn', {}, 'Actualizar Movimiento') 
+                : t('modals.transaction.saveBtn', {}, 'Guardar Movimiento')}
+            </span>
+          </Button>
         </div>
 
       </form>

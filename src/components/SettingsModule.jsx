@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Languages, Palette, Sparkles, Download, RotateCcw, Check, ShieldAlert, Coins, RefreshCw, ArrowLeftRight, Trash2, Lock, Eye, EyeOff } from 'lucide-react';
+import Button from './Button';
 import { useSettings, THEMES } from '../context/SettingsContext';
 import { useFinance } from '../context/FinanceContext';
 import { FALLBACK_EXCHANGE_RATES, AVAILABLE_CURRENCIES, getCrossRate, convertCrossCurrency } from '../utils/currency';
@@ -216,7 +217,7 @@ export default function SettingsModule() {
         {/* 1. IDIOMA DEL SISTEMA */}
         <div className="p-4 md:p-6 rounded-2xl md:rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl h-full flex flex-col justify-between space-y-4 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]">
           <div className="flex items-center gap-3 border-b border-white/5 pb-3">
-            <div className="w-10 h-10 rounded-xl bg-[var(--color-primary,#AEEDD0)]/15 border border-[var(--color-primary,#AEEDD0)]/30 flex items-center justify-center text-[var(--color-primary,#AEEDD0)] shrink-0 font-bold">
+            <div className="w-10 h-10 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex items-center justify-center text-[var(--accent,#97F2CC)] shrink-0 font-bold">
               <Languages className="w-5 h-5" />
             </div>
             <div>
@@ -231,7 +232,7 @@ export default function SettingsModule() {
               onClick={() => setLanguage('es')}
               className={`h-14 px-4 rounded-xl border flex items-center justify-between transition-all cursor-pointer ${
                 language === 'es'
-                  ? 'bg-[var(--color-primary,#AEEDD0)]/15 border-[var(--color-primary,#AEEDD0)] text-white shadow-md'
+                  ? 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] border-[var(--accent,#97F2CC)] text-white shadow-md'
                   : 'bg-[#162226] border-white/10 text-slate-300 hover:text-white hover:bg-white/[0.05]'
               }`}
             >
@@ -242,7 +243,7 @@ export default function SettingsModule() {
                   <span className="text-[10px] text-slate-300 block">Predeterminado ES</span>
                 </div>
               </div>
-              {language === 'es' && <Check className="w-4 h-4 text-[var(--color-primary,#AEEDD0)] shrink-0" />}
+              {language === 'es' && <Check className="w-4 h-4 text-[var(--accent,#97F2CC)] shrink-0" />}
             </button>
 
             <button
@@ -250,7 +251,7 @@ export default function SettingsModule() {
               onClick={() => setLanguage('en')}
               className={`h-14 px-4 rounded-xl border flex items-center justify-between transition-all cursor-pointer ${
                 language === 'en'
-                  ? 'bg-[var(--color-primary,#AEEDD0)]/15 border-[var(--color-primary,#AEEDD0)] text-white shadow-md'
+                  ? 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] border-[var(--accent,#97F2CC)] text-white shadow-md'
                   : 'bg-[#162226] border-white/10 text-slate-300 hover:text-white hover:bg-white/[0.05]'
               }`}
             >
@@ -261,7 +262,7 @@ export default function SettingsModule() {
                   <span className="text-[10px] text-slate-300 block">Default EN</span>
                 </div>
               </div>
-              {language === 'en' && <Check className="w-4 h-4 text-[var(--color-primary,#AEEDD0)] shrink-0" />}
+              {language === 'en' && <Check className="w-4 h-4 text-[var(--accent,#97F2CC)] shrink-0" />}
             </button>
           </div>
         </div>
@@ -306,15 +307,16 @@ export default function SettingsModule() {
             </div>
           </div>
 
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
+            icon={RefreshCw}
             onClick={refreshExchangeRates}
-            disabled={isFetchingRates}
-            className="h-10 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-white font-semibold text-xs flex items-center justify-center gap-2 border border-white/10 transition-all cursor-pointer disabled:opacity-50 shrink-0"
+            isLoading={isFetchingRates}
           >
-            <RefreshCw className={`w-3.5 h-3.5 text-[#AEEDD0] ${isFetchingRates ? 'animate-spin' : ''}`} />
             <span>{t('settings.refreshRates', {}, 'Actualizar Tasas')}</span>
-          </button>
+          </Button>
         </div>
 
         {/* Interactive Calculator Layout */}
@@ -330,7 +332,7 @@ export default function SettingsModule() {
               step="any"
               value={calcAmount}
               onChange={(e) => setCalcAmount(e.target.value)}
-              className="w-full h-11 px-3.5 bg-[#1E2D32] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-[#AEEDD0]"
+              className="w-full h-11 px-3.5 bg-[#1E2D32] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-[var(--accent,#97F2CC)]"
               placeholder="1.00"
             />
           </div>
@@ -356,7 +358,7 @@ export default function SettingsModule() {
                 setCalcFromCurrency(calcToCurrency);
                 setCalcToCurrency(calcFromCurrency);
               }}
-              className="w-10 h-10 rounded-xl bg-white/5 hover:bg-[#AEEDD0]/20 border border-white/10 text-[#AEEDD0] flex items-center justify-center transition-all cursor-pointer"
+              className="w-10 h-10 rounded-xl bg-white/5 hover:bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-white/10 text-[var(--accent,#97F2CC)] flex items-center justify-center transition-all cursor-pointer"
               title={language === 'es' ? 'Intercambiar Divisas' : 'Swap Currencies'}
             >
               <ArrowLeftRight className="w-4 h-4" />
@@ -384,7 +386,7 @@ export default function SettingsModule() {
               </span>
             </div>
             <div className="text-right">
-              <span className="text-xl sm:text-2xl font-extrabold text-[#AEEDD0] tracking-tight tabular-nums">
+              <span className="text-xl sm:text-2xl font-extrabold text-[var(--accent,#97F2CC)] tracking-tight tabular-nums">
                 {calcAmount || '0'} {calcFromCurrency} = {calcResultFormatted} {calcToCurrency}
               </span>
             </div>
@@ -473,7 +475,7 @@ export default function SettingsModule() {
                 type={showCurrentPwd ? 'text' : 'password'}
                 value={currentPwd}
                 onChange={(e) => setCurrentPwd(e.target.value)}
-                className="w-full h-11 px-3.5 pr-10 form-input bg-[#161B22] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[#97F2CC] transition-colors"
+                className="w-full h-11 px-3.5 pr-10 form-input bg-[#161B22] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
                 placeholder="••••••••"
               />
               <button type="button" onClick={() => setShowCurrentPwd(!showCurrentPwd)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
@@ -492,7 +494,7 @@ export default function SettingsModule() {
                 type={showNewPwd ? 'text' : 'password'}
                 value={newPwd}
                 onChange={(e) => setNewPwd(e.target.value)}
-                className="w-full h-11 px-3.5 pr-10 form-input bg-[#161B22] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[#97F2CC] transition-colors"
+                className="w-full h-11 px-3.5 pr-10 form-input bg-[#161B22] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
                 placeholder="••••••••"
               />
               <button type="button" onClick={() => setShowNewPwd(!showNewPwd)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
@@ -511,7 +513,7 @@ export default function SettingsModule() {
               value={confirmPwd}
               onChange={(e) => setConfirmPwd(e.target.value)}
               className={`w-full h-11 px-3.5 form-input bg-[#161B22] border rounded-xl text-sm text-white focus:outline-none transition-colors ${
-                confirmPwd && !pwdMatch ? 'border-rose-500/50 focus:border-rose-500' : 'border-white/10 focus:border-[#97F2CC]'
+                confirmPwd && !pwdMatch ? 'border-rose-500/50 focus:border-rose-500' : 'border-white/10 focus:border-[var(--accent,#97F2CC)]'
               }`}
               placeholder="••••••••"
             />
@@ -536,15 +538,17 @@ export default function SettingsModule() {
           </div>
         )}
 
-        <button
+        <Button
           type="button"
+          variant="primary"
+          size="md"
+          icon={Lock}
           onClick={handleChangePassword}
           disabled={isChangingPwd || !pwdIsValid || !pwdMatch || !currentPwd.trim()}
-          className="btn-primary btn-save h-11 px-6 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:brightness-105 active:scale-[0.98]"
+          isLoading={isChangingPwd}
         >
-          <Lock className="w-4 h-4" />
           <span>{isChangingPwd ? (language === 'es' ? 'Actualizando...' : 'Updating...') : t('settings.updatePassword', {}, 'Actualizar Contraseña')}</span>
-        </button>
+        </Button>
       </div>
 
       {/* FILA 4: GESTIÓN DE DATOS Y DEPURACIÓN (FULL WIDTH & DANGER ZONE) */}
@@ -564,9 +568,9 @@ export default function SettingsModule() {
           <button
             type="button"
             onClick={() => exportBackup(financeData)}
-            className="h-12 px-4 rounded-xl bg-[#162226] border border-white/10 hover:border-white/20 hover:bg-white/[0.05] text-white font-bold text-xs flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-sm"
+            className="h-12 px-4 rounded-xl bg-[#162226] border border-white/10 hover:border-white/20 hover:bg-white/[0.05] text-white font-bold text-xs flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-sm active:scale-[0.98]"
           >
-            <Download className="w-4 h-4 text-[#AEEDD0]" />
+            <Download className="w-4 h-4 text-[var(--accent,#97F2CC)]" />
             <span>{t('settings.exportBackup', {}, 'Exportar Respaldos JSON')}</span>
           </button>
 
@@ -575,7 +579,7 @@ export default function SettingsModule() {
             type="button"
             onClick={() => setIsConsolidateModalOpen(true)}
             disabled={isConsolidating}
-            className="h-12 px-4 rounded-xl bg-[#162226] border border-amber-500/30 hover:border-amber-400 hover:bg-amber-500/10 text-amber-300 font-bold text-xs flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-sm disabled:opacity-50"
+            className="h-12 px-4 rounded-xl bg-[#162226] border border-amber-500/30 hover:border-amber-400 hover:bg-amber-500/10 text-amber-300 font-bold text-xs flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-sm disabled:opacity-50 active:scale-[0.98]"
           >
             <RefreshCw className={`w-4 h-4 text-amber-400 ${isConsolidating ? 'animate-spin' : ''}`} />
             <span>{isConsolidating ? 'Consolidando...' : (language === 'es' ? 'Optimizar Historial (>1 Año)' : 'Optimize History (>1 Year)')}</span>
@@ -585,7 +589,7 @@ export default function SettingsModule() {
           <button
             type="button"
             onClick={() => setIsResetModalOpen(true)}
-            className="h-12 px-4 rounded-xl bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20 text-amber-300 font-bold text-xs flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-sm"
+            className="h-12 px-4 rounded-xl bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20 text-amber-300 font-bold text-xs flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-sm active:scale-[0.98]"
           >
             <RotateCcw className="w-4 h-4 text-amber-400" />
             <span>{t('settings.resetData', {}, 'Restablecer Todos los Datos')}</span>
@@ -595,7 +599,7 @@ export default function SettingsModule() {
           <button
             type="button"
             onClick={() => setIsDeleteAccountModalOpen(true)}
-            className="h-12 px-4 rounded-xl bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 text-rose-400 font-bold text-xs flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-sm"
+            className="h-12 px-4 rounded-xl bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 text-rose-400 font-bold text-xs flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-sm active:scale-[0.98]"
           >
             <Trash2 className="w-4 h-4 text-rose-400" />
             <span>{language === 'es' ? 'Eliminar Cuenta' : 'Delete Account'}</span>

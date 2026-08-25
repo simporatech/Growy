@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { MessageSquarePlus, Send, CheckCircle2, AlertCircle, Loader2, ShieldCheck, Clock, Mail, Phone, ExternalLink } from 'lucide-react';
+import Button from './Button';
 import CustomSelect from './CustomSelect';
 import { useSettings } from '../context/SettingsContext';
 import { dbSubmitFeedback } from '../services/supabaseService';
@@ -95,7 +96,7 @@ export default function FeedbackModule() {
         <div className="lg:col-span-2 p-4 md:p-6 rounded-2xl md:rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl space-y-4 sm:space-y-5 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]">
           
           <div className="flex items-center gap-3 border-b border-white/5 pb-3 sm:pb-4">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#AEEDD0]/15 border border-[#AEEDD0]/30 flex items-center justify-center text-[#AEEDD0] shrink-0 font-bold">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex items-center justify-center text-[var(--accent,#97F2CC)] shrink-0 font-bold">
               <MessageSquarePlus className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
@@ -182,7 +183,7 @@ export default function FeedbackModule() {
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 placeholder={t('feedback.subjectPlaceholder', {}, 'Ej. Error al registrar cuenta, sugerencia para gráficos...')}
-                className="w-full h-11 px-4 bg-[#162226] border border-white/10 rounded-xl text-sm font-medium text-white focus:outline-none focus:border-[#AEEDD0] disabled:opacity-50 transition-all"
+                className="w-full h-11 px-4 bg-[#162226] border border-white/10 rounded-xl text-sm font-medium text-white focus:outline-none focus:border-[var(--accent,#97F2CC)] disabled:opacity-50 transition-all"
               />
             </div>
 
@@ -198,29 +199,23 @@ export default function FeedbackModule() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder={t('feedback.descPlaceholder', {}, 'Describe con el mayor detalle posible lo ocurrido o tu propuesta...')}
-                className="w-full p-3.5 bg-[#162226] border border-white/10 rounded-xl text-sm font-medium text-white focus:outline-none focus:border-[#AEEDD0] resize-none disabled:opacity-50 transition-all"
+                className="w-full p-3.5 bg-[#162226] border border-white/10 rounded-xl text-sm font-medium text-white focus:outline-none focus:border-[var(--accent,#97F2CC)] resize-none disabled:opacity-50 transition-all"
               />
             </div>
 
             {/* Submit Button (h-11) */}
             <div className="pt-2">
-              <button
+              <Button
                 type="submit"
+                variant="primary"
+                size="md"
+                icon={Send}
                 disabled={isSubmitting}
-                className="h-11 px-6 bg-[#AEEDD0] text-[#1E2D32] font-bold text-sm rounded-xl hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10 flex items-center justify-center gap-2 cursor-pointer w-full disabled:opacity-50"
+                isLoading={isSubmitting}
+                className="w-full"
               >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin text-[#1E2D32]" />
-                    <span>{t('feedback.sending', {}, 'Enviando reporte...')}</span>
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-4 h-4 stroke-[2.5]" />
-                    <span>{t('feedback.sendBtn', {}, 'Enviar Reporte')}</span>
-                  </>
-                )}
-              </button>
+                <span>{isSubmitting ? t('feedback.sending', {}, 'Enviando reporte...') : t('feedback.sendBtn', {}, 'Enviar Reporte')}</span>
+              </Button>
             </div>
 
           </form>

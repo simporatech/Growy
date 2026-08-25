@@ -19,7 +19,7 @@ function LoginScreen({ onLoginSuccess, onOpenForgotPassword, onOpenRegister }) {
   useDocumentTitle('login');
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-[#090C10] relative flex flex-col justify-between selection:bg-[var(--color-primary,#97F2CC)] selection:text-[#091E15]">
+    <div className="h-screen w-screen overflow-hidden bg-[#090C10] relative flex flex-col justify-between selection:bg-[var(--accent,#97F2CC)] selection:text-[var(--accent-text,#091E15)]">
       
       {/* Fondo Ambiental Dinámico con Anti-Banding Dithering y Aceleración GPU */}
       <AmbientBackground />
@@ -33,7 +33,7 @@ function LoginScreen({ onLoginSuccess, onOpenForgotPassword, onOpenRegister }) {
           <span className="text-sm font-black tracking-wider text-white">GROWY</span>
         </div>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
-          <ShieldCheck className="w-4 h-4 text-[var(--color-primary,#AEEDD0)]" />
+          <ShieldCheck className="w-4 h-4 text-[var(--accent,#97F2CC)]" />
           <span className="text-[11px] font-semibold text-slate-300">
             {t('modals.auth.encryptedConnection', {}, 'Conexión Encriptada 256-bit')}
           </span>

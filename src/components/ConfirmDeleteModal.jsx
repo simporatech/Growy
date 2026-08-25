@@ -1,5 +1,6 @@
 import React from 'react';
 import { AlertTriangle } from 'lucide-react';
+import Button from './Button';
 import ModalWrapper from './ModalWrapper';
 import { useSettings } from '../context/SettingsContext';
 
@@ -41,20 +42,24 @@ export default function ConfirmDeleteModal({
 
         {/* Fixed Footer */}
         <div className="modal-footer shrink-0 z-10 bg-transparent p-4 border-t border-white/[0.06] flex gap-3">
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="md"
             onClick={onClose}
-            className="btn-cancel btn-secondary flex-1 py-3 px-4 rounded-xl font-semibold transition-colors cursor-pointer"
+            className="flex-1"
           >
             {cancelText || t('modals.cancel', {}, language === 'es' ? 'Cancelar' : 'Cancel')}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="danger-solid"
+            size="md"
             onClick={onConfirm}
-            className="flex-1 py-3 px-4 rounded-xl bg-rose-500 text-white font-bold hover:bg-rose-600 active:scale-[0.98] transition-all cursor-pointer shadow-md shadow-rose-500/20"
+            className="flex-1"
           >
             {confirmText || t('modals.delete', {}, language === 'es' ? 'Eliminar' : 'Delete')}
-          </button>
+          </Button>
         </div>
       </div>
     </ModalWrapper>

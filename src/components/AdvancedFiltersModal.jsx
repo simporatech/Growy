@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { SlidersHorizontal, X, RotateCcw, Check } from 'lucide-react';
+import Button from './Button';
 import CustomSelect from './CustomSelect';
 import CustomDatePicker from './CustomDatePicker';
 import { useSettings } from '../context/SettingsContext';
@@ -79,7 +80,7 @@ export default function AdvancedFiltersModal({
           
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-2xl bg-[var(--color-primary,#97F2CC)]/15 border border-[var(--color-primary,#97F2CC)]/30 flex items-center justify-center text-[var(--color-primary,#97F2CC)] shrink-0">
+              <div className="w-10 h-10 rounded-2xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex items-center justify-center text-[var(--accent,#97F2CC)] shrink-0">
                 <SlidersHorizontal className="w-5 h-5" />
               </div>
               <div>
@@ -87,7 +88,7 @@ export default function AdvancedFiltersModal({
                   {t('transactions.advancedFilters', {}, 'Filtros Avanzados')}
                 </h3>
                 {activeFilterCount > 0 && (
-                  <span className="text-[11px] font-semibold text-[var(--color-primary,#97F2CC)]">
+                  <span className="text-[11px] font-semibold text-[var(--accent,#97F2CC)]">
                     {t('transactions.activeCount', { count: activeFilterCount }, `${activeFilterCount} activos`)}
                   </span>
                 )}
@@ -230,26 +231,30 @@ export default function AdvancedFiltersModal({
 
         {/* Fixed Action Footer */}
         <div className="modal-footer p-4 border-t border-white/[0.06] bg-transparent shrink-0 flex items-center gap-3 z-10">
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="md"
+            icon={RotateCcw}
             onClick={() => {
               resetFilters();
               onClose();
             }}
-            className="btn-cancel btn-secondary flex-1 py-3 font-semibold rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-2 text-sm"
+            className="flex-1"
           >
-            <RotateCcw className="w-4 h-4" />
             <span>{t('transactions.clearFilters', {}, 'Limpiar')}</span>
-          </button>
+          </Button>
 
-          <button
+          <Button
             type="button"
+            variant="primary"
+            size="md"
+            icon={Check}
             onClick={onClose}
-            className="btn-primary btn-save flex-1 py-3 font-semibold rounded-xl hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 text-sm shadow-md"
+            className="flex-1"
           >
-            <Check className="w-4 h-4" />
-            <span>{t('common.apply', {}, 'Aplicar Filtros')}</span>
-          </button>
+            <span>{t('transactions.applyFilters', {}, 'Aplicar')}</span>
+          </Button>
         </div>
 
       </div>

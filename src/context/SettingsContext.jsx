@@ -23,11 +23,46 @@ export const GROWY_BASE_CURRENCY_KEY = 'growy_base_currency';
 export const THEME_KEY = 'growy_theme_preference';
 
 export const THEME_PRESETS = {
-  MINT: { primary: '#97F2CC', primaryRgb: '151, 242, 204', primaryText: '#091E15', glow: 'rgba(151, 242, 204, 0.10)' },
-  CYAN: { primary: '#38BDF8', primaryRgb: '56, 189, 248', primaryText: '#082f49', glow: 'rgba(56, 189, 248, 0.10)' },
-  PURPLE: { primary: '#C084FC', primaryRgb: '192, 132, 252', primaryText: '#2e1065', glow: 'rgba(192, 132, 252, 0.10)' },
-  EMERALD: { primary: '#34D399', primaryRgb: '52, 211, 153', primaryText: '#064e3b', glow: 'rgba(52, 211, 153, 0.10)' },
-  CORAL: { primary: '#FB7185', primaryRgb: '251, 113, 133', primaryText: '#4c0519', glow: 'rgba(251, 113, 133, 0.10)' }
+  MINT: { 
+    primary: '#97F2CC', 
+    primaryHover: '#82E5BC',
+    primaryRgb: '151, 242, 204', 
+    primaryText: '#091E15', 
+    muted: 'rgba(151, 242, 204, 0.15)',
+    glow: 'rgba(151, 242, 204, 0.10)' 
+  },
+  CYAN: { 
+    primary: '#38BDF8', 
+    primaryHover: '#0ea5e9',
+    primaryRgb: '56, 189, 248', 
+    primaryText: '#082f49', 
+    muted: 'rgba(56, 189, 248, 0.15)',
+    glow: 'rgba(56, 189, 248, 0.10)' 
+  },
+  PURPLE: { 
+    primary: '#C084FC', 
+    primaryHover: '#a855f7',
+    primaryRgb: '192, 132, 252', 
+    primaryText: '#2e1065', 
+    muted: 'rgba(192, 132, 252, 0.15)',
+    glow: 'rgba(192, 132, 252, 0.10)' 
+  },
+  EMERALD: { 
+    primary: '#34D399', 
+    primaryHover: '#10b981',
+    primaryRgb: '52, 211, 153', 
+    primaryText: '#064e3b', 
+    muted: 'rgba(52, 211, 153, 0.15)',
+    glow: 'rgba(52, 211, 153, 0.10)' 
+  },
+  CORAL: { 
+    primary: '#FB7185', 
+    primaryHover: '#f43f5e',
+    primaryRgb: '251, 113, 133', 
+    primaryText: '#4c0519', 
+    muted: 'rgba(251, 113, 133, 0.15)',
+    glow: 'rgba(251, 113, 133, 0.10)' 
+  }
 };
 
 export const THEMES = [
@@ -44,11 +79,26 @@ export const applyThemeTokens = (themeKey) => {
     const theme = THEME_PRESETS[key] || THEME_PRESETS.MINT;
     const root = document.documentElement;
 
+    const accent = theme.primary;
+    const accentHover = theme.primaryHover || theme.primary;
+    const accentRgb = theme.primaryRgb;
+    const accentText = theme.primaryText || '#091E15';
+    const accentMuted = theme.muted || `rgba(${accentRgb}, 0.15)`;
+    const glow = theme.glow || `rgba(${accentRgb}, 0.10)`;
+
     root.style.setProperty('--bg-base', '#090C10');
-    root.style.setProperty('--color-primary', theme.primary);
-    root.style.setProperty('--color-primary-rgb', theme.primaryRgb);
-    root.style.setProperty('--color-primary-text', theme.primaryText || '#091E15');
-    root.style.setProperty('--color-glow', theme.glow);
+    root.style.setProperty('--accent', accent);
+    root.style.setProperty('--accent-hover', accentHover);
+    root.style.setProperty('--accent-muted', accentMuted);
+    root.style.setProperty('--accent-text', accentText);
+    root.style.setProperty('--accent-rgb', accentRgb);
+
+    // Backward compatibility aliases
+    root.style.setProperty('--color-primary', accent);
+    root.style.setProperty('--color-primary-hover', accentHover);
+    root.style.setProperty('--color-primary-rgb', accentRgb);
+    root.style.setProperty('--color-primary-text', accentText);
+    root.style.setProperty('--color-glow', glow);
   } catch (e) {
     console.error('Error applying theme tokens:', e);
   }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Rocket, Wallet, PieChart, Globe, ChevronRight, ChevronLeft, Sparkles, CheckCircle2 } from 'lucide-react';
+import Button from './Button';
 import { useSettings } from '../context/SettingsContext';
 import { registerModal } from '../utils/modalManager';
 
@@ -26,8 +27,8 @@ export default function WalkthroughModal({ isOpen, onComplete }) {
   const steps = [
     {
       icon: Rocket,
-      iconColor: 'text-[#AEEDD0]',
-      iconBg: 'bg-[#AEEDD0]/15 border-[#AEEDD0]/30',
+      iconColor: 'text-[var(--accent,#97F2CC)]',
+      iconBg: 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] border-[var(--accent,#97F2CC)]/30',
       title: t('walkthrough.step1Title', {}, 'Bienvenida a Growy 🚀'),
       subtitle: t('walkthrough.step1Sub', {}, 'Filosofía de finanzas inteligentes y gestión limpia'),
       desc: t('walkthrough.step1Desc', {}, 'Growy te permite tomar el control absoluto de tus cuentas, presupuestos y patrimonio neto de forma intuitiva, privada y en tiempo real.')
@@ -88,7 +89,7 @@ export default function WalkthroughModal({ isOpen, onComplete }) {
         {/* Top Header: Step Counter & Skip Link */}
         <div className="flex items-center justify-between border-b border-white/5 pb-4">
           <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-300">
-            <Sparkles className="w-3.5 h-3.5 text-[var(--color-primary,#97F2CC)]" />
+            <Sparkles className="w-3.5 h-3.5 text-[var(--accent,#97F2CC)]" />
             <span>{t('walkthrough.stepOf', { current: currentStep + 1, total: steps.length }, `Paso ${currentStep + 1} de ${steps.length}`)}</span>
           </div>
 
@@ -111,7 +112,7 @@ export default function WalkthroughModal({ isOpen, onComplete }) {
             <h3 className="text-xl font-extrabold text-white tracking-tight">
               {stepData.title}
             </h3>
-            <span className="text-xs font-semibold text-[#AEEDD0] block uppercase tracking-wider">
+            <span className="text-xs font-semibold text-[var(--accent,#97F2CC)] block uppercase tracking-wider">
               {stepData.subtitle}
             </span>
           </div>
@@ -130,7 +131,7 @@ export default function WalkthroughModal({ isOpen, onComplete }) {
               onClick={() => setCurrentStep(idx)}
               className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
                 currentStep === idx 
-                  ? 'w-6 bg-[var(--color-primary,#97F2CC)]' 
+                  ? 'w-6 bg-[var(--accent,#97F2CC)]' 
                   : 'w-1.5 bg-white/20 hover:bg-white/40'
               }`}
               title={`Paso ${idx + 1}`}
@@ -141,20 +142,23 @@ export default function WalkthroughModal({ isOpen, onComplete }) {
         {/* Action Controls Footer */}
         <div className="modal-footer flex items-center gap-3 pt-2">
           {currentStep > 0 ? (
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="md"
+              icon={ChevronLeft}
               onClick={handlePrev}
-              className="btn-cancel btn-secondary h-11 px-4 rounded-xl font-semibold text-xs active:scale-[0.98] transition-all flex items-center gap-1.5 cursor-pointer"
             >
-              <ChevronLeft className="w-4 h-4" />
-              <span>{t('walkthrough.prev', {}, 'Anterior')}</span>
-            </button>
+              {t('walkthrough.prev', {}, 'Anterior')}
+            </Button>
           ) : <div className="flex-1" />}
 
-          <button
+          <Button
             type="button"
+            variant="primary"
+            size="md"
             onClick={handleNext}
-            className="btn-primary btn-save flex-1 h-11 px-5 rounded-xl font-semibold text-xs hover:brightness-105 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
+            className="flex-1"
           >
             {isLastStep ? (
               <>
@@ -167,7 +171,7 @@ export default function WalkthroughModal({ isOpen, onComplete }) {
                 <ChevronRight className="w-4 h-4 stroke-[2.5]" />
               </>
             )}
-          </button>
+          </Button>
         </div>
 
       </div>

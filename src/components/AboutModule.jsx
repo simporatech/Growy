@@ -38,7 +38,7 @@ export default function AboutModule() {
         </div>
 
         <div className="space-y-2 text-center md:text-left flex-1 min-w-0">
-          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[var(--color-primary,#AEEDD0)]/15 border border-[var(--color-primary,#AEEDD0)]/30 text-[var(--color-primary,#AEEDD0)] text-xs font-bold uppercase tracking-wider">
+          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 text-[var(--accent,#97F2CC)] text-xs font-bold uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5" />
             <span>{t('about.developerBadge', {}, 'Desarrollador Oficial')}</span>
           </div>
@@ -48,7 +48,7 @@ export default function AboutModule() {
           </h2>
 
           {/* Slogan reactive i18n */}
-          <h3 className="text-base sm:text-lg font-bold text-[#AEEDD0] tracking-wide mt-1">
+          <h3 className="text-base sm:text-lg font-bold text-[var(--accent,#97F2CC)] tracking-wide mt-1">
             {t('about.tagline', {}, 'Simple. Poderosa. Avanzada.')}
           </h3>
 
@@ -117,7 +117,7 @@ export default function AboutModule() {
           </div>
 
           <div className="p-4 rounded-2xl bg-[#162226] border border-white/10 text-xs text-slate-300 font-medium flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-[#AEEDD0] shrink-0" />
+            <ShieldCheck className="w-4 h-4 text-[var(--accent,#97F2CC)] shrink-0" />
             <span>{t('about.badgeLocation', {}, 'Desarrollo de Software & Soluciones Inteligentes en Honduras.')}</span>
           </div>
         </div>
@@ -160,7 +160,7 @@ export default function AboutModule() {
               href={paypalTransferUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="h-11 w-full bg-[#AEEDD0] text-[#1E2D32] font-bold text-sm px-6 rounded-xl flex items-center justify-center gap-3 hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#AEEDD0]/10"
+              className="h-11 w-full bg-[var(--accent,#97F2CC)] text-[var(--accent-text,#091E15)] font-bold text-sm px-6 rounded-xl flex items-center justify-center gap-3 hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[var(--accent,#97F2CC)]/10"
             >
               <Coffee className="w-4 h-4 stroke-[2.5]" />
               <span>{t('about.coffeeBtn', {}, 'Enviar Aporte por PayPal')}</span>

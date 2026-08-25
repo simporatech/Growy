@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Plus, Tag, Trash2, ArrowDownRight, ArrowUpRight, Search } from 'lucide-react';
+import Button from './Button';
 import CategoryModal from './CategoryModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import ExportDropdown from './ExportDropdown';
@@ -265,22 +266,23 @@ export default function CategoriesModule() {
             />
           </div>
 
-          <button
+          <Button
+            size="md"
+            variant="primary"
+            icon={Plus}
             onClick={() => {
               setCategoryToEdit(null);
               setInitialType(activeTabType);
               setIsModalOpen(true);
             }}
-            className="h-11 md:h-10 px-3.5 sm:px-4 text-xs font-semibold rounded-xl bg-[#97F2CC] text-[#091E15] hover:brightness-105 active:scale-[0.98] transition-all shadow-md shadow-[#97F2CC]/10 flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
           >
-            <Plus size={15} className="shrink-0" />
             <span className="hidden sm:inline">
               {activeTabType === 'expense'
                 ? t('categories.newBudget', {}, 'Nuevo Presupuesto')
                 : t('categories.newGoal', {}, 'Nueva Meta')
               }
             </span>
-          </button>
+          </Button>
         </div>
       </header>
 
@@ -293,7 +295,7 @@ export default function CategoriesModule() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={t('placeholders.search', {}, 'Buscar por nombre...')}
-            className="w-full h-11 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#AEEDD0] shadow-inner transition-colors"
+            className="w-full h-11 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[var(--accent,#97F2CC)] shadow-inner transition-colors"
           />
         </div>
         <div className="sm:hidden shrink-0">
@@ -317,7 +319,7 @@ export default function CategoriesModule() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-center pb-4 sm:pb-6 border-b border-white/10">
               {/* Gasto actual vs Límite */}
               <div className="lg:col-span-4">
-                <span className="text-xs font-semibold tracking-wider text-[#AEEDD0] uppercase block">
+                <span className="text-xs font-semibold tracking-wider text-[var(--accent,#97F2CC)] uppercase block">
                   {t('categories.globalBudgetLabel', {}, language === 'es' ? 'PRESUPUESTO GLOBAL MENSUAL' : 'GLOBAL MONTHLY BUDGET')}
                 </span>
                 <div className="flex items-baseline gap-2 mt-1">
@@ -335,7 +337,7 @@ export default function CategoriesModule() {
                 <span className="text-xs font-semibold tracking-wider text-slate-300 uppercase block">
                   {t('categories.remainingAvailable', {}, 'Restante disponible')}
                 </span>
-                <span className={`text-xl sm:text-2xl font-bold tabular-nums tracking-tight mt-1 block ${remainingBudget >= 0 ? 'text-[#AEEDD0]' : 'text-rose-400'}`}>
+                <span className={`text-xl sm:text-2xl font-bold tabular-nums tracking-tight mt-1 block ${remainingBudget >= 0 ? 'text-[var(--accent,#97F2CC)]' : 'text-rose-400'}`}>
                   {formatCurrency(remainingBudget)}
                 </span>
               </div>
@@ -352,7 +354,7 @@ export default function CategoriesModule() {
                 </div>
                 <div className="w-full bg-black/40 rounded-full h-2.5 sm:h-3 p-0.5 border border-white/10 overflow-hidden">
                   <div 
-                    className="bg-gradient-to-r from-[#AEEDD0] to-emerald-400 h-full rounded-full transition-all duration-500"
+                    className="bg-gradient-to-r from-[var(--accent,#97F2CC)] to-emerald-400 h-full rounded-full transition-all duration-500"
                     style={{ width: `${Math.min(globalPercentage, 100)}%` }}
                   />
                 </div>
@@ -392,7 +394,7 @@ export default function CategoriesModule() {
                 <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase block">
                   {t('categories.suggestedDailyBurn', {}, 'GASTO DIARIO SUGERIDO')}
                 </span>
-                <p className="text-lg font-bold text-[#AEEDD0] tabular-nums mt-1">
+                <p className="text-lg font-bold text-[var(--accent,#97F2CC)] tabular-nums mt-1">
                   {formatCurrency(suggestedDailyLimit)} / {t('common.day', {}, 'día')}
                 </p>
                 <span className="text-xs text-slate-400 mt-0.5 block">
@@ -453,7 +455,7 @@ export default function CategoriesModule() {
                 </div>
                 <div className="w-full bg-black/40 rounded-full h-2.5 sm:h-3 p-0.5 border border-white/10 overflow-hidden">
                   <div 
-                    className="bg-gradient-to-r from-cyan-400 to-[#AEEDD0] h-full rounded-full transition-all duration-500"
+                    className="bg-gradient-to-r from-cyan-400 to-[var(--accent,#97F2CC)] h-full rounded-full transition-all duration-500"
                     style={{ width: `${Math.min(incomeGoalPercentage, 100)}%` }}
                   />
                 </div>
@@ -554,15 +556,17 @@ export default function CategoriesModule() {
             <p className="text-xs sm:text-sm text-slate-400 max-w-sm mx-auto font-normal">
               {t('categories.noCategoriesDesc', {}, 'Agrega categorías para presupuestar tus compras y agrupar tus transacciones.')}
             </p>
-            <button
+            <Button
+              size="md"
+              variant="primary"
+              icon={Plus}
               onClick={() => {
                 setInitialType(activeTabType);
                 setIsModalOpen(true);
               }}
-              className="h-11 px-5 rounded-xl btn-primary-mint font-bold text-sm inline-flex items-center gap-2 shadow cursor-pointer"
             >
-              <Plus className="w-4 h-4" /> {t('categories.newCategory', {}, 'Nueva Categoría')}
-            </button>
+              {t('categories.newCategory', {}, 'Nueva Categoría')}
+            </Button>
           </div>
         ) : (
           <div 
@@ -596,7 +600,7 @@ export default function CategoriesModule() {
                       </div>
 
                       <div className="min-w-0">
-                        <h4 className="text-sm font-bold text-white group-hover:text-[var(--color-primary,#AEEDD0)] transition-colors truncate">
+                        <h4 className="text-sm font-bold text-white group-hover:text-[var(--accent,#97F2CC)] transition-colors truncate">
                           {cat.name || 'Sin nombre'}
                         </h4>
                         <span className="text-xs text-slate-300 font-semibold uppercase block tabular-nums">

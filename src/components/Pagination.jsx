@@ -42,7 +42,7 @@ export default function Pagination({
                   onClick={() => onPageSizeChange(size)}
                   className={`px-2.5 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${
                     pageSize === size
-                      ? 'bg-[var(--color-primary,#AEEDD0)] text-[#1E2D32] shadow-sm'
+                      ? 'bg-[var(--accent,#97F2CC)] text-[var(--accent-text,#091E15)] shadow-sm'
                       : 'text-slate-400 hover:text-white hover:bg-white/5'
                   }`}
                 >
