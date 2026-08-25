@@ -265,14 +265,14 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
     try {
       const txCurrency = (newTx.currency || 'USD').toUpperCase();
       const safeRates = (exchangeRates && typeof exchangeRates === 'object') ? exchangeRates : FALLBACK_EXCHANGE_RATES;
-      const exchangeRateToUsd = txCurrency === 'USD' ? 1 : (Number(safeRates[txCurrency]) || Number(FALLBACK_EXCHANGE_RATES[txCurrency]) || 1);
       const crossRate = getCrossRate(txCurrency, baseCurrency, safeRates);
+      const amountInBase = (Number(newTx.amount) || 0) * (crossRate || 1);
 
       const txWithSnapshot = {
         ...newTx,
         currency: txCurrency,
-        exchangeRateToUsd,
-        exchangeRateAtTransaction: crossRate
+        exchangeRateAtTransaction: crossRate,
+        amountInBaseCurrency: amountInBase
       };
 
       const saved = await dbSaveTransaction(userId, txWithSnapshot);
@@ -296,19 +296,18 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
       const txCurrency = (updatedTx.currency || (oldTx && oldTx.currency) || 'USD').toUpperCase();
 
       const safeRates = (exchangeRates && typeof exchangeRates === 'object') ? exchangeRates : FALLBACK_EXCHANGE_RATES;
-      let exchangeRateToUsd = updatedTx.exchangeRateToUsd || (oldTx && oldTx.exchangeRateToUsd);
       let exchangeRateAtTransaction = updatedTx.exchangeRateAtTransaction || (oldTx && oldTx.exchangeRateAtTransaction);
 
-      if (currencyChanged || !exchangeRateToUsd || !exchangeRateAtTransaction) {
-        exchangeRateToUsd = txCurrency === 'USD' ? 1 : (Number(safeRates[txCurrency]) || Number(FALLBACK_EXCHANGE_RATES[txCurrency]) || 1);
+      if (currencyChanged || !exchangeRateAtTransaction) {
         exchangeRateAtTransaction = getCrossRate(txCurrency, baseCurrency, safeRates);
       }
+      const amountInBase = (Number(updatedTx.amount ?? oldTx?.amount) || 0) * (exchangeRateAtTransaction || 1);
 
       const txWithSnapshot = {
         ...updatedTx,
         currency: txCurrency,
-        exchangeRateToUsd,
-        exchangeRateAtTransaction
+        exchangeRateAtTransaction,
+        amountInBaseCurrency: amountInBase
       };
 
       const saved = await dbSaveTransaction(userId, txWithSnapshot);
@@ -392,8 +391,8 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
     const sourceAcc = safeAccounts.find(a => a.id === sourceAccountId);
     const txCurrency = (sourceAcc?.currency || targetLoan.currency || 'USD').toUpperCase();
     const safeRates = (exchangeRates && typeof exchangeRates === 'object') ? exchangeRates : FALLBACK_EXCHANGE_RATES;
-    const exchangeRateToUsd = txCurrency === 'USD' ? 1 : (Number(safeRates[txCurrency]) || Number(FALLBACK_EXCHANGE_RATES[txCurrency]) || 1);
     const crossRate = getCrossRate(txCurrency, baseCurrency, safeRates);
+    const amountInBase = actualAmount * (crossRate || 1);
 
     const rawCatId = targetLoan.categoryId || targetLoan.category_id;
     const validCategoryId = isValidUuid(rawCatId) ? rawCatId : null;
@@ -406,8 +405,8 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
       categoryId: validCategoryId,
       amount: actualAmount,
       currency: txCurrency,
-      exchangeRateToUsd,
       exchangeRateAtTransaction: crossRate,
+      amountInBaseCurrency: amountInBase,
       description: i18nMsg(
         `Pago de deuda: ${conceptLabel}`,
         `Debt payment: ${conceptLabel}`

@@ -52,11 +52,17 @@ export const toCamel = (obj) => {
   if (n.initial_balance !== undefined && n.initialBalance === undefined) {
     n.initialBalance = n.initial_balance;
   }
-  if (n.targetAmount !== undefined && n.target_amount === undefined) {
-    n.target_amount = n.targetAmount;
+  if (n.lastExecutedDate && !n.lastProcessedDate) {
+    n.lastProcessedDate = n.lastExecutedDate;
   }
-  if (n.target_amount !== undefined && n.targetAmount === undefined) {
-    n.targetAmount = n.target_amount;
+  if (n.lastProcessedDate && !n.lastExecutedDate) {
+    n.lastExecutedDate = n.lastProcessedDate;
+  }
+  if (n.amountInBaseCurrency !== undefined && n.amount_in_base_currency === undefined) {
+    n.amount_in_base_currency = n.amountInBaseCurrency;
+  }
+  if (n.amount_in_base_currency !== undefined && n.amountInBaseCurrency === undefined) {
+    n.amountInBaseCurrency = n.amount_in_base_currency;
   }
   return n;
 };
@@ -715,7 +721,7 @@ export const dbSaveTransaction = async (userId, txData) => {
   const rawCategoryId = txData.categoryId || txData.category_id;
   const validCategoryId = isValidUuid(rawCategoryId) ? rawCategoryId : null;
 
-  // Base payload with standard columns strictly existing in Supabase transactions table
+  // Base payload strictly aligned with PostgreSQL public.transactions schema
   const payload = {
     user_id: userId,
     account_id: validAccountId,
@@ -733,14 +739,20 @@ export const dbSaveTransaction = async (userId, txData) => {
     if (isValidUuid(rawDestId)) {
       payload.destination_account_id = rawDestId;
     }
-    const numTargetAmount = parseFloat(txData.targetAmount || txData.target_amount || txData.amount || 0);
-    if (!isNaN(numTargetAmount) && numTargetAmount > 0) {
-      payload.target_amount = numTargetAmount;
+  }
+
+  if (txData.exchangeRateAtTransaction !== undefined || txData.exchange_rate_at_transaction !== undefined) {
+    const rate = Number(txData.exchangeRateAtTransaction ?? txData.exchange_rate_at_transaction);
+    if (!isNaN(rate) && rate > 0) {
+      payload.exchange_rate_at_transaction = rate;
     }
   }
 
-  if (txData.exchangeRateToUsd || txData.exchangeRateAtTransaction) {
-    payload.exchange_rate_to_usd = txData.exchangeRateToUsd || txData.exchangeRateAtTransaction;
+  if (txData.amountInBaseCurrency !== undefined || txData.amount_in_base_currency !== undefined) {
+    const baseAmt = Number(txData.amountInBaseCurrency ?? txData.amount_in_base_currency);
+    if (!isNaN(baseAmt) && baseAmt >= 0) {
+      payload.amount_in_base_currency = baseAmt;
+    }
   }
 
   // Only pass id when updating an existing UUID record from PostgreSQL
@@ -751,59 +763,20 @@ export const dbSaveTransaction = async (userId, txData) => {
   console.log('🚀 [Supabase DB] Guardando transacción en Supabase DB:', payload);
 
   try {
-    let currentPayload = { ...payload };
-    let data = null;
-    let error = null;
+    const query = payload.id 
+      ? supabase.from('transactions').upsert([payload]).select()
+      : supabase.from('transactions').insert([payload]).select();
 
-    // Retry loop that dynamically handles schema mismatch / missing optional columns
-    for (let attempt = 0; attempt < 5; attempt++) {
-      const query = currentPayload.id 
-        ? supabase.from('transactions').upsert([currentPayload]).select()
-        : supabase.from('transactions').insert([currentPayload]).select();
-
-      const res = await query;
-      data = res.data;
-      error = res.error;
-
-      if (!error) break;
-
-      console.warn(`⚠️ [Supabase DB] Error guardando transacción (intento ${attempt + 1}):`, error.message);
-
-      // Extract missing column name if schema cache error
-      const colMatch = error.message.match(/Could not find the '([^']+)' column/i) ||
-                       error.message.match(/column "([^"]+)" of relation/i) ||
-                       error.message.match(/column ([a-zA-Z0-9_]+) does not exist/i);
-
-      if (colMatch && colMatch[1] && currentPayload[colMatch[1]] !== undefined) {
-        delete currentPayload[colMatch[1]];
-        continue;
-      }
-
-      // Foreign key fallback on category_id
-      if (error.message.includes('category_id') && currentPayload.category_id) {
-        delete currentPayload.category_id;
-        continue;
-      }
-
-      // Optional transfer columns fallback
-      if (currentPayload.destination_account_id) {
-        delete currentPayload.destination_account_id;
-        continue;
-      }
-      if (currentPayload.target_amount) {
-        delete currentPayload.target_amount;
-        continue;
-      }
-      if (currentPayload.exchange_rate_to_usd) {
-        delete currentPayload.exchange_rate_to_usd;
-        continue;
-      }
-
-      break;
-    }
+    const { data, error } = await query;
 
     if (error) {
-      console.error("SUPABASE ERROR:", error);
+      console.error('DETALLE CRÍTICO SUPABASE en dbSaveTransaction:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+        payloadEnviado: payload
+      });
       throw error;
     }
 
@@ -983,17 +956,25 @@ export const dbSaveSubscription = async (userId, subData) => {
   const numAmount = parseFloat(subData.amount || 0);
   const numBillingDay = parseInt(subData.billingDay ?? subData.billing_day ?? 1, 10);
 
-  // Strictly sanitized payload aligned with PostgreSQL subscriptions table schema
+  // Strictly sanitized payload aligned with PostgreSQL public.subscriptions schema
   const payload = {
     user_id: userId,
-    name: subData.name ? subData.name.trim() : 'Suscripción',
-    amount: isNaN(numAmount) ? 0 : numAmount,
     account_id: subData.accountId || subData.account_id || null,
-    category_id: subData.categoryId || subData.category_id || null,
-    billing_day: isNaN(numBillingDay) ? 1 : numBillingDay,
+    category_id: (subData.categoryId && isValidUuid(subData.categoryId))
+      ? subData.categoryId
+      : ((subData.category_id && isValidUuid(subData.category_id)) ? subData.category_id : null),
+    name: subData.name ? subData.name.trim() : 'Suscripción',
+    emoji: subData.emoji || '🔁',
+    amount: isNaN(numAmount) ? 0 : numAmount,
+    currency: String(subData.currency || 'HNL').toUpperCase(),
+    billing_day: isNaN(numBillingDay) ? 1 : Math.min(Math.max(numBillingDay, 1), 31),
     frequency: subData.frequency || 'monthly',
     is_active: Boolean(subData.isActive ?? subData.is_active ?? true)
   };
+
+  if (subData.lastExecutedDate || subData.last_executed_date) {
+    payload.last_executed_date = subData.lastExecutedDate || subData.last_executed_date;
+  }
 
   // Only pass id when updating an existing UUID record from PostgreSQL
   const rawId = subData.id;
@@ -1023,10 +1004,7 @@ export const dbSaveSubscription = async (userId, subData) => {
 
     console.log('✅ Suscripción guardada en DB:', data);
     const savedRecord = data && data[0] ? data[0] : payload;
-    const result = toCamel(savedRecord);
-    if (subData.emoji && !result.emoji) result.emoji = subData.emoji;
-    if (subData.currency && !result.currency) result.currency = subData.currency;
-    return result;
+    return toCamel(savedRecord);
   } catch (err) {
     console.error('❌ [Supabase DB Exception] dbSaveSubscription:', err);
     throw err;
@@ -1051,7 +1029,7 @@ export const dbDeleteSubscription = async (subId) => {
 /**
  * Auto-Debit Subscription Engine with Deduplication check against official schema
  */
-export const processSubscriptionsCron = async (userId, currentAccounts = [], currentTx = [], baseCurrency = 'USD', exchangeRates = null) => {
+export const processSubscriptionsCron = async (userId, currentAccounts = [], currentTx = [], baseCurrency = 'HNL', exchangeRates = null) => {
   try {
     const { data: subsData, error } = await supabase
       .from('subscriptions')
@@ -1065,6 +1043,7 @@ export const processSubscriptionsCron = async (userId, currentAccounts = [], cur
 
     const subs = toCamel(subsData);
     const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
     const currentYear = today.getFullYear();
     const currentMonthNum = String(today.getMonth() + 1).padStart(2, '0');
     const currentMonthStr = `${currentYear}-${currentMonthNum}`;
@@ -1079,9 +1058,15 @@ export const processSubscriptionsCron = async (userId, currentAccounts = [], cur
     for (const sub of subs) {
       if (!sub || !sub.accountId || !sub.isActive) continue;
 
-      const billingDay = Number(sub.billingDay) || 1;
+      // 1. Evitar cobros repetidos en el mismo mes si ya fue ejecutada
+      const lastExec = sub.lastExecutedDate || sub.last_executed_date;
+      if (lastExec && typeof lastExec === 'string' && lastExec.startsWith(currentMonthStr)) {
+        continue; // Ya fue debitada este mes
+      }
 
-      // Condition: current day >= billing day
+      const billingDay = Number(sub.billingDay || sub.billing_day) || 1;
+
+      // 2. Validar día de corte: current day >= billing day
       if (currentDay >= billingDay) {
         // Deduplication check in DB transactions table
         const { data: existingTx } = await supabase
@@ -1093,36 +1078,48 @@ export const processSubscriptionsCron = async (userId, currentAccounts = [], cur
           .gte('transaction_date', `${currentMonthStr}-01`);
 
         if (existingTx && existingTx.length > 0) {
+          // Marcar suscripción como ejecutada si ya existía la transacción
+          await supabase
+            .from('subscriptions')
+            .update({ last_executed_date: todayStr })
+            .eq('id', sub.id);
           continue;
         }
 
-        // Inherit exact currency from paying account or subscription to avoid false FX inflation
+        // 3. Obtener moneda exacta y calcular importes compatibles con transactions
         const payingAccount = currentAccounts.find(a => a.id === sub.accountId);
-        const transactionCurrency = (sub.currency || payingAccount?.currency || baseCurrency || 'USD').toUpperCase();
-        const exchangeRateToUsd = transactionCurrency === 'USD' ? 1 : (Number(safeRates[transactionCurrency]) || Number(FALLBACK_EXCHANGE_RATES[transactionCurrency]) || 1);
-        const crossRate = getCrossRate(transactionCurrency, baseCurrency, safeRates);
+        const subCurrency = (sub.currency || payingAccount?.currency || baseCurrency || 'HNL').toUpperCase();
+        const crossRate = getCrossRate(subCurrency, baseCurrency, safeRates);
+        const amountInBase = (Number(sub.amount) || 0) * (crossRate || 1);
 
         const billingDateStr = `${currentMonthStr}-${String(billingDay).padStart(2, '0')}`;
+        
+        // 4. Preparar payload compatible 100% con schema oficial de public.transactions
         const autoTxPayload = {
           user_id: userId,
-          type: 'expense',
-          transaction_date: billingDateStr,
           account_id: sub.accountId,
-          category_id: sub.categoryId || null,
+          category_id: (sub.categoryId && isValidUuid(sub.categoryId)) ? sub.categoryId : null,
+          type: 'expense',
           amount: Math.abs(Number(sub.amount) || 0),
-          currency: transactionCurrency,
-          exchange_rate_to_usd: exchangeRateToUsd,
-          exchange_rate_at_transaction: crossRate,
-          description: `[Auto-Debit] ${sub.name}`
+          currency: subCurrency,
+          description: `[Auto-Debit] ${sub.name}`,
+          transaction_date: billingDateStr,
+          exchange_rate_at_transaction: crossRate || 1,
+          amount_in_base_currency: amountInBase
         };
 
-        // Insert auto-debit transaction to DB (letting PostgreSQL generate UUID)
-        const { data: insertedTx } = await supabase
+        // 5. Insertar auto-debit transaction en DB
+        const { data: insertedTx, error: txError } = await supabase
           .from('transactions')
           .insert([autoTxPayload])
           .select();
 
-        // Deduct from account balance in DB
+        if (txError) {
+          console.error('❌ Error al insertar transacción de auto-débito:', txError);
+          continue;
+        }
+
+        // 6. Deduct from account balance in DB
         const accToUpdate = currentAccounts.find(a => a.id === sub.accountId);
         if (accToUpdate) {
           const newBal = (Number(accToUpdate.balance) || 0) - Math.abs(Number(sub.amount) || 0);
@@ -1132,6 +1129,12 @@ export const processSubscriptionsCron = async (userId, currentAccounts = [], cur
             .eq('id', sub.accountId);
           updatedAccountsMap[sub.accountId] = newBal;
         }
+
+        // 7. Marcar suscripción como ejecutada hoy para idempotencia
+        await supabase
+          .from('subscriptions')
+          .update({ last_executed_date: todayStr })
+          .eq('id', sub.id);
 
         processedList.push(sub);
         if (insertedTx && insertedTx[0]) {
