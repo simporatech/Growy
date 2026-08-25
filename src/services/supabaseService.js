@@ -1172,14 +1172,18 @@ export const dbUpsertExchangeRates = async (ratesPayload) => {
   try {
     const payload = {
       id: 'latest',
-      last_fetch_date: ratesPayload.last_fetch_date,
-      last_updated_at: ratesPayload.last_updated_at,
-      rates: ratesPayload.rates
+      last_fetch_date: ratesPayload.last_fetch_date || ratesPayload.lastFetchDate || new Date().toISOString().split('T')[0],
+      rates: ratesPayload.rates,
+      updated_at: ratesPayload.updated_at || ratesPayload.updatedAt || new Date().toISOString()
     };
 
-    await supabase
+    const { error } = await supabase
       .from('exchange_rates_cache')
       .upsert([payload]);
+
+    if (error) {
+      console.warn('Supabase DB upsert exchange rates error:', error.message);
+    }
   } catch (err) {
     console.warn('Supabase DB upsert exchange rates exception:', err.message);
   }
