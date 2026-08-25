@@ -981,27 +981,24 @@ export const dbSaveSubscription = async (userId, subData) => {
   }
 
   const numAmount = parseFloat(subData.amount || 0);
-  const numBillingDay = parseInt(subData.billingDay || 1, 10);
+  const numBillingDay = parseInt(subData.billingDay ?? subData.billing_day ?? 1, 10);
 
+  // Strictly sanitized payload aligned with PostgreSQL subscriptions table schema
   const payload = {
     user_id: userId,
-    account_id: subData.accountId || null,
-    category_id: subData.categoryId || null,
     name: subData.name ? subData.name.trim() : 'Suscripción',
-    emoji: subData.emoji || '🔁',
     amount: isNaN(numAmount) ? 0 : numAmount,
+    account_id: subData.accountId || subData.account_id || null,
+    category_id: subData.categoryId || subData.category_id || null,
     billing_day: isNaN(numBillingDay) ? 1 : numBillingDay,
     frequency: subData.frequency || 'monthly',
-    is_active: subData.isActive !== false
+    is_active: Boolean(subData.isActive ?? subData.is_active ?? true)
   };
 
-  if (subData.currency) {
-    payload.currency = String(subData.currency).toUpperCase();
-  }
-
   // Only pass id when updating an existing UUID record from PostgreSQL
-  if (subData.id && typeof subData.id === 'string' && !subData.id.startsWith('sub_')) {
-    payload.id = subData.id;
+  const rawId = subData.id;
+  if (rawId && isValidUuid(rawId)) {
+    payload.id = rawId;
   }
 
   console.log('🚀 [Supabase DB] Guardando suscripción en Supabase DB:', payload);
@@ -1014,15 +1011,25 @@ export const dbSaveSubscription = async (userId, subData) => {
     const { data, error } = await query;
 
     if (error) {
-      console.error('❌ Error exacto de Supabase al guardar suscripción:', error);
+      console.error('DETALLE CRÍTICO SUPABASE 400 en dbSaveSubscription:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+        payloadEnviado: payload
+      });
       throw error;
     }
 
     console.log('✅ Suscripción guardada en DB:', data);
-    return toCamel(data && data[0] ? data[0] : payload);
+    const savedRecord = data && data[0] ? data[0] : payload;
+    const result = toCamel(savedRecord);
+    if (subData.emoji && !result.emoji) result.emoji = subData.emoji;
+    if (subData.currency && !result.currency) result.currency = subData.currency;
+    return result;
   } catch (err) {
     console.error('❌ [Supabase DB Exception] dbSaveSubscription:', err);
-    return null;
+    throw err;
   }
 };
 

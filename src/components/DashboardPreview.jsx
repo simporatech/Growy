@@ -312,8 +312,8 @@ export default function DashboardPreview({ user, onLogout }) {
     if (loanData) addLoan(loanData);
   }, [addLoan]);
 
-  const handleSaveSub = useCallback((subData) => {
-    if (subData) addSubscription(subData);
+  const handleSaveSub = useCallback(async (subData) => {
+    if (subData) await addSubscription(subData);
   }, [addSubscription]);
 
   const handleSaveAccount = useCallback((accData) => {

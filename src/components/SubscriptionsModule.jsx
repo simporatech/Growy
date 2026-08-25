@@ -115,12 +115,12 @@ export default function SubscriptionsModule() {
 
   const exportFilename = isEs ? 'Growy_Suscripciones' : 'Growy_Subscriptions';
 
-  const handleSaveSub = useCallback((subData) => {
+  const handleSaveSub = useCallback(async (subData) => {
     if (!subData) return;
     if (subToEdit) {
-      updateSubscription(subData);
+      await updateSubscription(subData);
     } else {
-      addSubscription(subData);
+      await addSubscription(subData);
     }
     setSubToEdit(null);
   }, [subToEdit, updateSubscription, addSubscription]);
