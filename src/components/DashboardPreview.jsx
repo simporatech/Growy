@@ -45,7 +45,7 @@ export default function DashboardPreview({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [chartPeriod, setChartPeriod] = useState('this_month'); // 'this_month' | '3_months' | 'year'
   const [isMoreSheetOpen, setIsMoreSheetOpen] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
+  const [isCollapsed, setIsCollapsed] = useState(() => {
     return safeGetStorage('growy_sidebar_collapsed', 'false') === 'true';
   });
 
@@ -62,7 +62,7 @@ export default function DashboardPreview({ user, onLogout }) {
   useDocumentTitle(activeTab);
 
   const toggleSidebar = useCallback(() => {
-    setIsSidebarOpen(prev => {
+    setIsCollapsed(prev => {
       const next = !prev;
       safeSetStorage('growy_sidebar_collapsed', String(next));
       return next;

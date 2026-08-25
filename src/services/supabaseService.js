@@ -354,7 +354,7 @@ export const dbFetchUserById = async (userId) => {
       .from('users')
       .select('*')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
 
     if (error || !data) {
       console.warn('⚠️ Usuario no encontrado en Supabase DB:', userId);
@@ -377,7 +377,7 @@ export const dbFetchUserByUsername = async (username) => {
       .from('users')
       .select('*')
       .eq('username', clean)
-      .single();
+      .maybeSingle();
 
     if (error || !data) {
       console.warn('⚠️ [Supabase DB] Usuario no encontrado o error:', error ? error.message : 'no data');
@@ -1158,9 +1158,13 @@ export const dbFetchExchangeRates = async () => {
       .from('exchange_rates_cache')
       .select('*')
       .eq('id', 'latest')
-      .single();
+      .maybeSingle();
 
-    if (error || !data) return null;
+    if (error) {
+      console.warn('No se pudo obtener el cache de tasas:', error.message);
+      return null;
+    }
+    if (!data) return null;
     return toCamel(data);
   } catch (err) {
     console.warn('Supabase DB fetch exchange rates fallback:', err.message);
@@ -1309,7 +1313,7 @@ export const dbChangeUserPassword = async (userId, currentPassword, newPassword)
       .from('users')
       .select('id, password')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
 
     if (fetchError || !userData) {
       return { success: false, error: 'User not found' };
