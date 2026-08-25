@@ -580,11 +580,11 @@ export default function DashboardPreview({ user, onLogout }) {
                         }}
                         className="w-full hover:bg-white/10 rounded-xl p-3 transition-all flex items-center gap-3.5 text-left cursor-pointer group"
                       >
-                        <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 text-[var(--accent,#97F2CC)] flex items-center justify-center shrink-0">
                           <Percent className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                          <h4 className="text-sm font-bold text-white group-hover:text-amber-300 transition-colors">
+                          <h4 className="text-sm font-bold text-white group-hover:text-[var(--accent,#97F2CC)] transition-colors">
                             {t('loans.newLoan', {}, 'Nuevo Saldo Pendiente')}
                           </h4>
                           <p className="text-xs text-slate-400 font-medium truncate mt-0.5">
@@ -1109,7 +1109,7 @@ export default function DashboardPreview({ user, onLogout }) {
                 <div className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 h-full flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-amber-400" />
+                      <Clock className="w-4 h-4 text-[var(--accent,#97F2CC)]" />
                       <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">{t('dashboard.upcomingCommitments', {}, 'Próximos Compromisos')}</h2>
                     </div>
                     <button 
@@ -1328,7 +1328,7 @@ export default function DashboardPreview({ user, onLogout }) {
                   label: t('nav.loans', {}, 'Saldos Pendientes'), 
                   icon: Percent, 
                   badge: pendingLoansList.length > 0 ? `${pendingLoansList.length}` : null, 
-                  color: 'text-amber-400 bg-amber-500/10 border-amber-500/20' 
+                  color: 'text-[var(--accent,#97F2CC)] bg-[var(--accent-muted,rgba(151,242,204,0.15))] border-[var(--accent,#97F2CC)]/20' 
                 },
                 { 
                   id: 'subscriptions', 

@@ -227,9 +227,9 @@ export default function LoansModule() {
         formattedAmount={formatCurrency(totalPendingDebt, baseCurrency)}
         currency={baseCurrency}
         icon={Percent}
-        iconBgColor="bg-amber-500/15"
-        iconBorderColor="border-amber-500/30"
-        iconTextColor="text-amber-400"
+        iconBgColor="bg-[var(--accent-muted,rgba(151,242,204,0.15))]"
+        iconBorderColor="border-[var(--accent,#97F2CC)]/30"
+        iconTextColor="text-[var(--accent,#97F2CC)]"
         secondaryLabel={t('loans.showingRecords', { count: filteredLoans.length }, `${language === 'es' ? 'Mostrando' : 'Showing'} ${filteredLoans.length} ${language === 'es' ? 'registros' : 'records'}`)}
         secondaryValue={baseCurrency}
       />
