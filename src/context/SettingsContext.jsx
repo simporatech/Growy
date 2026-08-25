@@ -3,6 +3,7 @@ import { safeGetStorage, safeSetStorage, safeRemoveStorage } from '../utils/stor
 import { translations } from '../i18n/translations';
 import { supabase } from '../lib/supabaseClient';
 import { getActiveSessionUserId } from '../utils/userStorage';
+import { dbFetchUserById, dbUpdateUserProfile } from '../services/supabaseService';
 import { 
   BASE_CURRENCY_KEY, 
   SUPPORTED_CURRENCIES, 
@@ -141,6 +142,36 @@ export function SettingsProvider({ children, userId = null }) {
   const [lastUpdated, setLastUpdated] = useState('Hoy');
   const [isFetchingRates, setIsFetchingRates] = useState(false);
   const [isAutoLanguage, setIsAutoLanguage] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  // Load user profile on mount or user change
+  useEffect(() => {
+    const effectiveUserId = userId || getActiveSessionUserId();
+    if (!effectiveUserId) {
+      setCurrentUser(null);
+      return;
+    }
+    let isMounted = true;
+    dbFetchUserById(effectiveUserId).then(userData => {
+      if (isMounted && userData) {
+        setCurrentUser(userData);
+      }
+    }).catch(err => console.warn('Could not fetch user profile:', err));
+
+    return () => {
+      isMounted = false;
+    };
+  }, [userId]);
+
+  const updateUserProfile = useCallback(async ({ fullName, username }) => {
+    const effectiveUserId = userId || getActiveSessionUserId();
+    if (!effectiveUserId) return { success: false, error: 'No user ID' };
+    const res = await dbUpdateUserProfile(effectiveUserId, { fullName, username });
+    if (res && res.success && res.user) {
+      setCurrentUser(prev => ({ ...(prev || {}), ...res.user }));
+    }
+    return res;
+  }, [userId]);
 
   const loadExchangeRates = useCallback(async (force = false) => {
     setIsFetchingRates(true);
@@ -523,6 +554,9 @@ export function SettingsProvider({ children, userId = null }) {
   }, []);
 
   const value = useMemo(() => ({
+    currentUser,
+    setCurrentUser,
+    updateUserProfile,
     language,
     setLanguage,
     isAutoLanguage,
@@ -549,6 +583,8 @@ export function SettingsProvider({ children, userId = null }) {
     THEME_PRESETS,
     THEMES
   }), [
+    currentUser,
+    updateUserProfile,
     language,
     setLanguage,
     isAutoLanguage,

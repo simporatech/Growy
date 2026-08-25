@@ -35,24 +35,24 @@ export default function WalkthroughModal({ isOpen, onComplete }) {
     },
     {
       icon: Wallet,
-      iconColor: 'text-sky-400',
-      iconBg: 'bg-sky-500/15 border-sky-500/30',
+      iconColor: 'text-[var(--accent,#97F2CC)]',
+      iconBg: 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] border-[var(--accent,#97F2CC)]/30',
       title: t('walkthrough.step2Title', {}, 'Agrega tu Primera Cuenta 💳'),
       subtitle: t('walkthrough.step2Sub', {}, 'Efectivo, bancos y billeteras digitales'),
       desc: t('walkthrough.step2Desc', {}, 'Comienza registrando tus cuentas principales (Efectivo, Banco, Ahorros). Cada cuenta mantiene su propia divisa y saldo independiente.')
     },
     {
       icon: PieChart,
-      iconColor: 'text-amber-400',
-      iconBg: 'bg-amber-500/15 border-amber-500/30',
+      iconColor: 'text-[var(--accent,#97F2CC)]',
+      iconBg: 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] border-[var(--accent,#97F2CC)]/30',
       title: t('walkthrough.step3Title', {}, 'Registra Movimientos y Presupuestos 📊'),
       subtitle: t('walkthrough.step3Sub', {}, 'Límites de gastos y metas de ingresos'),
       desc: t('walkthrough.step3Desc', {}, 'Crea categorías para organizar tus compras y establecer límites mensuales. Monitorea tus presupuestos de gasto y metas de recaudación.')
     },
     {
       icon: Globe,
-      iconColor: 'text-purple-400',
-      iconBg: 'bg-purple-500/15 border-purple-500/30',
+      iconColor: 'text-[var(--accent,#97F2CC)]',
+      iconBg: 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] border-[var(--accent,#97F2CC)]/30',
       title: t('walkthrough.step4Title', {}, 'Moneda y Personalización ⚙️'),
       subtitle: t('walkthrough.step4Sub', {}, 'Divisa base, temas y desenfoque'),
       desc: t('walkthrough.step4Desc', {}, 'Configura tu moneda global (USD, HNL, EUR, MXN, GTQ, COP), cambia la paleta de colores y ajusta el nivel de desenfoque a tu gusto.')

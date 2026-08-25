@@ -304,6 +304,40 @@ export const dbDeleteUser = async (userId) => {
   }
 };
 
+export const dbUpdateUserProfile = async (userId, { fullName, username }) => {
+  if (!userId) return { success: false, error: 'No user ID provided' };
+  console.log('📡 [Supabase DB] Actualizando perfil de usuario:', userId, { fullName, username });
+
+  try {
+    const payload = {};
+    if (fullName !== undefined) {
+      payload.full_name = String(fullName).trim();
+    }
+    if (username !== undefined) {
+      payload.username = String(username).trim().toLowerCase();
+    }
+
+    if (Object.keys(payload).length === 0) return { success: true };
+
+    const { data, error } = await supabase
+      .from('users')
+      .update(payload)
+      .eq('id', userId)
+      .select();
+
+    if (error) {
+      console.error('❌ [Supabase DB Error] dbUpdateUserProfile:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('✅ [Supabase DB] Perfil de usuario actualizado:', data);
+    return { success: true, user: toCamel(data && data[0] ? data[0] : null) };
+  } catch (err) {
+    console.error('❌ [Supabase DB Exception] dbUpdateUserProfile:', err);
+    return { success: false, error: err.message };
+  }
+};
+
 export const dbFetchUserById = async (userId) => {
   if (!userId) return null;
   console.log('📡 Buscando usuario en Supabase DB por id:', userId);

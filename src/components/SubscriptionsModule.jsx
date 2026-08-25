@@ -176,9 +176,9 @@ export default function SubscriptionsModule() {
         formattedAmount={formatCurrency(monthlyTotal, baseCurrency)}
         currency={baseCurrency}
         icon={RefreshCw}
-        iconBgColor="bg-sky-500/15"
-        iconBorderColor="border-sky-500/30"
-        iconTextColor="text-sky-400"
+        iconBgColor="bg-[var(--accent-muted,rgba(151,242,204,0.15))]"
+        iconBorderColor="border-[var(--accent,#97F2CC)]/30"
+        iconTextColor="text-[var(--accent,#97F2CC)]"
         secondaryLabel={t('subscriptions.activeServices', { count: filteredSubs.filter(s => (s.isActive !== undefined ? s.isActive : s.is_active !== false)).length }, `${filteredSubs.filter(s => (s.isActive !== undefined ? s.isActive : s.is_active !== false)).length} ${language === 'es' ? 'servicios activos' : 'active services'}`)}
         secondaryValue={baseCurrency}
       />
@@ -251,8 +251,8 @@ export default function SubscriptionsModule() {
               >
                 {/* Left Block: Day Badge + Emoji + Name */}
                 <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
-                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex flex-col items-center justify-center shrink-0">
-                    <span className="text-[9px] uppercase font-bold text-slate-400 leading-none">
+                  <div className="w-10 h-10 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex flex-col items-center justify-center shrink-0">
+                    <span className="text-[9px] uppercase font-bold text-[var(--accent,#97F2CC)]/80 leading-none">
                       {t('subscriptions.dayBadge', {}, 'DÍA')}
                     </span>
                     <span className="text-sm font-extrabold text-[var(--accent,#97F2CC)] leading-none mt-0.5 tabular-nums">
@@ -270,7 +270,7 @@ export default function SubscriptionsModule() {
                         {sub.name}
                       </h4>
                       {isYearly && (
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30 uppercase shrink-0">
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] border border-[var(--accent,#97F2CC)]/30 uppercase shrink-0">
                           {t('subscriptions.yearly', {}, 'Anual')}
                         </span>
                       )}

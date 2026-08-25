@@ -35,7 +35,11 @@ export default function DashboardPreview({ user, onLogout }) {
     addTransaction, addLoan, addSubscription, addAccount, markLoanAsPaid
   } = useFinance();
 
-  const { convertToGlobal, formatToGlobal, baseCurrency, formatCurrency, t, language } = useSettings();
+  const { convertToGlobal, formatToGlobal, baseCurrency, formatCurrency, t, language, currentUser: settingsUser } = useSettings();
+
+  const effectiveUser = settingsUser || user;
+  const userDisplayName = effectiveUser?.fullName || effectiveUser?.username || 'Admin';
+  const userFirstName = userDisplayName.split(' ')[0];
 
   const [activeTab, setActiveTab] = useState('dashboard');
   const [chartPeriod, setChartPeriod] = useState('this_month'); // 'this_month' | '3_months' | 'year'
@@ -399,7 +403,7 @@ export default function DashboardPreview({ user, onLogout }) {
                 </div>
                 <div className="min-w-0 flex-1">
                   <h3 className="text-xs font-semibold text-white truncate">
-                    {user?.username || 'Admin'}
+                    {userDisplayName}
                   </h3>
                   <span className="text-[11px] text-slate-300 font-medium truncate block">
                     {t('common.planPro', {}, 'Plan Pro • Finanzas')}
@@ -409,7 +413,7 @@ export default function DashboardPreview({ user, onLogout }) {
             ) : (
               <div 
                 className="rounded-2xl p-2 border border-white/10 bg-[#141E22]/70 backdrop-blur-xl flex items-center justify-center shrink-0 isolate"
-                title={`${user?.username || 'Admin'} • ${t('common.planPro', {}, 'Plan Pro • Finanzas')}`}
+                title={`${userDisplayName} • ${t('common.planPro', {}, 'Plan Pro • Finanzas')}`}
               >
                 <div className="w-8 h-8 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/20 flex items-center justify-center text-[var(--accent,#97F2CC)] font-bold">
                   <UserCheck className="w-4 h-4" />
@@ -529,7 +533,7 @@ export default function DashboardPreview({ user, onLogout }) {
               <header className="flex items-center justify-between gap-3 w-full relative z-30">
                 <div className="min-w-0 flex-1">
                   <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white leading-tight truncate">
-                    {t('common.greeting', { name: user?.username ? user.username.split(' ')[0] : 'Admin' }, `¡Hola, ${user?.username ? user.username.split(' ')[0] : 'Admin'}!`)}
+                    {t('common.greeting', { name: userFirstName }, `¡Hola, ${userFirstName}!`)}
                   </h1>
                   <p className="text-xs sm:text-sm text-slate-400 mt-0.5 block font-normal truncate">
                     {formattedDate}
@@ -1260,7 +1264,7 @@ export default function DashboardPreview({ user, onLogout }) {
           ) : activeTab === 'subscriptions' ? (
             <SubscriptionsModule />
           ) : activeTab === 'settings' ? (
-            <SettingsModule />
+            <SettingsModule onLogout={onLogout} />
           ) : activeTab === 'feedback' ? (
             <FeedbackModule />
           ) : (
@@ -1304,7 +1308,7 @@ export default function DashboardPreview({ user, onLogout }) {
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-white tracking-tight">{t('common.moreOptions', {}, 'Más Opciones')}</h3>
-                  <p className="text-[11px] text-slate-400">{user?.username || 'Usuario'} • Plan Pro</p>
+                  <p className="text-[11px] text-slate-400">{userDisplayName} • Plan Pro</p>
                 </div>
               </div>
               <button 
@@ -1337,25 +1341,25 @@ export default function DashboardPreview({ user, onLogout }) {
                   id: 'categories', 
                   label: t('nav.categories', {}, 'Categorías'), 
                   icon: Tag, 
-                  color: 'text-purple-400 bg-purple-500/10 border-purple-500/20' 
+                  color: 'text-[var(--accent,#97F2CC)] bg-[var(--accent-muted,rgba(151,242,204,0.15))] border-[var(--accent,#97F2CC)]/20' 
                 },
                 { 
                   id: 'settings', 
                   label: t('nav.settings', {}, 'Configuración'), 
                   icon: SettingsIcon, 
-                  color: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20' 
+                  color: 'text-[var(--accent,#97F2CC)] bg-[var(--accent-muted,rgba(151,242,204,0.15))] border-[var(--accent,#97F2CC)]/20' 
                 },
                 { 
                   id: 'feedback', 
                   label: t('nav.feedback', {}, 'Reportes y Feedback'), 
                   icon: MessageSquarePlus, 
-                  color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' 
+                  color: 'text-[var(--accent,#97F2CC)] bg-[var(--accent-muted,rgba(151,242,204,0.15))] border-[var(--accent,#97F2CC)]/20' 
                 },
                 { 
                   id: 'about', 
                   label: t('nav.about', {}, 'Acerca de SIMPORA'), 
                   icon: Info, 
-                  color: 'text-sky-400 bg-sky-500/10 border-sky-500/20' 
+                  color: 'text-[var(--accent,#97F2CC)] bg-[var(--accent-muted,rgba(151,242,204,0.15))] border-[var(--accent,#97F2CC)]/20' 
                 },
               ].map((item) => {
                 const Icon = item.icon;
