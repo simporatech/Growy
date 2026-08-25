@@ -1,7 +1,7 @@
-﻿import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { AlertCircle, CalendarClock, ArrowRight, CheckCircle2, X } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
-import { formatCurrency, parseNumeric } from '../utils/formatters';
+import { formatCurrency, parseNumeric, getDaysDifference } from '../utils/formatters';
 
 export default function DebtDueBanner({ 
   loans = [], 
@@ -17,9 +17,6 @@ export default function DebtDueBanner({
       (l.status === 'pending' || !l.status) && (l.dueDate || l.due_date)
     );
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
     const evaluated = [];
 
     for (const loan of pendingWithDue) {
@@ -28,11 +25,8 @@ export default function DebtDueBanner({
       const dueDateStr = loan.dueDate || loan.due_date;
       if (!dueDateStr) continue;
 
-      const due = new Date(dueDateStr);
-      due.setHours(0, 0, 0, 0);
-
-      const diffTime = due.getTime() - today.getTime();
-      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+      const diffDays = getDaysDifference(dueDateStr);
+      if (diffDays === null) continue;
 
       const concept = loan.concept || loan.description || t('modals.loan.description', {}, 'Saldo Pendiente');
       const loanCurrency = loan.currency || baseCurrency || 'HNL';

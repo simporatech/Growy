@@ -83,3 +83,27 @@ export const calcSavingsRate = (income, expense) => {
   if (safeIncome <= 0) return 0;
   return Math.max(0, Math.round(((safeIncome - safeExpense) / safeIncome) * 100));
 };
+
+/**
+ * Safe timezone-agnostic days difference calculation for YYYY-MM-DD dates
+ * Avoids UTC midnight off-by-one bug in negative timezones
+ */
+export const getDaysDifference = (dueDateStr) => {
+  if (!dueDateStr) return null;
+  try {
+    const cleanStr = String(dueDateStr).split('T')[0];
+    const parts = cleanStr.split('-').map(Number);
+    if (parts.length < 3 || parts.some(isNaN)) return null;
+    const [year, month, day] = parts;
+    const dueDate = new Date(year, month - 1, day);
+    dueDate.setHours(0, 0, 0, 0);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const diffTime = dueDate.getTime() - today.getTime();
+    return Math.round(diffTime / (1000 * 60 * 60 * 24));
+  } catch (e) {
+    return null;
+  }
+};

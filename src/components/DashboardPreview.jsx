@@ -669,9 +669,13 @@ export default function DashboardPreview({ user, onLogout }) {
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 w-full relative z-10">
                 
                 {/* KPI 1: Patrimonio Neto Real (Colspan 2 en mobile, 1 en desktop) */}
-                <div className="col-span-2 lg:col-span-1 growy-glass growy-card-hover rounded-2xl h-auto lg:h-32 p-4 lg:p-5 bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 flex flex-col justify-between space-y-1 lg:space-y-0 overflow-hidden isolate transform-gpu-layer">
+                <div 
+                  onClick={() => setActiveTab('accounts')}
+                  className="col-span-2 lg:col-span-1 growy-glass growy-card-hover rounded-2xl h-auto lg:h-32 p-4 lg:p-5 bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 flex flex-col justify-between space-y-1 lg:space-y-0 overflow-hidden isolate transform-gpu-layer cursor-pointer transition-all duration-200 hover:border-[var(--accent)]/40 hover:scale-[1.01] active:scale-[0.99] group"
+                  title={t('dashboard.viewAccounts', {}, 'Ver Cuentas')}
+                >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 group-hover:text-white transition-colors">
                       {t('dashboard.netWealth', {}, 'Patrimonio Neto')}
                     </span>
                     <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] border border-[var(--accent,#97F2CC)]/20">
@@ -685,7 +689,7 @@ export default function DashboardPreview({ user, onLogout }) {
                     </div>
                   ) : (
                     <>
-                      <div className="text-xl lg:text-2xl font-bold tracking-tight text-white tabular-nums">
+                      <div className="text-xl lg:text-2xl font-bold tracking-tight text-white tabular-nums group-hover:text-[var(--accent)] transition-colors">
                         {formatCurrency(netWealth, baseCurrency)}
                       </div>
                       <div className="flex items-center gap-2 sm:gap-3 text-xs text-slate-300 font-medium tabular-nums flex-wrap pt-0.5">
@@ -698,8 +702,12 @@ export default function DashboardPreview({ user, onLogout }) {
                 </div>
 
                 {/* KPI 2: Ingresos del Mes (Col 1 en mobile, 1 en desktop) */}
-                <div className="col-span-1 lg:col-span-1 h-24 lg:h-32 growy-glass growy-card-hover rounded-2xl p-3.5 lg:p-5 flex flex-col justify-between overflow-hidden isolate transform-gpu-layer">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 truncate block">
+                <div 
+                  onClick={() => setActiveTab('transactions')}
+                  className="col-span-1 lg:col-span-1 h-24 lg:h-32 growy-glass growy-card-hover rounded-2xl p-3.5 lg:p-5 flex flex-col justify-between overflow-hidden isolate transform-gpu-layer cursor-pointer transition-all duration-200 hover:border-emerald-500/40 hover:scale-[1.01] active:scale-[0.99] group"
+                  title={t('common.viewFullHistory', {}, 'Ver Transacciones')}
+                >
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 truncate block group-hover:text-white transition-colors">
                     {t('dashboard.monthlyIncome', {}, 'Ingresos')}
                   </span>
                   {isLoading || !isInitialized ? (
@@ -709,7 +717,7 @@ export default function DashboardPreview({ user, onLogout }) {
                     </div>
                   ) : (
                     <>
-                      <div className="text-lg lg:text-2xl font-bold tracking-tight text-emerald-400 tabular-nums truncate">
+                      <div className="text-lg lg:text-2xl font-bold tracking-tight text-emerald-400 tabular-nums truncate group-hover:scale-105 transition-transform origin-left">
                         {formatCurrency(monthlyIncomes, baseCurrency)}
                       </div>
                       <p className="text-xs text-slate-300 font-medium truncate">
@@ -722,8 +730,12 @@ export default function DashboardPreview({ user, onLogout }) {
                 </div>
 
                 {/* KPI 3: Gastos del Mes & Burn Rate (Col 2 en mobile, 1 en desktop) */}
-                <div className="col-span-1 lg:col-span-1 h-24 lg:h-32 growy-glass growy-card-hover rounded-2xl p-3.5 lg:p-5 flex flex-col justify-between overflow-hidden isolate transform-gpu-layer">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 truncate block">
+                <div 
+                  onClick={() => setActiveTab('transactions')}
+                  className="col-span-1 lg:col-span-1 h-24 lg:h-32 growy-glass growy-card-hover rounded-2xl p-3.5 lg:p-5 flex flex-col justify-between overflow-hidden isolate transform-gpu-layer cursor-pointer transition-all duration-200 hover:border-rose-500/40 hover:scale-[1.01] active:scale-[0.99] group"
+                  title={t('common.viewFullHistory', {}, 'Ver Transacciones')}
+                >
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 truncate block group-hover:text-white transition-colors">
                     {t('dashboard.monthlyExpenses', {}, 'Gastos')}
                   </span>
                   {isLoading || !isInitialized ? (
@@ -733,7 +745,7 @@ export default function DashboardPreview({ user, onLogout }) {
                     </div>
                   ) : (
                     <>
-                      <div className="text-lg lg:text-2xl font-bold tracking-tight text-rose-400 tabular-nums truncate">
+                      <div className="text-lg lg:text-2xl font-bold tracking-tight text-rose-400 tabular-nums truncate group-hover:scale-105 transition-transform origin-left">
                         {formatCurrency(monthlyExpenses, baseCurrency)}
                       </div>
                       <p className="text-xs text-slate-300 font-medium truncate">
@@ -746,9 +758,13 @@ export default function DashboardPreview({ user, onLogout }) {
                 </div>
 
                 {/* KPI 4: Tasa de Ahorro Real (Colspan 2 en mobile, 1 en desktop) */}
-                <div className="col-span-2 lg:col-span-1 h-auto lg:h-32 growy-glass growy-card-hover rounded-2xl p-3.5 lg:p-5 flex flex-col justify-between space-y-1 lg:space-y-0 overflow-hidden isolate transform-gpu-layer">
+                <div 
+                  onClick={() => setActiveTab('categories')}
+                  className="col-span-2 lg:col-span-1 h-auto lg:h-32 growy-glass growy-card-hover rounded-2xl p-3.5 lg:p-5 flex flex-col justify-between space-y-1 lg:space-y-0 overflow-hidden isolate transform-gpu-layer cursor-pointer transition-all duration-200 hover:border-[var(--accent)]/40 hover:scale-[1.01] active:scale-[0.99] group"
+                  title={t('dashboard.viewCategories', {}, 'Ver Categorías')}
+                >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 group-hover:text-white transition-colors">
                       {t('dashboard.savingsRate', {}, 'Tasa de Ahorro')}
                     </span>
                     <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] border border-[var(--accent,#97F2CC)]/20 tabular-nums">
@@ -762,7 +778,7 @@ export default function DashboardPreview({ user, onLogout }) {
                     </div>
                   ) : (
                     <>
-                      <div className="text-lg lg:text-2xl font-bold tracking-tight text-white tabular-nums">
+                      <div className="text-lg lg:text-2xl font-bold tracking-tight text-white tabular-nums group-hover:text-[var(--accent)] transition-colors">
                         {savingsRate}%
                       </div>
                       <p className="text-xs text-slate-300 font-medium truncate">
@@ -881,9 +897,17 @@ export default function DashboardPreview({ user, onLogout }) {
 
                 {/* Chart 2: Donut Chart */}
                 <div className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
-                  <div>
-                    <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">{t('dashboard.categoryDistribution', {}, 'Distribución por Categoría')}</h2>
-                    <p className="text-xs sm:text-sm text-slate-400 font-normal">{t('dashboard.categorySubtitle', {}, 'Desglose del mes')}</p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">{t('dashboard.categoryDistribution', {}, 'Distribución por Categoría')}</h2>
+                      <p className="text-xs sm:text-sm text-slate-400 font-normal">{t('dashboard.categorySubtitle', {}, 'Desglose del mes')}</p>
+                    </div>
+                    <button 
+                      onClick={() => setActiveTab('categories')}
+                      className="text-xs font-semibold text-[var(--accent)] hover:underline cursor-pointer"
+                    >
+                      {t('dashboard.viewCategories', {}, 'Ver Categorías')}
+                    </button>
                   </div>
 
                   {categoryExpenses.length === 0 ? (
@@ -999,14 +1023,16 @@ export default function DashboardPreview({ user, onLogout }) {
                       safeAccountsList.slice(0, 3).map((acc) => (
                         <div 
                           key={acc.id}
-                          className="p-3 sm:p-3.5 rounded-xl bg-[#162226] border border-white/10 flex items-center justify-between hover:bg-white/[0.06] transition-all"
+                          onClick={() => setActiveTab('accounts')}
+                          className="p-3 sm:p-3.5 rounded-xl bg-[#162226] border border-white/10 flex items-center justify-between hover:bg-white/[0.06] hover:border-[var(--accent)]/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
+                          title={t('dashboard.viewAccounts', {}, 'Ver Cuentas')}
                         >
                           <div className="flex items-center gap-3 min-w-0 pr-2">
-                            <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-base shrink-0">
+                            <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-base shrink-0 group-hover:scale-110 transition-transform">
                               {acc.emoji || '🏦'}
                             </div>
                             <div className="min-w-0">
-                              <h4 className="text-xs font-semibold text-white truncate">{acc.name}</h4>
+                              <h4 className="text-xs font-semibold text-white truncate group-hover:text-[var(--accent)] transition-colors">{acc.name}</h4>
                               <span className="text-[11px] text-slate-300 font-medium">{acc.currency || 'USD'}</span>
                             </div>
                           </div>
@@ -1016,7 +1042,8 @@ export default function DashboardPreview({ user, onLogout }) {
                               {formatCurrency(acc.balance, acc.currency || 'USD')}
                             </span>
                             <button
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 setInitialTxType('transfer');
                                 setIsTxModalOpen(true);
                               }}
@@ -1059,9 +1086,14 @@ export default function DashboardPreview({ user, onLogout }) {
                         const barColor = isOverLimit ? '#F87171' : isWarning ? '#F59E0B' : (cat.color || '#34D399');
 
                         return (
-                          <div key={cat.id} className="p-3 rounded-xl bg-[#162226] border border-white/10 space-y-1.5">
+                          <div 
+                            key={cat.id} 
+                            onClick={() => setActiveTab('categories')}
+                            className="p-3 rounded-xl bg-[#162226] border border-white/10 space-y-1.5 hover:bg-white/[0.06] hover:border-[var(--accent)]/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
+                            title={t('dashboard.viewCategories', {}, 'Ver Categorías')}
+                          >
                             <div className="flex items-center justify-between text-xs">
-                              <span className="font-semibold text-white flex items-center gap-1.5">
+                              <span className="font-semibold text-white flex items-center gap-1.5 group-hover:text-[var(--accent)] transition-colors">
                                 <span>{cat.emoji}</span>
                                 <span>{cat.name}</span>
                               </span>
@@ -1097,9 +1129,14 @@ export default function DashboardPreview({ user, onLogout }) {
                       topExpenses.map((cat) => {
                         const pct = totalCatExpenses > 0 ? Math.round((cat.totalSpent / totalCatExpenses) * 100) : 0;
                         return (
-                          <div key={cat.id} className="p-3 rounded-xl bg-[#162226] border border-white/10 space-y-1.5">
+                          <div 
+                            key={cat.id} 
+                            onClick={() => setActiveTab('categories')}
+                            className="p-3 rounded-xl bg-[#162226] border border-white/10 space-y-1.5 hover:bg-white/[0.06] hover:border-[var(--accent)]/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
+                            title={t('dashboard.viewCategories', {}, 'Ver Categorías')}
+                          >
                             <div className="flex items-center justify-between text-xs">
-                              <span className="font-semibold text-white flex items-center gap-1.5">
+                              <span className="font-semibold text-white flex items-center gap-1.5 group-hover:text-[var(--accent)] transition-colors">
                                 <span>{cat.emoji}</span>
                                 <span>{cat.name}</span>
                               </span>
@@ -1158,10 +1195,12 @@ export default function DashboardPreview({ user, onLogout }) {
                         {pendingLoansList.slice(0, 2).map((loan) => (
                           <div 
                             key={loan.id}
-                            className="p-3 sm:p-3.5 rounded-xl bg-[#162226] border border-amber-500/20 flex items-center justify-between hover:bg-white/[0.06] transition-all"
+                            onClick={() => setLoanToPay(loan)}
+                            className="p-3 sm:p-3.5 rounded-xl bg-[#162226] border border-amber-500/20 flex items-center justify-between hover:bg-white/[0.06] hover:border-amber-500/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
+                            title={t('common.payNow', {}, 'Pagar')}
                           >
                             <div className="min-w-0 flex-1 pr-2">
-                              <h4 className="text-xs font-semibold text-white truncate">{loan.description}</h4>
+                              <h4 className="text-xs font-semibold text-white group-hover:text-amber-300 transition-colors truncate">{loan.description}</h4>
                               <p className="text-[11px] text-amber-300 font-medium">
                                 {t('dashboard.due', {}, 'Vence')}: {loan.dueDate || 'Pronto'} • {loan.currency || 'USD'}
                               </p>
@@ -1172,7 +1211,10 @@ export default function DashboardPreview({ user, onLogout }) {
                                 {formatCurrency(loan.amount, loan.currency || 'USD')}
                               </span>
                               <button
-                                onClick={() => setLoanToPay(loan)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setLoanToPay(loan);
+                                }}
                                 className="py-1 px-2.5 rounded-lg bg-[var(--accent)] text-[var(--accent-text)] text-xs font-semibold flex items-center gap-1 shadow hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer"
                               >
                                 <CheckCircle2 className="w-3.5 h-3.5" />
@@ -1185,10 +1227,12 @@ export default function DashboardPreview({ user, onLogout }) {
                         {activeSubsList.slice(0, 2).map((sub) => (
                           <div 
                             key={sub.id}
-                            className="p-3 sm:p-3.5 rounded-xl bg-[#162226] border border-white/10 flex items-center justify-between hover:bg-white/[0.06] transition-all"
+                            onClick={() => setActiveTab('subscriptions')}
+                            className="p-3 sm:p-3.5 rounded-xl bg-[#162226] border border-white/10 flex items-center justify-between hover:bg-white/[0.06] hover:border-[var(--accent)]/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
+                            title={t('nav.subscriptions', {}, 'Suscripciones')}
                           >
                             <div className="min-w-0 flex-1 pr-2">
-                              <h4 className="text-xs font-semibold text-white truncate flex items-center gap-1">
+                              <h4 className="text-xs font-semibold text-white group-hover:text-[var(--accent)] transition-colors truncate flex items-center gap-1">
                                 <span>{sub.emoji}</span>
                                 <span>{sub.name}</span>
                               </h4>
@@ -1253,16 +1297,21 @@ export default function DashboardPreview({ user, onLogout }) {
                       return (
                         <div 
                           key={tx.id || Math.random()}
-                          className="p-3.5 rounded-xl bg-[#162226] border border-white/10 flex items-center justify-between hover:bg-white/[0.06] transition-all group"
+                          onClick={() => {
+                            setTxToEdit(tx);
+                            setIsTxModalOpen(true);
+                          }}
+                          className="p-3.5 rounded-xl bg-[#162226] border border-white/10 flex items-center justify-between hover:bg-white/[0.06] hover:border-[var(--accent)]/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
+                          title={t('autoDebitToast.viewTransaction', {}, 'Haz clic para ver o editar el movimiento')}
                         >
                           <div className="flex items-center gap-3 min-w-0 pr-2">
-                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm shrink-0 ${
+                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm shrink-0 group-hover:scale-105 transition-transform ${
                               isIncome ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' : isExpense ? 'bg-rose-500/15 text-rose-400 border border-rose-500/20' : 'bg-sky-500/15 text-sky-400 border border-sky-500/20'
                             }`}>
                               {emoji}
                             </div>
                             <div className="min-w-0">
-                              <h4 className="text-xs font-semibold text-white group-hover:text-slate-200 transition-colors truncate">
+                              <h4 className="text-xs font-semibold text-white group-hover:text-[var(--accent)] transition-colors truncate">
                                 {tx.description || cat?.name || 'Movimiento'}
                               </h4>
                               <p className="text-[11px] text-slate-300 truncate font-medium">{acc?.name} • {formatDateLabel(tx.date, language)}</p>

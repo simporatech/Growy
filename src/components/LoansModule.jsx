@@ -10,7 +10,7 @@ import SectionKpiHero from './SectionKpiHero';
 import Pagination from './Pagination';
 import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
-import { parseNumeric } from '../utils/formatters';
+import { parseNumeric, getDaysDifference } from '../utils/formatters';
 import { convertCrossCurrency } from '../utils/currency';
 
 export default function LoansModule() {
@@ -165,15 +165,12 @@ export default function LoansModule() {
     if (!dueDateStr) return { color: 'border-white/10 bg-white/5 text-slate-300', label: t('loans.onTrack', {}, 'Al día') };
 
     try {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const due = new Date(dueDateStr);
-      due.setHours(0, 0, 0, 0);
-
-      const diffTime = due - today;
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const diffDays = getDaysDifference(dueDateStr);
+      if (diffDays === null) return { color: 'border-white/10 bg-white/5 text-slate-300', label: t('loans.onTrack', {}, 'Al día') };
 
       if (diffDays < 0) return { color: 'border-rose-500/40 bg-rose-500/15 text-rose-300', label: t('loans.overdue', {}, '¡Vencido!') };
+      if (diffDays === 0) return { color: 'border-amber-500/40 bg-amber-500/15 text-amber-300', label: t('debtAlerts.dueToday', {}, 'Vence hoy') };
+      if (diffDays === 1) return { color: 'border-sky-500/40 bg-sky-500/15 text-sky-300', label: t('debtAlerts.dueTomorrow', {}, 'Vence mañana') };
       if (diffDays <= 3) return { color: 'border-rose-500/40 bg-rose-500/10 text-rose-300', label: t('loans.dueInDays', { days: diffDays }, `Vence en ${diffDays}d`) };
       if (diffDays <= 7) return { color: 'border-amber-500/40 bg-amber-500/10 text-amber-300', label: t('loans.dueInDays', { days: diffDays }, `Vence en ${diffDays}d`) };
       return { color: 'border-[var(--accent,#97F2CC)]/30 bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)]', label: t('loans.onTrack', {}, 'Al día') };
