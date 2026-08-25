@@ -19,6 +19,7 @@ import LoanModal from './LoanModal';
 import SubscriptionModal from './SubscriptionModal';
 import AccountModal from './AccountModal';
 import PayLoanModal from './PayLoanModal';
+import DebtDueBanner from './DebtDueBanner';
 import BottomNav from './BottomNav';
 import AmbientBackground from './AmbientBackground';
 import { useFinance } from '../context/FinanceContext';
@@ -32,7 +33,7 @@ export default function DashboardPreview({ user, onLogout }) {
     accounts, categories, transactions, loans, subscriptions, isLoading, isInitialized,
     autoDebitsNotification, clearAutoDebitsNotification,
     dbStatusToast, clearDbStatusToast,
-    addTransaction, addLoan, addSubscription, addAccount, markLoanAsPaid
+    addTransaction, updateTransaction, addLoan, addSubscription, addAccount, markLoanAsPaid
   } = useFinance();
 
   const { convertToGlobal, formatToGlobal, baseCurrency, formatCurrency, t, language, currentUser: settingsUser } = useSettings();
@@ -42,19 +43,27 @@ export default function DashboardPreview({ user, onLogout }) {
   const userFirstName = userDisplayName.split(' ')[0];
 
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [chartPeriod, setChartPeriod] = useState('this_month'); // 'this_month' | '3_months' | 'year'
   const [isMoreSheetOpen, setIsMoreSheetOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
+    return safeGetStorage('growy_sidebar_collapsed', 'false') === 'true';
+  });
+
+  // Auto-scroll on tab change
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'instant'
+    });
+  }, [activeTab]);
 
   // Dynamic Fault-Tolerant Document Title Synchronization
   useDocumentTitle(activeTab);
 
-  // Sidebar Collapse State with LocalStorage Persistence
-  const [isCollapsed, setIsCollapsed] = useState(() => safeGetStorage('growy_sidebar_collapsed', false));
-
   const toggleSidebar = useCallback(() => {
-    setIsCollapsed(prev => {
+    setIsSidebarOpen(prev => {
       const next = !prev;
-      safeSetStorage('growy_sidebar_collapsed', next);
+      safeSetStorage('growy_sidebar_collapsed', String(next));
       return next;
     });
   }, []);
@@ -65,6 +74,7 @@ export default function DashboardPreview({ user, onLogout }) {
 
   // Quick Action Modal States
   const [isTxModalOpen, setIsTxModalOpen] = useState(false);
+  const [txToEdit, setTxToEdit] = useState(null);
   const [initialTxType, setInitialTxType] = useState('expense');
   const [isLoanModalOpen, setIsLoanModalOpen] = useState(false);
   const [isSubModalOpen, setIsSubModalOpen] = useState(false);
@@ -305,8 +315,14 @@ export default function DashboardPreview({ user, onLogout }) {
   const recentTransactions = useMemo(() => safeTransactionsList.slice(0, 5), [safeTransactionsList]);
 
   const handleSaveTransaction = useCallback(async (txData) => {
-    if (txData) return await addTransaction(txData);
-  }, [addTransaction]);
+    if (!txData) return;
+    if (txToEdit) {
+      const res = await updateTransaction(txData);
+      setTxToEdit(null);
+      return res;
+    }
+    return await addTransaction(txData);
+  }, [addTransaction, updateTransaction, txToEdit]);
 
   const handleSaveLoan = useCallback((loanData) => {
     if (loanData) addLoan(loanData);
@@ -636,6 +652,17 @@ export default function DashboardPreview({ user, onLogout }) {
                   )}
                 </div>
               </header>
+
+              {/* DEBT DUE ALERTS BANNER (OVERDUE, TODAY, TOMORROW) */}
+              <DebtDueBanner
+                loans={safeLoansList}
+                onNavigateToDebts={(targetLoan) => {
+                  setActiveTab('loans');
+                }}
+                onPayDebt={(targetLoan) => {
+                  setLoanToPay(targetLoan);
+                }}
+              />
 
               {/* KPIS ROW: 2x2 COMPACT GRID ON MOBILE, 4-COLUMN SINGLE ROW ON DESKTOP */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 w-full relative z-10">
@@ -1420,8 +1447,12 @@ export default function DashboardPreview({ user, onLogout }) {
       {/* QUICK ACTION MODALS */}
       <TransactionModal
         isOpen={isTxModalOpen}
-        onClose={() => setIsTxModalOpen(false)}
+        onClose={() => {
+          setIsTxModalOpen(false);
+          setTxToEdit(null);
+        }}
         onSave={handleSaveTransaction}
+        transactionToEdit={txToEdit}
         accounts={safeAccountsList}
         categories={safeCategoriesList}
         initialType={initialTxType}
@@ -1456,24 +1487,48 @@ export default function DashboardPreview({ user, onLogout }) {
         accounts={safeAccountsList}
       />
 
-      {/* Toast Notification for Processed Auto-Debits */}
+      {/* Actionable Toast Notification for Processed Auto-Debits */}
       {autoDebitsNotification && (
-        <div className="fixed bottom-6 right-6 z-50 p-4 rounded-2xl bg-[#141E22]/95 border border-[var(--accent,#97F2CC)]/30 shadow-2xl backdrop-blur-xl flex items-center gap-3 max-w-sm animate-fadeIn">
-          <div className="w-10 h-10 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] flex items-center justify-center text-[var(--accent,#97F2CC)] shrink-0 font-bold">
+        <div 
+          onClick={() => {
+            const firstTx = autoDebitsNotification.newTx && autoDebitsNotification.newTx[0];
+            if (firstTx) {
+              setTxToEdit(firstTx);
+              setIsTxModalOpen(true);
+            } else {
+              setActiveTab('transactions');
+            }
+            clearAutoDebitsNotification();
+          }}
+          className="fixed bottom-6 right-6 z-50 p-4 rounded-2xl bg-[#141E22]/95 border border-[var(--accent,#97F2CC)]/40 shadow-[0_12px_40px_rgba(0,0,0,0.6)] backdrop-blur-2xl flex items-center gap-3.5 max-w-md animate-fadeIn cursor-pointer hover:border-[var(--accent,#97F2CC)] hover:scale-[1.02] transition-all group"
+          title={t('autoDebitToast.viewTransaction', {}, 'Haz clic para ver o editar el movimiento')}
+        >
+          <div className="w-11 h-11 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex items-center justify-center text-[var(--accent,#97F2CC)] shrink-0 font-bold group-hover:bg-[var(--accent)] group-hover:text-[var(--accent-text)] transition-colors">
             <RefreshCw className="w-5 h-5 animate-spin" />
           </div>
           <div className="flex-1 min-w-0 text-left">
-            <h4 className="text-xs font-bold text-white">
-              {language === 'es' ? 'Débitos Automáticos Procesados 🔄' : 'Auto-Debits Processed 🔄'}
+            <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+              <span>{t('autoDebitToast.title', {}, 'Débito Automático Procesado 🔄')}</span>
             </h4>
-            <p className="text-[11px] text-slate-300 truncate">
-              {autoDebitsNotification.names.join(', ')}
+            <p className="text-xs text-slate-300 line-clamp-2 mt-0.5 font-medium leading-tight">
+              {autoDebitsNotification.items && autoDebitsNotification.items.length === 1 ? (
+                t('autoDebitToast.message', {
+                  name: autoDebitsNotification.items[0].name,
+                  formattedAmount: formatCurrency(autoDebitsNotification.items[0].amount, autoDebitsNotification.items[0].currency || baseCurrency)
+                }, `🔁 Se debitó automáticamente ${autoDebitsNotification.items[0].name} por ${formatCurrency(autoDebitsNotification.items[0].amount, autoDebitsNotification.items[0].currency || baseCurrency)}. Haz clic para ver o editar el movimiento.`)
+              ) : (
+                `🔁 Se debitaron ${autoDebitsNotification.count} suscripciones (${autoDebitsNotification.names.join(', ')}). Haz clic para auditar los movimientos.`
+              )}
             </p>
           </div>
           <button
             type="button"
-            onClick={clearAutoDebitsNotification}
-            className="text-slate-400 hover:text-white text-xs font-bold px-2 py-1 cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              clearAutoDebitsNotification();
+            }}
+            className="text-slate-400 hover:text-white text-xs font-bold p-1 rounded-lg hover:bg-white/10 transition-colors shrink-0"
+            title="Cerrar"
           >
             ✕
           </button>

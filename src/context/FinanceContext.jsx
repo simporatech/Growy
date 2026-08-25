@@ -138,7 +138,9 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
           }
           setAutoDebitsNotification({
             count: cronRes.processed.length,
-            names: cronRes.processed.map(s => s.name)
+            names: cronRes.processed.map(s => s.name),
+            items: cronRes.processed,
+            newTx: cronRes.newTx || []
           });
         }
       } catch (e) {

@@ -320,6 +320,21 @@ export const translations = {
     "speedActions": {
       "newMovement": "Nuevo Movimiento"
     },
+    "debtAlerts": {
+      "dueTomorrow": "📅 \"{concept}\" vence mañana ({formattedAmount})",
+      "dueToday": "📅 \"{concept}\" vence hoy ({formattedAmount})",
+      "overdueDays": "⚠️ \"{concept}\" venció hace {days} {daysLabel} ({formattedAmount})",
+      "daysSingular": "día",
+      "daysPlural": "días",
+      "viewDebts": "Ver Saldos Pendientes",
+      "payDebt": "Pagar",
+      "dismiss": "Ocultar"
+    },
+    "autoDebitToast": {
+      "title": "Débito Automático Procesado 🔄",
+      "message": "🔁 Se debitó automáticamente {name} por {formattedAmount}. Haz clic para ver o editar el movimiento.",
+      "viewTransaction": "Ver o Editar Movimiento"
+    },
     "dashboard": {
       "quickRegistration": "REGISTRO RÁPIDO",
       "loanSubtitle": "Deuda o compromiso por pagar",
@@ -854,6 +869,21 @@ export const translations = {
     },
     "speedActions": {
       "newMovement": "New Transaction"
+    },
+    "debtAlerts": {
+      "dueTomorrow": "📅 \"{concept}\" is due tomorrow ({formattedAmount})",
+      "dueToday": "📅 \"{concept}\" is due today ({formattedAmount})",
+      "overdueDays": "⚠️ \"{concept}\" was due {days} {daysLabel} ago ({formattedAmount})",
+      "daysSingular": "day",
+      "daysPlural": "days",
+      "viewDebts": "View Pending Debts",
+      "payDebt": "Pay",
+      "dismiss": "Dismiss"
+    },
+    "autoDebitToast": {
+      "title": "Auto-Debit Processed 🔄",
+      "message": "🔁 Auto-debited {name} for {formattedAmount}. Click to view or edit this transaction.",
+      "viewTransaction": "View or Edit Transaction"
     },
     "dashboard": {
       "quickRegistration": "QUICK REGISTRATION",
