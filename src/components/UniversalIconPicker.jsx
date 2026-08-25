@@ -1,16 +1,18 @@
 ﻿import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Search, Globe, Landmark, Link as LinkIcon, X, Check, Edit2, Image as ImageIcon } from 'lucide-react';
-import { EMOJI_CATEGORIES, CURATED_PRESETS } from '../constants/emojis';
+import { Search, Globe, Landmark, Sparkles, Link as LinkIcon, X, Check, Edit2, Image as ImageIcon } from 'lucide-react';
+import { EMOJI_CATEGORIES, BANK_PRESETS, SERVICE_PRESETS } from '../constants/emojis';
 import DynamicIcon from './DynamicIcon';
+import { useSettings } from '../context/SettingsContext';
 
 export default function UniversalIconPicker({
   value = '💳',
   onChange,
-  label = 'Icono / Emoji',
+  label = 'Icono / Logo',
   className = ''
 }) {
+  const { t } = useSettings();
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('emojis'); // 'emojis' | 'presets' | 'custom'
+  const [activeTab, setActiveTab] = useState('emojis'); // 'emojis' | 'banks' | 'services' | 'custom'
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [customUrlInput, setCustomUrlInput] = useState('');
@@ -46,7 +48,7 @@ export default function UniversalIconPicker({
   }, [isOpen, value]);
 
   // Filtered Emojis
-  const filteredCategories = useMemo(() => {
+  const filteredEmojiCategories = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     
     if (!query) {
@@ -56,19 +58,31 @@ export default function UniversalIconPicker({
 
     return EMOJI_CATEGORIES.map(cat => {
       const matching = cat.emojis.filter(emoji => {
-        // Direct emoji match or category match
         return emoji.includes(query) || cat.name.toLowerCase().includes(query);
       });
       return { ...cat, emojis: matching };
     }).filter(cat => cat.emojis.length > 0);
   }, [searchQuery, selectedCategory]);
 
-  // Filtered Presets
-  const filteredPresets = useMemo(() => {
+  // Filtered Bank Presets
+  const filteredBankPresets = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
-    if (!query) return CURATED_PRESETS;
+    if (!query) return BANK_PRESETS;
 
-    return CURATED_PRESETS.map(cat => {
+    return BANK_PRESETS.map(cat => {
+      const matching = cat.items.filter(item => 
+        item.name.toLowerCase().includes(query) || cat.category.toLowerCase().includes(query)
+      );
+      return { ...cat, items: matching };
+    }).filter(cat => cat.items.length > 0);
+  }, [searchQuery]);
+
+  // Filtered Service Presets
+  const filteredServicePresets = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return SERVICE_PRESETS;
+
+    return SERVICE_PRESETS.map(cat => {
       const matching = cat.items.filter(item => 
         item.name.toLowerCase().includes(query) || cat.category.toLowerCase().includes(query)
       );
@@ -103,7 +117,7 @@ export default function UniversalIconPicker({
         type="button"
         onClick={() => setIsOpen(true)}
         className="group relative w-12 h-12 rounded-2xl bg-[#121721] border border-white/[0.08] hover:border-[var(--accent,#97F2CC)]/50 hover:bg-white/[0.04] p-1.5 flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95"
-        title="Cambiar icono o logo"
+        title={t('icons.changeIcon', {}, 'Cambiar icono o logo')}
       >
         <DynamicIcon 
           value={value} 
@@ -126,19 +140,16 @@ export default function UniversalIconPicker({
           {/* Modal Container */}
           <div 
             ref={modalRef}
-            className="relative w-full max-w-md max-h-[85vh] bg-[#121721] border border-white/10 rounded-3xl shadow-2xl flex flex-col overflow-hidden z-10 animate-scale-up"
+            className="relative w-full max-w-lg max-h-[85vh] bg-[#121721] border border-white/10 rounded-3xl shadow-2xl flex flex-col overflow-hidden z-10 animate-scale-up"
           >
             {/* Header: Title & Close */}
             <div className="p-4 sm:p-5 border-b border-white/[0.08] flex items-center justify-between">
               <div>
-                <h3 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
-                  <span>Seleccionar Icono</span>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] font-semibold">
-                    Notion style
-                  </span>
+                <h3 className="text-base font-bold text-white tracking-tight">
+                  {t('icons.selectIconTitle', {}, 'Seleccionar Icono')}
                 </h3>
                 <p className="text-xs text-slate-400 font-medium mt-0.5">
-                  Elige un emoji, logotipo predefinido o pega una imagen web
+                  {t('icons.selectIconSubtitle', {}, 'Elige un emoji, logotipo oficial o ingresa una URL')}
                 </p>
               </div>
 
@@ -152,65 +163,83 @@ export default function UniversalIconPicker({
             </div>
 
             {/* Navigation Tabs */}
-            <div className="flex border-b border-white/[0.08] bg-[#0E131D] px-4 pt-2 gap-2">
+            <div className="flex border-b border-white/[0.08] bg-[#0E131D] px-3 pt-2 gap-1.5 overflow-x-auto no-scrollbar">
               <button
                 type="button"
                 onClick={() => { setActiveTab('emojis'); setSearchQuery(''); }}
-                className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-t-xl border-b-2 transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-t-xl border-b-2 transition-all cursor-pointer whitespace-nowrap ${
                   activeTab === 'emojis'
                     ? 'border-[var(--accent,#97F2CC)] text-[var(--accent,#97F2CC)] bg-white/[0.03]'
                     : 'border-transparent text-slate-400 hover:text-slate-200'
                 }`}
               >
                 <Globe className="w-3.5 h-3.5" />
-                <span>Emojis</span>
+                <span>{t('icons.emojis', {}, 'Emojis')}</span>
               </button>
 
               <button
                 type="button"
-                onClick={() => { setActiveTab('presets'); setSearchQuery(''); }}
-                className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-t-xl border-b-2 transition-all cursor-pointer ${
-                  activeTab === 'presets'
+                onClick={() => { setActiveTab('banks'); setSearchQuery(''); }}
+                className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-t-xl border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+                  activeTab === 'banks'
                     ? 'border-[var(--accent,#97F2CC)] text-[var(--accent,#97F2CC)] bg-white/[0.03]'
                     : 'border-transparent text-slate-400 hover:text-slate-200'
                 }`}
               >
                 <Landmark className="w-3.5 h-3.5" />
-                <span>Bancos & Servicios</span>
+                <span>{t('icons.banks', {}, 'Bancos & Finanzas')}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => { setActiveTab('services'); setSearchQuery(''); }}
+                className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-t-xl border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+                  activeTab === 'services'
+                    ? 'border-[var(--accent,#97F2CC)] text-[var(--accent,#97F2CC)] bg-white/[0.03]'
+                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>{t('icons.services', {}, 'Suscripciones & Apps')}</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => { setActiveTab('custom'); }}
-                className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-t-xl border-b-2 transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-t-xl border-b-2 transition-all cursor-pointer whitespace-nowrap ${
                   activeTab === 'custom'
                     ? 'border-[var(--accent,#97F2CC)] text-[var(--accent,#97F2CC)] bg-white/[0.03]'
                     : 'border-transparent text-slate-400 hover:text-slate-200'
                 }`}
               >
                 <LinkIcon className="w-3.5 h-3.5" />
-                <span>URL Imagen</span>
+                <span>{t('icons.custom_url', {}, 'URL Personalizada')}</span>
               </button>
             </div>
 
-            {/* Search Bar for Emojis & Presets */}
+            {/* Search Bar for Emojis, Banks & Services (WITHOUT autoFocus to prevent mobile keyboard pop) */}
             {activeTab !== 'custom' && (
               <div className="p-3 border-b border-white/[0.06] bg-[#121721]">
                 <div className="relative">
-                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder={activeTab === 'emojis' ? 'Buscar emoji...' : 'Buscar banco o servicio...'}
+                    placeholder={
+                      activeTab === 'emojis' 
+                        ? t('icons.searchEmoji', {}, 'Buscar emoji...')
+                        : activeTab === 'banks'
+                          ? t('icons.searchBank', {}, 'Buscar banco o entidad financiera...')
+                          : t('icons.searchService', {}, 'Buscar plataforma, app o suscripción...')
+                    }
                     className="w-full pl-9 pr-8 h-9 text-xs rounded-xl bg-[#0E131D] border border-white/[0.08] text-white placeholder:text-slate-500 focus:outline-none focus:border-[var(--accent,#97F2CC)] focus:ring-1 focus:ring-[var(--accent,#97F2CC)] transition-all"
-                    autoFocus
                   />
                   {searchQuery && (
                     <button
                       type="button"
                       onClick={() => setSearchQuery('')}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-0.5"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-0.5 cursor-pointer"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -229,7 +258,7 @@ export default function UniversalIconPicker({
                           : 'bg-white/5 text-slate-400 hover:text-white'
                       }`}
                     >
-                      Todos
+                      {t('common.all', {}, 'Todos')}
                     </button>
                     {EMOJI_CATEGORIES.map((cat) => (
                       <button
@@ -254,12 +283,12 @@ export default function UniversalIconPicker({
             {/* TAB 1: EMOJIS BODY */}
             {activeTab === 'emojis' && (
               <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4 custom-scrollbar max-h-[50vh]">
-                {filteredCategories.length === 0 ? (
+                {filteredEmojiCategories.length === 0 ? (
                   <div className="text-center py-10 text-xs text-slate-400">
-                    No se encontraron emojis para "{searchQuery}"
+                    {t('icons.noResults', {}, 'No se encontraron resultados')}
                   </div>
                 ) : (
-                  filteredCategories.map((cat) => (
+                  filteredEmojiCategories.map((cat) => (
                     <div key={cat.id} className="space-y-1.5">
                       <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                         <span>{cat.icon}</span>
@@ -290,17 +319,17 @@ export default function UniversalIconPicker({
               </div>
             )}
 
-            {/* TAB 2: PRESETS BODY */}
-            {activeTab === 'presets' && (
+            {/* TAB 2: BANCOS PRESETS BODY */}
+            {activeTab === 'banks' && (
               <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4 custom-scrollbar max-h-[50vh]">
-                {filteredPresets.length === 0 ? (
+                {filteredBankPresets.length === 0 ? (
                   <div className="text-center py-10 text-xs text-slate-400">
-                    No se encontraron servicios para "{searchQuery}"
+                    {t('icons.noResults', {}, 'No se encontraron resultados')}
                   </div>
                 ) : (
-                  filteredPresets.map((cat, catIdx) => (
+                  filteredBankPresets.map((cat, catIdx) => (
                     <div key={catIdx} className="space-y-2">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
                         {cat.category}
                       </span>
 
@@ -312,12 +341,12 @@ export default function UniversalIconPicker({
                               key={itemIdx}
                               type="button"
                               onClick={() => handleSelectIcon(item.value)}
-                              className={`p-2 rounded-xl bg-[#0E131D] border flex items-center gap-2.5 hover:bg-white/[0.06] hover:border-[var(--accent)]/40 hover:scale-[1.02] active:scale-95 transition-all text-left cursor-pointer group ${
+                              className={`p-2.5 rounded-xl bg-[#0E131D] border flex items-center gap-2.5 hover:bg-white/[0.06] hover:border-[var(--accent)]/40 hover:scale-[1.02] active:scale-95 transition-all text-left cursor-pointer group ${
                                 isSelected ? 'border-[var(--accent)] bg-[var(--accent-muted,rgba(151,242,204,0.1))]' : 'border-white/[0.08]'
                               }`}
                             >
-                              <div className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center shrink-0 overflow-hidden border border-white/5">
-                                <DynamicIcon value={item.value} className="w-5 h-5 text-base" />
+                              <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center shrink-0 overflow-hidden border border-white/5 p-1">
+                                <DynamicIcon value={item.value} className="w-6 h-6 text-lg" alt={item.name} />
                               </div>
                               <span className="text-xs font-semibold text-white truncate group-hover:text-[var(--accent)] transition-colors">
                                 {item.name}
@@ -332,12 +361,54 @@ export default function UniversalIconPicker({
               </div>
             )}
 
-            {/* TAB 3: CUSTOM URL BODY */}
+            {/* TAB 3: SUSCRIPCIONES & SAAS PRESETS BODY */}
+            {activeTab === 'services' && (
+              <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4 custom-scrollbar max-h-[50vh]">
+                {filteredServicePresets.length === 0 ? (
+                  <div className="text-center py-10 text-xs text-slate-400">
+                    {t('icons.noResults', {}, 'No se encontraron resultados')}
+                  </div>
+                ) : (
+                  filteredServicePresets.map((cat, catIdx) => (
+                    <div key={catIdx} className="space-y-2">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                        {cat.category}
+                      </span>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {cat.items.map((item, itemIdx) => {
+                          const isSelected = value === item.value;
+                          return (
+                            <button
+                              key={itemIdx}
+                              type="button"
+                              onClick={() => handleSelectIcon(item.value)}
+                              className={`p-2.5 rounded-xl bg-[#0E131D] border flex items-center gap-2.5 hover:bg-white/[0.06] hover:border-[var(--accent)]/40 hover:scale-[1.02] active:scale-95 transition-all text-left cursor-pointer group ${
+                                isSelected ? 'border-[var(--accent)] bg-[var(--accent-muted,rgba(151,242,204,0.1))]' : 'border-white/[0.08]'
+                              }`}
+                            >
+                              <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center shrink-0 overflow-hidden border border-white/5 p-1">
+                                <DynamicIcon value={item.value} className="w-6 h-6 text-lg" alt={item.name} />
+                              </div>
+                              <span className="text-xs font-semibold text-white truncate group-hover:text-[var(--accent)] transition-colors">
+                                {item.name}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            {/* TAB 4: CUSTOM URL BODY */}
             {activeTab === 'custom' && (
               <div className="p-5 space-y-5 flex-1 flex flex-col justify-between">
                 <form onSubmit={handleApplyCustomUrl} className="space-y-4">
                   <div className="flex items-center gap-4 p-4 rounded-2xl bg-[#0E131D] border border-white/[0.08]">
-                    <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden shadow-inner">
+                    <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden shadow-inner p-1.5">
                       {customUrlPreview ? (
                         <img 
                           src={customUrlPreview} 
@@ -353,21 +424,21 @@ export default function UniversalIconPicker({
 
                     <div className="min-w-0 flex-1">
                       <span className="text-xs font-bold text-white block">
-                        Vista Previa
+                        {t('icons.preview', {}, 'Vista Previa')}
                       </span>
                       <span className="text-[11px] text-slate-400 block mt-0.5">
                         {customUrlError 
-                          ? '⚠️ No se pudo cargar la imagen' 
+                          ? `⚠️ ${t('icons.loadError', {}, 'No se pudo cargar la imagen')}`
                           : customUrlPreview 
-                            ? 'Imagen cargada correctamente' 
-                            : 'Pega un enlace PNG, SVG o ICO'}
+                            ? t('icons.loadSuccess', {}, 'Imagen cargada correctamente') 
+                            : t('icons.pasteHint', {}, 'Pega un enlace PNG, SVG o ICO')}
                       </span>
                     </div>
                   </div>
 
                   <div>
                     <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5 block">
-                      Enlace de la imagen (URL)
+                      {t('icons.imageUrlLabel', {}, 'Enlace de la imagen (URL)')}
                     </label>
                     <input
                       type="url"
@@ -383,9 +454,9 @@ export default function UniversalIconPicker({
                   </div>
 
                   <div className="text-[11px] text-slate-400 space-y-1 bg-white/[0.02] p-3 rounded-xl border border-white/5">
-                    <p className="font-semibold text-slate-300">💡 Sugerencia de enlaces:</p>
-                    <p>• Logos transparentes en formato .PNG o .SVG</p>
-                    <p>• Favicons oficiales (ej: <code>https://notion.so/images/favicon.ico</code>)</p>
+                    <p className="font-semibold text-slate-300">{t('icons.tipsTitle', {}, '💡 Sugerencia de enlaces:')}</p>
+                    <p>• {t('icons.tip1', {}, 'Logos con fondo transparente en formato .PNG o .SVG')}</p>
+                    <p>• {t('icons.tip2', {}, 'Favicons e iconos oficiales web')}</p>
                   </div>
                 </form>
 
@@ -398,17 +469,17 @@ export default function UniversalIconPicker({
                     }}
                     className="flex-1 h-11 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-slate-300 transition-all cursor-pointer"
                   >
-                    Limpiar
+                    {t('common.clear', {}, 'Limpiar')}
                   </button>
 
                   <button
                     type="button"
                     onClick={handleApplyCustomUrl}
                     disabled={!customUrlInput.trim() || customUrlError}
-                    className="flex-1 h-11 rounded-xl bg-[var(--accent,#97F2CC)] text-[#0B101B] text-xs font-bold flex items-center justify-center gap-1.5 shadow hover:brightness-105 active:scale-95 transition-all disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+                    className="flex-1 h-11 rounded-xl bg-[var(--accent,#97F2CC)] text-[var(--accent-text,#0B101B)] text-xs font-bold flex items-center justify-center gap-1.5 shadow hover:brightness-105 active:scale-95 transition-all disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
                   >
                     <Check className="w-4 h-4 stroke-[2.5]" />
-                    <span>Aplicar Icono</span>
+                    <span>{t('icons.applyIcon', {}, 'Aplicar Icono')}</span>
                   </button>
                 </div>
               </div>
@@ -416,9 +487,9 @@ export default function UniversalIconPicker({
 
             {/* Footer Summary */}
             <div className="p-3 bg-[#0E131D] border-t border-white/[0.06] flex items-center justify-between text-xs text-slate-400 px-4">
-              <span>Icono actual:</span>
+              <span>{t('icons.currentIcon', {}, 'Icono actual:')}</span>
               <div className="flex items-center gap-2">
-                <div className="w-5 h-5 flex items-center justify-center">
+                <div className="w-5 h-5 flex items-center justify-center overflow-hidden">
                   <DynamicIcon value={value} className="w-4 h-4 text-sm" />
                 </div>
                 <span className="font-mono text-[11px] text-slate-300 truncate max-w-[180px]">

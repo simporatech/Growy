@@ -157,7 +157,6 @@ export const CustomSelect = ({
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={resolvedSearchPlaceholder}
                 className="w-full pl-9 pr-3 py-2 bg-[#121721] border border-white/[0.08] rounded-lg text-xs sm:text-sm text-white placeholder:text-slate-400 outline-none focus:border-[var(--accent,#97F2CC)] focus:ring-1 focus:ring-[var(--accent,#97F2CC)] transition-colors"
-                autoFocus
               />
             </div>
           )}

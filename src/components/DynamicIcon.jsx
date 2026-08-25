@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export const DynamicIcon = ({ 
   value, 
@@ -7,6 +7,10 @@ export const DynamicIcon = ({
   fallback = "💳" 
 }) => {
   const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    setHasError(false);
+  }, [value]);
 
   if (!value) {
     return <span className={`inline-flex items-center justify-center ${className}`}>{fallback}</span>;
