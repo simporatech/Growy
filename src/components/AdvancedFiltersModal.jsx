@@ -99,7 +99,8 @@ export default function AdvancedFiltersModal({
               type="button"
               onClick={onClose}
               className="w-9 h-9 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white transition-colors flex items-center justify-center cursor-pointer"
-              title="Cerrar"
+              title={t('common.close', {}, 'Cerrar')}
+              aria-label={t('accessibility.close', {}, 'Cerrar modal')}
             >
               <X className="w-5 h-5" />
             </button>

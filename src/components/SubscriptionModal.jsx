@@ -229,7 +229,7 @@ export default function SubscriptionModal({
               required
               value={billingDay}
               onChange={(e) => setBillingDay(e.target.value)}
-              placeholder="Día"
+              placeholder={t('modals.subscription.dayPlaceholder', {}, 'Día')}
             />
           </div>
 

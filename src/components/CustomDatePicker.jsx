@@ -243,7 +243,8 @@ export default function CustomDatePicker({
               type="button"
               onClick={handlePrevMonth}
               className="p-1.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 active:scale-90 transition-all cursor-pointer"
-              title="Mes anterior"
+              title={language === 'es' ? 'Mes anterior' : 'Previous month'}
+              aria-label={language === 'es' ? 'Mes anterior' : 'Previous month'}
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -256,7 +257,8 @@ export default function CustomDatePicker({
               type="button"
               onClick={handleNextMonth}
               className="p-1.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 active:scale-90 transition-all cursor-pointer"
-              title="Mes siguiente"
+              title={language === 'es' ? 'Mes siguiente' : 'Next month'}
+              aria-label={language === 'es' ? 'Mes siguiente' : 'Next month'}
             >
               <ChevronRight className="w-4 h-4" />
             </button>

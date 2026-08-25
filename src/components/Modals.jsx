@@ -213,7 +213,7 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
               required
               value={formData.fullName}
               onChange={handleChange}
-              placeholder="Tu Nombre"
+              placeholder={t('modals.auth.namePlaceholder', {}, 'Tu Nombre')}
               className="w-full h-11 px-4 bg-[#162226] border border-white/10 rounded-xl text-sm text-white outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
             />
           </div>
@@ -228,7 +228,7 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
               required
               value={formData.username}
               onChange={handleChange}
-              placeholder="ej. juanperez"
+              placeholder={t('modals.auth.usernamePlaceholder', {}, 'ej. juanperez')}
               className="w-full h-11 px-4 bg-[#162226] border border-white/10 rounded-xl text-sm text-white outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
             />
           </div>
@@ -243,7 +243,7 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
               required
               value={formData.email}
               onChange={handleChange}
-              placeholder="tu@email.com"
+              placeholder={t('modals.auth.emailPlaceholder', {}, 'tu@email.com')}
               className="w-full h-11 px-4 bg-[#162226] border border-white/10 rounded-xl text-sm text-white outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
             />
           </div>
@@ -269,7 +269,7 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-white transition-colors focus:outline-none cursor-pointer"
-                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                aria-label={showPassword ? t('auth.hidePassword', {}, 'Ocultar contraseña') : t('auth.showPassword', {}, 'Mostrar contraseña')}
               >
                 {showPassword ? (
                   <EyeOff className="w-4 h-4 text-[var(--accent,#97F2CC)]" />
@@ -319,7 +319,7 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
                 type="button"
                 onClick={() => setShowPin(!showPin)}
                 className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-white transition-colors focus:outline-none cursor-pointer"
-                aria-label={showPin ? "Ocultar código" : "Mostrar código"}
+                aria-label={showPin ? t('auth.hidePin', {}, 'Ocultar código') : t('auth.showPin', {}, 'Mostrar código')}
               >
                 {showPin ? (
                   <EyeOff className="w-4 h-4 text-[var(--accent,#97F2CC)]" />

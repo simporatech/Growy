@@ -39,15 +39,34 @@ export default function TransactionModal({
     if (!isOpen) return;
 
     if (transactionToEdit) {
-      const editType = transactionToEdit.type || 'expense';
+      const editType = transactionToEdit?.type || 'expense';
       setType(editType);
-      setDate(transactionToEdit.date || formatDateISO());
-      setAccountId(transactionToEdit.accountId || (safeAccounts[0]?.id || ''));
-      setTargetAccountId(transactionToEdit.targetAccountId || (safeAccounts.find(a => a?.id !== (transactionToEdit.accountId || safeAccounts[0]?.id))?.id || ''));
-      setCategoryId(transactionToEdit.categoryId || '');
-      setAmount(transactionToEdit.amount !== undefined ? Math.abs(transactionToEdit.amount).toString() : '');
-      setTargetAmount(transactionToEdit.targetAmount !== undefined ? Math.abs(transactionToEdit.targetAmount).toString() : '');
-      setDescription(transactionToEdit.description || '');
+      setDate(transactionToEdit?.date || transactionToEdit?.transaction_date || transactionToEdit?.transactionDate || formatDateISO());
+      
+      const rawAccId = transactionToEdit?.accountId || transactionToEdit?.account_id || transactionToEdit?.account?.id;
+      const initialAccId = rawAccId || (safeAccounts[0]?.id || '');
+      setAccountId(initialAccId);
+
+      const rawTargetAccId = transactionToEdit?.targetAccountId || transactionToEdit?.target_account_id || transactionToEdit?.destinationAccountId || transactionToEdit?.destination_account_id || transactionToEdit?.targetAccount?.id;
+      const fallbackTarget = safeAccounts.find(a => a?.id !== initialAccId)?.id || (safeAccounts[1]?.id || safeAccounts[0]?.id || '');
+      setTargetAccountId(rawTargetAccId || fallbackTarget);
+
+      const rawCatId = transactionToEdit?.categoryId || transactionToEdit?.category_id || transactionToEdit?.category?.id || '';
+      setCategoryId(rawCatId);
+
+      const rawAmount = transactionToEdit?.amount ?? 0;
+      const parsedAmount = parseNumeric(rawAmount, 0);
+      setAmount(parsedAmount > 0 ? parsedAmount.toString() : (rawAmount !== undefined && rawAmount !== null ? String(Math.abs(Number(rawAmount) || 0)) : ''));
+
+      const rawTargetAmount = transactionToEdit?.targetAmount ?? transactionToEdit?.target_amount;
+      if (rawTargetAmount !== undefined && rawTargetAmount !== null && rawTargetAmount !== '') {
+        const parsedTarget = parseNumeric(rawTargetAmount, 0);
+        setTargetAmount(parsedTarget > 0 ? parsedTarget.toString() : '');
+      } else {
+        setTargetAmount('');
+      }
+
+      setDescription(transactionToEdit?.description || transactionToEdit?.desc || transactionToEdit?.notes || '');
     } else {
       setType(initialType || 'expense');
       setDate(formatDateISO());
@@ -140,7 +159,7 @@ export default function TransactionModal({
     }
 
     const payload = {
-      id: transactionToEdit ? transactionToEdit.id : undefined,
+      id: transactionToEdit ? (transactionToEdit.id || transactionToEdit._id) : undefined,
       type,
       date: date || formatDateISO(),
       accountId: selectedAccountId,
@@ -167,7 +186,9 @@ export default function TransactionModal({
   };
 
   const IconComponent = type === 'expense' ? ArrowDownRight : type === 'income' ? ArrowUpRight : ArrowLeftRight;
-  const iconTextColor = type === 'expense' ? 'text-[#FF6B6B]' : type === 'income' ? 'text-[var(--accent,#97F2CC)]' : 'text-sky-400';
+  const iconTextColor = type === 'expense' ? 'text-rose-400' : 'text-[var(--accent,#97F2CC)]';
+  const iconBgColor = type === 'expense' ? 'bg-rose-500/15' : 'bg-[var(--accent-muted,rgba(151,242,204,0.15))]';
+  const iconBorderColor = type === 'expense' ? 'border-rose-500/30' : 'border-[var(--accent,#97F2CC)]/30';
 
   const categoryLabelText = type === 'expense' 
     ? t('modals.transaction.category', { type: t('modals.transaction.typeExpense', {}, 'Gasto') }, 'Categoría de Gasto')
@@ -180,6 +201,8 @@ export default function TransactionModal({
       title={transactionToEdit ? t('modals.transaction.editTitle', {}, 'Editar Movimiento') : t('modals.transaction.newTitle', {}, 'Nuevo Movimiento')}
       subtitle={t('modals.transaction.subtitle', {}, 'Registra un gasto, ingreso o transferencia')}
       icon={IconComponent}
+      iconBgColor={iconBgColor}
+      iconBorderColor={iconBorderColor}
       iconTextColor={iconTextColor}
       error={error}
     >

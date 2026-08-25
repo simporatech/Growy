@@ -346,7 +346,7 @@ export default function SettingsModule() {
               value={calcFromCurrency}
               onChange={setCalcFromCurrency}
               options={currencyOptions}
-              placeholder="From..."
+              placeholder={language === 'es' ? 'De...' : 'From...'}
             />
           </div>
 
@@ -360,6 +360,7 @@ export default function SettingsModule() {
               }}
               className="w-10 h-10 rounded-xl bg-white/5 hover:bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-white/10 text-[var(--accent,#97F2CC)] flex items-center justify-center transition-all cursor-pointer"
               title={language === 'es' ? 'Intercambiar Divisas' : 'Swap Currencies'}
+              aria-label={language === 'es' ? 'Intercambiar Divisas' : 'Swap Currencies'}
             >
               <ArrowLeftRight className="w-4 h-4" />
             </button>
@@ -374,7 +375,7 @@ export default function SettingsModule() {
               value={calcToCurrency}
               onChange={setCalcToCurrency}
               options={currencyOptions}
-              placeholder="To..."
+              placeholder={language === 'es' ? 'A...' : 'To...'}
             />
           </div>
 
@@ -429,12 +430,12 @@ export default function SettingsModule() {
                   <div 
                     className="w-3.5 h-3.5 rounded-md border border-white/20 shadow-sm shrink-0"
                     style={{ backgroundColor: themeItem.accentColor }}
-                    title="Color primario de acento"
+                    title={language === 'es' ? 'Color primario de acento' : 'Primary accent color'}
                   />
                   <div 
                     className="w-3.5 h-3.5 rounded-md border border-white/20 shadow-sm flex-1"
                     style={{ backgroundColor: themeItem.bgColor }}
-                    title="Fondo base"
+                    title={language === 'es' ? 'Fondo base' : 'Base background'}
                   />
                 </div>
               </button>

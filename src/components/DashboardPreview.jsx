@@ -343,7 +343,7 @@ export default function DashboardPreview({ user, onLogout }) {
                   <div 
                     onClick={() => setActiveTab('dashboard')}
                     className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity group min-w-0"
-                    title="Ir a Resumen / Dashboard"
+                    title={t('dashboard.goToSummary', {}, 'Ir a Resumen / Dashboard')}
                   >
                     <div className="w-9 h-9 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex items-center justify-center p-2 shadow-inner group-hover:scale-105 transition-transform shrink-0">
                       <img src="/logos/Transparent.svg" alt="Growy" className="w-full h-full object-contain" />
@@ -362,7 +362,8 @@ export default function DashboardPreview({ user, onLogout }) {
                     type="button"
                     onClick={toggleSidebar}
                     className="w-8 h-8 rounded-lg hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors cursor-pointer shrink-0 ml-1"
-                    title="Minimizar Menú"
+                    title={t('dashboard.minimizeMenu', {}, 'Minimizar Menú')}
+                    aria-label={t('dashboard.minimizeMenu', {}, 'Minimizar Menú')}
                   >
                     <PanelLeftClose className="w-4 h-4" />
                   </button>
@@ -372,7 +373,7 @@ export default function DashboardPreview({ user, onLogout }) {
                   <div 
                     onClick={() => setActiveTab('dashboard')}
                     className="w-9 h-9 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex items-center justify-center p-2 shadow-inner hover:scale-105 transition-transform cursor-pointer"
-                    title="Growy • Resumen"
+                    title="Growy"
                   >
                     <img src="/logos/Transparent.svg" alt="Growy" className="w-full h-full object-contain" />
                   </div>
@@ -381,7 +382,8 @@ export default function DashboardPreview({ user, onLogout }) {
                     type="button"
                     onClick={toggleSidebar}
                     className="w-8 h-8 rounded-lg hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors cursor-pointer"
-                    title="Expandir Menú"
+                    title={t('dashboard.expandMenu', {}, 'Expandir Menú')}
+                    aria-label={t('dashboard.expandMenu', {}, 'Expandir Menú')}
                   >
                     <PanelLeftOpen className="w-4 h-4" />
                   </button>
@@ -553,7 +555,8 @@ export default function DashboardPreview({ user, onLogout }) {
                     <button
                       onClick={() => setIsQuickMenuOpen(!isQuickMenuOpen)}
                       className="px-2.5 sm:px-3 hover:brightness-105 active:scale-[0.98] transition-all flex items-center justify-center text-[var(--accent-text,#091E15)] cursor-pointer"
-                      title="Opciones de registro rápido"
+                      title={t('dashboard.quickActions', {}, 'Opciones de registro rápido')}
+                      aria-label={t('dashboard.quickActions', {}, 'Opciones de registro rápido')}
                     >
                       <ChevronDown className={`w-4 h-4 stroke-[2.5] transition-transform duration-200 ${isQuickMenuOpen ? 'rotate-180' : ''}`} />
                     </button>

@@ -94,9 +94,9 @@ export default function LoanModal({
       title={loanToEdit ? t('modals.loan.editTitle', {}, 'Editar Saldo Pendiente') : t('modals.loan.newTitle', {}, 'Nuevo Saldo Pendiente')}
       subtitle={t('modals.loan.subtitle', {}, 'Registra compromisos financieros y cuentas por pagar')}
       icon={Percent}
-      iconBgColor="bg-amber-500/15"
-      iconBorderColor="border-amber-500/30"
-      iconTextColor="text-amber-400"
+      iconBgColor="bg-[var(--accent-muted,rgba(151,242,204,0.15))]"
+      iconBorderColor="border-[var(--accent,#97F2CC)]/30"
+      iconTextColor="text-[var(--accent,#97F2CC)]"
       error={error}
     >
       <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">

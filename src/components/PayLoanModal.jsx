@@ -79,9 +79,9 @@ export default function PayLoanModal({
       title={t('modals.payLoan.title', {}, 'Pagar Saldo Pendiente')}
       subtitle={t('modals.payLoan.subtitle', {}, 'Liquidar deuda y conciliar cuenta')}
       icon={CheckCircle}
-      iconBgColor="bg-emerald-500/15"
-      iconBorderColor="border-emerald-500/30"
-      iconTextColor="text-emerald-400"
+      iconBgColor="bg-[var(--accent-muted,rgba(151,242,204,0.15))]"
+      iconBorderColor="border-[var(--accent,#97F2CC)]/30"
+      iconTextColor="text-[var(--accent,#97F2CC)]"
       error={error}
     >
       <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">

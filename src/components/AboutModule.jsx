@@ -3,10 +3,11 @@ import { Sparkles, Mail, Phone, Coffee, ExternalLink, ShieldCheck, Heart, Smartp
 import { useSettings } from '../context/SettingsContext';
 
 export default function AboutModule() {
-  const { t } = useSettings();
+  const { t, language } = useSettings();
 
   const paypalEmail = 'contact.simpora@gmail.com';
-  const paypalTransferUrl = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${paypalEmail}&currency_code=USD&item_name=Regalame%20un%20cafe`;
+  const itemName = language === 'en' ? 'Support+Growy+Development' : 'Apoyo+al+desarrollo+de+Growy';
+  const paypalTransferUrl = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${paypalEmail}&currency_code=USD&item_name=${itemName}`;
   const whatsappUrl = 'https://wa.me/50498700953';
   const contactEmail = 'simporatech@gmail.com';
 

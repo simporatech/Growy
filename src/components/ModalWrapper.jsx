@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { registerModal } from '../utils/modalManager';
+import { useSettings } from '../context/SettingsContext';
 
 export default function ModalWrapper({
   isOpen,
@@ -9,14 +10,15 @@ export default function ModalWrapper({
   title,
   subtitle,
   icon: Icon,
-  iconBgColor = 'bg-white/5',
-  iconBorderColor = 'border-white/10',
-  iconTextColor,
+  iconBgColor = 'bg-[var(--accent-muted,rgba(151,242,204,0.15))]',
+  iconBorderColor = 'border-[var(--accent,#97F2CC)]/30',
+  iconTextColor = 'text-[var(--accent,#97F2CC)]',
   error,
   children,
   maxWidth = 'max-w-lg'
 }) {
   const [mounted, setMounted] = useState(false);
+  const { t } = useSettings();
 
   useEffect(() => {
     setMounted(true);
@@ -63,7 +65,7 @@ export default function ModalWrapper({
             {(title || Icon) && (
               <div className="flex items-center gap-3 min-w-0 flex-1">
                 {Icon && (
-                  <div className={`w-10 h-10 rounded-2xl ${iconBgColor} border ${iconBorderColor} flex items-center justify-center text-lg shrink-0 ${iconTextColor || ''}`}>
+                  <div className={`w-10 h-10 rounded-2xl ${iconBgColor} border ${iconBorderColor} flex items-center justify-center text-lg shrink-0 ${iconTextColor || 'text-[var(--accent,#97F2CC)]'}`}>
                     <Icon className="w-5 h-5" />
                   </div>
                 )}
@@ -78,7 +80,8 @@ export default function ModalWrapper({
               type="button"
               onClick={onClose}
               className="w-9 h-9 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white transition-colors flex items-center justify-center cursor-pointer shrink-0 ml-2"
-              title="Cerrar (Esc)"
+              title={t('common.close', {}, 'Cerrar (Esc)')}
+              aria-label={t('accessibility.close', {}, 'Cerrar modal')}
             >
               <X className="w-5 h-5" />
             </button>

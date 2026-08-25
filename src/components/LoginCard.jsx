@@ -146,7 +146,7 @@ export default function LoginCard({ onLoginSuccess, onOpenForgotPassword, onOpen
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#8EA7A8] hover:text-white transition-colors focus:outline-none"
-                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                aria-label={showPassword ? t('auth.hidePassword', {}, 'Ocultar contraseña') : t('auth.showPassword', {}, 'Mostrar contraseña')}
               >
                 {showPassword ? (
                   <EyeOff className="w-5 h-5 text-[var(--accent,#97F2CC)]" />
