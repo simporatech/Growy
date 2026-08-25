@@ -6,6 +6,7 @@ import FormField from './FormField';
 import { useSettings } from '../context/SettingsContext';
 import { parseNumeric } from '../utils/formatters';
 import { getCurrencySymbol } from '../utils/currency';
+import { PRESET_COLOR_DETAILS } from '../constants/colors';
 
 export default function CategoryModal({ 
   isOpen, 
@@ -19,7 +20,7 @@ export default function CategoryModal({
   const [type, setType] = useState('expense');
   const [name, setName] = useState('');
   const [emoji, setEmoji] = useState('🏷️');
-  const [color, setColor] = useState('#AEEDD0');
+  const [color, setColor] = useState(categoryToEdit?.color || PRESET_COLOR_DETAILS[0].hex);
   const [targetAmount, setTargetAmount] = useState('');
   const [error, setError] = useState('');
 
@@ -30,13 +31,13 @@ export default function CategoryModal({
       setType(categoryToEdit.type || 'expense');
       setName(categoryToEdit.name || '');
       setEmoji(categoryToEdit.emoji || '🏷️');
-      setColor(categoryToEdit.color || '#AEEDD0');
+      setColor(categoryToEdit.color || PRESET_COLOR_DETAILS[0].hex);
       setTargetAmount(categoryToEdit.targetAmount !== undefined ? categoryToEdit.targetAmount.toString() : '');
     } else {
       setType(initialType || 'expense');
       setName('');
       setEmoji('🏷️');
-      setColor(initialType === 'expense' ? '#FF6B6B' : '#AEEDD0');
+      setColor(PRESET_COLOR_DETAILS[0].hex);
       setTargetAmount('');
     }
     setError('');
@@ -144,16 +145,21 @@ export default function CategoryModal({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FormField label={t('modals.account.color', {}, 'Color')}>
-              <div className="flex items-center gap-3 h-11 px-3 bg-[#121721] border border-white/[0.08] rounded-xl">
-                <input
-                  type="color"
-                  value={color}
-                  onChange={(e) => setColor(e.target.value)}
-                  className="w-7 h-7 rounded-md border-0 bg-transparent cursor-pointer p-0"
-                />
-                <span className="text-xs font-mono font-bold text-slate-200 uppercase">{color}</span>
+          <div className="space-y-4">
+            <FormField label={t('modals.account.color', {}, 'Color de Identificación')}>
+              <div className="flex items-center gap-2 flex-wrap pt-1">
+                {PRESET_COLOR_DETAILS.map((c) => (
+                  <button
+                    key={c.hex}
+                    type="button"
+                    onClick={() => setColor(c.hex)}
+                    className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl border-2 transition-all cursor-pointer hover:scale-110 active:scale-95 ${
+                      color?.toUpperCase() === c.hex.toUpperCase() ? 'border-white shadow-lg scale-110 ring-2 ring-white/30' : 'border-white/10'
+                    }`}
+                    style={{ backgroundColor: c.hex }}
+                    title={c.name}
+                  />
+                ))}
               </div>
             </FormField>
 

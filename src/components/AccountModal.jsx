@@ -7,6 +7,7 @@ import FormField from './FormField';
 import { useSettings } from '../context/SettingsContext';
 import { parseNumeric } from '../utils/formatters';
 import { getCurrencySymbol, AVAILABLE_CURRENCIES } from '../utils/currency';
+import { PRESET_COLOR_DETAILS } from '../constants/colors';
 
 export default function AccountModal({ 
   isOpen, 
@@ -18,7 +19,7 @@ export default function AccountModal({
 
   const [name, setName] = useState('');
   const [emoji, setEmoji] = useState('💳');
-  const [color, setColor] = useState('#AEEDD0');
+  const [color, setColor] = useState(accountToEdit?.color || PRESET_COLOR_DETAILS[0].hex);
   const [currency, setCurrency] = useState(accountToEdit?.currency || baseCurrency || 'USD');
   const [initialBalance, setInitialBalance] = useState('');
   const [error, setError] = useState('');
@@ -29,7 +30,7 @@ export default function AccountModal({
     if (accountToEdit) {
       setName(accountToEdit.name || '');
       setEmoji(accountToEdit.emoji || '💳');
-      setColor(accountToEdit.color || '#AEEDD0');
+      setColor(accountToEdit.color || PRESET_COLOR_DETAILS[0].hex);
       setCurrency(accountToEdit.currency || baseCurrency || 'USD');
       const rawInit = accountToEdit.initialBalance ?? accountToEdit.initial_balance ?? accountToEdit.balance;
       const initialVal = (rawInit !== undefined && rawInit !== null && rawInit !== '') ? String(rawInit) : '0';
@@ -37,7 +38,7 @@ export default function AccountModal({
     } else {
       setName('');
       setEmoji('💳');
-      setColor('#AEEDD0');
+      setColor(PRESET_COLOR_DETAILS[0].hex);
       setCurrency(baseCurrency || 'USD');
       setInitialBalance('');
     }
@@ -140,23 +141,16 @@ export default function AccountModal({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-4">
             <FormField label={t('modals.account.color', {}, 'Color de Identificación')}>
-              <div className="flex items-center gap-2 flex-wrap">
-                {[
-                  { hex: '#5EEAD4', name: 'Menta' },
-                  { hex: '#38BDF8', name: 'Celeste' },
-                  { hex: '#818CF8', name: 'Índigo' },
-                  { hex: '#F472B6', name: 'Rosa' },
-                  { hex: '#FCD34D', name: 'Dorado' },
-                  { hex: '#34D399', name: 'Esmeralda' }
-                ].map((c) => (
+              <div className="flex items-center gap-2 flex-wrap pt-1">
+                {PRESET_COLOR_DETAILS.map((c) => (
                   <button
                     key={c.hex}
                     type="button"
                     onClick={() => setColor(c.hex)}
-                    className={`w-9 h-9 rounded-xl border-2 transition-all cursor-pointer hover:scale-110 ${
-                      color === c.hex ? 'border-white shadow-lg scale-110' : 'border-white/10'
+                    className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl border-2 transition-all cursor-pointer hover:scale-110 active:scale-95 ${
+                      color?.toUpperCase() === c.hex.toUpperCase() ? 'border-white shadow-lg scale-110 ring-2 ring-white/30' : 'border-white/10'
                     }`}
                     style={{ backgroundColor: c.hex }}
                     title={c.name}
