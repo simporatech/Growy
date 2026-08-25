@@ -132,29 +132,29 @@ export const BANK_PRESETS = [
   {
     category: 'Centroamérica & LATAM',
     items: [
-      { name: 'Banco Atlántida', value: 'https://images.seeklogo.com/logo-png/38/2/banco-atlantida-logo-png_seeklogo-385013.png', type: 'image' },
-      { name: 'BAC Credomatic', value: 'https://images.seeklogo.com/logo-png/38/2/bac-credomatic-logo-png_seeklogo-385012.png', type: 'image' },
-      { name: 'Banco Ficohsa', value: 'https://images.seeklogo.com/logo-png/42/1/ficohsa-logo-png_seeklogo-420455.png', type: 'image' },
-      { name: 'Banpaís', value: 'https://images.seeklogo.com/logo-png/42/1/banpais-logo-png_seeklogo-420456.png', type: 'image' },
-      { name: 'Banco de Occidente', value: 'https://images.seeklogo.com/logo-png/42/1/banco-de-occidente-logo-png_seeklogo-420457.png', type: 'image' },
-      { name: 'Banco Promerica', value: 'https://images.seeklogo.com/logo-png/40/2/banco-promerica-logo-png_seeklogo-404562.png', type: 'image' },
-      { name: 'Banrural', value: 'https://images.seeklogo.com/logo-png/24/2/banrural-logo-png_seeklogo-243292.png', type: 'image' },
-      { name: 'Banco Azteca', value: 'https://images.seeklogo.com/logo-png/38/2/banco-azteca-logo-png_seeklogo-380126.png', type: 'image' },
-      { name: 'Davivienda', value: 'https://images.seeklogo.com/logo-png/34/2/davivienda-logo-png_seeklogo-343890.png', type: 'image' },
-      { name: 'Banco Lafise', value: 'https://images.seeklogo.com/logo-png/42/1/banco-lafise-logo-png_seeklogo-420458.png', type: 'image' },
-      { name: 'BBVA', value: 'https://cdn.simpleicons.org/bbva/004481', type: 'image' },
-      { name: 'Santander', value: 'https://cdn.simpleicons.org/santander/EC0000', type: 'image' },
-      { name: 'Nu (Nubank)', value: 'https://cdn.simpleicons.org/nubank/820AD1', type: 'image' },
-      { name: 'Banorte', value: 'https://images.seeklogo.com/logo-png/32/2/banorte-logo-png_seeklogo-320980.png', type: 'image' },
-      { name: 'Citibanamex', value: 'https://images.seeklogo.com/logo-png/31/2/citibanamex-logo-png_seeklogo-318536.png', type: 'image' },
-      { name: 'Mercado Pago', value: 'https://cdn.simpleicons.org/mercadopago/009EE3', type: 'image' },
-      { name: 'Bancolombia', value: 'https://images.seeklogo.com/logo-png/40/2/bancolombia-logo-png_seeklogo-408933.png', type: 'image' },
-      { name: 'Banco de Chile', value: 'https://images.seeklogo.com/logo-png/31/2/banco-de-chile-logo-png_seeklogo-313621.png', type: 'image' },
-      { name: 'BancoEstado', value: 'https://images.seeklogo.com/logo-png/31/2/banco-estado-logo-png_seeklogo-313622.png', type: 'image' },
-      { name: 'Interbank', value: 'https://images.seeklogo.com/logo-png/36/2/interbank-logo-png_seeklogo-368625.png', type: 'image' },
-      { name: 'BCP', value: 'https://images.seeklogo.com/logo-png/33/2/bcp-logo-png_seeklogo-339243.png', type: 'image' },
-      { name: 'Itaú', value: 'https://cdn.simpleicons.org/itau/EC7000', type: 'image' },
-      { name: 'Bradesco', value: 'https://cdn.simpleicons.org/bradesco/CC092F', type: 'image' }
+      { name: 'Banco Atlántida', value: 'https://activos.bancatlan.hn/design/favicon/mstile-310x310.png', type: 'image' },
+      { name: 'BAC Credomatic', value: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrx0DFAZ_ijvJQ1QtmywfSGY9bM1S9JC_HVITbFYuAV6Tuav5zCDMgOT9S&s=10', type: 'image' },
+      { name: 'Banco Ficohsa', value: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRaHM5Qr_HZ5U107DA5hFeBxQ-F4oDOCEEvqzxChE25FkVTEb7M1o-cjucE&s=10', type: 'image' },
+      { name: 'Banpaís', value: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQV0QB3dvlIGQrXUBckfqlGBa38z4Nqk3MvPd5Lbg-69rgskltL7KEK16M&s=10', type: 'image' },
+      { name: 'Banco de Occidente', value: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSl708HI4vt3eDF6UHb1QADoYC1u6iHWH0rS0nRH-tfs-pBv1YZc0Hrca8&s=10', type: 'image' },
+      { name: 'Banco Promerica', value: 'https://pbs.twimg.com/profile_images/1227705885146959872/jryOADMW_400x400.jpg', type: 'image' },
+      { name: 'Banrural', value: 'https://pbs.twimg.com/profile_images/892847931115552768/a6E2FqUD.jpg', type: 'image' },
+      { name: 'Banco Azteca', value: 'https://i.pinimg.com/736x/31/7e/06/317e06872fa113652429b22ee1702a24.jpg', type: 'image' },
+      { name: 'Davivienda', value: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkJQ8KhCiH1g25O7U0NNYTNhWwcNu4HM37r4y8hwVYMXQ7hdhklcb3xCIg&s=10', type: 'image' },
+      { name: 'Banco Lafise', value: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSjATApsYz8aZ95RZssEEJXjoOFXcjY6ez5H7adPf2bn5S7LKFCYhM9SQQ&s=10', type: 'image' },
+      { name: 'BBVA', value: 'https://i.pinimg.com/736x/17/cc/2b/17cc2bfef684a477c172130b0731b943.jpg', type: 'image' },
+      { name: 'Santander', value: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxbp1mxZUNA4I1IB2N9JcQXQqgWpeakdVHQOjDNy4z_Q&s=10', type: 'image' },
+      { name: 'Nu (Nubank)', value: 'https://nubank.com.mx/images/seo/nu-icon.png?v=2', type: 'image' },
+      { name: 'Banorte', value: 'https://logowik.com/content/uploads/images/banorte9353.logowik.com.webp', type: 'image' },
+      { name: 'Citibanamex', value: 'https://logowik.com/content/uploads/images/citibanamex9990.logowik.com.webp', type: 'image' },
+      { name: 'Mercado Pago', value: 'https://img.icons8.com/color/1200/mercado-pago.jpg', type: 'image' },
+      { name: 'Bancolombia', value: 'https://vectorseek.com/wp-content/uploads/2023/09/Bancolombia-Icon-Logo-Vector.svg-.png', type: 'image' },
+      { name: 'Banco de Chile', value: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0BaZ7neVtbtf_KJaZue1ps4HQ0WONVMKe3-7-_PPZNtWP7NjGLeNc1Xg&s=10', type: 'image' },
+      { name: 'BancoEstado', value: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMKpoks4F1YsUODF-8KW8h4v1j9UKmeiXVlaJ-KsAGcg&s=10', type: 'image' },
+      { name: 'Interbank', value: 'https://yt3.googleusercontent.com/eDR3T-NrNtPb8qhUDQGUYcUbP-TNyVq3Pp-6cGUWaIhtnbWJlGE9gbQrNJhG6GnSAhvCInpQGA=s900-c-k-c0x00ffffff-no-rj', type: 'image' },
+      { name: 'BCP', value: 'https://logovtor.com/wp-content/uploads/2020/03/banco-de-credito-del-peru-bcp-logo-vector.png', type: 'image' },
+      { name: 'Itaú', value: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Ita%C3%BA_Unibanco_logo_2023.svg/3840px-Ita%C3%BA_Unibanco_logo_2023.svg.png?utm_source=es.wikipedia.org&utm_campaign=index&utm_content=thumbnail', type: 'image' },
+      { name: 'Bradesco', value: 'https://companieslogo.com/img/orig/BBD-6b19aac5.png?t=1720244490', type: 'image' }
     ]
   },
   {
@@ -187,17 +187,6 @@ export const BANK_PRESETS = [
       { name: 'ING Direct', value: 'https://cdn.simpleicons.org/ing/FF6200', type: 'image' }
     ]
   },
-  {
-    category: 'Efectivo & Bóvedas',
-    items: [
-      { name: 'Efectivo / Billetes', value: '💵', type: 'emoji' },
-      { name: 'Monedas / Cambio', value: '🪙', type: 'emoji' },
-      { name: 'Bóveda / Ahorros', value: '🏦', type: 'emoji' },
-      { name: 'Billetera', value: '👛', type: 'emoji' },
-      { name: 'Tarjeta Física', value: '💳', type: 'emoji' },
-      { name: 'Cripto / Bitcoin', value: '💰', type: 'emoji' }
-    ]
-  }
 ];
 
 export const SERVICE_PRESETS = [
