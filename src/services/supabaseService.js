@@ -1108,7 +1108,7 @@ export const processSubscriptionsCron = async (userId, currentAccounts = [], cur
           amount_in_base_currency: amountInBase
         };
 
-        // 5. Insertar auto-debit transaction en DB
+        // 5. Insertar auto-debit transaction en DB (única fuente de la verdad para el saldo)
         const { data: insertedTx, error: txError } = await supabase
           .from('transactions')
           .insert([autoTxPayload])
@@ -1119,18 +1119,7 @@ export const processSubscriptionsCron = async (userId, currentAccounts = [], cur
           continue;
         }
 
-        // 6. Deduct from account balance in DB
-        const accToUpdate = currentAccounts.find(a => a.id === sub.accountId);
-        if (accToUpdate) {
-          const newBal = (Number(accToUpdate.balance) || 0) - Math.abs(Number(sub.amount) || 0);
-          await supabase
-            .from('accounts')
-            .update({ balance: newBal })
-            .eq('id', sub.accountId);
-          updatedAccountsMap[sub.accountId] = newBal;
-        }
-
-        // 7. Marcar suscripción como ejecutada hoy para idempotencia
+        // 6. Marcar suscripción como ejecutada hoy para idempotencia
         await supabase
           .from('subscriptions')
           .update({ last_executed_date: todayStr })

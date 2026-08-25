@@ -13,59 +13,46 @@ import { parseNumeric } from './formatters';
  * @param {Array} transactions - Array of transaction objects
  * @returns {number} The derived available balance
  */
-export const calculateAccountAvailableBalance = (account, transactions = []) => {
+export const calculateAccountBalance = (account, transactions = []) => {
   if (!account) return 0;
 
-  // Account initial balance from DB column `balance` or alias `initialBalance`
-  const initialBalance = parseNumeric(
-    account.initialBalance !== undefined && account.initialBalance !== null
-      ? account.initialBalance
-      : (account.initial_balance !== undefined && account.initial_balance !== null
-          ? account.initial_balance
-          : account.balance),
-    0
-  );
+  // Saldo inicial configurado por el usuario (base inmutable)
+  const initial = Number(account.initial_balance ?? account.initialBalance ?? account.balance ?? 0);
 
   const safeTx = Array.isArray(transactions) ? transactions.filter(Boolean) : [];
 
-  const movements = safeTx.reduce((acc, tx) => {
+  const delta = safeTx.reduce((acc, tx) => {
     if (!tx) return acc;
+    const amount = Number(tx.amount || 0);
+    const targetAmount = Number(tx.targetAmount ?? tx.target_amount ?? tx.destinationAmount ?? tx.destination_amount ?? tx.amount ?? 0);
 
     const txAccountId = tx.accountId || tx.account_id;
-    const txTargetAccountId = tx.targetAccountId || tx.target_account_id || tx.destinationAccountId || tx.destination_account_id;
+    const txDestId = tx.destinationAccountId || tx.destination_account_id || tx.targetAccountId || tx.target_account_id;
 
-    // Skip transactions not involving this account
-    if (txAccountId !== account.id && txTargetAccountId !== account.id) {
-      return acc;
-    }
-
-    const amount = parseNumeric(tx.amount, 0);
-    const targetAmount = parseNumeric(tx.targetAmount ?? tx.target_amount ?? tx.amount, 0);
-
-    if (tx.type === 'income' && txAccountId === account.id) {
-      return acc + amount;
-    }
-
+    // Si es gasto en esta cuenta -> Resta
     if (tx.type === 'expense' && txAccountId === account.id) {
       return acc - amount;
     }
-
-    if (tx.type === 'transfer') {
-      // Outgoing transfer from this account
-      if (txAccountId === account.id) {
-        return acc - amount;
-      }
-      // Incoming transfer into this account
-      if (txTargetAccountId === account.id) {
-        return acc + targetAmount;
-      }
+    // Si es ingreso en esta cuenta -> Suma
+    if (tx.type === 'income' && txAccountId === account.id) {
+      return acc + amount;
+    }
+    // Si es transferencia saliente (origen) -> Resta
+    if (tx.type === 'transfer' && txAccountId === account.id) {
+      return acc - amount;
+    }
+    // Si es transferencia entrante (destino) -> Suma
+    if (tx.type === 'transfer' && txDestId === account.id) {
+      return acc + targetAmount;
     }
 
     return acc;
   }, 0);
 
-  return initialBalance + movements;
+  return initial + delta;
 };
+
+export const calculateAccountAvailableBalance = calculateAccountBalance;
 
 /**
  * Maps a list of raw accounts into fully-hydrated account objects with
@@ -105,7 +92,7 @@ export const hydrateAccountsWithLedgerBalances = (accountsList = [], transaction
       if (txAccountId !== acc.id && txTargetAccountId !== acc.id) return;
 
       const amount = parseNumeric(tx.amount, 0);
-      const targetAmount = parseNumeric(tx.targetAmount ?? tx.target_amount ?? tx.amount, 0);
+      const targetAmount = parseNumeric(tx.targetAmount ?? tx.target_amount ?? tx.destinationAmount ?? tx.destination_amount ?? tx.amount, 0);
 
       if (tx.type === 'income' && txAccountId === acc.id) {
         totalIncomes += amount;
