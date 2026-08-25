@@ -16,7 +16,7 @@ export default function SubscriptionModal({
   accounts = [],
   categories = [] 
 }) {
-  const { t } = useSettings();
+  const { t, baseCurrency } = useSettings();
 
   const [name, setName] = useState('');
   const [emoji, setEmoji] = useState('🍿');
@@ -27,14 +27,20 @@ export default function SubscriptionModal({
   const [frequency, setFrequency] = useState('monthly');
   const [isActive, setIsActive] = useState(true);
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const frequencyOptions = useMemo(() => [
     { value: 'monthly', label: t('subscriptions.monthly', {}, 'Mensual') },
     { value: 'yearly', label: t('subscriptions.yearly', {}, 'Anual') }
   ], [t]);
 
-  const safeAccounts = Array.isArray(accounts) ? accounts.filter(Boolean) : [];
-  const safeCategories = Array.isArray(categories) ? categories.filter(c => c && c.type === 'expense') : [];
+  const safeAccounts = useMemo(() => Array.isArray(accounts) ? accounts.filter(Boolean) : [], [accounts]);
+  const safeCategories = useMemo(() => Array.isArray(categories) ? categories.filter(Boolean) : [], [categories]);
+  
+  const availableCategories = useMemo(() => {
+    const expenseOnly = safeCategories.filter(c => !c.type || c.type.toLowerCase() === 'expense');
+    return expenseOnly.length > 0 ? expenseOnly : safeCategories;
+  }, [safeCategories]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -43,28 +49,29 @@ export default function SubscriptionModal({
       setName(subscriptionToEdit.name || '');
       setEmoji(subscriptionToEdit.emoji || '🍿');
       setAmount(subscriptionToEdit.amount !== undefined ? subscriptionToEdit.amount.toString() : '');
-      setAccountId(subscriptionToEdit.accountId || (safeAccounts[0]?.id || ''));
-      setCategoryId(subscriptionToEdit.categoryId || (safeCategories[0]?.id || ''));
-      setBillingDay(subscriptionToEdit.billingDay || 5);
+      setAccountId(subscriptionToEdit.accountId || subscriptionToEdit.account_id || (safeAccounts[0]?.id || ''));
+      setCategoryId(subscriptionToEdit.categoryId || subscriptionToEdit.category_id || (availableCategories[0]?.id || ''));
+      setBillingDay(subscriptionToEdit.billingDay || subscriptionToEdit.billing_day || 5);
       setFrequency(subscriptionToEdit.frequency || 'monthly');
-      setIsActive(subscriptionToEdit.isActive !== undefined ? subscriptionToEdit.isActive : true);
+      setIsActive(subscriptionToEdit.isActive !== undefined ? subscriptionToEdit.isActive : (subscriptionToEdit.is_active !== false));
     } else {
       setName('');
       setEmoji('🍿');
       setAmount('');
       setAccountId(safeAccounts[0]?.id || '');
-      setCategoryId(safeCategories[0]?.id || '');
+      setCategoryId(availableCategories[0]?.id || '');
       setBillingDay(5);
       setFrequency('monthly');
       setIsActive(true);
     }
     setError('');
-  }, [subscriptionToEdit, isOpen]);
+    setIsSubmitting(false);
+  }, [subscriptionToEdit, isOpen, safeAccounts, availableCategories]);
 
   if (!isOpen) return null;
 
   const selectedAccount = safeAccounts.find(a => a.id === accountId) || safeAccounts[0] || null;
-  const currencyCode = selectedAccount?.currency || 'USD';
+  const currencyCode = selectedAccount?.currency || baseCurrency || 'USD';
   const currencySymbol = getCurrencySymbol(currencyCode);
 
   const accountSelectOptions = safeAccounts.map(acc => ({
@@ -72,13 +79,13 @@ export default function SubscriptionModal({
     label: `${acc.emoji || '💳'} ${acc.name} (${getCurrencySymbol(acc.currency)} ${acc.currency || 'USD'})`
   }));
 
-  const categorySelectOptions = safeCategories.map(cat => ({
+  const categorySelectOptions = availableCategories.map(cat => ({
     value: cat.id,
     label: `${cat.emoji || '🏷️'} ${cat.name}`
   }));
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+    if (e) e.preventDefault();
     setError('');
 
     if (safeAccounts.length === 0) {
@@ -97,13 +104,9 @@ export default function SubscriptionModal({
       return;
     }
 
-    if (!accountId) {
+    const effectiveAccountId = accountId || safeAccounts[0]?.id;
+    if (!effectiveAccountId) {
       setError(t('modals.subscription.selectAccountError', {}, 'Selecciona la cuenta pagadora'));
-      return;
-    }
-
-    if (!categoryId) {
-      setError(t('modals.subscription.selectCategoryError', {}, 'Selecciona una categoría de gasto'));
       return;
     }
 
@@ -113,21 +116,33 @@ export default function SubscriptionModal({
       return;
     }
 
-    onSave({
-      id: subscriptionToEdit ? subscriptionToEdit.id : undefined,
-      name: name.trim(),
-      emoji: emoji.trim() || '🍿',
-      amount: numAmount,
-      currency: currencyCode,
-      accountId,
-      categoryId,
-      billingDay: dayNum,
-      frequency,
-      isActive,
-      lastProcessedDate: subscriptionToEdit ? subscriptionToEdit.lastProcessedDate : undefined
-    });
+    const activeAcc = safeAccounts.find(a => a.id === effectiveAccountId) || safeAccounts[0];
+    const subCurrency = subscriptionToEdit?.currency || activeAcc?.currency || baseCurrency || 'USD';
 
-    onClose();
+    try {
+      setIsSubmitting(true);
+      if (onSave) {
+        await onSave({
+          id: subscriptionToEdit ? subscriptionToEdit.id : undefined,
+          name: name.trim(),
+          emoji: emoji.trim() || '🍿',
+          amount: numAmount,
+          currency: subCurrency,
+          accountId: effectiveAccountId,
+          categoryId: categoryId || availableCategories[0]?.id || null,
+          billingDay: dayNum,
+          frequency: frequency || 'monthly',
+          isActive: isActive !== undefined ? isActive : true,
+          lastProcessedDate: subscriptionToEdit ? (subscriptionToEdit.lastProcessedDate || subscriptionToEdit.last_processed_date) : undefined
+        });
+      }
+      onClose();
+    } catch (err) {
+      console.error('Error al guardar suscripción:', err);
+      setError(err?.message || 'Error al guardar la suscripción');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -204,7 +219,7 @@ export default function SubscriptionModal({
                 options={categorySelectOptions}
                 value={categoryId}
                 onChange={setCategoryId}
-                placeholder={safeCategories.length > 0 ? t('placeholders.selectCategory', {}, 'Seleccionar Categoría') : t('placeholders.noCategories', {}, 'No Hay Categorías Disponibles')}
+                placeholder={availableCategories.length > 0 ? t('placeholders.selectCategory', {}, 'Seleccionar Categoría') : t('placeholders.noCategories', {}, 'No Hay Categorías Disponibles')}
               />
             </FormField>
           </div>
@@ -276,6 +291,7 @@ export default function SubscriptionModal({
             variant="secondary"
             size="md"
             onClick={onClose}
+            disabled={isSubmitting}
             className="flex-1"
           >
             {t('common.cancel', {}, 'Cancelar')}
@@ -284,7 +300,9 @@ export default function SubscriptionModal({
             type="submit"
             variant="primary"
             size="md"
-            disabled={safeAccounts.length === 0 || safeCategories.length === 0}
+            onClick={handleSubmit}
+            disabled={isSubmitting || safeAccounts.length === 0}
+            isLoading={isSubmitting}
             className="flex-1"
           >
             {subscriptionToEdit 
