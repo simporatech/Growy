@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabaseClient';
 import { SEED_CATEGORIES, detectUserLanguage } from '../utils/defaultCategories';
+import { getCrossRate, FALLBACK_EXCHANGE_RATES } from '../utils/currency';
 
 /**
  * Validates whether a string is a standard PostgreSQL UUID (v4)
@@ -994,6 +995,10 @@ export const dbSaveSubscription = async (userId, subData) => {
     is_active: subData.isActive !== false
   };
 
+  if (subData.currency) {
+    payload.currency = String(subData.currency).toUpperCase();
+  }
+
   // Only pass id when updating an existing UUID record from PostgreSQL
   if (subData.id && typeof subData.id === 'string' && !subData.id.startsWith('sub_')) {
     payload.id = subData.id;
@@ -1039,7 +1044,7 @@ export const dbDeleteSubscription = async (subId) => {
 /**
  * Auto-Debit Subscription Engine with Deduplication check against official schema
  */
-export const processSubscriptionsCron = async (userId, currentAccounts = [], currentTx = []) => {
+export const processSubscriptionsCron = async (userId, currentAccounts = [], currentTx = [], baseCurrency = 'USD', exchangeRates = null) => {
   try {
     const { data: subsData, error } = await supabase
       .from('subscriptions')
@@ -1062,6 +1067,8 @@ export const processSubscriptionsCron = async (userId, currentAccounts = [], cur
     let generatedTx = [];
     let updatedAccountsMap = {};
 
+    const safeRates = exchangeRates || FALLBACK_EXCHANGE_RATES;
+
     for (const sub of subs) {
       if (!sub || !sub.accountId || !sub.isActive) continue;
 
@@ -1082,6 +1089,12 @@ export const processSubscriptionsCron = async (userId, currentAccounts = [], cur
           continue;
         }
 
+        // Inherit exact currency from paying account or subscription to avoid false FX inflation
+        const payingAccount = currentAccounts.find(a => a.id === sub.accountId);
+        const transactionCurrency = (sub.currency || payingAccount?.currency || baseCurrency || 'USD').toUpperCase();
+        const exchangeRateToUsd = transactionCurrency === 'USD' ? 1 : (Number(safeRates[transactionCurrency]) || Number(FALLBACK_EXCHANGE_RATES[transactionCurrency]) || 1);
+        const crossRate = getCrossRate(transactionCurrency, baseCurrency, safeRates);
+
         const billingDateStr = `${currentMonthStr}-${String(billingDay).padStart(2, '0')}`;
         const autoTxPayload = {
           user_id: userId,
@@ -1090,6 +1103,9 @@ export const processSubscriptionsCron = async (userId, currentAccounts = [], cur
           account_id: sub.accountId,
           category_id: sub.categoryId || null,
           amount: Math.abs(Number(sub.amount) || 0),
+          currency: transactionCurrency,
+          exchange_rate_to_usd: exchangeRateToUsd,
+          exchange_rate_at_transaction: crossRate,
           description: `[Auto-Debit] ${sub.name}`
         };
 

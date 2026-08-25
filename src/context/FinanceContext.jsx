@@ -131,7 +131,7 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
         setSubscriptions(loadedSubs);
 
         // Run DB Auto-Debit Subscription Engine with Deduplication
-        const cronRes = await processSubscriptionsCron(userId, loadedAccounts, loadedTx);
+        const cronRes = await processSubscriptionsCron(userId, loadedAccounts, loadedTx, baseCurrency, exchangeRates);
         if (isMounted && cronRes && cronRes.processed.length > 0) {
           if (cronRes.newTx && cronRes.newTx.length > 0) {
             setTransactions(prev => [...cronRes.newTx, ...prev]);

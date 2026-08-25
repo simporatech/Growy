@@ -48,12 +48,14 @@ export default function SettingsModule({ onLogout }) {
 
   // Profile Edit State
   const [displayName, setDisplayName] = useState('');
+  const [usernameVal, setUsernameVal] = useState('');
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [profileMsg, setProfileMsg] = useState({ type: '', text: '' });
 
   useEffect(() => {
     if (currentUser) {
       setDisplayName(currentUser.fullName || currentUser.username || '');
+      setUsernameVal(currentUser.username || '');
     }
   }, [currentUser]);
 
@@ -62,6 +64,8 @@ export default function SettingsModule({ onLogout }) {
     setProfileMsg({ type: '', text: '' });
 
     const cleanName = displayName.trim();
+    const cleanUsername = usernameVal.trim().toLowerCase();
+
     if (cleanName.length < 2) {
       setProfileMsg({ 
         type: 'error', 
@@ -70,9 +74,20 @@ export default function SettingsModule({ onLogout }) {
       return;
     }
 
+    if (cleanUsername.length < 3) {
+      setProfileMsg({ 
+        type: 'error', 
+        text: t('settings.minUsernameLength', {}, 'El usuario debe tener al menos 3 caracteres.') 
+      });
+      return;
+    }
+
     setIsSavingProfile(true);
     try {
-      const res = await updateUserProfile({ fullName: cleanName });
+      const res = await updateUserProfile({ 
+        fullName: cleanName,
+        username: cleanUsername
+      });
       if (res && res.success) {
         setProfileMsg({ 
           type: 'success', 
@@ -344,11 +359,11 @@ export default function SettingsModule({ onLogout }) {
             )}
 
             <form onSubmit={handleSaveProfile} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Display Name Input */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Display Name Input (Nombre Visible / Pila) */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-300 block">
-                    {t('settings.displayName', {}, 'Nombre de Usuario (Display Name)')} *
+                    {t('settings.displayName', {}, 'Nombre Completo / Nombre Visible')} *
                   </label>
                   <input
                     type="text"
@@ -359,12 +374,39 @@ export default function SettingsModule({ onLogout }) {
                     minLength={2}
                     className="w-full h-11 px-4 bg-[#162226] border border-white/10 rounded-xl text-sm font-semibold text-white outline-none focus:border-[var(--accent,#97F2CC)] transition-colors shadow-inner"
                   />
+                  <span className="text-[10px] text-slate-400 block font-normal">
+                    {t('settings.displayNameHelp', {}, 'Cómo te saluda la app en el Dashboard')}
+                  </span>
+                </div>
+
+                {/* Username Input (@username) */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300 block">
+                    {t('settings.username', {}, 'Nombre de Usuario (@username)')} *
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm select-none">
+                      @
+                    </span>
+                    <input
+                      type="text"
+                      value={usernameVal}
+                      onChange={(e) => setUsernameVal(e.target.value.toLowerCase().replace(/[^a-z0-9_.-]/g, ''))}
+                      placeholder={t('settings.usernamePlaceholder', {}, 'usuario')}
+                      required
+                      minLength={3}
+                      className="w-full h-11 pl-8 pr-4 bg-[#162226] border border-white/10 rounded-xl text-sm font-semibold text-white outline-none focus:border-[var(--accent,#97F2CC)] transition-colors shadow-inner"
+                    />
+                  </div>
+                  <span className="text-[10px] text-slate-400 block font-normal">
+                    {t('settings.usernameHelp', {}, 'Identificador único de acceso')}
+                  </span>
                 </div>
 
                 {/* Email Address (Read-only + Verified Badge) */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
-                    <span>{t('settings.email', {}, 'Correo Electrónico')}</span>
+                    <span>{t('settings.email', {}, 'Correo Electrónico (Solo Lectura)')}</span>
                     <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
                       <ShieldCheck className="w-3 h-3" />
                       {t('settings.verifiedBadge', {}, 'Verificado')}
@@ -376,6 +418,9 @@ export default function SettingsModule({ onLogout }) {
                     disabled
                     className="w-full h-11 px-4 bg-white/[0.03] border border-white/5 rounded-xl text-sm font-medium text-slate-400 cursor-not-allowed opacity-80"
                   />
+                  <span className="text-[10px] text-slate-500 block font-normal">
+                    {t('settings.verifiedBadge', {}, 'Verificado')} • ID: {currentUser?.id ? String(currentUser.id).slice(0, 8) + '...' : 'Activo'}
+                  </span>
                 </div>
               </div>
 
@@ -386,9 +431,9 @@ export default function SettingsModule({ onLogout }) {
                   size="md"
                   icon={CheckCircle2}
                   isLoading={isSavingProfile}
-                  disabled={isSavingProfile || displayName.trim().length < 2}
+                  disabled={isSavingProfile || displayName.trim().length < 2 || usernameVal.trim().length < 3}
                 >
-                  <span>{isSavingProfile ? t('settings.savingProfile', {}, 'Guardando...') : t('settings.saveProfile', {}, 'Guardar Cambios')}</span>
+                  <span>{isSavingProfile ? t('settings.savingProfile', {}, 'Guardando...') : t('settings.saveProfile', {}, 'Guardar Cambios de Perfil')}</span>
                 </Button>
               </div>
             </form>
