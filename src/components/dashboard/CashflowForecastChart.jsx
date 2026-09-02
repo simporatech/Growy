@@ -43,7 +43,7 @@ export default function CashflowForecastChart({
   // SVG Chart Dimensions
   const svgWidth = 600;
   const svgHeight = 200;
-  const padLeft = 50;
+  const padLeft = 65;
   const padRight = 20;
   const padTop = 25;
   const padBottom = 30;
@@ -191,17 +191,23 @@ export default function CashflowForecastChart({
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
               {isEs ? 'PROYECCIÓN DE FLUJO' : 'CASHFLOW PROJECTION'}
             </span>
-            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border shadow-sm ${
+            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border shadow-sm ${
               trend === 'positive'
                 ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
                 : trend === 'negative'
                 ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
-                : 'bg-slate-500/15 text-slate-300 border-slate-500/30'
+                : 'text-slate-400 bg-slate-800/50 border-slate-700/50'
             }`}>
               {trend === 'positive' && <TrendingUp className="w-3 h-3" />}
               {trend === 'negative' && <TrendingDown className="w-3 h-3" />}
               {trend === 'stable' && <Minus className="w-3 h-3" />}
-              <span>{trend === 'positive' ? (isEs ? 'Superávit' : 'Positive') : trend === 'negative' ? (isEs ? 'Disminución' : 'Burn Rate') : (isEs ? 'Estable' : 'Stable')}</span>
+              <span>
+                {trend === 'positive' 
+                  ? (isEs ? 'Aumento' : 'Increase') 
+                  : trend === 'negative' 
+                  ? (isEs ? 'Disminución' : 'Decrease') 
+                  : (isEs ? 'Estable' : 'Stable')}
+              </span>
             </span>
           </div>
 

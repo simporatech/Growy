@@ -112,11 +112,11 @@ export function calculateMonthEndProjection({
     (currentTotalBalance - projectedDailyExpenses - pendingSubscriptionsTotal - pendingDebtsTotal).toFixed(2)
   );
 
-  // 7. Trend determination
+  // 7. Trend determination (Threshold +- 1 for stability)
   let trend = 'stable';
-  if (projectedBalance > currentTotalBalance) {
+  if (projectedBalance > currentTotalBalance + 1) {
     trend = 'positive';
-  } else if (projectedBalance < currentTotalBalance) {
+  } else if (projectedBalance < currentTotalBalance - 1) {
     trend = 'negative';
   }
 
