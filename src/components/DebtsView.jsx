@@ -2,16 +2,14 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { 
   Plus, Percent, Trash2, CheckCircle, Search, 
   ArrowDownLeft, ArrowUpRight, History, ChevronDown, 
-  ChevronUp, Wallet, Calendar, AlertCircle, Edit3, DollarSign
+  ChevronUp, Wallet, Calendar, AlertCircle, Edit3, DollarSign, Clock, Users
 } from 'lucide-react';
 import Button from './Button';
 import EmptyState from './EmptyState';
 import DebtModal from './DebtModal';
 import DebtPaymentModal from './DebtPaymentModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
-import CustomSelect from './CustomSelect';
 import ExportDropdown from './ExportDropdown';
-import SectionKpiHero from './SectionKpiHero';
 import Pagination from './Pagination';
 import DynamicIcon from './DynamicIcon';
 import { useFinance } from '../context/FinanceContext';
@@ -22,6 +20,7 @@ import { calculateDebtRemaining } from '../services/debtsService';
 
 /**
  * DebtsView (Módulo de Saldos Pendientes: Por Pagar, Por Cobrar y Gestión de Abonos)
+ * Alineado al Design System y jerarquía visual estándar de Growy (Categorías / Cuentas).
  */
 export default function DebtsView() {
   const { 
@@ -45,8 +44,8 @@ export default function DebtsView() {
   const [debtToPay, setDebtToPay] = useState(null);
   const [paymentToDelete, setPaymentToDelete] = useState(null);
 
-  // Search & Tab Filters: 'all' | 'payable' | 'receivable' | 'completed'
-  const [activeTab, setActiveTab] = useState('all');
+  // Tab Filter: 'payable' | 'receivable' | 'completed'
+  const [activeTab, setActiveTab] = useState('payable');
   const [searchTerm, setSearchTerm] = useState('');
 
   // Expanded History Cards state (Set of debt IDs)
@@ -122,35 +121,88 @@ export default function DebtsView() {
     });
   };
 
-  // Summary Metrics calculations for Top Hero
-  const summaryMetrics = useMemo(() => {
+  // --- STATS DEDICADAS POR PESTAÑA ---
+  const tabStats = useMemo(() => {
     let totalPayableRemaining = 0;
+    let totalPayableOriginal = 0;
+    let totalPayablePaid = 0;
+    let earliestPayableDue = null;
+
     let totalReceivableRemaining = 0;
+    let totalReceivableOriginal = 0;
+    let totalReceivablePaid = 0;
+    let activeReceivableCount = 0;
+
+    let totalSettledAmount = 0;
+    let totalSettledCount = 0;
 
     enrichedDebts.forEach(d => {
-      if (d.calc.isSettled) return;
-      const convertedRemaining = convertCrossCurrency(
-        d.calc.remainingAmount, 
-        d.currency || 'USD', 
-        baseCurrency, 
-        exchangeRates
-      );
+      const origConverted = convertCrossCurrency(d.calc.originalAmount, d.currency || 'USD', baseCurrency, exchangeRates);
+      const paidConverted = convertCrossCurrency(d.calc.totalPaid, d.currency || 'USD', baseCurrency, exchangeRates);
+      const remConverted = convertCrossCurrency(d.calc.remainingAmount, d.currency || 'USD', baseCurrency, exchangeRates);
+
+      if (d.calc.isSettled) {
+        totalSettledAmount += origConverted;
+        totalSettledCount++;
+        return;
+      }
 
       if (d.isPayable) {
-        totalPayableRemaining += convertedRemaining;
+        totalPayableRemaining += remConverted;
+        totalPayableOriginal += origConverted;
+        totalPayablePaid += paidConverted;
+
+        if (d.dueDate) {
+          if (!earliestPayableDue || new Date(d.dueDate) < new Date(earliestPayableDue)) {
+            earliestPayableDue = d.dueDate;
+          }
+        }
       } else {
-        totalReceivableRemaining += convertedRemaining;
+        totalReceivableRemaining += remConverted;
+        totalReceivableOriginal += origConverted;
+        totalReceivablePaid += paidConverted;
+        activeReceivableCount++;
       }
     });
 
+    const payableProgress = totalPayableOriginal > 0 ? Math.min(100, Math.round((totalPayablePaid / totalPayableOriginal) * 100)) : 0;
+    const receivableProgress = totalReceivableOriginal > 0 ? Math.min(100, Math.round((totalReceivablePaid / totalReceivableOriginal) * 100)) : 0;
     const netCommitments = totalReceivableRemaining - totalPayableRemaining;
+
+    let payableDueLabel = isEs ? 'Al día / Sin fecha' : 'Up to date / No date';
+    let payableDueClass = 'text-slate-300';
+
+    if (earliestPayableDue) {
+      const diff = getDaysDifference(earliestPayableDue);
+      if (diff < 0) {
+        payableDueLabel = isEs ? `¡Vencido (${Math.abs(diff)}d)!` : `Overdue (${Math.abs(diff)}d)!`;
+        payableDueClass = 'text-rose-400 font-bold';
+      } else if (diff === 0) {
+        payableDueLabel = isEs ? 'Vence hoy' : 'Due today';
+        payableDueClass = 'text-amber-400 font-bold';
+      } else {
+        payableDueLabel = isEs ? `En ${diff} días (${earliestPayableDue})` : `In ${diff} days (${earliestPayableDue})`;
+        payableDueClass = 'text-slate-200 font-medium';
+      }
+    }
 
     return {
       totalPayableRemaining,
+      totalPayableOriginal,
+      totalPayablePaid,
+      payableProgress,
+      payableDueLabel,
+      payableDueClass,
       totalReceivableRemaining,
+      totalReceivableOriginal,
+      totalReceivablePaid,
+      receivableProgress,
+      activeReceivableCount,
+      totalSettledAmount,
+      totalSettledCount,
       netCommitments
     };
-  }, [enrichedDebts, baseCurrency, exchangeRates]);
+  }, [enrichedDebts, baseCurrency, exchangeRates, isEs]);
 
   const debtColumns = useMemo(() => [
     { 
@@ -187,184 +239,307 @@ export default function DebtsView() {
     }
   ], [isEs]);
 
+  const debtSummary = useMemo(() => ({
+    totalRecords: filteredDebts.length,
+    consolidatedTotal: activeTab === 'payable'
+      ? `${formatCurrency(tabStats.totalPayableRemaining, baseCurrency)} (Por Pagar)`
+      : activeTab === 'receivable'
+        ? `${formatCurrency(tabStats.totalReceivableRemaining, baseCurrency)} (Por Cobrar)`
+        : `${formatCurrency(tabStats.totalSettledAmount, baseCurrency)} (Completados)`,
+    baseCurrency
+  }), [filteredDebts.length, activeTab, tabStats, baseCurrency, formatCurrency]);
+
+  const exportFilename = isEs ? 'Growy_Saldos_Pendientes' : 'Growy_Pending_Debts';
+
   return (
-    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-32 md:pb-6">
+    <div 
+      className="w-full min-w-full box-border debts-container space-y-4 md:space-y-6 animate-fadeIn pb-32 md:pb-6"
+      style={{ scrollbarGutter: 'stable', boxSizing: 'border-box', width: '100%' }}
+    >
       
-      {/* Standardized Page Header */}
-      <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
+      {/* 1. STANDARDIZED HEADER (Idéntico a Categorías y Cuentas) */}
+      <header className="flex items-center justify-between gap-2.5 w-full relative z-30">
         <div className="min-w-0 flex-1">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white leading-tight">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white leading-tight truncate">
             {t('debts.title', {}, 'Saldos Pendientes')}
           </h1>
-          <p className="text-xs md:text-sm text-slate-400 mt-1 block font-normal">
+          <p className="text-xs md:text-sm text-slate-400 mt-0.5 block font-normal truncate">
             {t('debts.subtitle', {}, 'Controla deudas pendientes, préstamos otorgados y compromisos financieros')}
           </p>
         </div>
 
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <div className="hidden sm:block">
             <ExportDropdown
               data={filteredDebts}
               columns={debtColumns}
-              filename={`Growy_Saldos_Pendientes_${formatDateISO()}`}
               title={t('debts.exportTitle', {}, 'Reporte de Saldos Pendientes')}
+              filename={exportFilename}
+              summary={debtSummary}
             />
           </div>
 
           <Button
-            type="button"
-            variant="primary"
             size="md"
+            variant="primary"
+            icon={Plus}
             onClick={() => {
               setDebtToEdit(null);
               setIsDebtModalOpen(true);
             }}
-            className="shrink-0"
+            title={t('debts.newDebtBtn', {}, 'Nuevo Saldo')}
           >
-            <Plus className="w-4 h-4 mr-1.5" />
-            <span>{t('debts.newDebtBtn', {}, 'Nuevo Saldo')}</span>
+            <span className="hidden sm:inline">{t('debts.newDebtBtn', {}, 'Nuevo Saldo')}</span>
           </Button>
         </div>
       </header>
-      
-      {/* 1. TOP KPI HERO BANNER */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Total Por Pagar */}
-        <div className="p-5 rounded-3xl bg-[#0D1117]/80 border border-rose-500/20 backdrop-blur-xl shadow-lg relative overflow-hidden">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-rose-300">
-              🔴 {t('debts.totalPayableLabel', {}, 'Total Por Pagar (Deudas)')}
-            </span>
-            <div className="w-8 h-8 rounded-xl bg-rose-500/15 text-rose-400 flex items-center justify-center">
-              <ArrowDownLeft className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-2xl font-black text-white mt-2 tabular-nums">
-            {formatCurrency(summaryMetrics.totalPayableRemaining, baseCurrency)}
-          </div>
-          <span className="text-[11px] text-slate-400 mt-1 block">
-            {t('debts.payableHelp', {}, 'Suma de saldos pendientes que debes pagar')}
-          </span>
-        </div>
 
-        {/* Total Por Cobrar */}
-        <div className="p-5 rounded-3xl bg-[#0D1117]/80 border border-[var(--accent,#97F2CC)]/20 backdrop-blur-xl shadow-lg relative overflow-hidden">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-[var(--accent,#97F2CC)]">
-              🟢 {t('debts.totalReceivableLabel', {}, 'Total Por Cobrar (A Mi Favor)')}
-            </span>
-            <div className="w-8 h-8 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] flex items-center justify-center">
-              <ArrowUpRight className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-2xl font-black text-white mt-2 tabular-nums">
-            {formatCurrency(summaryMetrics.totalReceivableRemaining, baseCurrency)}
-          </div>
-          <span className="text-[11px] text-slate-400 mt-1 block">
-            {t('debts.receivableHelp', {}, 'Suma de dinero que te deben o prestaste')}
-          </span>
+      {/* 2. TOOLBAR: SEARCH AND MOBILE EXPORT */}
+      <div className="flex items-center gap-2 w-full relative z-20">
+        <div className="relative flex-1">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder={t('debts.searchPlaceholder', {}, 'Buscar por concepto o categoría...')}
+            className="w-full h-11 pl-9 pr-3 bg-white/[0.04] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[var(--accent,#97F2CC)] shadow-inner transition-colors"
+          />
         </div>
-
-        {/* Balance Neto */}
-        <div className="p-5 rounded-3xl bg-[#0D1117]/80 border border-white/10 backdrop-blur-xl shadow-lg relative overflow-hidden">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
-              ⚖️ {t('debts.netBalanceLabel', {}, 'Balance Neto de Compromisos')}
-            </span>
-            <div className="w-8 h-8 rounded-xl bg-white/5 text-slate-300 flex items-center justify-center">
-              <Wallet className="w-4 h-4" />
-            </div>
-          </div>
-          <div className={`text-2xl font-black mt-2 tabular-nums ${
-            summaryMetrics.netCommitments >= 0 ? 'text-[var(--accent,#97F2CC)]' : 'text-rose-400'
-          }`}>
-            {summaryMetrics.netCommitments >= 0 ? '+ ' : ''}
-            {formatCurrency(summaryMetrics.netCommitments, baseCurrency)}
-          </div>
-          <span className="text-[11px] text-slate-400 mt-1 block">
-            {summaryMetrics.netCommitments >= 0 ? t('debts.positiveNet', {}, 'Superávit a favor') : t('debts.negativeNet', {}, 'Déficit en compromisos')}
-          </span>
+        <div className="sm:hidden shrink-0">
+          <ExportDropdown
+            data={filteredDebts}
+            columns={debtColumns}
+            title={t('debts.exportTitle', {}, 'Reporte de Saldos Pendientes')}
+            filename={exportFilename}
+            summary={debtSummary}
+          />
         </div>
       </div>
 
-      {/* 2. FILTER TABS & SEARCH TOOLBAR */}
-      <div className="p-4 rounded-3xl bg-[#0D1117]/80 border border-white/10 backdrop-blur-xl shadow-lg space-y-4">
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+      {/* 3. HERO BANNER: DEDICATED STATS CARDS BY TAB */}
+      <div className="w-full bg-[#111722]/80 border border-white/10 rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6 backdrop-blur-md relative z-10 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] transition-all duration-300 ease-in-out">
+        
+        {activeTab === 'payable' ? (
+          /* MODO A: POR PAGAR (DEUDAS PROPIAS) */
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-center pb-4 sm:pb-6 border-b border-white/10">
+              {/* Total Pendiente de Pago */}
+              <div className="lg:col-span-4">
+                <span className="text-xs font-semibold tracking-wider text-rose-400 uppercase block">
+                  🔴 {t('debts.totalPayableLabel', {}, 'TOTAL PENDIENTE DE PAGO (DEUDAS)')}
+                </span>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className="text-2xl sm:text-3xl font-bold text-white tabular-nums tracking-tight">
+                    {formatCurrency(tabStats.totalPayableRemaining, baseCurrency)}
+                  </span>
+                  <span className="text-xs sm:text-sm font-normal text-slate-400">
+                    / {formatCurrency(tabStats.totalPayableOriginal, baseCurrency)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Total Abonado hasta hoy */}
+              <div className="lg:col-span-4">
+                <span className="text-xs font-semibold tracking-wider text-slate-300 uppercase block">
+                  {t('debts.totalPaidSoFar', {}, 'Total Abonado hasta hoy')}
+                </span>
+                <span className="text-xl sm:text-2xl font-bold tabular-nums tracking-tight mt-1 block text-emerald-400">
+                  {formatCurrency(tabStats.totalPayablePaid, baseCurrency)}
+                </span>
+              </div>
+
+              {/* Próximo Vencimiento */}
+              <div className="lg:col-span-4 space-y-1.5 sm:space-y-2">
+                <div className="flex items-center justify-between text-xs font-semibold">
+                  <span className="text-slate-300 uppercase tracking-wider">
+                    {t('debts.progress', {}, 'Progreso de liquidación')}
+                  </span>
+                  <span className="text-white tabular-nums font-bold">
+                    {tabStats.payableProgress}%
+                  </span>
+                </div>
+                <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden shadow-inner">
+                  <div
+                    className="bg-rose-400 h-full rounded-full transition-all duration-500 ease-out"
+                    style={{ width: `${tabStats.payableProgress}%` }}
+                  />
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-slate-400 pt-0.5">
+                  <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <span className="truncate">
+                    {t('debts.nextDueDateLabel', {}, 'Próximo vencimiento:')} <span className={tabStats.payableDueClass}>{tabStats.payableDueLabel}</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-3 sm:pt-4 flex items-center justify-between text-xs text-slate-400">
+              <span>{t('debts.payableFooterHelp', {}, 'Saldos pendientes que debes cancelar a bancos, tarjetas o personas.')}</span>
+              <span className="font-bold text-white tabular-nums">{filteredDebts.length} {t('debts.activeRecords', {}, 'deudas activas')}</span>
+            </div>
+          </>
+        ) : activeTab === 'receivable' ? (
+          /* MODO B: POR COBRAR (PRÉSTAMOS Y COBROS A MI FAVOR) */
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-center pb-4 sm:pb-6 border-b border-white/10">
+              {/* Total Por Recuperar */}
+              <div className="lg:col-span-4">
+                <span className="text-xs font-semibold tracking-wider text-[var(--accent,#97F2CC)] uppercase block">
+                  🟢 {t('debts.totalReceivableLabel', {}, 'TOTAL POR RECUPERAR (A MI FAVOR)')}
+                </span>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className="text-2xl sm:text-3xl font-bold text-white tabular-nums tracking-tight">
+                    {formatCurrency(tabStats.totalReceivableRemaining, baseCurrency)}
+                  </span>
+                  <span className="text-xs sm:text-sm font-normal text-slate-400">
+                    / {formatCurrency(tabStats.totalReceivableOriginal, baseCurrency)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Total Cobrado / Recuperado */}
+              <div className="lg:col-span-4">
+                <span className="text-xs font-semibold tracking-wider text-slate-300 uppercase block">
+                  {t('debts.totalCollected', {}, 'Total Cobrado / Recuperado')}
+                </span>
+                <span className="text-xl sm:text-2xl font-bold tabular-nums tracking-tight mt-1 block text-[var(--accent,#97F2CC)]">
+                  {formatCurrency(tabStats.totalReceivablePaid, baseCurrency)}
+                </span>
+              </div>
+
+              {/* Personas / Deudores Activos & Barra */}
+              <div className="lg:col-span-4 space-y-1.5 sm:space-y-2">
+                <div className="flex items-center justify-between text-xs font-semibold">
+                  <span className="text-slate-300 uppercase tracking-wider">
+                    {t('debts.collectionProgress', {}, 'Tasa de recuperación')}
+                  </span>
+                  <span className="text-white tabular-nums font-bold">
+                    {tabStats.receivableProgress}%
+                  </span>
+                </div>
+                <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden shadow-inner">
+                  <div
+                    className="bg-[var(--accent,#97F2CC)] h-full rounded-full transition-all duration-500 ease-out"
+                    style={{ width: `${tabStats.receivableProgress}%` }}
+                  />
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-slate-400 pt-0.5">
+                  <Users className="w-3.5 h-3.5 text-[var(--accent,#97F2CC)] shrink-0" />
+                  <span>
+                    <strong className="text-white">{tabStats.activeReceivableCount}</strong> {t('debts.activeDebtors', {}, 'personas o cuentas con saldo pendiente')}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-3 sm:pt-4 flex items-center justify-between text-xs text-slate-400">
+              <span>{t('debts.receivableFooterHelp', {}, 'Dinero prestado o pendiente de recibir que retornará a tus cuentas.')}</span>
+              <span className="font-bold text-[var(--accent,#97F2CC)] tabular-nums">{filteredDebts.length} {t('debts.activeCollections', {}, 'cobros activos')}</span>
+            </div>
+          </>
+        ) : (
+          /* MODO C: COMPLETADOS / LIQUIDADOS */
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-center pb-4 sm:pb-6 border-b border-white/10">
+              <div className="lg:col-span-4">
+                <span className="text-xs font-semibold tracking-wider text-emerald-400 uppercase block">
+                  ✨ {t('debts.totalSettledLabel', {}, 'TOTAL SALDADO Y LIQUIDADO')}
+                </span>
+                <span className="text-2xl sm:text-3xl font-bold text-white tabular-nums tracking-tight mt-1 block">
+                  {formatCurrency(tabStats.totalSettledAmount, baseCurrency)}
+                </span>
+              </div>
+
+              <div className="lg:col-span-4">
+                <span className="text-xs font-semibold tracking-wider text-slate-300 uppercase block">
+                  {t('debts.completedCommitments', {}, 'Compromisos Finalizados')}
+                </span>
+                <span className="text-xl sm:text-2xl font-bold tabular-nums tracking-tight mt-1 block text-emerald-400">
+                  {tabStats.totalSettledCount} {t('debts.settledCountBadge', {}, 'liquidados')}
+                </span>
+              </div>
+
+              <div className="lg:col-span-4">
+                <span className="text-xs font-semibold tracking-wider text-slate-300 uppercase block">
+                  {t('debts.netBalanceLabel', {}, 'Balance Neto Global')}
+                </span>
+                <span className={`text-xl sm:text-2xl font-bold tabular-nums tracking-tight mt-1 block ${
+                  tabStats.netCommitments >= 0 ? 'text-[var(--accent,#97F2CC)]' : 'text-rose-400'
+                }`}>
+                  {tabStats.netCommitments >= 0 ? '+ ' : ''}
+                  {formatCurrency(tabStats.netCommitments, baseCurrency)}
+                </span>
+              </div>
+            </div>
+
+            <div className="pt-3 sm:pt-4 flex items-center justify-between text-xs text-slate-400">
+              <span>{t('debts.settledFooterHelp', {}, 'Historial de saldos saldados al 100% y cerrados exitosamente.')}</span>
+              <span className="font-bold text-emerald-400 tabular-nums">{filteredDebts.length} {t('debts.settledRecords', {}, 'registros completados')}</span>
+            </div>
+          </>
+        )}
+
+      </div>
+
+      {/* 4. SEGMENTED TAB FILTER (Idéntico a Categorías) */}
+      <div className="flex items-center justify-between gap-3 relative z-10 w-full min-w-full box-border">
+        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-white/[0.03] border border-white/5 w-full sm:w-auto overflow-x-auto no-scrollbar">
           
-          {/* Filter Tabs */}
-          <div className="flex items-center gap-1.5 p-1 bg-black/30 rounded-2xl border border-white/10 overflow-x-auto no-scrollbar">
-            {[
-              { id: 'all', label: t('debts.tabAll', {}, 'Todos') },
-              { id: 'payable', label: '🔴 ' + t('debts.tabPayable', {}, 'Por Pagar') },
-              { id: 'receivable', label: '🟢 ' + t('debts.tabReceivable', {}, 'Por Cobrar') },
-              { id: 'completed', label: '✨ ' + t('debts.tabCompleted', {}, 'Completados') }
-            ].map(tab => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setActiveTab(tab.id)}
-                className={`h-9 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
-                  activeTab === tab.id
-                    ? 'bg-[var(--accent,#97F2CC)] text-[var(--accent-text,#091E15)] shadow-sm scale-[1.01]'
-                    : 'text-slate-400 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          <button
+            type="button"
+            onClick={() => setActiveTab('payable')}
+            className={`flex-1 sm:flex-initial h-11 px-5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
+              activeTab === 'payable'
+                ? 'bg-rose-500/10 text-rose-400 border border-rose-500/30 shadow-sm'
+                : 'text-slate-300 hover:text-white border border-transparent'
+            }`}
+          >
+            <ArrowDownLeft className="w-3.5 h-3.5 text-rose-400" />
+            <span>🔴 {t('debts.tabPayable', {}, 'Por Pagar (Deudas)')}</span>
+          </button>
 
-          {/* Search and Mobile Export */}
-          <div className="flex items-center gap-2.5 flex-1 md:justify-end">
-            <div className="relative flex-1 md:max-w-xs">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder={t('debts.searchPlaceholder', {}, 'Buscar por concepto o categoría...')}
-                className="w-full h-10 pl-9 pr-4 bg-white/[0.04] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-[var(--accent,#97F2CC)]"
-              />
-            </div>
+          <button
+            type="button"
+            onClick={() => setActiveTab('receivable')}
+            className={`flex-1 sm:flex-initial h-11 px-5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
+              activeTab === 'receivable'
+                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 shadow-sm'
+                : 'text-slate-300 hover:text-white border border-transparent'
+            }`}
+          >
+            <ArrowUpRight className="w-3.5 h-3.5 text-emerald-400" />
+            <span>🟢 {t('debts.tabReceivable', {}, 'Por Cobrar (Préstamos y Cobros)')}</span>
+          </button>
 
-            <div className="sm:hidden shrink-0">
-              <ExportDropdown
-                data={filteredDebts}
-                columns={debtColumns}
-                filename={`Growy_Saldos_Pendientes_${formatDateISO()}`}
-                title={t('debts.exportTitle', {}, 'Reporte de Saldos Pendientes')}
-              />
-            </div>
-          </div>
+          <button
+            type="button"
+            onClick={() => setActiveTab('completed')}
+            className={`flex-1 sm:flex-initial h-11 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
+              activeTab === 'completed'
+                ? 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] border border-[var(--accent,#97F2CC)]/30 shadow-sm'
+                : 'text-slate-300 hover:text-white border border-transparent'
+            }`}
+          >
+            <CheckCircle className="w-3.5 h-3.5 text-[var(--accent,#97F2CC)]" />
+            <span>✨ {t('debts.tabCompleted', {}, 'Completados')}</span>
+          </button>
 
         </div>
       </div>
 
-      {/* 3. CARDS LIST CONTAINER */}
+      {/* 5. CARDS LIST CONTAINER */}
       {paginatedDebts.length === 0 ? (
-        <div className="p-12 rounded-3xl bg-[#0D1117]/80 border border-white/10 backdrop-blur-xl text-center space-y-4">
-          <div className="w-16 h-16 mx-auto rounded-2xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] flex items-center justify-center">
-            <Percent className="w-8 h-8" />
-          </div>
-          <h3 className="text-base font-bold text-white">
-            {t('debts.noDebtsFound', {}, 'No hay compromisos en esta sección')}
-          </h3>
-          <p className="text-xs text-slate-400 max-w-sm mx-auto">
-            {t('debts.noDebtsFoundSub', {}, 'Puedes crear un nuevo saldo por pagar o por cobrar haciendo clic en "Nuevo Saldo".')}
-          </p>
-          <Button
-            type="button"
-            variant="primary"
-            size="sm"
-            onClick={() => {
-              setDebtToEdit(null);
-              setIsDebtModalOpen(true);
-            }}
-          >
-            <Plus className="w-4 h-4 mr-1.5" />
-            <span>{t('debts.newDebtBtn', {}, 'Nuevo Saldo')}</span>
-          </Button>
-        </div>
+        <EmptyState
+          icon={Percent}
+          title={t('debts.noDebtsFound', {}, 'No hay compromisos en esta sección')}
+          description={t('debts.noDebtsFoundSub', {}, 'Puedes crear un nuevo saldo por pagar o por cobrar haciendo clic en "Nuevo Saldo".')}
+          actionText={t('debts.newDebtBtn', {}, 'Nuevo Saldo')}
+          onAction={() => {
+            setDebtToEdit(null);
+            setIsDebtModalOpen(true);
+          }}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {paginatedDebts.map(debt => {
@@ -621,7 +796,7 @@ export default function DebtsView() {
         </div>
       )}
 
-      {/* 4. PAGINATION */}
+      {/* 6. PAGINATION */}
       {filteredDebts.length > pageSize && (
         <Pagination
           currentPage={currentPage}
@@ -632,7 +807,7 @@ export default function DebtsView() {
         />
       )}
 
-      {/* 5. MODALS */}
+      {/* 7. MODALS */}
       {/* DebtModal (Crear / Editar) */}
       <DebtModal
         isOpen={isDebtModalOpen}
