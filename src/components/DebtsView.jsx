@@ -386,8 +386,8 @@ export default function DebtsView() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-center pb-4 sm:pb-6 border-b border-white/10">
               {/* Total Por Recuperar */}
               <div className="lg:col-span-4">
-                <span className="text-xs font-semibold tracking-wider text-[var(--accent,#97F2CC)] uppercase flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-[var(--accent,#97F2CC)] inline-block shrink-0" />
+                <span className="text-xs font-semibold tracking-wider text-emerald-400 uppercase flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block shrink-0" />
                   {t('debts.totalReceivableLabel', {}, 'TOTAL POR RECUPERAR (A MI FAVOR)')}
                 </span>
                 <div className="flex items-baseline gap-2 mt-1">
@@ -405,7 +405,7 @@ export default function DebtsView() {
                 <span className="text-xs font-semibold tracking-wider text-slate-300 uppercase block">
                   {t('debts.totalCollected', {}, 'Total Cobrado / Recuperado')}
                 </span>
-                <span className="text-xl sm:text-2xl font-bold tabular-nums tracking-tight mt-1 block text-[var(--accent,#97F2CC)]">
+                <span className="text-xl sm:text-2xl font-bold tabular-nums tracking-tight mt-1 block text-emerald-400">
                   {formatCurrency(tabStats.totalReceivablePaid, baseCurrency)}
                 </span>
               </div>
@@ -422,12 +422,12 @@ export default function DebtsView() {
                 </div>
                 <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden shadow-inner">
                   <div
-                    className="bg-[var(--accent,#97F2CC)] h-full rounded-full transition-all duration-500 ease-out"
+                    className="bg-emerald-400 h-full rounded-full transition-all duration-500 ease-out"
                     style={{ width: `${tabStats.receivableProgress}%` }}
                   />
                 </div>
                 <div className="flex items-center gap-1.5 text-xs text-slate-400 pt-0.5">
-                  <Users className="w-3.5 h-3.5 text-[var(--accent,#97F2CC)] shrink-0" />
+                  <Users className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                   <span>
                     <strong className="text-white">{tabStats.activeReceivableCount}</strong> {t('debts.activeDebtors', {}, 'personas o cuentas con saldo pendiente')}
                   </span>
@@ -437,7 +437,7 @@ export default function DebtsView() {
 
             <div className="pt-3 sm:pt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
               <span>{t('debts.receivableFooterHelp', {}, 'Dinero prestado o pendiente de recibir que retornará a tus cuentas.')}</span>
-              <span className="font-bold text-[var(--accent,#97F2CC)] tabular-nums">{filteredDebts.length} {t('debts.activeCollections', {}, 'cobros activos')}</span>
+              <span className="font-bold text-emerald-400 tabular-nums">{filteredDebts.length} {t('debts.activeCollections', {}, 'cobros activos')}</span>
             </div>
           </>
         ) : (
@@ -584,7 +584,7 @@ export default function DebtsView() {
                     ? 'border-emerald-500/20 opacity-80' 
                     : debt.isPayable 
                       ? 'border-white/10 hover:border-rose-500/30' 
-                      : 'border-white/10 hover:border-[var(--accent,#97F2CC)]/30'
+                      : 'border-white/10 hover:border-emerald-500/30'
                 }`}
               >
                 
@@ -594,7 +594,7 @@ export default function DebtsView() {
                     <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-lg shrink-0 border ${
                       debt.isPayable 
                         ? 'bg-rose-500/15 text-rose-400 border-rose-500/20' 
-                        : 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] border-[var(--accent,#97F2CC)]/20'
+                        : 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20'
                     }`}>
                       <DynamicIcon value={catObj?.emoji} fallback="Wallet" className="w-5 h-5 text-lg" />
                     </div>
@@ -604,9 +604,9 @@ export default function DebtsView() {
                         <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full border flex items-center gap-1.5 ${
                           debt.isPayable 
                             ? 'bg-rose-500/15 text-rose-300 border-rose-500/30' 
-                            : 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] border-[var(--accent,#97F2CC)]/30'
+                            : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
                         }`}>
-                          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${debt.isPayable ? 'bg-rose-400' : 'bg-[var(--accent,#97F2CC)]'}`} />
+                          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${debt.isPayable ? 'bg-rose-400' : 'bg-emerald-400'}`} />
                           <span>{debt.isPayable ? t('debts.payableBadge', {}, 'Por Pagar') : t('debts.receivableBadge', {}, 'Por Cobrar')}</span>
                         </span>
                         {catObj?.name && (
@@ -664,9 +664,11 @@ export default function DebtsView() {
                   </div>
 
                   <div>
-                    <span className="text-[10px] text-[var(--accent,#97F2CC)] uppercase font-bold block">{t('debts.remaining', {}, 'Restante')}</span>
-                    <span className={`text-xs font-extrabold tabular-nums ${
-                      isSettled ? 'text-slate-400 line-through' : debt.isPayable ? 'text-rose-300' : 'text-[var(--accent,#97F2CC)]'
+                    <span className={`text-[10px] uppercase font-bold block ${debt.isPayable ? 'text-rose-400' : 'text-emerald-400'}`}>
+                      {t('debts.remaining', {}, 'Restante')}
+                    </span>
+                    <span className={`text-xs font-semibold tabular-nums ${
+                      isSettled ? 'text-slate-400 line-through' : debt.isPayable ? 'text-rose-400' : 'text-emerald-400'
                     }`}>
                       {formatCurrency(debt.calc.remainingAmount, debt.currency || 'USD')}
                     </span>
@@ -693,7 +695,7 @@ export default function DebtsView() {
                           ? 'bg-emerald-400' 
                           : debt.isPayable 
                             ? 'bg-rose-400' 
-                            : 'bg-[var(--accent,#97F2CC)]'
+                            : 'bg-emerald-400'
                       }`}
                       style={{ width: `${debt.calc.progressPercentage}%` }}
                     />
@@ -701,31 +703,34 @@ export default function DebtsView() {
                 </div>
 
                 {/* Footer Buttons: Abonar + Historial */}
-                <div className="pt-2 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">
+                <div className="pt-2 border-t border-white/5 flex items-center justify-between gap-2">
                   <button
                     type="button"
                     onClick={(e) => toggleHistory(debt.id, e)}
-                    className="h-8 px-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                    className="h-9 px-3 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
                   >
-                    <History className="w-3.5 h-3.5 text-slate-400" />
-                    <span>{t('debts.paymentsCount', { count: associatedPayments.length }, `Abonos (${associatedPayments.length})`)}</span>
-                    {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                    <History className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span className="whitespace-nowrap">{t('debts.paymentsCount', { count: associatedPayments.length }, `Abonos (${associatedPayments.length})`)}</span>
+                    {isExpanded ? <ChevronUp className="w-3.5 h-3.5 shrink-0" /> : <ChevronDown className="w-3.5 h-3.5 shrink-0" />}
                   </button>
 
                   {!isSettled ? (
-                    <Button
+                    <button
                       type="button"
-                      variant="primary"
-                      size="sm"
                       onClick={() => setDebtToPay(debt)}
-                      className="h-8 px-3 text-xs font-semibold"
+                      className="whitespace-nowrap flex items-center justify-center gap-1.5 px-4 h-9 min-w-max text-xs font-semibold rounded-lg bg-[var(--accent,#97F2CC)] text-[var(--accent-text,#091E15)] hover:brightness-105 transition-all shadow-md active:scale-[0.98] cursor-pointer shrink-0"
                     >
-                      <Plus className="w-3.5 h-3.5 mr-1" />
-                      <span>{debt.isPayable ? t('debts.payBtn', {}, 'Abonar') : t('debts.collectBtn', {}, 'Cobrar')}</span>
-                    </Button>
+                      <Plus className="w-3.5 h-3.5 shrink-0 stroke-[2.5]" />
+                      <span className="whitespace-nowrap font-bold">
+                        {debt.isPayable 
+                          ? t('debts.make_payment', {}, '+ Abonar')
+                          : t('debts.make_collection', {}, '+ Cobrar')
+                        }
+                      </span>
+                    </button>
                   ) : (
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-xl border border-emerald-500/20">
-                      <CheckCircle className="w-3.5 h-3.5" />
+                    <div className="whitespace-nowrap flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20 shrink-0">
+                      <CheckCircle className="w-3.5 h-3.5 shrink-0" />
                       <span>{t('debts.settledBadge', {}, 'Liquidado')}</span>
                     </div>
                   )}
