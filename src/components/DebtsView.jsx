@@ -54,10 +54,10 @@ export default function DebtsView() {
   const [searchTerm, setSearchTerm] = useState('');
 
   // Advanced Filter states
+  const [categoryFilter, setCategoryFilter] = useState('all');
   const [accountFilter, setAccountFilter] = useState('all');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
 
   // Expanded History Cards state (Set of debt IDs)
   const [expandedHistories, setExpandedHistories] = useState(new Set());
@@ -71,38 +71,44 @@ export default function DebtsView() {
   const safeCategoriesList = useMemo(() => Array.isArray(categories) ? categories.filter(Boolean) : [], [categories]);
   const safeAccountsList = useMemo(() => Array.isArray(accounts) ? accounts.filter(Boolean) : [], [accounts]);
 
+  // Category Filter Options (Sorted with Logos)
+  const categoryFilterOptions = useMemo(() => [
+    { value: 'all', label: t('debts.all_categories', {}, 'Todas las categorías'), emoji: '🏷️' },
+    ...[...safeCategoriesList]
+      .sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' }))
+      .map(cat => ({
+        value: cat.id,
+        label: cat.name,
+        emoji: cat.emoji || '🏷️'
+      }))
+  ], [safeCategoriesList, t]);
+
   // Account Filter Options (Sorted with Logos)
   const accountFilterOptions = useMemo(() => [
     { value: 'all', label: t('debts.all_accounts', {}, 'Todas las cuentas'), emoji: '🏦' },
-    ...safeAccountsList.map(acc => ({
-      value: acc.id,
-      label: acc.name,
-      emoji: acc.emoji || '🏦'
-    }))
+    ...[...safeAccountsList]
+      .sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' }))
+      .map(acc => ({
+        value: acc.id,
+        label: acc.name,
+        emoji: acc.emoji || '🏦'
+      }))
   ], [safeAccountsList, t]);
 
-  // Status Filter Options
-  const statusFilterOptions = useMemo(() => [
-    { value: 'all', label: t('debts.status_all', {}, 'Todos los estados') },
-    { value: 'pending', label: t('debts.status_pending', {}, 'Pendientes') },
-    { value: 'overdue', label: t('debts.status_overdue', {}, 'Vencidos') },
-    { value: 'completed', label: t('debts.status_completed', {}, 'Completados') }
-  ], [t]);
-
   const hasActiveFilters = Boolean(
+    categoryFilter !== 'all' || 
     accountFilter !== 'all' || 
     startDate || 
     endDate || 
-    statusFilter !== 'all' || 
     searchTerm.trim()
   );
 
   const resetFilters = () => {
     setSearchTerm('');
+    setCategoryFilter('all');
     setAccountFilter('all');
     setStartDate('');
     setEndDate('');
-    setStatusFilter('all');
   };
 
   // Enrich each loan with its calculated remaining balance, total paid, and settlement status
@@ -118,53 +124,51 @@ export default function DebtsView() {
     });
   }, [safeLoansList, safePaymentsList]);
 
-  // Filter enriched debts by search, tab, account, date range, and status
+  // Filter enriched debts by search, tab, category, account, and date range
   const filteredDebts = useMemo(() => {
     return enrichedDebts.filter(d => {
       if (!d) return false;
       const isSettled = d.calc.isSettled || d.status === 'settled' || d.status === 'paid';
-      const isOverdue = !isSettled && d.dueDate && getDaysDifference(d.dueDate) < 0;
 
-      // 1. Tab filter
+      // 1. Tab filter (payable / receivable / completed)
       if (activeTab === 'payable' && (!d.isPayable || isSettled)) return false;
       if (activeTab === 'receivable' && (d.isPayable || isSettled)) return false;
       if (activeTab === 'completed' && !isSettled) return false;
 
-      // 2. Status filter
-      if (statusFilter === 'pending' && (isSettled || isOverdue)) return false;
-      if (statusFilter === 'overdue' && !isOverdue) return false;
-      if (statusFilter === 'completed' && !isSettled) return false;
+      // 2. Text search query (concept includes search term)
+      if (searchTerm && searchTerm.trim()) {
+        const q = searchTerm.toLowerCase();
+        const conceptText = String(d.concept || d.description || '').toLowerCase();
+        if (!conceptText.includes(q)) return false;
+      }
 
-      // 3. Account filter (matched against linked account, source account, or payment account)
+      // 3. Category filter (debt.category_id === selectedCategory)
+      if (categoryFilter !== 'all') {
+        const catId = d.categoryId || d.category_id;
+        if (catId !== categoryFilter) return false;
+      }
+
+      // 4. Account filter (debt.source_account_id === selectedAccount or linked/payment account)
       if (accountFilter !== 'all') {
-        const dAccId = d.accountId || d.account_id || d.sourceAccountId || d.source_account_id;
+        const dAccId = d.sourceAccountId || d.source_account_id || d.accountId || d.account_id;
         const hasPaymentAcc = Array.isArray(d.calc?.payments) && d.calc.payments.some(p => (p.accountId || p.account_id) === accountFilter);
         if (dAccId !== accountFilter && !hasPaymentAcc) return false;
       }
 
-      // 4. Date Range Filter (startDate / endDate compared against creation/loan/due date)
-      const dDateRaw = d.startDate || d.start_date || d.dueDate || d.due_date || d.createdAt || d.created_at || '';
+      // 5. Date Range Filter (due_date or start_date between startDate and endDate)
+      const dDateRaw = d.dueDate || d.due_date || d.startDate || d.start_date || d.createdAt || d.created_at || '';
       const dDate = dDateRaw ? (dDateRaw.includes('T') ? dDateRaw.split('T')[0] : dDateRaw) : '';
       if (startDate && dDate && dDate < startDate) return false;
       if (endDate && dDate && dDate > endDate) return false;
 
-      // 5. Concept & Category Search Query
-      if (searchTerm && searchTerm.trim()) {
-        const q = searchTerm.toLowerCase();
-        const conceptText = String(d.concept || d.description || '').toLowerCase();
-        const catId = d.categoryId || d.category_id;
-        const catObj = safeCategoriesList.find(c => c && c.id === catId);
-        const catName = String(catObj?.name || '').toLowerCase();
-        return conceptText.includes(q) || catName.includes(q);
-      }
       return true;
     });
-  }, [enrichedDebts, activeTab, statusFilter, accountFilter, startDate, endDate, searchTerm, safeCategoriesList]);
+  }, [enrichedDebts, activeTab, searchTerm, categoryFilter, accountFilter, startDate, endDate]);
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeTab, searchTerm, accountFilter, startDate, endDate, statusFilter]);
+  }, [activeTab, searchTerm, categoryFilter, accountFilter, startDate, endDate]);
 
   const paginatedDebts = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
@@ -365,83 +369,83 @@ export default function DebtsView() {
         </div>
       </header>
 
-      {/* 2. TOOLBAR: SEARCH AND RESPONSIVE ADVANCED FILTERS BAR */}
-      <div className="space-y-3 w-full relative z-20">
-        <div className="flex items-center gap-2 w-full">
-          <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder={t('debts.search_placeholder', {}, 'Buscar por concepto o categoría...')}
-              className="w-full h-11 pl-9 pr-3 bg-white/[0.04] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[var(--accent,#97F2CC)] shadow-inner transition-colors"
+      {/* 2. TOOLBAR: HOMOLOGATED ADVANCED FILTERS CONTAINER */}
+      <div className="bg-slate-900/50 border border-slate-800/60 p-3 rounded-2xl gap-3 flex flex-wrap items-center w-full relative z-20">
+        {/* Buscador (Input) */}
+        <div className="flex-1 min-w-[180px] sm:min-w-[200px] relative">
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder={t('debts.search_placeholder', {}, 'Buscar por concepto...')}
+            className="w-full h-9 pl-9 pr-3 text-sm bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-500 focus:outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
+          />
+        </div>
+
+        {/* Filtro de Categoría (Dropdown Select) */}
+        <div className="w-full sm:w-auto min-w-[140px] sm:min-w-[160px] flex-1 sm:flex-initial">
+          <CustomSelect
+            options={categoryFilterOptions}
+            value={categoryFilter}
+            onChange={setCategoryFilter}
+            placeholder={t('debts.filter_category', {}, 'Categoría')}
+          />
+        </div>
+
+        {/* Filtro de Cuenta (Dropdown Select) */}
+        <div className="w-full sm:w-auto min-w-[140px] sm:min-w-[160px] flex-1 sm:flex-initial">
+          <CustomSelect
+            options={accountFilterOptions}
+            value={accountFilter}
+            onChange={setAccountFilter}
+            placeholder={t('debts.filter_account', {}, 'Cuenta')}
+          />
+        </div>
+
+        {/* Filtro de Rango de Fechas (Date Range h-9) */}
+        <div className="flex items-center gap-1.5 p-1 bg-[#0D1117]/80 rounded-xl border border-white/10 h-9 shrink-0 w-full sm:w-auto justify-between sm:justify-start">
+          <span className="text-[11px] font-semibold text-slate-400 shrink-0 pl-1.5">{t('debts.date_from', {}, 'Desde')}</span>
+          <div className="w-28 sm:w-32">
+            <CustomDatePicker
+              value={startDate}
+              onChange={setStartDate}
+              placeholder={t('debts.date_from', {}, 'Desde')}
             />
           </div>
-          <div className="sm:hidden shrink-0">
-            <ExportDropdown
-              data={filteredDebts}
-              columns={debtColumns}
-              title={t('debts.exportTitle', {}, 'Reporte de Saldos Pendientes')}
-              filename={exportFilename}
-              summary={debtSummary}
+          <span className="text-slate-500 text-xs">—</span>
+          <span className="text-[11px] font-semibold text-slate-400 shrink-0">{t('debts.date_to', {}, 'Hasta')}</span>
+          <div className="w-28 sm:w-32">
+            <CustomDatePicker
+              value={endDate}
+              onChange={setEndDate}
+              placeholder={t('debts.date_to', {}, 'Hasta')}
             />
           </div>
         </div>
 
-        {/* Advanced Filters Flex Container */}
-        <div className="flex flex-wrap items-center gap-2.5 p-3 rounded-2xl bg-[#0D1117]/80 border border-white/5 backdrop-blur-md">
-          {/* 1. Account Filter */}
-          <div className="w-full sm:w-48 min-w-[170px] flex-1">
-            <CustomSelect
-              options={accountFilterOptions}
-              value={accountFilter}
-              onChange={setAccountFilter}
-              placeholder={t('debts.filter_account', {}, 'Cuenta')}
-            />
-          </div>
+        {/* Botón Limpiar filtros */}
+        {hasActiveFilters && (
+          <button
+            type="button"
+            onClick={resetFilters}
+            className="h-9 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-rose-300 border border-rose-500/20 flex items-center gap-1.5 transition-all shrink-0 cursor-pointer"
+            title={t('debts.clear_filters', {}, 'Limpiar filtros')}
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{t('debts.clear_filters', {}, 'Limpiar')}</span>
+          </button>
+        )}
 
-          {/* 2. Status Filter */}
-          <div className="w-full sm:w-44 min-w-[150px] flex-1">
-            <CustomSelect
-              options={statusFilterOptions}
-              value={statusFilter}
-              onChange={setStatusFilter}
-              placeholder={t('debts.filter_status', {}, 'Estado')}
-            />
-          </div>
-
-          {/* 3. Date Range (From - To) */}
-          <div className="flex items-center gap-2 w-full sm:w-auto flex-1 sm:flex-initial">
-            <div className="w-full sm:w-36">
-              <CustomDatePicker
-                value={startDate}
-                onChange={setStartDate}
-                placeholder={t('debts.date_from', {}, 'Desde')}
-              />
-            </div>
-            <span className="text-slate-500 text-xs hidden sm:inline">-</span>
-            <div className="w-full sm:w-36">
-              <CustomDatePicker
-                value={endDate}
-                onChange={setEndDate}
-                placeholder={t('debts.date_to', {}, 'Hasta')}
-              />
-            </div>
-          </div>
-
-          {/* 4. Reset Filters Button */}
-          {hasActiveFilters && (
-            <button
-              type="button"
-              onClick={resetFilters}
-              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors cursor-pointer shrink-0 ml-auto"
-              title={t('debts.clear_filters', {}, 'Limpiar filtros')}
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>{t('debts.clear_filters', {}, 'Limpiar filtros')}</span>
-            </button>
-          )}
+        {/* ExportDropdown en móvil */}
+        <div className="sm:hidden shrink-0 ml-auto">
+          <ExportDropdown
+            data={filteredDebts}
+            columns={debtColumns}
+            title={t('debts.exportTitle', {}, 'Reporte de Saldos Pendientes')}
+            filename={exportFilename}
+            summary={debtSummary}
+          />
         </div>
       </div>
 
