@@ -14,7 +14,12 @@ import {
   dbFetchSubscriptions, dbSaveSubscription, dbDeleteSubscription,
   processSubscriptionsCron,
   consolidateOldTransactions,
-  isValidUuid
+  isValidUuid,
+  fetchAllUserDebtPayments,
+  recordDebtPaymentWithTransaction,
+  deleteDebtPaymentWithReversion,
+  recordDirectLoanTransaction,
+  calculateDebtRemaining
 } from '../services/supabaseService';
 import { useSettings } from './SettingsContext';
 
@@ -67,6 +72,7 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
   const [categories, setCategories] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [loans, setLoans] = useState([]);
+  const [debtPayments, setDebtPayments] = useState([]);
   const [subscriptions, setSubscriptions] = useState([]);
   const [isInitialized, setIsInitialized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -102,12 +108,13 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
 
     async function loadData() {
       try {
-        const [dbAccs, dbCats, dbTx, dbLoans, dbSubs] = await Promise.all([
+        const [dbAccs, dbCats, dbTx, dbLoans, dbSubs, dbPayments] = await Promise.all([
           dbFetchAccounts(userId),
           dbFetchCategories(userId),
           dbFetchTransactions(userId),
           dbFetchLoans(userId),
-          dbFetchSubscriptions(userId)
+          dbFetchSubscriptions(userId),
+          fetchAllUserDebtPayments(userId)
         ]);
 
         if (!isMounted) return;
@@ -117,6 +124,7 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
         const loadedTx = Array.isArray(dbTx) ? dbTx : [];
         const loadedLoans = Array.isArray(dbLoans) ? dbLoans : [];
         const loadedSubs = Array.isArray(dbSubs) ? dbSubs : [];
+        const loadedPayments = Array.isArray(dbPayments) ? dbPayments : [];
 
         // Seed default categories in Supabase DB if zero exist using user language or detected browser language
         if (loadedCategories.length === 0) {
@@ -129,6 +137,7 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
         setCategories(loadedCategories);
         setTransactions(loadedTx);
         setLoans(loadedLoans);
+        setDebtPayments(loadedPayments);
         setSubscriptions(loadedSubs);
 
         // Run DB Auto-Debit Subscription Engine with Deduplication
@@ -340,12 +349,28 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
     }
   }, [triggerToast]);
 
-  // --- LOANS ACTIONS ---
+  // --- LOANS / DEBTS ACTIONS ---
   const addLoan = useCallback(async (newLoan) => {
     try {
       const saved = await dbSaveLoan(userId, newLoan);
       if (saved) {
         setLoans(prev => [saved, ...(Array.isArray(prev) ? prev.filter(Boolean) : [])]);
+        
+        // Handle Direct Loan Transfer Transaction if selected
+        if (newLoan.isDirectLoan && newLoan.sourceAccountId) {
+          const directTx = await recordDirectLoanTransaction({
+            userId,
+            sourceAccountId: newLoan.sourceAccountId,
+            amount: newLoan.amount,
+            currency: newLoan.currency,
+            concept: newLoan.concept || newLoan.description,
+            startDate: newLoan.startDate
+          });
+          if (directTx) {
+            setTransactions(prev => [directTx, ...(Array.isArray(prev) ? prev.filter(Boolean) : [])]);
+          }
+        }
+
         triggerToast('success', i18nMsg('Saldo pendiente guardado correctamente', 'Pending balance saved successfully'));
       }
     } catch (err) {
@@ -366,6 +391,63 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
       triggerToast('error', syncErrMsg(err));
     }
   }, [userId, triggerToast]);
+
+  const addDebtPaymentAction = useCallback(async ({ debt, amount, paymentDate, accountId, notes }) => {
+    try {
+      const res = await recordDebtPaymentWithTransaction({
+        debt,
+        userId,
+        amount,
+        paymentDate,
+        accountId,
+        notes
+      });
+
+      if (res.payment) {
+        setDebtPayments(prev => [res.payment, ...(Array.isArray(prev) ? prev.filter(Boolean) : [])]);
+        if (res.transaction) {
+          setTransactions(prev => [res.transaction, ...(Array.isArray(prev) ? prev.filter(Boolean) : [])]);
+        }
+        if (res.isSettled) {
+          setLoans(prev => (Array.isArray(prev) ? prev.filter(Boolean) : []).map(l => 
+            l.id === debt.id ? { ...l, status: 'paid' } : l
+          ));
+        }
+        triggerToast('success', i18nMsg('Abono registrado correctamente', 'Payment registered successfully'));
+        return res;
+      }
+    } catch (err) {
+      console.error('❌ Error en addDebtPaymentAction:', err);
+      triggerToast('error', syncErrMsg(err));
+    }
+    return null;
+  }, [userId, triggerToast]);
+
+  const deleteDebtPaymentAction = useCallback(async (paymentId, cachedPayment = null) => {
+    try {
+      const res = await deleteDebtPaymentWithReversion(paymentId, cachedPayment);
+      if (res.success) {
+        setDebtPayments(prev => (Array.isArray(prev) ? prev.filter(Boolean) : []).filter(p => p.id !== paymentId));
+        if (res.deletedTransactionId) {
+          setTransactions(prev => (Array.isArray(prev) ? prev.filter(Boolean) : []).filter(t => t.id !== res.deletedTransactionId));
+        }
+        if (res.revertedStatus === 'pending') {
+          const debtId = cachedPayment?.debtId || cachedPayment?.debt_id;
+          if (debtId) {
+            setLoans(prev => (Array.isArray(prev) ? prev.filter(Boolean) : []).map(l => 
+              l.id === debtId ? { ...l, status: 'pending' } : l
+            ));
+          }
+        }
+        triggerToast('success', i18nMsg('Abono eliminado y saldo restaurado', 'Payment deleted and balance restored'));
+        return true;
+      }
+    } catch (err) {
+      console.error('❌ Error en deleteDebtPaymentAction:', err);
+      triggerToast('error', deleteErrMsg(err));
+    }
+    return false;
+  }, [triggerToast]);
 
   const deleteLoan = useCallback(async (loanId) => {
     try {
@@ -539,6 +621,7 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
   }, [categories]);
   const safeTransactionsList = useMemo(() => Array.isArray(transactions) ? transactions.filter(Boolean) : [], [transactions]);
   const safeLoansList = useMemo(() => Array.isArray(loans) ? loans.filter(Boolean) : [], [loans]);
+  const safeDebtPaymentsList = useMemo(() => Array.isArray(debtPayments) ? debtPayments.filter(Boolean) : [], [debtPayments]);
   const safeSubsList = useMemo(() => Array.isArray(subscriptions) ? subscriptions.filter(Boolean) : [], [subscriptions]);
 
   const value = useMemo(() => ({
@@ -546,6 +629,7 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
     categories: safeCategoriesList,
     transactions: safeTransactionsList,
     loans: safeLoansList,
+    debtPayments: safeDebtPaymentsList,
     subscriptions: safeSubsList,
     isInitialized,
     isLoading,
@@ -568,6 +652,8 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
     updateLoan,
     deleteLoan,
     markLoanAsPaid,
+    addDebtPayment: addDebtPaymentAction,
+    deleteDebtPayment: deleteDebtPaymentAction,
     addSubscription,
     updateSubscription,
     deleteSubscription,
@@ -579,6 +665,7 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
     safeCategoriesList,
     safeTransactionsList,
     safeLoansList,
+    safeDebtPaymentsList,
     safeSubsList,
     isInitialized,
     isLoading,
@@ -601,6 +688,8 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
     updateLoan,
     deleteLoan,
     markLoanAsPaid,
+    addDebtPaymentAction,
+    deleteDebtPaymentAction,
     addSubscription,
     updateSubscription,
     deleteSubscription,
