@@ -63,5 +63,38 @@
       "debts": "Debts on Track",
       "budget": "Budget Adherence"
     }
+  },
+  "debts": {
+    "title": "Pending Balances",
+    "subtitle": "Track pending debts, loans given, and financial commitments",
+    "new_balance": "New Balance",
+    "search_placeholder": "Search by concept or category...",
+    "total_payable": "TOTAL PAYABLE (DEBTS)",
+    "total_paid": "TOTAL PAID",
+    "settlement_progress": "SETTLEMENT PROGRESS",
+    "next_due_date": "Next due date: In {{days}} days ({{date}})",
+    "active_debts": "{{count}} active debt",
+    "active_debts_plural": "{{count}} active debts",
+    "tabs": {
+      "payable": "Payable (Debts)",
+      "receivable": "Receivable (Loans & Collections)",
+      "completed": "Completed"
+    },
+    "payable_desc": "Pending balances you need to pay to banks, cards, or individuals.",
+    "receivable_desc": "Money loaned or pending collection that will return to your accounts.",
+    "card": {
+      "payable_badge": "PAYABLE",
+      "receivable_badge": "RECEIVABLE",
+      "original": "ORIGINAL",
+      "paid": "PAID",
+      "remaining": "REMAINING",
+      "due_prefix": "Due",
+      "payments_count": "Payments ({{count}})"
+    },
+    "make_payment": "Make Payment"
+  },
+  "dashboard": {
+    "topAccounts": "Top Accounts",
+    "viewAccounts": "View Accounts"
   }
 }

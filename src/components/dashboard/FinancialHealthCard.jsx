@@ -139,15 +139,15 @@ export default function FinancialHealthCard({
           <div className="p-2 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
             <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400">
               <div className="flex items-center gap-1.5 min-w-0">
-                <PiggyBank className="w-3.5 h-3.5 text-[var(--accent,#97F2CC)] shrink-0" />
+                <PiggyBank className="w-3.5 h-3.5 text-[var(--accent)] shrink-0" />
                 <span className="truncate">{isEs ? 'Ahorro' : 'Savings'}</span>
               </div>
               <span className="text-white font-bold tabular-nums text-xs shrink-0">{breakdown?.savings?.points ?? 0}/40</span>
             </div>
             <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
               <div 
-                className="h-full rounded-full transition-all duration-500 bg-[var(--accent,#97F2CC)]"
-                style={{ width: `${((breakdown?.savings?.points ?? 0) / 40) * 100}%` }}
+                className="h-full rounded-full transition-all duration-500 bg-[var(--accent)]"
+                style={{ width: `${((breakdown?.savings?.points ?? 0) / 40) * 100}%`, backgroundColor: 'var(--accent)' }}
               />
             </div>
           </div>
@@ -156,15 +156,15 @@ export default function FinancialHealthCard({
           <div className="p-2 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
             <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400">
               <div className="flex items-center gap-1.5 min-w-0">
-                <Percent className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <Percent className="w-3.5 h-3.5 text-[var(--accent)] shrink-0" />
                 <span className="truncate">{isEs ? 'Deudas' : 'Debts'}</span>
               </div>
               <span className="text-white font-bold tabular-nums text-xs shrink-0">{breakdown?.debts?.points ?? 0}/30</span>
             </div>
             <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
               <div 
-                className={`h-full rounded-full transition-all duration-500 ${(breakdown?.debts?.overdueCount ?? 0) > 0 ? 'bg-rose-400' : 'bg-[var(--accent,#97F2CC)]'}`}
-                style={{ width: `${((breakdown?.debts?.points ?? 0) / 30) * 100}%` }}
+                className="h-full rounded-full transition-all duration-500 bg-[var(--accent)]"
+                style={{ width: `${((breakdown?.debts?.points ?? 0) / 30) * 100}%`, backgroundColor: 'var(--accent)' }}
               />
             </div>
           </div>
@@ -173,15 +173,15 @@ export default function FinancialHealthCard({
           <div className="p-2 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
             <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400">
               <div className="flex items-center gap-1.5 min-w-0">
-                <Target className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                <Target className="w-3.5 h-3.5 text-[var(--accent)] shrink-0" />
                 <span className="truncate">{isEs ? 'Metas' : 'Budget'}</span>
               </div>
               <span className="text-white font-bold tabular-nums text-xs shrink-0">{breakdown?.budget?.points ?? 0}/30</span>
             </div>
             <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
               <div 
-                className="h-full rounded-full transition-all duration-500 bg-sky-400"
-                style={{ width: `${((breakdown?.budget?.points ?? 0) / 30) * 100}%` }}
+                className="h-full rounded-full transition-all duration-500 bg-[var(--accent)]"
+                style={{ width: `${((breakdown?.budget?.points ?? 0) / 30) * 100}%`, backgroundColor: 'var(--accent)' }}
               />
             </div>
           </div>
@@ -252,7 +252,7 @@ export default function FinancialHealthCard({
               <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/5 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 font-bold text-white text-xs sm:text-sm">
-                    <PiggyBank className="w-4 h-4 text-[var(--accent,#97F2CC)]" />
+                    <PiggyBank className="w-4 h-4 text-[var(--accent)]" />
                     <span>{isEs ? '1. Ratio Ahorro / Gasto' : '1. Savings / Expense Ratio'}</span>
                   </div>
                   <span className="font-black text-white text-xs sm:text-sm tabular-nums">
@@ -266,8 +266,8 @@ export default function FinancialHealthCard({
                 </p>
                 <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden">
                   <div 
-                    className="h-full rounded-full bg-[var(--accent,#97F2CC)] transition-all duration-500"
-                    style={{ width: `${((breakdown?.savings?.points ?? 0) / 40) * 100}%` }}
+                    className="h-full rounded-full bg-[var(--accent)] transition-all duration-500"
+                    style={{ width: `${((breakdown?.savings?.points ?? 0) / 40) * 100}%`, backgroundColor: 'var(--accent)' }}
                   />
                 </div>
               </div>
@@ -276,7 +276,7 @@ export default function FinancialHealthCard({
               <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/5 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 font-bold text-white text-xs sm:text-sm">
-                    <Percent className="w-4 h-4 text-amber-400" />
+                    <Percent className="w-4 h-4 text-[var(--accent)]" />
                     <span>{isEs ? '2. Deudas y Compromisos al Día' : '2. Debts and Commitments on Track'}</span>
                   </div>
                   <span className="font-black text-white text-xs sm:text-sm tabular-nums">
@@ -292,8 +292,8 @@ export default function FinancialHealthCard({
                 </p>
                 <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden">
                   <div 
-                    className={`h-full rounded-full transition-all duration-500 ${(breakdown?.debts?.overdueCount ?? 0) > 0 ? 'bg-rose-400' : 'bg-[var(--accent,#97F2CC)]'}`}
-                    style={{ width: `${((breakdown?.debts?.points ?? 0) / 30) * 100}%` }}
+                    className="h-full rounded-full bg-[var(--accent)] transition-all duration-500"
+                    style={{ width: `${((breakdown?.debts?.points ?? 0) / 30) * 100}%`, backgroundColor: 'var(--accent)' }}
                   />
                 </div>
               </div>
@@ -302,7 +302,7 @@ export default function FinancialHealthCard({
               <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/5 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 font-bold text-white text-xs sm:text-sm">
-                    <Target className="w-4 h-4 text-sky-400" />
+                    <Target className="w-4 h-4 text-[var(--accent)]" />
                     <span>{isEs ? '3. Apego a Presupuestos por Categoría' : '3. Category Budget Adherence'}</span>
                   </div>
                   <span className="font-black text-white text-xs sm:text-sm tabular-nums">
@@ -320,8 +320,8 @@ export default function FinancialHealthCard({
                 </p>
                 <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden">
                   <div 
-                    className="h-full rounded-full bg-sky-400 transition-all duration-500"
-                    style={{ width: `${((breakdown?.budget?.points ?? 0) / 30) * 100}%` }}
+                    className="h-full rounded-full bg-[var(--accent)] transition-all duration-500"
+                    style={{ width: `${((breakdown?.budget?.points ?? 0) / 30) * 100}%`, backgroundColor: 'var(--accent)' }}
                   />
                 </div>
               </div>

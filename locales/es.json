@@ -63,5 +63,38 @@
       "debts": "Deudas al Día",
       "budget": "Apego a Presupuestos"
     }
+  },
+  "debts": {
+    "title": "Saldos Pendientes",
+    "subtitle": "Controla deudas pendientes, préstamos otorgados y compromisos financieros",
+    "new_balance": "Nuevo Saldo",
+    "search_placeholder": "Buscar por concepto o categoría...",
+    "total_payable": "TOTAL POR PAGAR (DEUDAS)",
+    "total_paid": "TOTAL ABONADO",
+    "settlement_progress": "PROGRESO DE LIQUIDACIÓN",
+    "next_due_date": "Próximo vencimiento: En {{days}} días ({{date}})",
+    "active_debts": "{{count}} deuda activa",
+    "active_debts_plural": "{{count}} deudas activas",
+    "tabs": {
+      "payable": "Por Pagar (Deudas)",
+      "receivable": "Por Cobrar (Préstamos)",
+      "completed": "Completados"
+    },
+    "payable_desc": "Saldos pendientes que debes pagar a bancos, tarjetas o personas.",
+    "receivable_desc": "Dinero prestado o cobros pendientes que ingresarán a tus cuentas.",
+    "card": {
+      "payable_badge": "POR PAGAR",
+      "receivable_badge": "POR COBRAR",
+      "original": "ORIGINAL",
+      "paid": "ABONADO",
+      "remaining": "RESTANTE",
+      "due_prefix": "Vence",
+      "payments_count": "Abonos ({{count}})"
+    },
+    "make_payment": "Abonar"
+  },
+  "dashboard": {
+    "topAccounts": "Cuentas Principales",
+    "viewAccounts": "Ver Cuentas"
   }
 }

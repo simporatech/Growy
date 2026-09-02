@@ -500,6 +500,7 @@ export function SettingsProvider({ children, userId = null }) {
 
     let result = current;
     Object.keys(replacements).forEach(key => {
+      result = result.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), replacements[key]);
       result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), replacements[key]);
     });
 

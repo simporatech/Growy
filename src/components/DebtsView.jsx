@@ -169,19 +169,19 @@ export default function DebtsView() {
     const receivableProgress = totalReceivableOriginal > 0 ? Math.min(100, Math.round((totalReceivablePaid / totalReceivableOriginal) * 100)) : 0;
     const netCommitments = totalReceivableRemaining - totalPayableRemaining;
 
-    let payableDueLabel = isEs ? 'Al día / Sin fecha' : 'Up to date / No date';
+    let payableDueLabel = isEs ? 'Próximo vencimiento: Al día / Sin fecha' : 'Next due date: Up to date / No date';
     let payableDueClass = 'text-slate-300';
 
     if (earliestPayableDue) {
       const diff = getDaysDifference(earliestPayableDue);
       if (diff < 0) {
-        payableDueLabel = isEs ? `¡Vencido (${Math.abs(diff)}d)!` : `Overdue (${Math.abs(diff)}d)!`;
+        payableDueLabel = isEs ? `Próximo vencimiento: ¡Vencido hace ${Math.abs(diff)}d! (${earliestPayableDue})` : `Next due date: Overdue by ${Math.abs(diff)}d! (${earliestPayableDue})`;
         payableDueClass = 'text-rose-400 font-bold';
       } else if (diff === 0) {
-        payableDueLabel = isEs ? 'Vence hoy' : 'Due today';
+        payableDueLabel = isEs ? `Próximo vencimiento: ¡Vence hoy! (${earliestPayableDue})` : `Next due date: Due today! (${earliestPayableDue})`;
         payableDueClass = 'text-amber-400 font-bold';
       } else {
-        payableDueLabel = isEs ? `En ${diff} días (${earliestPayableDue})` : `In ${diff} days (${earliestPayableDue})`;
+        payableDueLabel = t('debts.next_due_date', { days: diff, date: earliestPayableDue }, isEs ? `Próximo vencimiento: En ${diff} días (${earliestPayableDue})` : `Next due date: In ${diff} days (${earliestPayableDue})`);
         payableDueClass = 'text-slate-200 font-medium';
       }
     }
@@ -202,7 +202,7 @@ export default function DebtsView() {
       totalSettledCount,
       netCommitments
     };
-  }, [enrichedDebts, baseCurrency, exchangeRates, isEs]);
+  }, [enrichedDebts, baseCurrency, exchangeRates, isEs, t]);
 
   const debtColumns = useMemo(() => [
     { 
@@ -214,15 +214,15 @@ export default function DebtsView() {
       accessor: (l) => l?.isPayable ? (isEs ? 'Por Pagar' : 'Payable') : (isEs ? 'Por Cobrar' : 'Receivable') 
     },
     { 
-      label: isEs ? 'Monto Original' : 'Original Amount', 
+      label: t('debts.card.original', {}, isEs ? 'Monto Original' : 'Original Amount'), 
       accessor: (l) => parseNumeric(l?.amount, 0).toFixed(2) 
     },
     { 
-      label: isEs ? 'Total Abonado' : 'Total Paid', 
+      label: t('debts.card.paid', {}, isEs ? 'Total Abonado' : 'Total Paid'), 
       accessor: (l) => (l?.calc?.totalPaid || 0).toFixed(2) 
     },
     { 
-      label: isEs ? 'Saldo Restante' : 'Remaining Balance', 
+      label: t('debts.card.remaining', {}, isEs ? 'Saldo Restante' : 'Remaining Balance'), 
       accessor: (l) => (l?.calc?.remainingAmount || 0).toFixed(2) 
     },
     { 
@@ -237,7 +237,7 @@ export default function DebtsView() {
       label: isEs ? 'Estado' : 'Status', 
       accessor: (l) => l?.calc?.isSettled ? (isEs ? 'Liquidado' : 'Settled') : (isEs ? 'Pendiente' : 'Pending') 
     }
-  ], [isEs]);
+  ], [isEs, t]);
 
   const debtSummary = useMemo(() => ({
     totalRecords: filteredDebts.length,
@@ -287,9 +287,9 @@ export default function DebtsView() {
               setDebtToEdit(null);
               setIsDebtModalOpen(true);
             }}
-            title={t('debts.newDebtBtn', {}, 'Nuevo Saldo')}
+            title={t('debts.new_balance', {}, 'Nuevo Saldo')}
           >
-            <span className="hidden sm:inline">{t('debts.newDebtBtn', {}, 'Nuevo Saldo')}</span>
+            <span className="hidden sm:inline">{t('debts.new_balance', {}, 'Nuevo Saldo')}</span>
           </Button>
         </div>
       </header>
@@ -302,7 +302,7 @@ export default function DebtsView() {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder={t('debts.searchPlaceholder', {}, 'Buscar por concepto o categoría...')}
+            placeholder={t('debts.search_placeholder', {}, 'Buscar por concepto o categoría...')}
             className="w-full h-11 pl-9 pr-3 bg-white/[0.04] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[var(--accent,#97F2CC)] shadow-inner transition-colors"
           />
         </div>
@@ -328,7 +328,7 @@ export default function DebtsView() {
               <div className="lg:col-span-4">
                 <span className="text-xs font-semibold tracking-wider text-rose-400 uppercase flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-rose-500 inline-block shrink-0" />
-                  {t('debts.totalPayableLabel', {}, 'TOTAL POR PAGAR (DEUDAS)')}
+                  {t('debts.total_payable', {}, 'TOTAL POR PAGAR (DEUDAS)')}
                 </span>
                 <div className="flex items-baseline gap-2 mt-1">
                   <span className="text-2xl sm:text-3xl font-bold text-white tabular-nums tracking-tight">
@@ -343,7 +343,7 @@ export default function DebtsView() {
               {/* Total Abonado hasta hoy */}
               <div className="lg:col-span-4">
                 <span className="text-xs font-semibold tracking-wider text-slate-300 uppercase block">
-                  {t('debts.totalPaidSoFar', {}, 'Total Abonado')}
+                  {t('debts.total_paid', {}, 'TOTAL ABONADO')}
                 </span>
                 <span className="text-xl sm:text-2xl font-bold tabular-nums tracking-tight mt-1 block text-emerald-400">
                   {formatCurrency(tabStats.totalPayablePaid, baseCurrency)}
@@ -354,7 +354,7 @@ export default function DebtsView() {
               <div className="lg:col-span-4 space-y-1.5 sm:space-y-2">
                 <div className="flex items-center justify-between text-xs font-semibold">
                   <span className="text-slate-300 uppercase tracking-wider">
-                    {t('debts.progress', {}, 'Progreso de liquidación')}
+                    {t('debts.settlement_progress', {}, 'PROGRESO DE LIQUIDACIÓN')}
                   </span>
                   <span className="text-white tabular-nums font-bold">
                     {tabStats.payableProgress}%
@@ -369,15 +369,19 @@ export default function DebtsView() {
                 <div className="flex items-center gap-1.5 text-xs text-slate-400 pt-0.5">
                   <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                   <span className="truncate">
-                    {t('debts.nextDueDateLabel', {}, 'Próximo vencimiento:')} <span className={tabStats.payableDueClass}>{tabStats.payableDueLabel}</span>
+                    <span className={tabStats.payableDueClass}>{tabStats.payableDueLabel}</span>
                   </span>
                 </div>
               </div>
             </div>
 
             <div className="pt-3 sm:pt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
-              <span>{t('debts.payableFooterHelp', {}, 'Saldos pendientes que debes cancelar a bancos, tarjetas o personas.')}</span>
-              <span className="font-bold text-white tabular-nums">{filteredDebts.length} {t('debts.activeRecords', {}, 'deudas activas')}</span>
+              <span>{t('debts.payable_desc', {}, 'Saldos pendientes que debes pagar a bancos, tarjetas o personas.')}</span>
+              <span className="font-bold text-white tabular-nums">
+                {filteredDebts.length === 1 
+                  ? t('debts.active_debts', { count: filteredDebts.length }, '1 deuda activa') 
+                  : t('debts.active_debts_plural', { count: filteredDebts.length }, `${filteredDebts.length} deudas activas`)}
+              </span>
             </div>
           </>
         ) : activeTab === 'receivable' ? (
@@ -436,7 +440,7 @@ export default function DebtsView() {
             </div>
 
             <div className="pt-3 sm:pt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
-              <span>{t('debts.receivableFooterHelp', {}, 'Dinero prestado o pendiente de recibir que retornará a tus cuentas.')}</span>
+              <span>{t('debts.receivable_desc', {}, 'Dinero prestado o cobros pendientes que ingresarán a tus cuentas.')}</span>
               <span className="font-bold text-emerald-400 tabular-nums">{filteredDebts.length} {t('debts.activeCollections', {}, 'cobros activos')}</span>
             </div>
           </>
@@ -499,7 +503,7 @@ export default function DebtsView() {
             }`}
           >
             <ArrowDownLeft className="w-3.5 h-3.5 text-rose-400 shrink-0" />
-            <span>{t('debts.tabPayable', {}, 'Por Pagar (Deudas)')}</span>
+            <span>{t('debts.tabs.payable', {}, 'Por Pagar (Deudas)')}</span>
           </button>
 
           <button
@@ -512,7 +516,7 @@ export default function DebtsView() {
             }`}
           >
             <ArrowUpRight className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <span>{t('debts.tabReceivable', {}, 'Por Cobrar (Préstamos y Cobros)')}</span>
+            <span>{t('debts.tabs.receivable', {}, 'Por Cobrar (Préstamos)')}</span>
           </button>
 
           <button
@@ -525,7 +529,7 @@ export default function DebtsView() {
             }`}
           >
             <CheckCircle className="w-3.5 h-3.5 text-[var(--accent,#97F2CC)] shrink-0" />
-            <span>{t('debts.tabCompleted', {}, 'Completados')}</span>
+            <span>{t('debts.tabs.completed', {}, 'Completados')}</span>
           </button>
 
         </div>
@@ -537,7 +541,7 @@ export default function DebtsView() {
           icon={Percent}
           title={t('debts.noDebtsFound', {}, 'No hay compromisos en esta sección')}
           description={t('debts.noDebtsFoundSub', {}, 'Puedes crear un nuevo saldo por pagar o por cobrar haciendo clic en "Nuevo Saldo".')}
-          actionText={t('debts.newDebtBtn', {}, 'Nuevo Saldo')}
+          actionText={t('debts.new_balance', {}, 'Nuevo Saldo')}
           onAction={() => {
             setDebtToEdit(null);
             setIsDebtModalOpen(true);
@@ -562,6 +566,7 @@ export default function DebtsView() {
             let urgencyColor = 'text-slate-400 bg-white/5 border-white/10';
             if (debt.dueDate && !isSettled) {
               const daysDiff = getDaysDifference(debt.dueDate);
+              const duePrefix = t('debts.card.due_prefix', {}, isEs ? 'Vence' : 'Due');
               if (daysDiff < 0) {
                 urgencyLabel = isEs ? `Vencido hace ${Math.abs(daysDiff)} días` : `Overdue by ${Math.abs(daysDiff)} days`;
                 urgencyColor = 'text-rose-400 bg-rose-500/10 border-rose-500/30 font-bold animate-pulse';
@@ -569,10 +574,10 @@ export default function DebtsView() {
                 urgencyLabel = isEs ? 'Vence hoy' : 'Due today';
                 urgencyColor = 'text-amber-400 bg-amber-500/10 border-amber-500/30 font-bold';
               } else if (daysDiff <= 3) {
-                urgencyLabel = isEs ? `Vence en ${daysDiff} días` : `Due in ${daysDiff} days`;
+                urgencyLabel = isEs ? `${duePrefix} en ${daysDiff} días` : `${duePrefix} in ${daysDiff} days`;
                 urgencyColor = 'text-amber-300 bg-amber-500/10 border-amber-500/20';
               } else {
-                urgencyLabel = isEs ? `Vence el ${debt.dueDate}` : `Due ${debt.dueDate}`;
+                urgencyLabel = `${duePrefix} ${debt.dueDate}`;
               }
             }
 
@@ -607,7 +612,7 @@ export default function DebtsView() {
                             : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
                         }`}>
                           <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${debt.isPayable ? 'bg-rose-400' : 'bg-emerald-400'}`} />
-                          <span>{debt.isPayable ? t('debts.payableBadge', {}, 'Por Pagar') : t('debts.receivableBadge', {}, 'Por Cobrar')}</span>
+                          <span>{debt.isPayable ? t('debts.card.payable_badge', {}, 'POR PAGAR') : t('debts.card.receivable_badge', {}, 'POR COBRAR')}</span>
                         </span>
                         {catObj?.name && (
                           <span className="text-[11px] text-slate-400 truncate">
@@ -650,14 +655,14 @@ export default function DebtsView() {
                 {/* Amounts Breakdown Grid */}
                 <div className="grid grid-cols-3 gap-2 p-3 rounded-2xl bg-black/30 border border-white/5 text-center">
                   <div>
-                    <span className="text-[10px] text-slate-400 uppercase font-medium block">{t('debts.originalAmount', {}, 'Original')}</span>
+                    <span className="text-[10px] text-slate-400 uppercase font-medium block">{t('debts.card.original', {}, 'ORIGINAL')}</span>
                     <span className="text-xs font-bold text-white tabular-nums">
                       {formatCurrency(debt.calc.originalAmount, debt.currency || 'USD')}
                     </span>
                   </div>
 
                   <div>
-                    <span className="text-[10px] text-slate-400 uppercase font-medium block">{t('debts.totalPaid', {}, 'Abonado')}</span>
+                    <span className="text-[10px] text-slate-400 uppercase font-medium block">{t('debts.card.paid', {}, 'ABONADO')}</span>
                     <span className="text-xs font-bold text-emerald-400 tabular-nums">
                       {formatCurrency(debt.calc.totalPaid, debt.currency || 'USD')}
                     </span>
@@ -665,7 +670,7 @@ export default function DebtsView() {
 
                   <div>
                     <span className={`text-[10px] uppercase font-bold block ${debt.isPayable ? 'text-rose-400' : 'text-emerald-400'}`}>
-                      {t('debts.remaining', {}, 'Restante')}
+                      {t('debts.card.remaining', {}, 'RESTANTE')}
                     </span>
                     <span className={`text-xs font-semibold tabular-nums ${
                       isSettled ? 'text-slate-400 line-through' : debt.isPayable ? 'text-rose-400' : 'text-emerald-400'
@@ -710,7 +715,7 @@ export default function DebtsView() {
                     className="h-9 px-3 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
                   >
                     <History className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                    <span className="whitespace-nowrap">{t('debts.paymentsCount', { count: associatedPayments.length }, `Abonos (${associatedPayments.length})`)}</span>
+                    <span className="whitespace-nowrap">{t('debts.card.payments_count', { count: associatedPayments.length }, `Abonos (${associatedPayments.length})`)}</span>
                     {isExpanded ? <ChevronUp className="w-3.5 h-3.5 shrink-0" /> : <ChevronDown className="w-3.5 h-3.5 shrink-0" />}
                   </button>
 
@@ -718,15 +723,10 @@ export default function DebtsView() {
                     <button
                       type="button"
                       onClick={() => setDebtToPay(debt)}
-                      className="whitespace-nowrap flex items-center justify-center gap-1.5 px-4 h-9 min-w-max text-xs font-semibold rounded-lg bg-[var(--accent,#97F2CC)] text-[var(--accent-text,#091E15)] hover:brightness-105 transition-all shadow-md active:scale-[0.98] cursor-pointer shrink-0"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[var(--accent)]/15 text-[var(--accent)] hover:bg-[var(--accent)]/25 transition-colors whitespace-nowrap border border-[var(--accent)]/30 cursor-pointer"
                     >
-                      <Plus className="w-3.5 h-3.5 shrink-0 stroke-[2.5]" />
-                      <span className="whitespace-nowrap font-bold">
-                        {debt.isPayable 
-                          ? t('debts.make_payment', {}, '+ Abonar')
-                          : t('debts.make_collection', {}, '+ Cobrar')
-                        }
-                      </span>
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>{t('debts.make_payment')}</span>
                     </button>
                   ) : (
                     <div className="whitespace-nowrap flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20 shrink-0">

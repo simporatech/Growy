@@ -16,6 +16,7 @@ import AboutModule from './AboutModule';
 import FeedbackModule from './FeedbackModule';
 import CashflowForecastChart from './dashboard/CashflowForecastChart';
 import FinancialHealthCard from './dashboard/FinancialHealthCard';
+import TopAccountsWidget from './dashboard/TopAccountsWidget';
 import TransactionModal from './TransactionModal';
 import LoanModal from './LoanModal';
 import SubscriptionModal from './SubscriptionModal';
@@ -1077,71 +1078,17 @@ export default function DashboardPreview({ user, onLogout }) {
                 {/* WIDGET 0: Salud Financiera */}
                 <FinancialHealthCard onNavigateTab={setActiveTab} className="h-full" />
 
-                {/* WIDGET 1: Mini Portfolio de Cuentas */}
-                <div className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 h-full flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Landmark className="w-4 h-4 text-[var(--accent)]" />
-                      <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">{t('dashboard.miniPortfolio', {}, 'Mini Portfolio')}</h2>
-                    </div>
-                    <button 
-                      onClick={() => setActiveTab('accounts')}
-                      className="text-xs font-semibold text-[var(--accent)] hover:underline cursor-pointer"
-                    >
-                      {t('dashboard.viewAccounts', {}, 'Ver Cuentas')}
-                    </button>
-                  </div>
-
-                  <div className="space-y-3 flex-1">
-                    {safeAccountsList.length === 0 ? (
-                      <div className="text-center py-6 text-xs text-slate-300 space-y-2">
-                        <p>{t('dashboard.noAccounts', {}, 'No tienes cuentas registradas.')}</p>
-                        <button
-                          onClick={() => setIsAccountModalOpen(true)}
-                          className="px-4 h-11 rounded-xl bg-[var(--accent)] text-[var(--accent-text)] font-semibold text-xs inline-flex items-center gap-1 shadow hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer"
-                        >
-                          <Plus className="w-3.5 h-3.5" /> {t('dashboard.createAccount', {}, 'Crear Cuenta')}
-                        </button>
-                      </div>
-                    ) : (
-                      safeAccountsList.slice(0, 3).map((acc) => (
-                        <div 
-                          key={acc.id}
-                          onClick={() => setActiveTab('accounts')}
-                          className="p-3 sm:p-3.5 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between hover:bg-white/[0.06] hover:border-[var(--accent)]/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
-                          title={t('dashboard.viewAccounts', {}, 'Ver Cuentas')}
-                        >
-                          <div className="flex items-center gap-3 min-w-0 pr-2">
-                            <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-base shrink-0 group-hover:scale-110 transition-transform overflow-hidden">
-                              <DynamicIcon value={acc.emoji} fallback="🏦" className="w-5 h-5 text-base" />
-                            </div>
-                            <div className="min-w-0">
-                              <h4 className="text-xs font-semibold text-white truncate group-hover:text-[var(--accent)] transition-colors">{acc.name}</h4>
-                              <span className="text-[11px] text-slate-300 font-medium">{acc.currency || 'USD'}</span>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-2 shrink-0">
-                            <span className="text-xs font-bold text-white tabular-nums">
-                              {formatCurrency(acc.balance, acc.currency || 'USD')}
-                            </span>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setInitialTxType('transfer');
-                                setIsTxModalOpen(true);
-                              }}
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-[var(--accent)] hover:bg-[var(--accent-muted)] active:scale-95 transition-all cursor-pointer"
-                              title={t('dashboard.transferBetween', {}, 'Transferir entre cuentas')}
-                            >
-                              <ArrowLeftRight className="w-3 h-3" />
-                            </button>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
+                {/* WIDGET 1: Cuentas Principales (Top Accounts) */}
+                <TopAccountsWidget
+                  accounts={safeAccountsList}
+                  onNavigateTab={setActiveTab}
+                  onCreateAccount={() => setIsAccountModalOpen(true)}
+                  onTransfer={(acc) => {
+                    setInitialTxType('transfer');
+                    setIsTxModalOpen(true);
+                  }}
+                  className="h-full"
+                />
 
                 {/* WIDGET 2: Alertas de Presupuesto */}
                 <div className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 h-full flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
