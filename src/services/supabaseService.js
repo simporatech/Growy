@@ -935,7 +935,10 @@ export {
   fetchDebtPayments,
   fetchAllUserDebtPayments,
   addDebtPayment,
-  deleteDebtPayment
+  deleteDebtPayment,
+  recordDirectLoanTransaction,
+  recordDebtPaymentWithTransaction,
+  deleteDebtPaymentWithReversion
 } from './debtsService.js';
 
 
