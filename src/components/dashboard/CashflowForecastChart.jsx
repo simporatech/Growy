@@ -43,10 +43,20 @@ export default function CashflowForecastChart({
   // SVG Chart Dimensions
   const svgWidth = 600;
   const svgHeight = 200;
-  const padLeft = 45;
+  const padLeft = 50;
   const padRight = 20;
   const padTop = 25;
   const padBottom = 30;
+
+  // Compact Y-Axis Tick Formatter
+  const formatYAxisTick = (val) => {
+    const symbol = baseCurrency === 'HNL' ? 'L' : baseCurrency === 'USD' ? '$' : baseCurrency === 'EUR' ? '€' : (baseCurrency || 'L');
+    const absVal = Math.abs(val);
+    const sign = val < 0 ? '-' : '';
+    if (absVal >= 1000000) return `${sign}${symbol} ${(absVal / 1000000).toFixed(1)}M`;
+    if (absVal >= 1000) return `${sign}${symbol} ${(absVal / 1000).toFixed(0)}k`;
+    return `${sign}${symbol} ${Math.round(absVal)}`;
+  };
 
   const chartInnerWidth = svgWidth - padLeft - padRight;
   const chartInnerHeight = svgHeight - padTop - padBottom;
@@ -266,7 +276,7 @@ export default function CashflowForecastChart({
                   textAnchor="end"
                   className="fill-slate-500 text-[9px] tabular-nums font-mono select-none"
                 >
-                  {(formatCurrency(gridVal, baseCurrency) || '').split('.')[0]}
+                  {formatYAxisTick(gridVal)}
                 </text>
               </g>
             );

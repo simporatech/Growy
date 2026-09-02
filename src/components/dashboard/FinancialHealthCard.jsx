@@ -123,7 +123,7 @@ export default function FinancialHealthCard({
 
           {/* Dynamic Sarcastic / Realistic Message */}
           <div className="flex-1 min-w-0 pr-1">
-            <p className="text-xs sm:text-sm font-medium text-slate-200 leading-snug group-hover:text-white transition-colors line-clamp-3">
+            <p className="text-sm leading-relaxed text-slate-300 break-words line-clamp-3 group-hover:text-white transition-colors">
               "{statusMessage}"
             </p>
             <div className="flex items-center gap-1 text-[11px] text-[var(--accent,#97F2CC)] font-semibold mt-2 group-hover:underline">
@@ -138,10 +138,10 @@ export default function FinancialHealthCard({
           {/* 1. Ahorro */}
           <div className="p-2 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
             <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400">
-              <span className="flex items-center gap-1 min-w-0">
-                <PiggyBank className="w-3 h-3 text-[var(--accent,#97F2CC)] shrink-0" />
-                <span className="truncate">{isEs ? 'Ahorro' : 'Save'}</span>
-              </span>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <PiggyBank className="w-3.5 h-3.5 text-[var(--accent,#97F2CC)] shrink-0" />
+                <span className="truncate">{isEs ? 'Ahorro' : 'Savings'}</span>
+              </div>
               <span className="text-white font-bold tabular-nums text-xs shrink-0">{breakdown?.savings?.points ?? 0}/40</span>
             </div>
             <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
@@ -155,10 +155,10 @@ export default function FinancialHealthCard({
           {/* 2. Deudas */}
           <div className="p-2 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
             <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400">
-              <span className="flex items-center gap-1 min-w-0">
-                <Percent className="w-3 h-3 text-amber-400 shrink-0" />
-                <span className="truncate">{isEs ? 'Deudas' : 'Debt'}</span>
-              </span>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <Percent className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <span className="truncate">{isEs ? 'Deudas' : 'Debts'}</span>
+              </div>
               <span className="text-white font-bold tabular-nums text-xs shrink-0">{breakdown?.debts?.points ?? 0}/30</span>
             </div>
             <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
@@ -172,10 +172,10 @@ export default function FinancialHealthCard({
           {/* 3. Presupuesto */}
           <div className="p-2 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
             <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400">
-              <span className="flex items-center gap-1 min-w-0">
-                <Target className="w-3 h-3 text-sky-400 shrink-0" />
-                <span className="truncate">{isEs ? 'Metas' : 'Goals'}</span>
-              </span>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <Target className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                <span className="truncate">{isEs ? 'Metas' : 'Budget'}</span>
+              </div>
               <span className="text-white font-bold tabular-nums text-xs shrink-0">{breakdown?.budget?.points ?? 0}/30</span>
             </div>
             <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
