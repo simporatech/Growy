@@ -8,6 +8,7 @@ import {
   BASE_CURRENCY_KEY, 
   SUPPORTED_CURRENCIES, 
   FALLBACK_EXCHANGE_RATES,
+  getAvailableCurrencies,
   fetchExchangeRates, 
   convertCurrency as convertCurrencyUtil,
   convertCrossCurrency as convertCrossCurrencyUtil,
@@ -143,6 +144,10 @@ export function SettingsProvider({ children, userId = null }) {
   const [isFetchingRates, setIsFetchingRates] = useState(false);
   const [isAutoLanguage, setIsAutoLanguage] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+
+  const availableCurrencies = useMemo(() => {
+    return getAvailableCurrencies(language);
+  }, [language]);
 
   // Load user profile on mount or user change
   useEffect(() => {
@@ -575,7 +580,7 @@ export function SettingsProvider({ children, userId = null }) {
     convertCurrency,
     convertToGlobal,
     formatCurrency,
-    t,
+    availableCurrencies,
     exportBackup,
     resetAllData,
     updateUserSettings,
@@ -593,6 +598,7 @@ export function SettingsProvider({ children, userId = null }) {
     baseCurrency,
     setBaseCurrency,
     baseCurrencySymbol,
+    availableCurrencies,
     exchangeRates,
     lastUpdated,
     isFetchingRates,

@@ -23,7 +23,7 @@ import {
 import Button from './Button';
 import { useSettings, THEMES } from '../context/SettingsContext';
 import { useFinance } from '../context/FinanceContext';
-import { FALLBACK_EXCHANGE_RATES, AVAILABLE_CURRENCIES, getCrossRate, convertCrossCurrency } from '../utils/currency';
+import { FALLBACK_EXCHANGE_RATES, getAvailableCurrencies, getCrossRate, convertCrossCurrency } from '../utils/currency';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import DeleteAccountModal from './DeleteAccountModal';
 import CustomSelect from './CustomSelect';
@@ -182,11 +182,8 @@ export default function SettingsModule({ onLogout }) {
   const safeRates = exchangeRates || FALLBACK_EXCHANGE_RATES;
 
   const currencyOptions = useMemo(() => {
-    return AVAILABLE_CURRENCIES.map(c => ({
-      value: c.code,
-      label: `${c.flag || '🌐'} ${c.code} (${c.symbol}) - ${c.label.includes(' - ') ? c.label.split(' - ')[1] : c.label}`
-    }));
-  }, []);
+    return getAvailableCurrencies(language);
+  }, [language]);
 
   const { unitRateFormatted, calcResultFormatted } = useMemo(() => {
     const amt = Number(calcAmount) || 0;

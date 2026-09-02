@@ -39,13 +39,24 @@ export const CURRENCY_SYMBOLS = Object.keys(CURRENCY_MAP).reduce((acc, code) => 
   return acc;
 }, {});
 
-export const AVAILABLE_CURRENCIES = Object.keys(CURRENCY_MAP).map(code => ({
-  value: code,
-  label: `${CURRENCY_MAP[code].symbol} ${code} - ${CURRENCY_MAP[code].nameEn}`,
-  symbol: CURRENCY_MAP[code].symbol,
-  code,
-  flag: CURRENCY_MAP[code].flag
-}));
+export const getAvailableCurrencies = (lang = 'es') => {
+  const isEs = String(lang || 'es').toLowerCase().startsWith('es');
+  return Object.keys(CURRENCY_MAP).map(code => {
+    const item = CURRENCY_MAP[code];
+    const localizedName = isEs ? item.name : item.nameEn;
+    return {
+      value: code,
+      name: `${code} (${item.symbol}) - ${localizedName}`,
+      label: `${item.flag || '🌐'} ${code} (${item.symbol}) - ${localizedName}`,
+      symbol: item.symbol,
+      code,
+      flag: item.flag || '🌐',
+      emoji: item.flag || '🌐'
+    };
+  });
+};
+
+export const AVAILABLE_CURRENCIES = getAvailableCurrencies('es');
 
 export const SUPPORTED_CURRENCIES = Object.keys(CURRENCY_MAP).map(code => ({
   code,

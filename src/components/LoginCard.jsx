@@ -185,10 +185,11 @@ export default function LoginCard({ onLoginSuccess, onOpenForgotPassword, onOpen
             size="lg"
             disabled={isLoading}
             isLoading={isLoading}
+            icon={!isLoading ? ArrowRight : undefined}
+            iconPosition="right"
             className="w-full mt-2"
           >
-            <span>{isLoading ? t('modals.auth.validating', {}, 'Validando sesión...') : t('modals.auth.loginBtn', {}, 'Iniciar Sesión')}</span>
-            {!isLoading && <ArrowRight className="w-5 h-5 ml-1" />}
+            {isLoading ? t('modals.auth.validating', {}, 'Validando sesión...') : t('modals.auth.loginBtn', {}, 'Iniciar Sesión')}
           </Button>
         </form>
 

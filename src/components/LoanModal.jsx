@@ -7,7 +7,7 @@ import ModalWrapper from './ModalWrapper';
 import FormField from './FormField';
 import { useSettings } from '../context/SettingsContext';
 import { formatDateISO, parseNumeric } from '../utils/formatters';
-import { getCurrencySymbol, AVAILABLE_CURRENCIES } from '../utils/currency';
+import { getCurrencySymbol, getAvailableCurrencies } from '../utils/currency';
 
 export default function LoanModal({ 
   isOpen, 
@@ -16,7 +16,11 @@ export default function LoanModal({
   loanToEdit,
   categories = [] 
 }) {
-  const { t, baseCurrency } = useSettings();
+  const { t, baseCurrency, language } = useSettings();
+
+  const currencyOptions = useMemo(() => {
+    return getAvailableCurrencies(language);
+  }, [language]);
 
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
@@ -124,7 +128,7 @@ export default function LoanModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField label={t('modals.loan.currency', {}, 'Moneda / Divisa')}>
               <CustomSelect
-                options={AVAILABLE_CURRENCIES}
+                options={currencyOptions}
                 value={currency}
                 onChange={setCurrency}
               />

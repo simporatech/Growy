@@ -11,6 +11,7 @@ import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
 import { parseNumeric } from '../utils/formatters';
 import DynamicIcon from './DynamicIcon';
+import { CURRENCY_MAP } from '../utils/currency';
 
 export default function AccountsModule() {
   const { accounts, addAccount, updateAccount, deleteAccount, isLoading, isInitialized } = useFinance();
@@ -19,8 +20,8 @@ export default function AccountsModule() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [accountToEdit, setAccountToEdit] = useState(null);
   const [accountToDelete, setAccountToDelete] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
   const [currencyFilter, setCurrencyFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -37,9 +38,17 @@ export default function AccountsModule() {
     const codes = [...new Set(safeAccountsList.map(a => a?.currency || 'USD'))];
     return [
       { value: 'all', label: t('accounts.allCurrencies', {}, 'Todas las Divisas') },
-      ...codes.map(c => ({ value: c, label: c }))
+      ...codes.map(c => {
+        const item = CURRENCY_MAP[c];
+        const isEs = String(language || 'es').toLowerCase().startsWith('es');
+        const localizedName = item ? (isEs ? item.name : item.nameEn) : c;
+        return {
+          value: c,
+          label: `${item?.flag || '🌐'} ${c} - ${localizedName}`
+        };
+      })
     ];
-  }, [safeAccountsList, t]);
+  }, [safeAccountsList, t, language]);
 
   const filteredAccounts = useMemo(() => {
     return safeAccountsList.filter(a => {

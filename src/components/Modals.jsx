@@ -340,10 +340,11 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
               size="md"
               isLoading={loading}
               disabled={loading}
+              icon={!loading ? ArrowRight : undefined}
+              iconPosition="right"
               className="flex-1"
             >
-              <span>{t('modals.auth.createFreeAccount', {}, 'Crear Cuenta Gratis')}</span>
-              <ArrowRight className="w-4 h-4 ml-1.5" />
+              {t('modals.auth.createFreeAccount', {}, 'Crear Cuenta Gratis')}
             </Button>
           </div>
         </form>

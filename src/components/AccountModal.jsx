@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Wallet } from 'lucide-react';
 import Button from './Button';
 import CustomSelect from './CustomSelect';
@@ -6,7 +6,7 @@ import ModalWrapper from './ModalWrapper';
 import FormField from './FormField';
 import { useSettings } from '../context/SettingsContext';
 import { parseNumeric } from '../utils/formatters';
-import { getCurrencySymbol, AVAILABLE_CURRENCIES } from '../utils/currency';
+import { getCurrencySymbol, getAvailableCurrencies } from '../utils/currency';
 import { PRESET_COLOR_DETAILS } from '../constants/colors';
 import UniversalIconPicker from './UniversalIconPicker';
 
@@ -16,7 +16,11 @@ export default function AccountModal({
   onSave, 
   accountToEdit 
 }) {
-  const { t, baseCurrency } = useSettings();
+  const { t, baseCurrency, language } = useSettings();
+
+  const currencyOptions = useMemo(() => {
+    return getAvailableCurrencies(language);
+  }, [language]);
 
   const [name, setName] = useState('');
   const [emoji, setEmoji] = useState('💳');
@@ -150,7 +154,7 @@ export default function AccountModal({
 
             <FormField label={t('modals.account.currency', {}, 'Moneda / Divisa')}>
               <CustomSelect
-                options={AVAILABLE_CURRENCIES}
+                options={currencyOptions}
                 value={currency}
                 onChange={setCurrency}
               />
