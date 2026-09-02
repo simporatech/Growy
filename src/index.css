@@ -166,6 +166,66 @@ html, body, #root {
   isolation: isolate;
 }
 
+@keyframes floatSlow {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(60px, 40px, 0) scale(1.1); }
+  100% { transform: translate3d(-40px, 80px, 0) scale(0.95); }
+}
+
+@keyframes floatSlowReverse {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-50px, -30px, 0) scale(1.05); }
+  100% { transform: translate3d(30px, -60px, 0) scale(0.9); }
+}
+
+.glow-orb-1 {
+  position: absolute;
+  top: -10%;
+  left: 20%;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent, #97F2CC) 0%, transparent 70%);
+  opacity: 0.12;
+  filter: blur(120px);
+  animation: floatSlow 24s ease-in-out infinite alternate;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  pointer-events: none;
+}
+
+.glow-orb-2 {
+  position: absolute;
+  bottom: 5%;
+  right: 15%;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent, #97F2CC) 0%, transparent 70%);
+  opacity: 0.08;
+  filter: blur(140px);
+  animation: floatSlowReverse 30s ease-in-out infinite alternate;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  pointer-events: none;
+}
+
+.glow-orb-3 {
+  position: absolute;
+  top: 40%;
+  left: -5%;
+  width: 450px;
+  height: 450px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent, #97F2CC) 0%, transparent 70%);
+  opacity: 0.06;
+  filter: blur(130px);
+  animation: floatSlow 28s ease-in-out infinite alternate-reverse;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  pointer-events: none;
+}
+
 .growy-card-hover {
   transition: transform 0.2s ease-out, border-color 0.2s ease, box-shadow 0.2s ease;
   will-change: transform;

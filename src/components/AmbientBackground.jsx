@@ -8,23 +8,14 @@ import React from 'react';
 export default function AmbientBackground() {
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10 bg-[#090C10]">
-      {/* Orbe 1: Superior Izquierda - Hardware Accelerated + Subpixel Smoothing */}
-      <div 
-        className="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full blur-[140px] opacity-40 will-change-transform transform-gpu transition-colors duration-500 pointer-events-none"
-        style={{ 
-          backgroundColor: 'var(--color-glow, rgba(151, 242, 204, 0.12))',
-          transform: 'translate3d(0, 0, 0)'
-        }}
-      />
+      {/* Orbe 1: Superior Izquierda/Centro */}
+      <div className="glow-orb-1" />
 
-      {/* Orbe 2: Centro Derecha */}
-      <div 
-        className="absolute top-1/3 -right-40 w-[700px] h-[700px] rounded-full blur-[160px] opacity-30 will-change-transform transform-gpu transition-colors duration-500 pointer-events-none"
-        style={{ 
-          backgroundColor: 'var(--color-glow, rgba(151, 242, 204, 0.08))',
-          transform: 'translate3d(0, 0, 0)'
-        }}
-      />
+      {/* Orbe 2: Inferior Derecha */}
+      <div className="glow-orb-2" />
+
+      {/* Orbe 3: Centro Izquierda */}
+      <div className="glow-orb-3" />
 
       {/* Textura de Dithering Anti-Banding (Ruido SVG inline sin peticiones de red) */}
       <div 
