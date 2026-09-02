@@ -2,9 +2,12 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { 
   Plus, Percent, Trash2, CheckCircle, Search, 
   ArrowDownLeft, ArrowUpRight, History, ChevronDown, 
-  ChevronUp, Wallet, Calendar, AlertCircle, Edit3, DollarSign, Clock, Users
+  ChevronUp, Wallet, Calendar, AlertCircle, Edit3, DollarSign, Clock, Users,
+  RotateCcw
 } from 'lucide-react';
 import Button from './Button';
+import CustomSelect from './CustomSelect';
+import CustomDatePicker from './CustomDatePicker';
 import EmptyState from './common/EmptyState';
 import DebtModal from './DebtModal';
 import ReceivableModal from './debts/ReceivableModal';
@@ -50,6 +53,12 @@ export default function DebtsView() {
   const [activeTab, setActiveTab] = useState('payable');
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Advanced Filter states
+  const [accountFilter, setAccountFilter] = useState('all');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+
   // Expanded History Cards state (Set of debt IDs)
   const [expandedHistories, setExpandedHistories] = useState(new Set());
 
@@ -61,6 +70,40 @@ export default function DebtsView() {
   const safePaymentsList = useMemo(() => Array.isArray(debtPayments) ? debtPayments.filter(Boolean) : [], [debtPayments]);
   const safeCategoriesList = useMemo(() => Array.isArray(categories) ? categories.filter(Boolean) : [], [categories]);
   const safeAccountsList = useMemo(() => Array.isArray(accounts) ? accounts.filter(Boolean) : [], [accounts]);
+
+  // Account Filter Options (Sorted with Logos)
+  const accountFilterOptions = useMemo(() => [
+    { value: 'all', label: t('debts.all_accounts', {}, 'Todas las cuentas'), emoji: '🏦' },
+    ...safeAccountsList.map(acc => ({
+      value: acc.id,
+      label: acc.name,
+      emoji: acc.emoji || '🏦'
+    }))
+  ], [safeAccountsList, t]);
+
+  // Status Filter Options
+  const statusFilterOptions = useMemo(() => [
+    { value: 'all', label: t('debts.status_all', {}, 'Todos los estados') },
+    { value: 'pending', label: t('debts.status_pending', {}, 'Pendientes') },
+    { value: 'overdue', label: t('debts.status_overdue', {}, 'Vencidos') },
+    { value: 'completed', label: t('debts.status_completed', {}, 'Completados') }
+  ], [t]);
+
+  const hasActiveFilters = Boolean(
+    accountFilter !== 'all' || 
+    startDate || 
+    endDate || 
+    statusFilter !== 'all' || 
+    searchTerm.trim()
+  );
+
+  const resetFilters = () => {
+    setSearchTerm('');
+    setAccountFilter('all');
+    setStartDate('');
+    setEndDate('');
+    setStatusFilter('all');
+  };
 
   // Enrich each loan with its calculated remaining balance, total paid, and settlement status
   const enrichedDebts = useMemo(() => {
@@ -75,16 +118,37 @@ export default function DebtsView() {
     });
   }, [safeLoansList, safePaymentsList]);
 
-  // Filter enriched debts by search and tab filter
+  // Filter enriched debts by search, tab, account, date range, and status
   const filteredDebts = useMemo(() => {
     return enrichedDebts.filter(d => {
       if (!d) return false;
-      const isSettled = d.calc.isSettled;
+      const isSettled = d.calc.isSettled || d.status === 'settled' || d.status === 'paid';
+      const isOverdue = !isSettled && d.dueDate && getDaysDifference(d.dueDate) < 0;
 
+      // 1. Tab filter
       if (activeTab === 'payable' && (!d.isPayable || isSettled)) return false;
       if (activeTab === 'receivable' && (d.isPayable || isSettled)) return false;
       if (activeTab === 'completed' && !isSettled) return false;
 
+      // 2. Status filter
+      if (statusFilter === 'pending' && (isSettled || isOverdue)) return false;
+      if (statusFilter === 'overdue' && !isOverdue) return false;
+      if (statusFilter === 'completed' && !isSettled) return false;
+
+      // 3. Account filter (matched against linked account, source account, or payment account)
+      if (accountFilter !== 'all') {
+        const dAccId = d.accountId || d.account_id || d.sourceAccountId || d.source_account_id;
+        const hasPaymentAcc = Array.isArray(d.calc?.payments) && d.calc.payments.some(p => (p.accountId || p.account_id) === accountFilter);
+        if (dAccId !== accountFilter && !hasPaymentAcc) return false;
+      }
+
+      // 4. Date Range Filter (startDate / endDate compared against creation/loan/due date)
+      const dDateRaw = d.startDate || d.start_date || d.dueDate || d.due_date || d.createdAt || d.created_at || '';
+      const dDate = dDateRaw ? (dDateRaw.includes('T') ? dDateRaw.split('T')[0] : dDateRaw) : '';
+      if (startDate && dDate && dDate < startDate) return false;
+      if (endDate && dDate && dDate > endDate) return false;
+
+      // 5. Concept & Category Search Query
       if (searchTerm && searchTerm.trim()) {
         const q = searchTerm.toLowerCase();
         const conceptText = String(d.concept || d.description || '').toLowerCase();
@@ -95,12 +159,12 @@ export default function DebtsView() {
       }
       return true;
     });
-  }, [enrichedDebts, activeTab, searchTerm, safeCategoriesList]);
+  }, [enrichedDebts, activeTab, statusFilter, accountFilter, startDate, endDate, searchTerm, safeCategoriesList]);
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeTab, searchTerm]);
+  }, [activeTab, searchTerm, accountFilter, startDate, endDate, statusFilter]);
 
   const paginatedDebts = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
@@ -301,26 +365,83 @@ export default function DebtsView() {
         </div>
       </header>
 
-      {/* 2. TOOLBAR: SEARCH AND MOBILE EXPORT */}
-      <div className="flex items-center gap-2 w-full relative z-20">
-        <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder={t('debts.search_placeholder', {}, 'Buscar por concepto o categoría...')}
-            className="w-full h-11 pl-9 pr-3 bg-white/[0.04] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[var(--accent,#97F2CC)] shadow-inner transition-colors"
-          />
+      {/* 2. TOOLBAR: SEARCH AND RESPONSIVE ADVANCED FILTERS BAR */}
+      <div className="space-y-3 w-full relative z-20">
+        <div className="flex items-center gap-2 w-full">
+          <div className="relative flex-1">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder={t('debts.search_placeholder', {}, 'Buscar por concepto o categoría...')}
+              className="w-full h-11 pl-9 pr-3 bg-white/[0.04] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[var(--accent,#97F2CC)] shadow-inner transition-colors"
+            />
+          </div>
+          <div className="sm:hidden shrink-0">
+            <ExportDropdown
+              data={filteredDebts}
+              columns={debtColumns}
+              title={t('debts.exportTitle', {}, 'Reporte de Saldos Pendientes')}
+              filename={exportFilename}
+              summary={debtSummary}
+            />
+          </div>
         </div>
-        <div className="sm:hidden shrink-0">
-          <ExportDropdown
-            data={filteredDebts}
-            columns={debtColumns}
-            title={t('debts.exportTitle', {}, 'Reporte de Saldos Pendientes')}
-            filename={exportFilename}
-            summary={debtSummary}
-          />
+
+        {/* Advanced Filters Flex Container */}
+        <div className="flex flex-wrap items-center gap-2.5 p-3 rounded-2xl bg-[#0D1117]/80 border border-white/5 backdrop-blur-md">
+          {/* 1. Account Filter */}
+          <div className="w-full sm:w-48 min-w-[170px] flex-1">
+            <CustomSelect
+              options={accountFilterOptions}
+              value={accountFilter}
+              onChange={setAccountFilter}
+              placeholder={t('debts.filter_account', {}, 'Cuenta')}
+            />
+          </div>
+
+          {/* 2. Status Filter */}
+          <div className="w-full sm:w-44 min-w-[150px] flex-1">
+            <CustomSelect
+              options={statusFilterOptions}
+              value={statusFilter}
+              onChange={setStatusFilter}
+              placeholder={t('debts.filter_status', {}, 'Estado')}
+            />
+          </div>
+
+          {/* 3. Date Range (From - To) */}
+          <div className="flex items-center gap-2 w-full sm:w-auto flex-1 sm:flex-initial">
+            <div className="w-full sm:w-36">
+              <CustomDatePicker
+                value={startDate}
+                onChange={setStartDate}
+                placeholder={t('debts.date_from', {}, 'Desde')}
+              />
+            </div>
+            <span className="text-slate-500 text-xs hidden sm:inline">-</span>
+            <div className="w-full sm:w-36">
+              <CustomDatePicker
+                value={endDate}
+                onChange={setEndDate}
+                placeholder={t('debts.date_to', {}, 'Hasta')}
+              />
+            </div>
+          </div>
+
+          {/* 4. Reset Filters Button */}
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors cursor-pointer shrink-0 ml-auto"
+              title={t('debts.clear_filters', {}, 'Limpiar filtros')}
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>{t('debts.clear_filters', {}, 'Limpiar filtros')}</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -611,7 +732,11 @@ export default function DebtsView() {
                         ? 'bg-rose-500/15 text-rose-400 border-rose-500/20' 
                         : 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20'
                     }`}>
-                      <DynamicIcon value={catObj?.emoji} fallback="Wallet" className="w-5 h-5 text-lg" />
+                      <DynamicIcon 
+                        value={debt.emoji || debt.icon || catObj?.emoji || (!debt.isPayable ? '👤' : '💳')} 
+                        fallback={!debt.isPayable ? '👤' : '💳'} 
+                        className="w-5 h-5 text-lg" 
+                      />
                     </div>
 
                     <div className="min-w-0 flex-1">
@@ -820,11 +945,12 @@ export default function DebtsView() {
       )}
 
       {/* 6. PAGINATION */}
-      {filteredDebts.length > pageSize && (
+      {filteredDebts.length > 0 && (
         <Pagination
           currentPage={currentPage}
           totalItems={filteredDebts.length}
           pageSize={pageSize}
+          pageSizeOptions={[10, 30, 50]}
           onPageChange={setCurrentPage}
           onPageSizeChange={setPageSize}
         />

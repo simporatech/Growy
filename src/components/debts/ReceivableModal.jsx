@@ -128,6 +128,8 @@ export default function ReceivableModal({
         startDate,
         dueDate: dueDate || null,
         type: 'receivable',
+        emoji: debtToEdit?.emoji || debtToEdit?.icon || '👤',
+        icon: debtToEdit?.icon || debtToEdit?.emoji || '👤',
         isDirectLoan,
         sourceAccountId: isDirectLoan ? sourceAccountId : null,
         notes: notes.trim(),
