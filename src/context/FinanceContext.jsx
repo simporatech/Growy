@@ -19,7 +19,8 @@ import {
   recordDebtPaymentWithTransaction,
   deleteDebtPaymentWithReversion,
   recordDirectLoanTransaction,
-  calculateDebtRemaining
+  calculateDebtRemaining,
+  handleTransactionDeletedForDebts
 } from '../services/supabaseService';
 import { useSettings } from './SettingsContext';
 
@@ -338,16 +339,35 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
 
   const deleteTransaction = useCallback(async (txId) => {
     try {
+      // 1. Check referential integrity with debt payments before or alongside deleting transaction
+      const debtCleanup = await handleTransactionDeletedForDebts({
+        txId,
+        cachedPayments: debtPayments,
+        cachedLoans: loans,
+        cachedTransactions: transactions
+      });
+
       const success = await dbDeleteTransaction(txId);
       if (success !== false) {
         setTransactions(prevTx => (Array.isArray(prevTx) ? prevTx.filter(Boolean) : []).filter(t => t.id !== txId));
+        
+        if (debtCleanup.deletedPaymentId) {
+          setDebtPayments(prev => (Array.isArray(prev) ? prev.filter(Boolean) : []).filter(p => p.id !== debtCleanup.deletedPaymentId));
+        }
+
+        if (debtCleanup.revertedStatus === 'pending' && debtCleanup.debtId) {
+          setLoans(prev => (Array.isArray(prev) ? prev.filter(Boolean) : []).map(l => 
+            l.id === debtCleanup.debtId ? { ...l, status: 'pending' } : l
+          ));
+        }
+
         triggerToast('success', i18nMsg('Transacción eliminada correctamente', 'Transaction deleted successfully'));
       }
     } catch (err) {
       console.error('❌ Error en deleteTransaction:', err);
       triggerToast('error', deleteErrMsg(err));
     }
-  }, [triggerToast]);
+  }, [triggerToast, debtPayments, loans, transactions]);
 
   // --- LOANS / DEBTS ACTIONS ---
   const addLoan = useCallback(async (newLoan) => {

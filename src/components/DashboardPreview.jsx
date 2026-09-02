@@ -30,10 +30,11 @@ import { useSettings } from '../context/SettingsContext';
 import { formatCurrency, formatDateLabel, formatHeaderDate, parseNumeric } from '../utils/formatters';
 import { safeGetStorage, safeSetStorage } from '../utils/storage';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { calculateDebtRemaining } from '../services/debtsService';
 
 export default function DashboardPreview({ user, onLogout }) {
   const { 
-    accounts, categories, transactions, loans, subscriptions, isLoading, isInitialized,
+    accounts, categories, transactions, loans, debtPayments, subscriptions, isLoading, isInitialized,
     autoDebitsNotification, clearAutoDebitsNotification,
     dbStatusToast, clearDbStatusToast,
     addTransaction, updateTransaction, addLoan, addSubscription, addAccount, markLoanAsPaid
@@ -139,25 +140,48 @@ export default function DashboardPreview({ user, onLogout }) {
     return `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, '0')}`;
   }, [today]);
 
-  // RULE 2: Total balance converted to Base Currency
-  const totalBalance = useMemo(() => {
+  const safeDebtPaymentsList = useMemo(() => Array.isArray(debtPayments) ? debtPayments.filter(Boolean) : [], [debtPayments]);
+
+  // Total Real Bank Accounts Balance
+  const totalAccountsBalance = useMemo(() => {
     return safeAccountsList.reduce((sum, acc) => {
       const curr = acc?.currency || 'USD';
       return sum + convertToGlobal(parseNumeric(acc?.balance, 0), curr);
     }, 0);
   }, [safeAccountsList, convertToGlobal]);
 
-  // RULE 2: Total pending debt converted to Base Currency
+  // Total Pending Receivables (Saldos por cobrar restantes de préstamos activos)
+  const totalPendingReceivables = useMemo(() => {
+    return safeLoansList
+      .filter(l => l && (l.type || '').toLowerCase() === 'receivable' && l.status !== 'paid' && l.status !== 'settled')
+      .reduce((sum, l) => {
+        const calc = calculateDebtRemaining(l, safeDebtPaymentsList);
+        if (calc.isSettled) return sum;
+        const curr = l?.currency || 'USD';
+        return sum + convertToGlobal(calc.remainingAmount, curr);
+      }, 0);
+  }, [safeLoansList, safeDebtPaymentsList, convertToGlobal]);
+
+  // Total Assets (Activos = Cuentas bancarias + Saldos por cobrar restantes)
+  const totalAssets = useMemo(() => {
+    return totalAccountsBalance + totalPendingReceivables;
+  }, [totalAccountsBalance, totalPendingReceivables]);
+
+  // Total Liabilities (Pasivos = Saldo restante actual de deudas activas tipo payable)
   const totalPendingDebt = useMemo(() => {
     return safeLoansList
-      .filter(l => l && l.status === 'pending')
+      .filter(l => l && (l.type || '').toLowerCase() !== 'receivable' && l.status !== 'paid' && l.status !== 'settled')
       .reduce((sum, l) => {
+        const calc = calculateDebtRemaining(l, safeDebtPaymentsList);
+        if (calc.isSettled) return sum;
         const curr = l?.currency || 'USD';
-        return sum + convertToGlobal(parseNumeric(l?.amount, 0), curr);
+        return sum + convertToGlobal(calc.remainingAmount, curr);
       }, 0);
-  }, [safeLoansList, convertToGlobal]);
+  }, [safeLoansList, safeDebtPaymentsList, convertToGlobal]);
 
-  const netWealth = useMemo(() => totalBalance - totalPendingDebt, [totalBalance, totalPendingDebt]);
+  // Real Net Worth (Patrimonio Neto = Activos - Pasivos)
+  const netWealth = useMemo(() => totalAssets - totalPendingDebt, [totalAssets, totalPendingDebt]);
+  const totalBalance = totalAccountsBalance;
 
   const currentMonthTx = useMemo(() => {
     return safeTransactionsList.filter(t => t?.date && t.date.startsWith(currentMonthYear));
@@ -707,7 +731,7 @@ export default function DashboardPreview({ user, onLogout }) {
                         {formatCurrency(netWealth, baseCurrency)}
                       </div>
                       <div className="flex items-center gap-2 sm:gap-3 text-xs text-slate-300 font-medium tabular-nums flex-wrap pt-0.5">
-                        <span className="text-emerald-400 font-semibold">{formatCurrency(totalBalance, baseCurrency)} {t('dashboard.assets', {}, 'Activos')}</span>
+                        <span className="text-emerald-400 font-semibold">{formatCurrency(totalAssets, baseCurrency)} {t('dashboard.assets', {}, 'Activos')}</span>
                         <span className="text-slate-400">•</span>
                         <span className="text-rose-400 font-semibold">{formatCurrency(totalPendingDebt, baseCurrency)} {t('dashboard.liabilities', {}, 'Pasivos')}</span>
                       </div>

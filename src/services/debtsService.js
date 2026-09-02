@@ -401,6 +401,7 @@ export const recordDebtPaymentWithTransaction = async ({
           account_id: accountId,
           destination_account_id: null,
           category_id: isValidUuid(debt.categoryId || debt.category_id) ? (debt.categoryId || debt.category_id) : null,
+          debt_id: isValidUuid(debt.id) ? debt.id : null,
           type: 'expense',
           amount: numAmount,
           currency: debtCurrency,
@@ -414,6 +415,7 @@ export const recordDebtPaymentWithTransaction = async ({
           user_id: String(userId),
           account_id: null,
           destination_account_id: accountId,
+          debt_id: isValidUuid(debt.id) ? debt.id : null,
           type: 'transfer',
           amount: numAmount,
           currency: debtCurrency,
@@ -426,7 +428,7 @@ export const recordDebtPaymentWithTransaction = async ({
       console.log('🚀 [Supabase DB] Creando transacción vinculada al abono:', txPayload);
 
       let currentTxPayload = { ...txPayload };
-      for (let attempt = 0; attempt < 3; attempt++) {
+      for (let attempt = 0; attempt < 4; attempt++) {
         const txRes = await supabase.from('transactions').insert([currentTxPayload]).select();
         if (!txRes.error) {
           createdTx = toCamel(txRes.data && txRes.data[0] ? txRes.data[0] : currentTxPayload);
@@ -434,6 +436,10 @@ export const recordDebtPaymentWithTransaction = async ({
         }
 
         console.warn(`⚠️ [Supabase DB] Error guardando transacción de abono (intento ${attempt + 1}):`, txRes.error.message);
+        if (txRes.error.message.includes('debt_id') && currentTxPayload.debt_id !== undefined) {
+          delete currentTxPayload.debt_id;
+          continue;
+        }
         if (txRes.error.message.includes('exclude_from_budget') && currentTxPayload.exclude_from_budget !== undefined) {
           delete currentTxPayload.exclude_from_budget;
           continue;
@@ -570,6 +576,116 @@ export const deleteDebtPaymentWithReversion = async (paymentId, cachedPayment = 
   return {
     success: paymentDeleted,
     deletedTransactionId: deletedTxId,
+    revertedStatus
+  };
+};
+
+/**
+ * Handles referential cleanup when a transaction is deleted:
+ * - Checks if the transaction is linked to any debt_payments record (via transaction_id = txId or debt_id)
+ * - Deletes the corresponding debt_payments record in Supabase
+ * - Recalculates remaining balance for the affected debt and reverts status to 'pending' if it was marked 'paid'
+ * 
+ * @param {Object} params
+ * @param {string} params.txId - ID of deleted transaction
+ * @param {Array} [params.cachedPayments] - In-memory debt payments
+ * @param {Array} [params.cachedLoans] - In-memory loans
+ * @param {Array} [params.cachedTransactions] - In-memory transactions
+ * @returns {Promise<{deletedPaymentId: string|null, debtId: string|null, revertedStatus: string|null}>}
+ */
+export const handleTransactionDeletedForDebts = async ({
+  txId,
+  cachedPayments = [],
+  cachedLoans = [],
+  cachedTransactions = []
+}) => {
+  if (!txId) return { deletedPaymentId: null, debtId: null, revertedStatus: null };
+
+  console.log('🔍 [debtsService] Verificando vínculo de transacción eliminada con abonos de deuda:', txId);
+
+  // 1. Find matching payment in cachedPayments or query Supabase
+  let matchedPayment = (cachedPayments || []).find(p => {
+    const pTxId = p.transactionId || p.transaction_id;
+    return String(pTxId) === String(txId);
+  });
+
+  if (!matchedPayment) {
+    try {
+      const { data } = await supabase
+        .from('debt_payments')
+        .select('*')
+        .eq('transaction_id', txId);
+      if (data && data.length > 0) {
+        matchedPayment = toCamel(data[0]);
+      }
+    } catch (err) {
+      console.warn('⚠️ Error buscando abono por transaction_id:', err);
+    }
+  }
+
+  // 2. Also check if transaction had a direct debt_id property
+  const targetTx = (cachedTransactions || []).find(t => String(t.id) === String(txId));
+  const directDebtId = targetTx?.debtId || targetTx?.debt_id;
+
+  if (!matchedPayment && !directDebtId) {
+    return { deletedPaymentId: null, debtId: null, revertedStatus: null };
+  }
+
+  let deletedPaymentId = null;
+  const targetDebtId = matchedPayment?.debtId || matchedPayment?.debt_id || directDebtId;
+
+  // 3. Delete matching payment record from debt_payments
+  if (matchedPayment?.id) {
+    try {
+      console.log('🗑️ [debtsService] Eliminando abono huérfano vinculado a transacción:', matchedPayment.id);
+      const { error } = await supabase
+        .from('debt_payments')
+        .delete()
+        .eq('id', matchedPayment.id);
+      if (!error) {
+        deletedPaymentId = matchedPayment.id;
+      }
+    } catch (delErr) {
+      console.error('❌ Error eliminando abono vinculado:', delErr);
+    }
+  }
+
+  // 4. Recalculate debt status and revert to 'pending' if it was 'paid'
+  let revertedStatus = null;
+  if (targetDebtId) {
+    try {
+      let targetDebt = (cachedLoans || []).find(l => String(l.id) === String(targetDebtId));
+      if (!targetDebt) {
+        const { data: dbDebt } = await supabase
+          .from('pending_debts')
+          .select('*')
+          .eq('id', targetDebtId)
+          .single();
+        if (dbDebt) targetDebt = toCamel(dbDebt);
+      }
+
+      if (targetDebt) {
+        // Fetch all remaining payments for this debt
+        const remainingPayments = (await fetchDebtPayments(targetDebtId)) || [];
+        const { isSettled } = calculateDebtRemaining(targetDebt, remainingPayments);
+
+        if (!isSettled && (targetDebt.status === 'paid' || targetDebt.status === 'settled')) {
+          console.log('🔄 [debtsService] Deuda recupera saldo pendiente. Revirtiendo estado a pending:', targetDebtId);
+          await supabase
+            .from('pending_debts')
+            .update({ status: 'pending' })
+            .eq('id', targetDebtId);
+          revertedStatus = 'pending';
+        }
+      }
+    } catch (revertErr) {
+      console.warn('⚠️ Error evaluando reversión de estado en deuda:', revertErr);
+    }
+  }
+
+  return {
+    deletedPaymentId,
+    debtId: targetDebtId,
     revertedStatus
   };
 };

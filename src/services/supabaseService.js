@@ -938,7 +938,8 @@ export {
   deleteDebtPayment,
   recordDirectLoanTransaction,
   recordDebtPaymentWithTransaction,
-  deleteDebtPaymentWithReversion
+  deleteDebtPaymentWithReversion,
+  handleTransactionDeletedForDebts
 } from './debtsService.js';
 
 
