@@ -446,7 +446,7 @@ export default function DebtsView() {
       </div>
 
       {/* 3. HERO BANNER: DEDICATED STATS CARDS BY TAB */}
-      <div className="w-full bg-[#111722]/80 border border-white/10 rounded-2xl p-4 sm:p-6 backdrop-blur-md relative z-10 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] transition-all duration-300 ease-in-out">
+      <div className="w-full bg-[#111722]/80 border border-white/10 rounded-2xl p-4 sm:p-6 backdrop-blur-md relative z-10 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] transition-colors duration-150">
         
         {activeTab === 'payable' ? (
           /* MODO A: POR PAGAR (DEUDAS PROPIAS) */
@@ -715,7 +715,7 @@ export default function DebtsView() {
             return (
               <div
                 key={debt.id}
-                className={`p-5 rounded-2xl bg-[#0D1117]/80 border transition-all duration-200 flex flex-col justify-between gap-4 shadow-lg ${
+                className={`p-5 rounded-2xl bg-[#0D1117]/80 border transition-colors duration-150 flex flex-col justify-between gap-4 shadow-lg ${
                   isSettled 
                     ? 'border-emerald-500/20 opacity-80' 
                     : debt.isPayable 
@@ -890,7 +890,7 @@ export default function DebtsView() {
                         {t('debts.noPaymentsYet', {}, 'Aún no hay abonos registrados para este saldo')}
                       </p>
                     ) : (
-                      <div className="space-y-1.5 max-h-48 overflow-y-auto custom-scrollbar pr-1 overscroll-contain">
+                      <div className="space-y-1.5 h-auto overflow-visible pr-1">
                         {associatedPayments.map(payment => {
                           const accId = payment.accountId || payment.account_id;
                           const accObj = safeAccountsList.find(a => a && a.id === accId);

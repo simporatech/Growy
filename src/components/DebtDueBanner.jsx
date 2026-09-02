@@ -86,7 +86,7 @@ export default function DebtDueBanner({
           onClick={() => {
             if (onNavigateToDebts) onNavigateToDebts(loan);
           }}
-          className={`p-3 sm:p-3.5 rounded-2xl border backdrop-blur-xl flex items-center justify-between gap-3 transition-all hover:scale-[1.005] cursor-pointer group ${containerClass}`}
+          className={`p-3 sm:p-3.5 rounded-2xl border backdrop-blur-xl flex items-center justify-between gap-3 transition-colors hover:brightness-110 cursor-pointer group ${containerClass}`}
         >
           <div className="flex items-center gap-3 min-w-0 flex-1">
             <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border ${badgeClass}`}>
