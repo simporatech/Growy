@@ -22,7 +22,7 @@ export default function SectionKpiHero({
   isLoading = false
 }) {
   return (
-    <div className={`w-full p-4 sm:p-5 md:p-6 rounded-2xl md:rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10 transition-all ${className}`}>
+    <div className={`w-full p-4 sm:p-5 md:p-6 rounded-2xl md:rounded-3xl bg-[#0D1117]/80 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10 transition-all ${className}`}>
       
       {/* Primary KPI Section */}
       <div className="flex items-center gap-3.5 sm:gap-4 min-w-0 flex-1">

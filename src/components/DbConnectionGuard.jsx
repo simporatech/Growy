@@ -39,8 +39,8 @@ export default function DbConnectionGuard({ children }) {
 
   if (!isConnected && !isChecking) {
     return (
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6 bg-[#0E171A]/95 backdrop-blur-2xl text-white animate-fadeIn">
-        <div className="max-w-md w-full p-8 text-center bg-[#162226] border border-rose-500/30 rounded-3xl shadow-2xl space-y-4">
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6 bg-[#090C10]/95 backdrop-blur-2xl text-white animate-fadeIn">
+        <div className="max-w-md w-full p-8 text-center bg-[#0F141C] border border-rose-500/30 rounded-3xl shadow-2xl space-y-4">
           <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-3xl">
             📡⚡
           </div>

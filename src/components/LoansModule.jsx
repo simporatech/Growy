@@ -243,7 +243,7 @@ export default function LoansModule() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={t('placeholders.search', {}, 'Buscar por concepto o categoría...')}
-            className="w-full h-11 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[var(--accent,#97F2CC)] shadow-inner transition-colors"
+            className="w-full h-11 pl-9 pr-3 bg-[#121721] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[var(--accent,#97F2CC)] shadow-inner transition-colors"
           />
         </div>
 
@@ -307,7 +307,7 @@ export default function LoansModule() {
                   setLoanToEdit(loan);
                   setIsModalOpen(true);
                 }}
-                className={`p-3.5 sm:p-4 rounded-2xl bg-[#162226] border flex flex-col justify-between gap-2.5 transition-all group cursor-pointer ${
+                className={`p-3.5 sm:p-4 rounded-2xl bg-white/[0.03] border flex flex-col justify-between gap-2.5 transition-all group cursor-pointer ${
                   isPaid ? 'border-emerald-500/20 bg-emerald-500/[0.02] opacity-75' : 'border-white/10 hover:bg-white/[0.06]'
                 }`}
               >

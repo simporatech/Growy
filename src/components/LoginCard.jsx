@@ -70,7 +70,7 @@ export default function LoginCard({ onLoginSuccess, onOpenForgotPassword, onOpen
         <div className="flex flex-col items-center text-center mb-8 relative z-10">
           <div className="relative group mb-4">
             <div className="absolute inset-0 bg-[var(--accent,#97F2CC)]/20 rounded-full blur-xl group-hover:bg-[var(--accent,#97F2CC)]/35 transition-all duration-500 scale-110" />
-            <div className="relative bg-[#1E2D32]/80 border border-[var(--accent,#97F2CC)]/25 rounded-2xl p-3.5 shadow-lg flex items-center justify-center">
+            <div className="relative bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/25 rounded-2xl p-3.5 shadow-lg flex items-center justify-center">
               <img 
                 src="/logos/Transparent.svg" 
                 alt="Growy Logo" 
@@ -164,7 +164,7 @@ export default function LoginCard({ onLoginSuccess, onOpenForgotPassword, onOpen
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="w-4 h-4 rounded border-[var(--accent,#97F2CC)]/30 bg-[#1E2D32] text-[var(--accent,#97F2CC)] focus:ring-[var(--accent,#97F2CC)]/50 accent-[var(--accent,#97F2CC)]"
+                className="w-4 h-4 rounded border-[var(--accent,#97F2CC)]/30 bg-black/40 text-[var(--accent,#97F2CC)] focus:ring-[var(--accent,#97F2CC)]/50 accent-[var(--accent,#97F2CC)]"
               />
               <span>{t('modals.auth.rememberMe', {}, 'Recordarme')}</span>
             </label>

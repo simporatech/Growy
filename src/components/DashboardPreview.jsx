@@ -365,7 +365,7 @@ export default function DashboardPreview({ user, onLogout }) {
       <div className="relative z-10 flex h-screen w-screen overflow-hidden">
         
         {/* DESKTOP SIDEBAR WITH COLLAPSIBLE MODE */}
-        <aside className={`h-full shrink-0 hidden md:flex flex-col justify-between border-r border-white/10 bg-[#141E22]/70 backdrop-blur-xl z-30 select-none overflow-hidden isolate transition-all duration-300 ease-in-out ${
+        <aside className={`h-full shrink-0 hidden md:flex flex-col justify-between border-r border-white/10 bg-[#0D1117]/80 backdrop-blur-xl z-30 select-none overflow-hidden isolate transition-all duration-300 ease-in-out ${
           isCollapsed ? 'w-20 p-3' : 'w-64 md:w-72 p-6'
         }`}>
           
@@ -428,7 +428,7 @@ export default function DashboardPreview({ user, onLogout }) {
 
             {/* USER PROFILE PILL */}
             {!isCollapsed ? (
-              <div className="rounded-2xl p-3 border border-white/10 bg-[#141E22]/70 backdrop-blur-xl flex items-center gap-3 overflow-hidden group hover:border-white/15 transition-all shrink-0 isolate">
+              <div className="rounded-2xl p-3 border border-white/10 bg-white/[0.04] backdrop-blur-xl flex items-center gap-3 overflow-hidden group hover:border-white/15 transition-all shrink-0 isolate">
                 <div className="w-8 h-8 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/20 flex items-center justify-center text-[var(--accent,#97F2CC)] shrink-0 font-bold">
                   <UserCheck className="w-4 h-4" />
                 </div>
@@ -443,7 +443,7 @@ export default function DashboardPreview({ user, onLogout }) {
               </div>
             ) : (
               <div 
-                className="rounded-2xl p-2 border border-white/10 bg-[#141E22]/70 backdrop-blur-xl flex items-center justify-center shrink-0 isolate"
+                className="rounded-2xl p-2 border border-white/10 bg-white/[0.04] backdrop-blur-xl flex items-center justify-center shrink-0 isolate"
                 title={`${userDisplayName} • ${t('common.planPro', {}, 'Plan Pro • Finanzas')}`}
               >
                 <div className="w-8 h-8 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/20 flex items-center justify-center text-[var(--accent,#97F2CC)] font-bold">
@@ -599,7 +599,7 @@ export default function DashboardPreview({ user, onLogout }) {
 
                   {/* EXPANDED DROPDOWN MENU */}
                   {isQuickMenuOpen && (
-                    <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 p-3 z-[9999] bg-[#162226] border border-white/15 rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,0.95)] origin-top-right animate-scaleUp select-none backdrop-blur-none space-y-2 isolate">
+                    <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 p-3 z-[9999] bg-[#0F141C] border border-white/15 rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,0.95)] origin-top-right animate-scaleUp select-none backdrop-blur-none space-y-2 isolate">
                       <span className="text-xs font-bold uppercase tracking-wider text-slate-400 px-3 py-1.5 block mb-1">
                         {t('dashboard.quickRegistration', {}, 'REGISTRO RÁPIDO')}
                       </span>
@@ -651,11 +651,11 @@ export default function DashboardPreview({ user, onLogout }) {
                         }}
                         className="w-full hover:bg-white/10 rounded-xl p-3 transition-all flex items-center gap-3.5 text-left cursor-pointer group"
                       >
-                        <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/20 text-[var(--accent,#97F2CC)] flex items-center justify-center shrink-0">
                           <Landmark className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                          <h4 className="text-sm font-bold text-white group-hover:text-cyan-300 transition-colors">
+                          <h4 className="text-sm font-bold text-white group-hover:text-[var(--accent,#97F2CC)] transition-colors">
                             {t('accounts.newAccount', {}, 'Nueva Cuenta')}
                           </h4>
                           <p className="text-xs text-slate-400 font-medium truncate mt-0.5">
@@ -1434,7 +1434,7 @@ export default function DashboardPreview({ user, onLogout }) {
           />
 
           {/* Slide-Up Bottom Sheet */}
-          <div className="relative z-10 w-full bg-[#131E22] border-t border-white/10 rounded-t-3xl p-6 pb-safe shadow-[0_-12px_45px_rgba(0,0,0,0.85)] max-h-[85vh] overflow-y-auto animate-scaleUp">
+          <div className="relative z-10 w-full bg-[#0F141C] border-t border-white/10 rounded-t-3xl p-6 pb-safe shadow-[0_-12px_45px_rgba(0,0,0,0.85)] max-h-[85vh] overflow-y-auto animate-scaleUp">
             {/* Drag Handle Bar */}
             <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-4" />
 
@@ -1610,7 +1610,7 @@ export default function DashboardPreview({ user, onLogout }) {
             }
             clearAutoDebitsNotification();
           }}
-          className="fixed bottom-6 right-6 z-50 p-4 rounded-2xl bg-[#141E22]/95 border border-[var(--accent,#97F2CC)]/40 shadow-[0_12px_40px_rgba(0,0,0,0.6)] backdrop-blur-2xl flex items-center gap-3.5 max-w-md animate-fadeIn cursor-pointer hover:border-[var(--accent,#97F2CC)] hover:scale-[1.02] transition-all group"
+          className="fixed bottom-6 right-6 z-50 p-4 rounded-2xl bg-[#0F141C]/95 border border-[var(--accent,#97F2CC)]/40 shadow-[0_12px_40px_rgba(0,0,0,0.6)] backdrop-blur-2xl flex items-center gap-3.5 max-w-md animate-fadeIn cursor-pointer hover:border-[var(--accent,#97F2CC)] hover:scale-[1.02] transition-all group"
           title={t('autoDebitToast.viewTransaction', {}, 'Haz clic para ver o editar el movimiento')}
         >
           <div className="w-11 h-11 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex items-center justify-center text-[var(--accent,#97F2CC)] shrink-0 font-bold group-hover:bg-[var(--accent)] group-hover:text-[var(--accent-text)] transition-colors">
@@ -1647,7 +1647,7 @@ export default function DashboardPreview({ user, onLogout }) {
 
       {/* Toast Notification for DB Operations */}
       {dbStatusToast && (
-        <div className={`fixed bottom-6 left-6 z-50 p-4 rounded-2xl bg-[#141E22]/95 border shadow-2xl backdrop-blur-xl flex items-center gap-3 max-w-sm animate-fadeIn ${
+        <div className={`fixed bottom-6 left-6 z-50 p-4 rounded-2xl bg-[#0F141C]/95 border shadow-2xl backdrop-blur-xl flex items-center gap-3 max-w-sm animate-fadeIn ${
           dbStatusToast.type === 'error' ? 'border-rose-500/40 text-rose-300' : 'border-[var(--accent,#97F2CC)]/30 text-white'
         }`}>
           <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 font-bold ${

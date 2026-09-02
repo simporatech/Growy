@@ -77,7 +77,7 @@ export const ExportDropdown = ({
         ref={buttonRef}
         type="button"
         onClick={handleToggle}
-        className="h-11 px-4 bg-[#131E22] hover:bg-white/5 border border-white/10 rounded-xl text-xs font-semibold text-white flex items-center gap-2 transition-all shadow-inner shrink-0 cursor-pointer"
+        className="h-11 px-4 bg-[#121721] hover:bg-white/5 border border-white/10 rounded-xl text-xs font-semibold text-white flex items-center gap-2 transition-all shadow-inner shrink-0 cursor-pointer"
       >
         <Download className="text-[var(--accent,#97F2CC)]" size={15} />
         <span>{exportLabel}</span>
@@ -87,7 +87,7 @@ export const ExportDropdown = ({
       {isOpen && createPortal(
         <div
           style={{ top: `${coords.top}px`, left: `${coords.left}px` }}
-          className="export-menu-portal fixed w-44 p-1.5 bg-[#162226] border border-white/10 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.9)] z-[9999] animate-in fade-in zoom-in-95 duration-100 flex flex-col gap-1 backdrop-blur-xl"
+          className="export-menu-portal fixed w-44 p-1.5 bg-[#0F141C] border border-white/10 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.9)] z-[9999] animate-in fade-in zoom-in-95 duration-100 flex flex-col gap-1 backdrop-blur-xl"
         >
           <button
             type="button"

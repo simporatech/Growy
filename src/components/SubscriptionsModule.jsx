@@ -194,7 +194,7 @@ export default function SubscriptionsModule() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={t('placeholders.search', {}, 'Buscar por nombre de servicio...')}
-            className="w-full h-11 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[var(--accent,#97F2CC)] shadow-inner transition-colors"
+            className="w-full h-11 pl-9 pr-3 bg-[#121721] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[var(--accent,#97F2CC)] shadow-inner transition-colors"
           />
         </div>
         <div className="sm:hidden shrink-0">
@@ -244,9 +244,9 @@ export default function SubscriptionsModule() {
                   setSubToEdit(sub);
                   setIsModalOpen(true);
                 }}
-                className={`p-3.5 sm:p-4 rounded-2xl bg-[#162226] border flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 transition-all group cursor-pointer ${
+                className={`p-3.5 sm:p-4 rounded-2xl bg-white/[0.03] border flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 transition-all group cursor-pointer ${
                   sub.isActive 
-                    ? 'border-white/10 hover:border-[var(--accent,#97F2CC)]/30 hover:bg-white/[0.04]' 
+                    ? 'border-white/10 hover:border-[var(--accent,#97F2CC)]/30 hover:bg-white/[0.06]' 
                     : 'border-white/5 opacity-60 bg-black/20'
                 }`}
               >
@@ -312,7 +312,7 @@ export default function SubscriptionsModule() {
                       }`}
                       title={sub.isActive ? t('common.active', {}, 'Activo') : t('common.paused', {}, 'Pausado')}
                     >
-                      <div className={`w-5 h-5 rounded-full bg-[#131E22] transition-transform shadow-sm ${
+                      <div className={`w-5 h-5 rounded-full bg-[#0F141C] transition-transform shadow-sm ${
                         sub.isActive ? 'translate-x-4' : 'translate-x-0'
                       }`} />
                     </button>

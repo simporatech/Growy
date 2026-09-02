@@ -93,7 +93,7 @@ export default function FeedbackModule() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-5 items-stretch relative z-10">
         
         {/* Left Column (2/3 Width - Form Card) */}
-        <div className="lg:col-span-2 p-4 md:p-6 rounded-2xl md:rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl space-y-4 sm:space-y-5 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]">
+        <div className="lg:col-span-2 p-4 md:p-6 rounded-2xl md:rounded-3xl bg-[#0D1117]/80 border border-white/[0.08] backdrop-blur-xl space-y-4 sm:space-y-5 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]">
           
           <div className="flex items-center gap-3 border-b border-white/5 pb-3 sm:pb-4">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex items-center justify-center text-[var(--accent,#97F2CC)] shrink-0 font-bold">
@@ -161,7 +161,7 @@ export default function FeedbackModule() {
                       disabled={isSubmitting}
                       onClick={() => setPriority(p.id)}
                       className={`flex-1 h-full rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                        priority === p.id ? `${p.color} shadow-sm scale-[1.02]` : 'bg-[#162226] border-white/10 text-slate-400 hover:text-white'
+                        priority === p.id ? `${p.color} shadow-sm scale-[1.02]` : 'bg-white/[0.04] border-white/10 text-slate-400 hover:text-white'
                       }`}
                     >
                       {p.label}
@@ -183,7 +183,7 @@ export default function FeedbackModule() {
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 placeholder={t('feedback.subjectPlaceholder', {}, 'Ej. Error al registrar cuenta, sugerencia para gráficos...')}
-                className="w-full h-11 px-4 bg-[#162226] border border-white/10 rounded-xl text-sm font-medium text-white focus:outline-none focus:border-[var(--accent,#97F2CC)] disabled:opacity-50 transition-all"
+                className="w-full h-11 px-4 bg-white/[0.04] border border-white/10 rounded-xl text-sm font-medium text-white focus:outline-none focus:border-[var(--accent,#97F2CC)] disabled:opacity-50 transition-all"
               />
             </div>
 
@@ -199,7 +199,7 @@ export default function FeedbackModule() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder={t('feedback.descPlaceholder', {}, 'Describe con el mayor detalle posible lo ocurrido o tu propuesta...')}
-                className="w-full p-3.5 bg-[#162226] border border-white/10 rounded-xl text-sm font-medium text-white focus:outline-none focus:border-[var(--accent,#97F2CC)] resize-none disabled:opacity-50 transition-all"
+                className="w-full p-3.5 bg-white/[0.04] border border-white/10 rounded-xl text-sm font-medium text-white focus:outline-none focus:border-[var(--accent,#97F2CC)] resize-none disabled:opacity-50 transition-all"
               />
             </div>
 
@@ -223,7 +223,7 @@ export default function FeedbackModule() {
         </div>
 
         {/* Right Column (1/3 Width - Support Info & SLA Card) */}
-        <div className="lg:col-span-1 p-7 md:p-8 rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl space-y-5 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] flex flex-col justify-between h-full">
+        <div className="lg:col-span-1 p-7 md:p-8 rounded-3xl bg-[#0D1117]/80 border border-white/[0.08] backdrop-blur-xl space-y-5 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] flex flex-col justify-between h-full">
           
           <div className="space-y-4">
             <div className="flex items-center gap-3 border-b border-white/5 pb-4">
@@ -237,7 +237,7 @@ export default function FeedbackModule() {
             </div>
 
             {/* SLA Badge */}
-            <div className="p-4 rounded-xl bg-[#162226] border border-white/10 space-y-2">
+            <div className="p-4 rounded-xl bg-white/[0.04] border border-white/10 space-y-2">
               <div className="flex items-center gap-2 text-emerald-300 text-xs font-bold uppercase tracking-wider">
                 <Clock className="w-4 h-4 text-emerald-400" />
                 <span>{t('feedback.slaTitle', {}, 'Tiempo de Respuesta SLA')}</span>
@@ -251,7 +251,7 @@ export default function FeedbackModule() {
             <div className="space-y-2 pt-1">
               <a
                 href="mailto:simporatech@gmail.com"
-                className="p-3 rounded-xl bg-[#162226] border border-white/10 flex items-center justify-between hover:border-sky-500/40 hover:bg-sky-500/[0.05] transition-all group cursor-pointer"
+                className="p-3 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-between hover:border-sky-500/40 hover:bg-sky-500/[0.05] transition-all group cursor-pointer"
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <Mail className="w-4 h-4 text-sky-400 shrink-0" />
@@ -269,7 +269,7 @@ export default function FeedbackModule() {
                 href="https://wa.me/50498700953"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-3 rounded-xl bg-[#162226] border border-white/10 flex items-center justify-between hover:border-emerald-500/40 hover:bg-emerald-500/[0.05] transition-all group cursor-pointer"
+                className="p-3 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-between hover:border-emerald-500/40 hover:bg-emerald-500/[0.05] transition-all group cursor-pointer"
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -285,7 +285,7 @@ export default function FeedbackModule() {
             </div>
           </div>
 
-          <div className="p-3 rounded-xl bg-[#162226] border border-white/10 text-xs text-slate-300 font-medium text-center">
+          <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-slate-300 font-medium text-center">
             Growy Web App • <strong className="text-white">v1.0 Pro</strong>
           </div>
 

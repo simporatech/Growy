@@ -27,7 +27,7 @@ function LoginScreen({ onLoginSuccess, onOpenForgotPassword, onOpenRegister }) {
       {/* TOP DECORATIVE HEADER */}
       <header className="relative z-10 p-6 flex items-center justify-between max-w-7xl mx-auto w-full">
         <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-2xl bg-[#162226] border border-white/10 flex items-center justify-center p-2 shadow-lg">
+          <div className="w-10 h-10 rounded-2xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex items-center justify-center p-2 shadow-lg">
             <img src="/logos/Transparent.svg" alt="Growy" className="w-full h-full object-contain" />
           </div>
           <span className="text-sm font-black tracking-wider text-white">GROWY</span>

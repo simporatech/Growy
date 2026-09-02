@@ -401,7 +401,7 @@ export default function TransactionsModule() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t('common.search', {}, 'Buscar por descripción, cuenta o categoría...')}
-            className="w-full h-10 pl-9 pr-3 rounded-xl bg-[#162226] border border-white/10 text-xs font-medium text-white focus:outline-none focus:border-[var(--accent,#97F2CC)] shadow-inner transition-colors"
+            className="w-full h-10 pl-9 pr-3 rounded-xl bg-[#121721] border border-white/10 text-xs font-medium text-white focus:outline-none focus:border-[var(--accent,#97F2CC)] shadow-inner transition-colors"
           />
         </div>
 
@@ -427,7 +427,7 @@ export default function TransactionsModule() {
           <button
             onClick={() => setTypeFilter('income')}
             className={`h-9 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center shrink-0 cursor-pointer ${
-              typeFilter === 'income' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-sm' : 'bg-white/5 text-slate-300 hover:text-white border border-white/5'
+              typeFilter === 'income' ? 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] border border-[var(--accent,#97F2CC)]/30 shadow-sm' : 'bg-white/5 text-slate-300 hover:text-white border border-white/5'
             }`}
           >
             {t('transactions.filterIncomes', {}, 'Ingresos')}
@@ -439,7 +439,7 @@ export default function TransactionsModule() {
             className={`h-9 px-3.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shrink-0 cursor-pointer border ${
               activeFilterCount > 0
                 ? 'bg-white/15 border-white/40 text-white'
-                : 'bg-[#162226] border-white/10 text-slate-300 hover:text-white'
+                : 'bg-white/[0.04] border-white/10 text-slate-300 hover:text-white'
             }`}
           >
             <Filter className="w-3.5 h-3.5" />
@@ -476,7 +476,7 @@ export default function TransactionsModule() {
 
       {/* DESKTOP FILTER BAR (>= lg) - UNIFIED SINGLE ROW */}
       <div className="hidden lg:block mb-6 relative z-30">
-        <div className="flex items-center justify-between gap-3 p-2.5 bg-[#131E22]/90 rounded-2xl border border-white/10 backdrop-blur-xl shadow-lg flex-wrap">
+        <div className="flex items-center justify-between gap-3 p-2.5 bg-[#0D1117]/80 rounded-2xl border border-white/10 backdrop-blur-xl shadow-lg flex-wrap">
           {/* Segmented Control de Tipo */}
           <div className="flex items-center gap-1 bg-black/25 p-1 rounded-xl shrink-0">
             <button
@@ -498,7 +498,7 @@ export default function TransactionsModule() {
             <button
               onClick={() => setTypeFilter('income')}
               className={`h-8 px-3 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center cursor-pointer ${
-                typeFilter === 'income' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-sm' : 'text-slate-300 hover:text-white'
+                typeFilter === 'income' ? 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] border border-[var(--accent,#97F2CC)]/30 shadow-sm' : 'text-slate-300 hover:text-white'
               }`}
             >
               {t('transactions.filterIncomes', {}, 'Ingresos')}
@@ -571,7 +571,7 @@ export default function TransactionsModule() {
         {/* Fechas personalizadas condicionales si el usuario elige "custom" */}
         {datePreset === 'custom' && (
           <div className="flex items-center gap-2 mt-2 animate-fadeIn">
-            <div className="flex items-center gap-2 p-2 bg-[#131E22]/80 rounded-xl border border-white/10">
+            <div className="flex items-center gap-2 p-2 bg-[#0D1117]/80 rounded-xl border border-white/10">
               <span className="text-[11px] font-semibold text-slate-400 shrink-0 pl-1">{t('transactions.from', {}, 'Desde')}</span>
               <div className="w-32">
                 <CustomDatePicker
@@ -675,12 +675,12 @@ export default function TransactionsModule() {
                           setTxToEdit(tx);
                           setIsModalOpen(true);
                         }}
-                        className="p-3.5 sm:px-5 sm:py-3.5 rounded-2xl bg-[#162226] border border-white/10 flex items-center justify-between gap-4 hover:bg-white/[0.06] transition-all group cursor-pointer"
+                        className="p-3.5 sm:px-5 sm:py-3.5 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-between gap-4 hover:bg-white/[0.06] transition-all group cursor-pointer"
                       >
                         {/* Col 1 (Izquierda): Icono + Concepto */}
                         <div className="flex items-center gap-3.5 min-w-0 flex-1 sm:max-w-xs lg:max-w-sm">
                           <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 overflow-hidden ${
-                            isIncome ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' : isExpense ? 'bg-rose-500/15 text-rose-400 border border-rose-500/20' : 'bg-sky-500/15 text-sky-400 border border-sky-500/20'
+                            isIncome ? 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] border border-[var(--accent,#97F2CC)]/20' : isExpense ? 'bg-rose-500/15 text-rose-400 border border-rose-500/20' : 'bg-sky-500/15 text-sky-400 border border-sky-500/20'
                           }`}>
                             <DynamicIcon value={emoji} fallback="💰" className="w-5 h-5 text-lg" />
                           </div>
@@ -712,7 +712,7 @@ export default function TransactionsModule() {
 
                         {/* Col 4 (Derecha): Monto formateado grande + Botones en hover */}
                         <div className="flex items-center gap-3 shrink-0">
-                          <div className={`text-base font-bold tabular-nums ${isIncome ? 'text-emerald-400' : isExpense ? 'text-rose-400' : 'text-sky-400'}`}>
+                          <div className={`text-base font-bold tabular-nums ${isIncome ? 'text-[var(--accent,#97F2CC)]' : isExpense ? 'text-rose-400' : 'text-sky-400'}`}>
                             {isIncome ? '+ ' : isExpense ? '- ' : ''}
                             {formatCurrency ? formatCurrency(tx?.amount, tx?.currency || sourceAcc?.currency || 'USD') : `${tx?.amount}`}
                           </div>

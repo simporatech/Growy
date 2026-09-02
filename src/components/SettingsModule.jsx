@@ -308,7 +308,7 @@ export default function SettingsModule({ onLogout }) {
       )}
 
       {/* NAVIGATION TABS BAR (Horizontal Responsive Scroll) */}
-      <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-2xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl overflow-x-auto no-scrollbar shadow-inner relative z-30">
+      <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-2xl bg-[#0D1117]/80 border border-white/[0.08] backdrop-blur-xl overflow-x-auto no-scrollbar shadow-inner relative z-30">
         {tabsConfig.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -335,7 +335,7 @@ export default function SettingsModule({ onLogout }) {
         <div className="space-y-4 md:space-y-6 animate-fadeIn">
           
           {/* USER PROFILE CARD */}
-          <div className="p-5 sm:p-7 rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] space-y-5">
+          <div className="p-5 sm:p-7 rounded-3xl bg-[#0D1117]/80 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] space-y-5">
             <div className="flex items-center gap-3 border-b border-white/5 pb-4">
               <div className="w-10 h-10 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex items-center justify-center text-[var(--accent,#97F2CC)] shrink-0 font-bold">
                 <User className="w-5 h-5" />
@@ -369,7 +369,7 @@ export default function SettingsModule({ onLogout }) {
                     placeholder={t('settings.displayNamePlaceholder', {}, 'Tu Nombre Completo')}
                     required
                     minLength={2}
-                    className="w-full h-11 px-4 bg-[#162226] border border-white/10 rounded-xl text-sm font-semibold text-white outline-none focus:border-[var(--accent,#97F2CC)] transition-colors shadow-inner"
+                    className="w-full h-11 px-4 bg-white/[0.04] border border-white/10 rounded-xl text-sm font-semibold text-white outline-none focus:border-[var(--accent,#97F2CC)] transition-colors shadow-inner"
                   />
                   <span className="text-[10px] text-slate-400 block font-normal">
                     {t('settings.displayNameHelp', {}, 'Cómo te saluda la app en el Dashboard')}
@@ -392,7 +392,7 @@ export default function SettingsModule({ onLogout }) {
                       placeholder={t('settings.usernamePlaceholder', {}, 'usuario')}
                       required
                       minLength={3}
-                      className="w-full h-11 pl-8 pr-4 bg-[#162226] border border-white/10 rounded-xl text-sm font-semibold text-white outline-none focus:border-[var(--accent,#97F2CC)] transition-colors shadow-inner"
+                      className="w-full h-11 pl-8 pr-4 bg-white/[0.04] border border-white/10 rounded-xl text-sm font-semibold text-white outline-none focus:border-[var(--accent,#97F2CC)] transition-colors shadow-inner"
                     />
                   </div>
                   <span className="text-[10px] text-slate-400 block font-normal">
@@ -440,7 +440,7 @@ export default function SettingsModule({ onLogout }) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 items-stretch relative z-20">
             
             {/* IDIOMA DEL SISTEMA */}
-            <div className="p-5 sm:p-7 rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl h-full flex flex-col justify-between space-y-4 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]">
+            <div className="p-5 sm:p-7 rounded-3xl bg-[#0D1117]/80 border border-white/[0.08] backdrop-blur-xl h-full flex flex-col justify-between space-y-4 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]">
               <div className="flex items-center gap-3 border-b border-white/5 pb-3">
                 <div className="w-10 h-10 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex items-center justify-center text-[var(--accent,#97F2CC)] shrink-0 font-bold">
                   <Languages className="w-5 h-5" />
@@ -458,7 +458,7 @@ export default function SettingsModule({ onLogout }) {
                   className={`h-14 px-4 rounded-xl border flex items-center justify-between transition-all cursor-pointer ${
                     language === 'es'
                       ? 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] border-[var(--accent,#97F2CC)] text-white shadow-md'
-                      : 'bg-[#162226] border-white/10 text-slate-300 hover:text-white hover:bg-white/[0.05]'
+                      : 'bg-white/[0.04] border-white/10 text-slate-300 hover:text-white hover:bg-white/[0.05]'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
@@ -477,7 +477,7 @@ export default function SettingsModule({ onLogout }) {
                   className={`h-14 px-4 rounded-xl border flex items-center justify-between transition-all cursor-pointer ${
                     language === 'en'
                       ? 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] border-[var(--accent,#97F2CC)] text-white shadow-md'
-                      : 'bg-[#162226] border-white/10 text-slate-300 hover:text-white hover:bg-white/[0.05]'
+                      : 'bg-white/[0.04] border-white/10 text-slate-300 hover:text-white hover:bg-white/[0.05]'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
@@ -493,7 +493,7 @@ export default function SettingsModule({ onLogout }) {
             </div>
 
             {/* MONEDA BASE DEL SISTEMA */}
-            <div className="p-5 sm:p-7 rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl h-full flex flex-col justify-between space-y-4 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] relative z-30">
+            <div className="p-5 sm:p-7 rounded-3xl bg-[#0D1117]/80 border border-white/[0.08] backdrop-blur-xl h-full flex flex-col justify-between space-y-4 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] relative z-30">
               <div className="flex items-center gap-3 border-b border-white/5 pb-3">
                 <div className="w-10 h-10 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex items-center justify-center text-[var(--accent,#97F2CC)] shrink-0 font-bold">
                   <Coins className="w-5 h-5" />
@@ -517,7 +517,7 @@ export default function SettingsModule({ onLogout }) {
           </div>
 
           {/* LIVE EXCHANGE RATES CALCULATOR */}
-          <div className="p-5 sm:p-7 rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl space-y-4 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] relative z-30">
+          <div className="p-5 sm:p-7 rounded-3xl bg-[#0D1117]/80 border border-white/[0.08] backdrop-blur-xl space-y-4 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] relative z-30">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/5 pb-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex items-center justify-center text-[var(--accent,#97F2CC)] shrink-0 font-bold">
@@ -546,7 +546,7 @@ export default function SettingsModule({ onLogout }) {
             </div>
 
             {/* Interactive Calculator Layout */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-[#162226] p-4 sm:p-5 rounded-2xl border border-white/5">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-white/[0.04] p-4 sm:p-5 rounded-2xl border border-white/5">
               <div className="md:col-span-3 space-y-1">
                 <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
                   {language === 'es' ? 'Monto a Convertir' : 'Amount to Convert'}
@@ -557,7 +557,7 @@ export default function SettingsModule({ onLogout }) {
                   step="any"
                   value={calcAmount}
                   onChange={(e) => setCalcAmount(e.target.value)}
-                  className="w-full h-11 px-3.5 bg-[#1E2D32] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-[var(--accent,#97F2CC)]"
+                  className="w-full h-11 px-3.5 bg-white/[0.04] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-[var(--accent,#97F2CC)]"
                   placeholder="1.00"
                 />
               </div>
@@ -624,7 +624,7 @@ export default function SettingsModule({ onLogout }) {
         <div className="space-y-4 md:space-y-6 animate-fadeIn">
           
           {/* COLOR PALETTE PRESETS */}
-          <div className="p-5 sm:p-7 rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] space-y-5">
+          <div className="p-5 sm:p-7 rounded-3xl bg-[#0D1117]/80 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] space-y-5">
             <div className="flex items-center gap-3 border-b border-white/5 pb-4">
               <div className="w-10 h-10 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex items-center justify-center text-[var(--accent,#97F2CC)] shrink-0 font-bold">
                 <Palette className="w-5 h-5" />
@@ -673,7 +673,7 @@ export default function SettingsModule({ onLogout }) {
           </div>
 
           {/* THEME MODE: DARK MINIMALIST */}
-          <div className="p-5 sm:p-7 rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] space-y-4">
+          <div className="p-5 sm:p-7 rounded-3xl bg-[#0D1117]/80 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] space-y-4">
             <div className="flex items-center gap-3 border-b border-white/5 pb-3">
               <div className="w-10 h-10 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex items-center justify-center text-[var(--accent,#97F2CC)] shrink-0 font-bold">
                 <Moon className="w-5 h-5" />
@@ -684,7 +684,7 @@ export default function SettingsModule({ onLogout }) {
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#162226] border border-white/10 flex items-center justify-between">
+            <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-black border border-white/20 flex items-center justify-center text-xs font-bold text-white">
                   OLED
@@ -710,7 +710,7 @@ export default function SettingsModule({ onLogout }) {
         <div className="space-y-4 md:space-y-6 animate-fadeIn">
           
           {/* PASSWORD SECURITY CARD */}
-          <div className="p-5 sm:p-7 rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] space-y-4">
+          <div className="p-5 sm:p-7 rounded-3xl bg-[#0D1117]/80 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] space-y-4">
             <div className="flex items-center gap-3 border-b border-white/5 pb-3">
               <div className="w-10 h-10 rounded-xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 shrink-0 font-bold">
                 <Lock className="w-5 h-5" />
@@ -814,7 +814,7 @@ export default function SettingsModule({ onLogout }) {
           </div>
 
           {/* DATA MANAGEMENT & BACKUPS */}
-          <div className="p-5 sm:p-7 rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] space-y-4">
+          <div className="p-5 sm:p-7 rounded-3xl bg-[#0D1117]/80 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] space-y-4">
             <div className="flex items-center gap-3 border-b border-white/5 pb-3">
               <div className="w-10 h-10 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex items-center justify-center text-[var(--accent,#97F2CC)] shrink-0 font-bold">
                 <Database className="w-5 h-5" />
@@ -830,7 +830,7 @@ export default function SettingsModule({ onLogout }) {
               <button
                 type="button"
                 onClick={() => exportBackup(financeData)}
-                className="h-12 px-4 rounded-xl bg-[#162226] border border-white/10 hover:border-white/20 hover:bg-white/[0.05] text-white font-bold text-xs flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-sm active:scale-[0.98]"
+                className="h-12 px-4 rounded-xl bg-white/[0.04] border border-white/10 hover:border-white/20 hover:bg-white/[0.05] text-white font-bold text-xs flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-sm active:scale-[0.98]"
               >
                 <Download className="w-4 h-4 text-[var(--accent,#97F2CC)]" />
                 <span>{t('settings.exportBackup', {}, 'Exportar Respaldo JSON')}</span>
@@ -841,7 +841,7 @@ export default function SettingsModule({ onLogout }) {
                 type="button"
                 onClick={() => setIsConsolidateModalOpen(true)}
                 disabled={isConsolidating}
-                className="h-12 px-4 rounded-xl bg-[#162226] border border-amber-500/30 hover:border-amber-400 hover:bg-amber-500/10 text-amber-300 font-bold text-xs flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-sm disabled:opacity-50 active:scale-[0.98]"
+                className="h-12 px-4 rounded-xl bg-white/[0.04] border border-amber-500/30 hover:border-amber-400 hover:bg-amber-500/10 text-amber-300 font-bold text-xs flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-sm disabled:opacity-50 active:scale-[0.98]"
               >
                 <RefreshCw className={`w-4 h-4 text-amber-400 ${isConsolidating ? 'animate-spin' : ''}`} />
                 <span>{isConsolidating ? 'Consolidando...' : (language === 'es' ? 'Optimizar Historial (>1 Año)' : 'Optimize History (>1 Year)')}</span>
@@ -850,7 +850,7 @@ export default function SettingsModule({ onLogout }) {
           </div>
 
           {/* DANGER ZONE (ZONA DE PELIGRO) */}
-          <div className="p-5 sm:p-7 rounded-3xl bg-[#141E22]/70 border border-rose-500/20 backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] space-y-4">
+          <div className="p-5 sm:p-7 rounded-3xl bg-[#0D1117]/80 border border-rose-500/20 backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] space-y-4">
             <div className="flex items-center gap-3 border-b border-rose-500/15 pb-3">
               <div className="w-10 h-10 rounded-xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 shrink-0 font-bold">
                 <ShieldAlert className="w-5 h-5" />

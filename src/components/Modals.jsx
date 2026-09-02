@@ -214,7 +214,7 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
               value={formData.fullName}
               onChange={handleChange}
               placeholder={t('modals.auth.namePlaceholder', {}, 'Tu Nombre')}
-              className="w-full h-11 px-4 bg-[#162226] border border-white/10 rounded-xl text-sm text-white outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
+              className="w-full h-11 px-4 bg-white/[0.04] border border-white/10 rounded-xl text-sm text-white outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
             />
           </div>
 
@@ -229,7 +229,7 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
               value={formData.username}
               onChange={handleChange}
               placeholder={t('modals.auth.usernamePlaceholder', {}, 'ej. juanperez')}
-              className="w-full h-11 px-4 bg-[#162226] border border-white/10 rounded-xl text-sm text-white outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
+              className="w-full h-11 px-4 bg-white/[0.04] border border-white/10 rounded-xl text-sm text-white outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
             />
           </div>
 
@@ -244,7 +244,7 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
               value={formData.email}
               onChange={handleChange}
               placeholder={t('modals.auth.emailPlaceholder', {}, 'tu@email.com')}
-              className="w-full h-11 px-4 bg-[#162226] border border-white/10 rounded-xl text-sm text-white outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
+              className="w-full h-11 px-4 bg-white/[0.04] border border-white/10 rounded-xl text-sm text-white outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
             />
           </div>
 
@@ -262,7 +262,7 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="••••••••"
-                className="w-full h-11 pl-4 pr-11 bg-[#162226] border border-white/10 rounded-xl text-sm text-white outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
+                className="w-full h-11 pl-4 pr-11 bg-white/[0.04] border border-white/10 rounded-xl text-sm text-white outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
                 autoComplete="new-password"
               />
               <button
@@ -293,7 +293,7 @@ export function RegisterModal({ isOpen, onClose, onRegisterSuccess }) {
               value={formData.confirmPassword}
               onChange={handleChange}
               placeholder="••••••••"
-              className="w-full h-11 px-4 bg-[#162226] border border-white/10 rounded-xl text-sm text-white outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
+              className="w-full h-11 px-4 bg-white/[0.04] border border-white/10 rounded-xl text-sm text-white outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
               autoComplete="new-password"
             />
           </div>

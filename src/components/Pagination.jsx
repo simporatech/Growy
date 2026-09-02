@@ -25,7 +25,7 @@ export default function Pagination({
   if (totalItems <= 0) return null;
 
   return (
-    <div className={`w-full flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-[#141E22]/60 border border-white/5 backdrop-blur-md relative z-10 ${className}`}>
+    <div className={`w-full flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-[#0D1117]/80 border border-white/5 backdrop-blur-md relative z-10 ${className}`}>
       
       {/* Page Size & Range Counter */}
       <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
@@ -34,7 +34,7 @@ export default function Pagination({
             <span className="text-xs text-slate-400 font-medium whitespace-nowrap">
               {t('pagination.rowsPerPage', {}, 'Mostrar:')}
             </span>
-            <div className="flex items-center gap-1 bg-[#131E22] p-0.5 rounded-lg border border-white/10">
+            <div className="flex items-center gap-1 bg-black/30 p-0.5 rounded-lg border border-white/10">
               {pageSizeOptions.map((size) => (
                 <button
                   key={size}
@@ -71,7 +71,7 @@ export default function Pagination({
             type="button"
             onClick={() => onPageChange(validCurrentPage - 1)}
             disabled={validCurrentPage <= 1}
-            className="w-8 h-8 rounded-xl bg-[#131E22] hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white flex items-center justify-center transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white flex items-center justify-center transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
             title={t('pagination.previous', {}, 'Anterior')}
           >
             <ChevronLeft size={15} />
@@ -81,7 +81,7 @@ export default function Pagination({
             type="button"
             onClick={() => onPageChange(validCurrentPage + 1)}
             disabled={validCurrentPage >= totalPages}
-            className="w-8 h-8 rounded-xl bg-[#131E22] hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white flex items-center justify-center transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white flex items-center justify-center transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
             title={t('pagination.next', {}, 'Siguiente')}
           >
             <ChevronRight size={15} />

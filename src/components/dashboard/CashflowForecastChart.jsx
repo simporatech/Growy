@@ -397,7 +397,7 @@ export default function CashflowForecastChart({
         {/* Floating HTML Tooltip on hover */}
         {hoveredPoint && (
           <div
-            className="absolute -top-3 z-30 pointer-events-none transform -translate-x-1/2 -translate-y-full bg-[#131E22] border border-white/20 rounded-xl p-2.5 shadow-2xl backdrop-blur-md whitespace-nowrap text-left text-xs animate-fade-in"
+            className="absolute -top-3 z-30 pointer-events-none transform -translate-x-1/2 -translate-y-full bg-[#0F141C] border border-white/20 rounded-xl p-2.5 shadow-2xl backdrop-blur-md whitespace-nowrap text-left text-xs animate-fade-in"
             style={{
               left: `${(hoveredPoint.x / svgWidth) * 100}%`,
               top: `${Math.max(10, (hoveredPoint.y / svgHeight) * 100 - 10)}%`
