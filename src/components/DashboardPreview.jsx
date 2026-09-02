@@ -15,6 +15,7 @@ import SettingsModule from './SettingsModule';
 import AboutModule from './AboutModule';
 import FeedbackModule from './FeedbackModule';
 import CashflowForecastChart from './dashboard/CashflowForecastChart';
+import FinancialHealthCard from './dashboard/FinancialHealthCard';
 import TransactionModal from './TransactionModal';
 import LoanModal from './LoanModal';
 import SubscriptionModal from './SubscriptionModal';
@@ -1047,8 +1048,11 @@ export default function DashboardPreview({ user, onLogout }) {
               </div>
 
               {/* LOWER WIDGETS ROW */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch w-full relative z-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 items-stretch w-full relative z-10">
                 
+                {/* WIDGET 0: Salud Financiera */}
+                <FinancialHealthCard onNavigateTab={setActiveTab} className="h-full" />
+
                 {/* WIDGET 1: Mini Portfolio de Cuentas */}
                 <div className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 h-full flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
                   <div className="flex items-center justify-between">
