@@ -14,6 +14,7 @@ import SubscriptionsModule from './SubscriptionsModule';
 import SettingsModule from './SettingsModule';
 import AboutModule from './AboutModule';
 import FeedbackModule from './FeedbackModule';
+import CashflowForecastChart from './dashboard/CashflowForecastChart';
 import TransactionModal from './TransactionModal';
 import LoanModal from './LoanModal';
 import SubscriptionModal from './SubscriptionModal';
@@ -44,6 +45,7 @@ export default function DashboardPreview({ user, onLogout }) {
   const userFirstName = userDisplayName.split(' ')[0];
 
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [chartViewMode, setChartViewMode] = useState('projection'); // 'projection' | 'flow'
   const [chartPeriod, setChartPeriod] = useState('this_month'); // 'this_month' | '3_months' | 'year'
   const [isMoreSheetOpen, setIsMoreSheetOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(() => {
@@ -809,101 +811,141 @@ export default function DashboardPreview({ user, onLogout }) {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
                       <h2 className="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
-                        <span>{t('dashboard.cashflowTitle', {}, 'Flujo de Caja y Proyección')}</span>
+                        <span>{chartViewMode === 'projection' ? (language === 'es' ? 'Proyección de Flujo de Caja' : 'Cashflow Forecast') : t('dashboard.cashflowTitle', {}, 'Flujo de Caja')}</span>
                       </h2>
-                      <p className="text-xs sm:text-sm text-slate-400 font-normal">{t('dashboard.cashflowSubtitle', {}, 'Ingresos vs Gastos')}</p>
+                      <p className="text-xs sm:text-sm text-slate-400 font-normal">
+                        {chartViewMode === 'projection' ? (language === 'es' ? 'Trayectoria estimada de saldo al fin de mes' : 'Estimated month-end balance trajectory') : t('dashboard.cashflowSubtitle', {}, 'Ingresos vs Gastos')}
+                      </p>
                     </div>
 
-                    <div className="flex items-center gap-1 p-1 rounded-xl bg-white/[0.03] border border-white/10 shrink-0 overflow-x-auto no-scrollbar">
-                      <button
-                        onClick={() => setChartPeriod('this_month')}
-                        className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold active:scale-95 transition-all whitespace-nowrap cursor-pointer ${
-                          chartPeriod === 'this_month' ? 'bg-[var(--accent)] text-[var(--accent-text)] font-bold shadow-sm' : 'text-slate-300 hover:text-white'
-                        }`}
-                      >
-                        {t('common.thisMonth', {}, 'Este Mes')}
-                      </button>
-                      <button
-                        onClick={() => setChartPeriod('3_months')}
-                        className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold active:scale-95 transition-all whitespace-nowrap cursor-pointer ${
-                          chartPeriod === '3_months' ? 'bg-[var(--accent)] text-[var(--accent-text)] font-bold shadow-sm' : 'text-slate-300 hover:text-white'
-                        }`}
-                      >
-                        {t('common.threeMonths', {}, '3 Meses')}
-                      </button>
-                      <button
-                        onClick={() => setChartPeriod('year')}
-                        className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold active:scale-95 transition-all whitespace-nowrap cursor-pointer ${
-                          chartPeriod === 'year' ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-sm font-bold' : 'text-slate-300 hover:text-white'
-                        }`}
-                      >
-                        {t('common.currentYear', {}, 'Año Actual')}
-                      </button>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {/* View Mode Switcher */}
+                      <div className="flex items-center gap-1 p-1 rounded-xl bg-white/[0.03] border border-white/10 shrink-0 overflow-x-auto no-scrollbar">
+                        <button
+                          onClick={() => setChartViewMode('projection')}
+                          className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold active:scale-95 transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+                            chartViewMode === 'projection' ? 'bg-[var(--accent)] text-[var(--accent-text)] font-bold shadow-sm' : 'text-slate-300 hover:text-white'
+                          }`}
+                        >
+                          <Activity className="w-3.5 h-3.5" />
+                          <span>{language === 'es' ? 'Proyección' : 'Forecast'}</span>
+                        </button>
+                        <button
+                          onClick={() => setChartViewMode('flow')}
+                          className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold active:scale-95 transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+                            chartViewMode === 'flow' ? 'bg-[var(--accent)] text-[var(--accent-text)] font-bold shadow-sm' : 'text-slate-300 hover:text-white'
+                          }`}
+                        >
+                          <Layers className="w-3.5 h-3.5" />
+                          <span>{language === 'es' ? 'Flujo' : 'Cashflow'}</span>
+                        </button>
+                      </div>
+
+                      {/* Period Switcher (only for Flow mode) */}
+                      {chartViewMode === 'flow' && (
+                        <div className="flex items-center gap-1 p-1 rounded-xl bg-white/[0.03] border border-white/10 shrink-0 overflow-x-auto no-scrollbar animate-fade-in">
+                          <button
+                            onClick={() => setChartPeriod('this_month')}
+                            className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold active:scale-95 transition-all whitespace-nowrap cursor-pointer ${
+                              chartPeriod === 'this_month' ? 'bg-[var(--accent)] text-[var(--accent-text)] font-bold shadow-sm' : 'text-slate-300 hover:text-white'
+                            }`}
+                          >
+                            {t('common.thisMonth', {}, 'Este Mes')}
+                          </button>
+                          <button
+                            onClick={() => setChartPeriod('3_months')}
+                            className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold active:scale-95 transition-all whitespace-nowrap cursor-pointer ${
+                              chartPeriod === '3_months' ? 'bg-[var(--accent)] text-[var(--accent-text)] font-bold shadow-sm' : 'text-slate-300 hover:text-white'
+                            }`}
+                          >
+                            {t('common.threeMonths', {}, '3 Meses')}
+                          </button>
+                          <button
+                            onClick={() => setChartPeriod('year')}
+                            className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold active:scale-95 transition-all whitespace-nowrap cursor-pointer ${
+                              chartPeriod === 'year' ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-sm font-bold' : 'text-slate-300 hover:text-white'
+                            }`}
+                          >
+                            {t('common.currentYear', {}, 'Año Actual')}
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  {currentMonthTx.length === 0 && chartPeriod === 'this_month' ? (
-                    <div className="w-full h-48 sm:h-56 flex flex-col items-center justify-center text-center text-slate-300 space-y-3 bg-[#162226] rounded-xl border border-dashed border-white/10">
-                      <Layers className="w-8 h-8 text-slate-400" />
-                      <p className="text-xs font-medium">{t('dashboard.noMovementsMonth', {}, 'Sin movimientos registrados este mes')}</p>
-                      <button
-                        onClick={() => {
-                          setInitialTxType('expense');
-                          setIsTxModalOpen(true);
-                        }}
-                        className="px-4 h-11 rounded-xl bg-[var(--accent)] text-[var(--accent-text)] font-semibold text-xs inline-flex items-center gap-1.5 shadow hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer"
-                      >
-                        <Plus className="w-3.5 h-3.5" /> {t('dashboard.registerMovement', {}, 'Registrar Movimiento')}
-                      </button>
-                    </div>
+                  {chartViewMode === 'projection' ? (
+                    <CashflowForecastChart
+                      currentTotalBalance={totalConsolidatedBalance}
+                      currentMonthTransactions={currentMonthTx}
+                      activeSubscriptions={activeSubsList}
+                      pendingDebts={pendingLoansList}
+                    />
                   ) : (
-                    <div className="w-full h-48 sm:h-56 pt-4 pb-4 flex items-end justify-between gap-2.5 sm:gap-3 px-2 sm:px-3">
-                      {trendPoints.map((pt, idx) => {
-                        const incHeight = maxTrendVal > 0 ? Math.max(6, Math.round((pt.income / maxTrendVal) * 120)) : 6;
-                        const expHeight = maxTrendVal > 0 ? Math.max(6, Math.round((pt.expense / maxTrendVal) * 120)) : 6;
+                    currentMonthTx.length === 0 && chartPeriod === 'this_month' ? (
+                      <div className="w-full h-48 sm:h-56 flex flex-col items-center justify-center text-center text-slate-300 space-y-3 bg-[#162226] rounded-xl border border-dashed border-white/10">
+                        <Layers className="w-8 h-8 text-slate-400" />
+                        <p className="text-xs font-medium">{t('dashboard.noMovementsMonth', {}, 'Sin movimientos registrados este mes')}</p>
+                        <button
+                          onClick={() => {
+                            setInitialTxType('expense');
+                            setIsTxModalOpen(true);
+                          }}
+                          className="px-4 h-11 rounded-xl bg-[var(--accent)] text-[var(--accent-text)] font-semibold text-xs inline-flex items-center gap-1.5 shadow hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer"
+                        >
+                          <Plus className="w-3.5 h-3.5" /> {t('dashboard.registerMovement', {}, 'Registrar Movimiento')}
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="w-full h-48 sm:h-56 pt-4 pb-4 flex items-end justify-between gap-2.5 sm:gap-3 px-2 sm:px-3">
+                          {trendPoints.map((pt, idx) => {
+                            const incHeight = maxTrendVal > 0 ? Math.max(6, Math.round((pt.income / maxTrendVal) * 120)) : 6;
+                            const expHeight = maxTrendVal > 0 ? Math.max(6, Math.round((pt.expense / maxTrendVal) * 120)) : 6;
 
-                        return (
-                          <div key={idx} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
-                            <div className="flex items-end gap-1 h-full w-full justify-center">
-                              <div 
-                                className="w-1/3 max-w-[12px] rounded-t-md bg-emerald-400 transition-all duration-300 hover:opacity-80 relative group/bar"
-                                style={{ height: `${incHeight}px` }}
-                              >
-                                <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-[#1E2D32] border border-white/20 text-emerald-400 text-xs font-semibold px-2 py-0.5 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none tabular-nums shadow-lg">
-                                  {formatCurrency(pt.income)}
+                            return (
+                              <div key={idx} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+                                <div className="flex items-end gap-1 h-full w-full justify-center">
+                                  <div 
+                                    className="w-1/3 max-w-[12px] rounded-t-md bg-emerald-400 transition-all duration-300 hover:opacity-80 relative group/bar"
+                                    style={{ height: `${incHeight}px` }}
+                                  >
+                                    <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-[#1E2D32] border border-white/20 text-emerald-400 text-xs font-semibold px-2 py-0.5 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none tabular-nums shadow-lg">
+                                      {formatCurrency(pt.income)}
+                                    </div>
+                                  </div>
+
+                                  <div 
+                                    className="w-1/3 max-w-[12px] rounded-t-md bg-rose-400 transition-all duration-300 hover:opacity-80 relative group/bar"
+                                    style={{ height: `${expHeight}px` }}
+                                  >
+                                    <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-[#1E2D32] border border-white/20 text-rose-400 text-xs font-semibold px-2 py-0.5 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none tabular-nums shadow-lg">
+                                      {formatCurrency(pt.expense)}
+                                    </div>
+                                  </div>
                                 </div>
-                              </div>
 
-                              <div 
-                                className="w-1/3 max-w-[12px] rounded-t-md bg-rose-400 transition-all duration-300 hover:opacity-80 relative group/bar"
-                                style={{ height: `${expHeight}px` }}
-                              >
-                                <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-[#1E2D32] border border-white/20 text-rose-400 text-xs font-semibold px-2 py-0.5 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none tabular-nums shadow-lg">
-                                  {formatCurrency(pt.expense)}
-                                </div>
+                                <span className="text-xs font-semibold text-slate-300 group-hover:text-white transition-colors mt-1">
+                                  {pt.label}
+                                </span>
                               </div>
-                            </div>
+                            );
+                          })}
+                        </div>
 
-                            <span className="text-xs font-semibold text-slate-300 group-hover:text-white transition-colors mt-1">
-                              {pt.label}
+                        <div className="p-3 rounded-xl bg-[#162226] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                          <div className="flex items-center gap-2">
+                            <Activity className="w-3.5 h-3.5 text-[var(--accent)] shrink-0" />
+                            <span className="text-slate-300 font-medium">
+                              {t('dashboard.projectedMonthEnd', { days: remainingDays }, `Proyección de saldo al cierre del mes (${remainingDays} días restantes):`)}
                             </span>
                           </div>
-                        );
-                      })}
-                    </div>
+                          <span className="font-bold text-white text-xs sm:text-sm tabular-nums">
+                            {formatCurrency(projectedMonthEndBalance, baseCurrency)}
+                          </span>
+                        </div>
+                      </>
+                    )
                   )}
-
-                  <div className="p-3 rounded-xl bg-[#162226] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-                    <div className="flex items-center gap-2">
-                      <Activity className="w-3.5 h-3.5 text-[var(--accent)] shrink-0" />
-                      <span className="text-slate-300 font-medium">
-                        {t('dashboard.projectedMonthEnd', { days: remainingDays }, `Proyección de saldo al cierre del mes (${remainingDays} días restantes):`)}
-                      </span>
-                    </div>
-                    <span className="font-bold text-white text-xs sm:text-sm tabular-nums">
-                      {formatCurrency(projectedMonthEndBalance, baseCurrency)}
-                    </span>
-                  </div>
                 </div>
 
                 {/* Chart 2: Donut Chart */}
