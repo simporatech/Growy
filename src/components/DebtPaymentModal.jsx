@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { PlusCircle, Wallet, ArrowDownLeft, ArrowUpRight, Sparkles, AlertCircle } from 'lucide-react';
 import Button from './Button';
 import CustomSelect from './CustomSelect';
@@ -134,10 +134,11 @@ export default function DebtPaymentModal({
               <span className="text-xs font-semibold text-slate-300">
                 {debt.concept || debt.description || 'Saldo Pendiente'}
               </span>
-              <span className={`text-xs font-bold px-2 py-0.5 rounded-md ${
+              <span className={`text-xs font-bold px-2 py-0.5 rounded-md flex items-center gap-1.5 ${
                 isPayable ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
               }`}>
-                {isPayable ? '🔴 ' + t('debts.payableBadge', {}, 'Por Pagar') : '🟢 ' + t('debts.receivableBadge', {}, 'Por Cobrar')}
+                <span className={`w-1.5 h-1.5 rounded-full ${isPayable ? 'bg-rose-400' : 'bg-emerald-400'}`} />
+                <span>{isPayable ? t('debts.payableBadge', {}, 'Por Pagar') : t('debts.receivableBadge', {}, 'Por Cobrar')}</span>
               </span>
             </div>
 

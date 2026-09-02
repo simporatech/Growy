@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Percent, ArrowDownLeft, ArrowUpRight, Wallet } from 'lucide-react';
 import Button from './Button';
 import CustomSelect from './CustomSelect';
@@ -219,8 +219,8 @@ export default function DebtModal({
                     : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
                 }`}
               >
-                <ArrowDownLeft className="w-4 h-4 text-rose-400" />
-                <span>🔴 {t('debts.payable', {}, 'Por Pagar (Deuda Mía)')}</span>
+                <ArrowDownLeft className="w-4 h-4 text-rose-400 shrink-0" />
+                <span className="truncate">{t('debts.payable', {}, 'Por Pagar (Deuda Mía)')}</span>
               </button>
 
               <button
@@ -232,8 +232,8 @@ export default function DebtModal({
                     : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
                 }`}
               >
-                <ArrowUpRight className="w-4 h-4 text-[var(--accent,#97F2CC)]" />
-                <span>🟢 {t('debts.receivable', {}, 'Por Cobrar (A mi Favor)')}</span>
+                <ArrowUpRight className="w-4 h-4 text-[var(--accent,#97F2CC)] shrink-0" />
+                <span className="truncate">{t('debts.receivable', {}, 'Por Cobrar (A mi Favor)')}</span>
               </button>
             </div>
           </div>

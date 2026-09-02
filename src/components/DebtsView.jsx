@@ -326,8 +326,9 @@ export default function DebtsView() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-center pb-4 sm:pb-6 border-b border-white/10">
               {/* Total Pendiente de Pago */}
               <div className="lg:col-span-4">
-                <span className="text-xs font-semibold tracking-wider text-rose-400 uppercase block">
-                  🔴 {t('debts.totalPayableLabel', {}, 'TOTAL PENDIENTE DE PAGO (DEUDAS)')}
+                <span className="text-xs font-semibold tracking-wider text-rose-400 uppercase flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-rose-500 inline-block shrink-0" />
+                  {t('debts.totalPayableLabel', {}, 'TOTAL POR PAGAR (DEUDAS)')}
                 </span>
                 <div className="flex items-baseline gap-2 mt-1">
                   <span className="text-2xl sm:text-3xl font-bold text-white tabular-nums tracking-tight">
@@ -342,7 +343,7 @@ export default function DebtsView() {
               {/* Total Abonado hasta hoy */}
               <div className="lg:col-span-4">
                 <span className="text-xs font-semibold tracking-wider text-slate-300 uppercase block">
-                  {t('debts.totalPaidSoFar', {}, 'Total Abonado hasta hoy')}
+                  {t('debts.totalPaidSoFar', {}, 'Total Abonado')}
                 </span>
                 <span className="text-xl sm:text-2xl font-bold tabular-nums tracking-tight mt-1 block text-emerald-400">
                   {formatCurrency(tabStats.totalPayablePaid, baseCurrency)}
@@ -374,7 +375,7 @@ export default function DebtsView() {
               </div>
             </div>
 
-            <div className="pt-3 sm:pt-4 flex items-center justify-between text-xs text-slate-400">
+            <div className="pt-3 sm:pt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
               <span>{t('debts.payableFooterHelp', {}, 'Saldos pendientes que debes cancelar a bancos, tarjetas o personas.')}</span>
               <span className="font-bold text-white tabular-nums">{filteredDebts.length} {t('debts.activeRecords', {}, 'deudas activas')}</span>
             </div>
@@ -385,8 +386,9 @@ export default function DebtsView() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-center pb-4 sm:pb-6 border-b border-white/10">
               {/* Total Por Recuperar */}
               <div className="lg:col-span-4">
-                <span className="text-xs font-semibold tracking-wider text-[var(--accent,#97F2CC)] uppercase block">
-                  🟢 {t('debts.totalReceivableLabel', {}, 'TOTAL POR RECUPERAR (A MI FAVOR)')}
+                <span className="text-xs font-semibold tracking-wider text-[var(--accent,#97F2CC)] uppercase flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-[var(--accent,#97F2CC)] inline-block shrink-0" />
+                  {t('debts.totalReceivableLabel', {}, 'TOTAL POR RECUPERAR (A MI FAVOR)')}
                 </span>
                 <div className="flex items-baseline gap-2 mt-1">
                   <span className="text-2xl sm:text-3xl font-bold text-white tabular-nums tracking-tight">
@@ -433,7 +435,7 @@ export default function DebtsView() {
               </div>
             </div>
 
-            <div className="pt-3 sm:pt-4 flex items-center justify-between text-xs text-slate-400">
+            <div className="pt-3 sm:pt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
               <span>{t('debts.receivableFooterHelp', {}, 'Dinero prestado o pendiente de recibir que retornará a tus cuentas.')}</span>
               <span className="font-bold text-[var(--accent,#97F2CC)] tabular-nums">{filteredDebts.length} {t('debts.activeCollections', {}, 'cobros activos')}</span>
             </div>
@@ -443,8 +445,9 @@ export default function DebtsView() {
           <>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-center pb-4 sm:pb-6 border-b border-white/10">
               <div className="lg:col-span-4">
-                <span className="text-xs font-semibold tracking-wider text-emerald-400 uppercase block">
-                  ✨ {t('debts.totalSettledLabel', {}, 'TOTAL SALDADO Y LIQUIDADO')}
+                <span className="text-xs font-semibold tracking-wider text-emerald-400 uppercase flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block shrink-0" />
+                  {t('debts.totalSettledLabel', {}, 'TOTAL SALDADO Y LIQUIDADO')}
                 </span>
                 <span className="text-2xl sm:text-3xl font-bold text-white tabular-nums tracking-tight mt-1 block">
                   {formatCurrency(tabStats.totalSettledAmount, baseCurrency)}
@@ -473,7 +476,7 @@ export default function DebtsView() {
               </div>
             </div>
 
-            <div className="pt-3 sm:pt-4 flex items-center justify-between text-xs text-slate-400">
+            <div className="pt-3 sm:pt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
               <span>{t('debts.settledFooterHelp', {}, 'Historial de saldos saldados al 100% y cerrados exitosamente.')}</span>
               <span className="font-bold text-emerald-400 tabular-nums">{filteredDebts.length} {t('debts.settledRecords', {}, 'registros completados')}</span>
             </div>
@@ -495,8 +498,8 @@ export default function DebtsView() {
                 : 'text-slate-300 hover:text-white border border-transparent'
             }`}
           >
-            <ArrowDownLeft className="w-3.5 h-3.5 text-rose-400" />
-            <span>🔴 {t('debts.tabPayable', {}, 'Por Pagar (Deudas)')}</span>
+            <ArrowDownLeft className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+            <span>{t('debts.tabPayable', {}, 'Por Pagar (Deudas)')}</span>
           </button>
 
           <button
@@ -508,8 +511,8 @@ export default function DebtsView() {
                 : 'text-slate-300 hover:text-white border border-transparent'
             }`}
           >
-            <ArrowUpRight className="w-3.5 h-3.5 text-emerald-400" />
-            <span>🟢 {t('debts.tabReceivable', {}, 'Por Cobrar (Préstamos y Cobros)')}</span>
+            <ArrowUpRight className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <span>{t('debts.tabReceivable', {}, 'Por Cobrar (Préstamos y Cobros)')}</span>
           </button>
 
           <button
@@ -521,8 +524,8 @@ export default function DebtsView() {
                 : 'text-slate-300 hover:text-white border border-transparent'
             }`}
           >
-            <CheckCircle className="w-3.5 h-3.5 text-[var(--accent,#97F2CC)]" />
-            <span>✨ {t('debts.tabCompleted', {}, 'Completados')}</span>
+            <CheckCircle className="w-3.5 h-3.5 text-[var(--accent,#97F2CC)] shrink-0" />
+            <span>{t('debts.tabCompleted', {}, 'Completados')}</span>
           </button>
 
         </div>
@@ -593,17 +596,18 @@ export default function DebtsView() {
                         ? 'bg-rose-500/15 text-rose-400 border-rose-500/20' 
                         : 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] border-[var(--accent,#97F2CC)]/20'
                     }`}>
-                      <DynamicIcon value={catObj?.emoji} fallback={debt.isPayable ? '💳' : '🤝'} className="w-5 h-5 text-lg" />
+                      <DynamicIcon value={catObj?.emoji} fallback="Wallet" className="w-5 h-5 text-lg" />
                     </div>
 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+                        <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full border flex items-center gap-1.5 ${
                           debt.isPayable 
                             ? 'bg-rose-500/15 text-rose-300 border-rose-500/30' 
                             : 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] border-[var(--accent,#97F2CC)]/30'
                         }`}>
-                          {debt.isPayable ? '🔴 ' + t('debts.payableBadge', {}, 'Por Pagar') : '🟢 ' + t('debts.receivableBadge', {}, 'Por Cobrar')}
+                          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${debt.isPayable ? 'bg-rose-400' : 'bg-[var(--accent,#97F2CC)]'}`} />
+                          <span>{debt.isPayable ? t('debts.payableBadge', {}, 'Por Pagar') : t('debts.receivableBadge', {}, 'Por Cobrar')}</span>
                         </span>
                         {catObj?.name && (
                           <span className="text-[11px] text-slate-400 truncate">
@@ -671,7 +675,7 @@ export default function DebtsView() {
 
                 {/* Visual Progress Bar */}
                 <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-[11px]">
+                  <div className="flex flex-wrap items-center justify-between gap-1.5 text-[11px]">
                     <span className="text-slate-400 font-medium">
                       {formatCurrency(debt.calc.totalPaid, debt.currency || 'USD')} / {formatCurrency(debt.calc.originalAmount, debt.currency || 'USD')} ({debt.calc.progressPercentage}%)
                     </span>
@@ -697,11 +701,11 @@ export default function DebtsView() {
                 </div>
 
                 {/* Footer Buttons: Abonar + Historial */}
-                <div className="pt-2 border-t border-white/5 flex items-center justify-between gap-2">
+                <div className="pt-2 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">
                   <button
                     type="button"
                     onClick={(e) => toggleHistory(debt.id, e)}
-                    className="h-9 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                    className="h-8 px-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <History className="w-3.5 h-3.5 text-slate-400" />
                     <span>{t('debts.paymentsCount', { count: associatedPayments.length }, `Abonos (${associatedPayments.length})`)}</span>
@@ -714,13 +718,13 @@ export default function DebtsView() {
                       variant="primary"
                       size="sm"
                       onClick={() => setDebtToPay(debt)}
-                      className="h-9 px-4 text-xs font-bold"
+                      className="h-8 px-3 text-xs font-semibold"
                     >
                       <Plus className="w-3.5 h-3.5 mr-1" />
                       <span>{debt.isPayable ? t('debts.payBtn', {}, 'Abonar') : t('debts.collectBtn', {}, 'Cobrar')}</span>
                     </Button>
                   ) : (
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-xl border border-emerald-500/20">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-xl border border-emerald-500/20">
                       <CheckCircle className="w-3.5 h-3.5" />
                       <span>{t('debts.settledBadge', {}, 'Liquidado')}</span>
                     </div>
