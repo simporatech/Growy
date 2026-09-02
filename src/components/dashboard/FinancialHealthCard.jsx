@@ -143,12 +143,12 @@ export default function FinancialHealthCard({
           <div className="p-2 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
             <div className="flex items-center justify-between text-[10px] font-semibold text-slate-400">
               <span className="truncate">{isEs ? 'Ahorro' : 'Savings'}</span>
-              <span className="text-white font-bold tabular-nums">{breakdown.savings.points}/40</span>
+              <span className="text-white font-bold tabular-nums">{breakdown?.savings?.points ?? 0}/40</span>
             </div>
             <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
               <div 
                 className="h-full rounded-full transition-all duration-500 bg-emerald-400"
-                style={{ width: `${(breakdown.savings.points / 40) * 100}%` }}
+                style={{ width: `${((breakdown?.savings?.points ?? 0) / 40) * 100}%` }}
               />
             </div>
           </div>
@@ -157,12 +157,12 @@ export default function FinancialHealthCard({
           <div className="p-2 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
             <div className="flex items-center justify-between text-[10px] font-semibold text-slate-400">
               <span className="truncate">{isEs ? 'Deudas' : 'Debts'}</span>
-              <span className="text-white font-bold tabular-nums">{breakdown.debts.points}/30</span>
+              <span className="text-white font-bold tabular-nums">{breakdown?.debts?.points ?? 0}/30</span>
             </div>
             <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
               <div 
-                className={`h-full rounded-full transition-all duration-500 ${breakdown.debts.overdueCount > 0 ? 'bg-rose-400' : 'bg-emerald-400'}`}
-                style={{ width: `${(breakdown.debts.points / 30) * 100}%` }}
+                className={`h-full rounded-full transition-all duration-500 ${(breakdown?.debts?.overdueCount ?? 0) > 0 ? 'bg-rose-400' : 'bg-emerald-400'}`}
+                style={{ width: `${((breakdown?.debts?.points ?? 0) / 30) * 100}%` }}
               />
             </div>
           </div>
@@ -171,12 +171,12 @@ export default function FinancialHealthCard({
           <div className="p-2 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
             <div className="flex items-center justify-between text-[10px] font-semibold text-slate-400">
               <span className="truncate">{isEs ? 'Presupuesto' : 'Budget'}</span>
-              <span className="text-white font-bold tabular-nums">{breakdown.budget.points}/30</span>
+              <span className="text-white font-bold tabular-nums">{breakdown?.budget?.points ?? 0}/30</span>
             </div>
             <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
               <div 
                 className="h-full rounded-full transition-all duration-500 bg-sky-400"
-                style={{ width: `${(breakdown.budget.points / 30) * 100}%` }}
+                style={{ width: `${((breakdown?.budget?.points ?? 0) / 30) * 100}%` }}
               />
             </div>
           </div>
@@ -251,18 +251,18 @@ export default function FinancialHealthCard({
                     <span>{isEs ? '1. Ratio Ahorro / Gasto' : '1. Savings / Expense Ratio'}</span>
                   </div>
                   <span className="font-black text-white text-xs sm:text-sm tabular-nums">
-                    {breakdown.savings.points} / 40 pts
+                    {breakdown?.savings?.points ?? 0} / 40 pts
                   </span>
                 </div>
                 <p className="text-xs text-slate-400 font-normal">
                   {isEs
-                    ? `Tasa actual de ahorro: ${breakdown.savings.rate}%. Meta recomendada: ≥ 20% de tus ingresos mensuales.`
-                    : `Current savings rate: ${breakdown.savings.rate}%. Target recommended: ≥ 20% of monthly income.`}
+                    ? `Tasa actual de ahorro: ${breakdown?.savings?.rate ?? 0}%. Meta recomendada: ≥ 20% de tus ingresos mensuales.`
+                    : `Current savings rate: ${breakdown?.savings?.rate ?? 0}%. Target recommended: ≥ 20% of monthly income.`}
                 </p>
                 <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden">
                   <div 
                     className="h-full rounded-full bg-emerald-400 transition-all duration-500"
-                    style={{ width: `${(breakdown.savings.points / 40) * 100}%` }}
+                    style={{ width: `${((breakdown?.savings?.points ?? 0) / 40) * 100}%` }}
                   />
                 </div>
               </div>
@@ -275,20 +275,20 @@ export default function FinancialHealthCard({
                     <span>{isEs ? '2. Deudas y Compromisos al Día' : '2. Debts and Commitments on Track'}</span>
                   </div>
                   <span className="font-black text-white text-xs sm:text-sm tabular-nums">
-                    {breakdown.debts.points} / 30 pts
+                    {breakdown?.debts?.points ?? 0} / 30 pts
                   </span>
                 </div>
                 <p className="text-xs text-slate-400 font-normal">
-                  {breakdown.debts.overdueCount === 0
+                  {(breakdown?.debts?.overdueCount ?? 0) === 0
                     ? (isEs ? '¡Excelente! No tienes compromisos financieros vencidos.' : 'Great! No overdue financial commitments.')
                     : (isEs
-                        ? `Tienes ${breakdown.debts.overdueCount} deuda(s) vencida(s). Paga tus saldos para recuperar hasta 30 puntos.`
-                        : `You have ${breakdown.debts.overdueCount} overdue debt(s). Settle them to recover up to 30 points.`)}
+                        ? `Tienes ${breakdown?.debts?.overdueCount} deuda(s) vencida(s). Paga tus saldos para recuperar hasta 30 puntos.`
+                        : `You have ${breakdown?.debts?.overdueCount} overdue debt(s). Settle them to recover up to 30 points.`)}
                 </p>
                 <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden">
                   <div 
-                    className={`h-full rounded-full transition-all duration-500 ${breakdown.debts.overdueCount > 0 ? 'bg-rose-400' : 'bg-emerald-400'}`}
-                    style={{ width: `${(breakdown.debts.points / 30) * 100}%` }}
+                    className={`h-full rounded-full transition-all duration-500 ${(breakdown?.debts?.overdueCount ?? 0) > 0 ? 'bg-rose-400' : 'bg-emerald-400'}`}
+                    style={{ width: `${((breakdown?.debts?.points ?? 0) / 30) * 100}%` }}
                   />
                 </div>
               </div>
@@ -301,14 +301,14 @@ export default function FinancialHealthCard({
                     <span>{isEs ? '3. Apego a Presupuestos por Categoría' : '3. Category Budget Adherence'}</span>
                   </div>
                   <span className="font-black text-white text-xs sm:text-sm tabular-nums">
-                    {breakdown.budget.points} / 30 pts
+                    {breakdown?.budget?.points ?? 0} / 30 pts
                   </span>
                 </div>
                 <p className="text-xs text-slate-400 font-normal">
-                  {breakdown.budget.totalBudgetedCount > 0
+                  {(breakdown?.budget?.totalBudgetedCount ?? 0) > 0
                     ? (isEs
-                        ? `${breakdown.budget.onTrackCount} de ${breakdown.budget.totalBudgetedCount} categorías se mantienen dentro del presupuesto fijado.`
-                        : `${breakdown.budget.onTrackCount} of ${breakdown.budget.totalBudgetedCount} categories are within their allocated budget.`)
+                        ? `${breakdown?.budget?.onTrackCount ?? 0} de ${breakdown?.budget?.totalBudgetedCount} categorías se mantienen dentro del presupuesto fijado.`
+                        : `${breakdown?.budget?.onTrackCount ?? 0} of ${breakdown?.budget?.totalBudgetedCount} categories are within their allocated budget.`)
                     : (isEs
                         ? 'Tus gastos globales se mantienen en un rango razonable respecto a tus ingresos.'
                         : 'Your global expenses remain balanced relative to your income.')}
@@ -316,7 +316,7 @@ export default function FinancialHealthCard({
                 <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden">
                   <div 
                     className="h-full rounded-full bg-sky-400 transition-all duration-500"
-                    style={{ width: `${(breakdown.budget.points / 30) * 100}%` }}
+                    style={{ width: `${((breakdown?.budget?.points ?? 0) / 30) * 100}%` }}
                   />
                 </div>
               </div>

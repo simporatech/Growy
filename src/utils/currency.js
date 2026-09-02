@@ -179,23 +179,43 @@ export const convertCurrency = (amount, fromCurrency = 'USD', toCurrency = 'USD'
  * @param {object} liveRates - Active exchange rates
  * @returns {number} Converted amount in base global currency
  */
-export const formatToGlobal = (tx, globalCurrency = 'USD', liveRates = FALLBACK_EXCHANGE_RATES) => {
-  if (!tx) return 0;
-  const amount = Number(tx.amount) || 0;
-  const txCurrency = (tx.currency || 'USD').toUpperCase();
-  const targetCurrency = (globalCurrency || 'USD').toUpperCase();
+export const formatToGlobal = (txOrAmount, globalCurrencyOrFrom = 'USD', liveRatesOrGlobal = FALLBACK_EXCHANGE_RATES, maybeRates = FALLBACK_EXCHANGE_RATES) => {
+  if (txOrAmount === null || txOrAmount === undefined) return 0;
 
-  // Strict Rule: If transaction is already in globalCurrency, return original amount directly
+  // Polymorphic support: handle formatToGlobal(amount, fromCurrency, globalCurrency, rates)
+  if (typeof txOrAmount === 'number' || (typeof txOrAmount === 'string' && !isNaN(Number(txOrAmount)))) {
+    const amount = Number(txOrAmount) || 0;
+    const fromCurrency = (typeof globalCurrencyOrFrom === 'string' && globalCurrencyOrFrom.length >= 3) ? globalCurrencyOrFrom.toUpperCase() : 'USD';
+    const targetCurrency = (typeof liveRatesOrGlobal === 'string' && liveRatesOrGlobal.length >= 3) 
+      ? liveRatesOrGlobal.toUpperCase() 
+      : (typeof globalCurrencyOrFrom === 'string' ? globalCurrencyOrFrom.toUpperCase() : 'USD');
+    const rates = (typeof liveRatesOrGlobal === 'object' && liveRatesOrGlobal !== null) 
+      ? liveRatesOrGlobal 
+      : (typeof maybeRates === 'object' && maybeRates !== null ? maybeRates : FALLBACK_EXCHANGE_RATES);
+
+    if (fromCurrency === targetCurrency) return amount;
+    return convertCrossCurrency(amount, fromCurrency, targetCurrency, rates);
+  }
+
+  // Object mode: tx = { amount: 100, currency: 'USD' }
+  const amount = Number(txOrAmount.amount !== undefined ? txOrAmount.amount : txOrAmount.value) || 0;
+  const txCurrency = (txOrAmount.currency || 'USD').toUpperCase();
+  const targetCurrency = (typeof globalCurrencyOrFrom === 'string' ? globalCurrencyOrFrom : 'USD').toUpperCase();
+  const rates = (typeof liveRatesOrGlobal === 'object' && liveRatesOrGlobal !== null) ? liveRatesOrGlobal : FALLBACK_EXCHANGE_RATES;
+
   if (txCurrency === targetCurrency) {
     return amount;
   }
 
-  return convertCrossCurrency(amount, txCurrency, targetCurrency, liveRates);
+  return convertCrossCurrency(amount, txCurrency, targetCurrency, rates);
 };
 
 /**
  * Conversion function strictly for consolidated account balances / net wealth calculation.
  */
 export const convertToGlobal = (amount, accountCurrency = 'USD', globalCurrency = 'USD', rates = FALLBACK_EXCHANGE_RATES) => {
-  return convertCrossCurrency(amount, accountCurrency, globalCurrency, rates);
+  if (amount === null || amount === undefined) return 0;
+  const num = typeof amount === 'object' ? (amount.amount !== undefined ? amount.amount : amount.balance) : amount;
+  const fromCurr = typeof amount === 'object' ? (amount.currency || accountCurrency) : accountCurrency;
+  return convertCrossCurrency(Number(num) || 0, fromCurr || 'USD', globalCurrency || 'USD', rates || FALLBACK_EXCHANGE_RATES);
 };

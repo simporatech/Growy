@@ -22,12 +22,13 @@ export function calculateMonthEndProjection({
   formatToGlobal = (amount) => Number(amount || 0),
   baseCurrency = 'USD'
 } = {}) {
-  const ref = referenceDate instanceof Date ? referenceDate : new Date(referenceDate);
-  const year = ref.getFullYear();
-  const month = ref.getMonth(); // 0-indexed
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const currentDay = Math.min(daysInMonth, Math.max(1, ref.getDate()));
-  const daysRemaining = Math.max(0, daysInMonth - currentDay);
+  try {
+    const ref = referenceDate instanceof Date ? referenceDate : new Date(referenceDate || Date.now());
+    const year = ref.getFullYear();
+    const month = ref.getMonth(); // 0-indexed
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const currentDay = Math.min(daysInMonth, Math.max(1, ref.getDate()));
+    const daysRemaining = Math.max(0, daysInMonth - currentDay);
 
   // 1. Expenses recorded so far this month
   const expensesSoFar = (currentMonthTransactions || [])
@@ -200,20 +201,37 @@ export function calculateMonthEndProjection({
     }
   }
 
-  return {
-    projectedBalance,
-    dailyBurnRate: Number(dailyBurnRate.toFixed(2)),
-    daysRemaining,
-    daysInMonth,
-    currentDay,
-    expensesSoFar: Number(expensesSoFar.toFixed(2)),
-    incomesSoFar: Number(incomesSoFar.toFixed(2)),
-    projectedDailyExpenses: Number(projectedDailyExpenses.toFixed(2)),
-    pendingSubscriptionsTotal: Number(pendingSubscriptionsTotal.toFixed(2)),
-    pendingDebtsTotal: Number(pendingDebtsTotal.toFixed(2)),
-    trend,
-    chartData
-  };
+    return {
+      projectedBalance,
+      dailyBurnRate: Number(dailyBurnRate.toFixed(2)),
+      daysRemaining,
+      daysInMonth,
+      currentDay,
+      expensesSoFar: Number(expensesSoFar.toFixed(2)),
+      incomesSoFar: Number(incomesSoFar.toFixed(2)),
+      projectedDailyExpenses: Number(projectedDailyExpenses.toFixed(2)),
+      pendingSubscriptionsTotal: Number(pendingSubscriptionsTotal.toFixed(2)),
+      pendingDebtsTotal: Number(pendingDebtsTotal.toFixed(2)),
+      trend,
+      chartData
+    };
+  } catch (err) {
+    console.error('Error calculating cashflow projection:', err);
+    return {
+      projectedBalance: Number(currentTotalBalance) || 0,
+      dailyBurnRate: 0,
+      daysRemaining: 0,
+      daysInMonth: 30,
+      currentDay: 1,
+      expensesSoFar: 0,
+      incomesSoFar: 0,
+      projectedDailyExpenses: 0,
+      pendingSubscriptionsTotal: 0,
+      pendingDebtsTotal: 0,
+      trend: 'stable',
+      chartData: []
+    };
+  }
 }
 
 /**

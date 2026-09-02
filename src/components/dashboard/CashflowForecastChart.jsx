@@ -59,12 +59,12 @@ export default function CashflowForecastChart({
     const actual = [];
     const projected = [];
 
-    chartData.forEach((pt) => {
-      if (pt.actual !== null) {
+    (chartData || []).forEach((pt) => {
+      if (pt && pt.actual !== null && pt.actual !== undefined) {
         min = Math.min(min, pt.actual);
         max = Math.max(max, pt.actual);
       }
-      if (pt.projected !== null) {
+      if (pt && pt.projected !== null && pt.projected !== undefined) {
         min = Math.min(min, pt.projected);
         max = Math.max(max, pt.projected);
       }
@@ -86,12 +86,13 @@ export default function CashflowForecastChart({
       return padTop + (1 - fraction) * chartInnerHeight;
     };
 
-    chartData.forEach((pt) => {
-      const x = getX(pt.day);
-      if (pt.actual !== null) {
+    (chartData || []).forEach((pt) => {
+      if (!pt) return;
+      const x = getX(pt.day || 1);
+      if (pt.actual !== null && pt.actual !== undefined) {
         actual.push({ x, y: getY(pt.actual), day: pt.day, val: pt.actual, type: 'actual' });
       }
-      if (pt.projected !== null) {
+      if (pt.projected !== null && pt.projected !== undefined) {
         projected.push({ x, y: getY(pt.projected), day: pt.day, val: pt.projected, type: 'projected' });
       }
     });
@@ -265,7 +266,7 @@ export default function CashflowForecastChart({
                   textAnchor="end"
                   className="fill-slate-500 text-[9px] tabular-nums font-mono select-none"
                 >
-                  {formatCurrency(gridVal, baseCurrency, baseCurrency).split('.')[0]}
+                  {(formatCurrency(gridVal, baseCurrency) || '').split('.')[0]}
                 </text>
               </g>
             );
