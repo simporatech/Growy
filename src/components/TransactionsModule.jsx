@@ -285,8 +285,12 @@ export default function TransactionsModule() {
       accessor: (tx) => {
         if (tx?.type === 'transfer') {
           const src = safeAccountsList.find(a => a?.id === (tx?.accountId || tx?.account_id))?.name || '-';
-          const dest = safeAccountsList.find(a => a?.id === (tx?.targetAccountId || tx?.destinationAccountId || tx?.destination_account_id))?.name || '';
-          return dest ? `${src} ➔ ${dest}` : (tx?.description || (isEs ? 'Transferencia' : 'Transfer'));
+          const destId = tx?.targetAccountId || tx?.destinationAccountId || tx?.destination_account_id;
+          const dest = safeAccountsList.find(a => a?.id === destId)?.name;
+          const isLoan = Boolean(tx?.debtId || tx?.debt_id || (!destId && /pr[eé]stamo/i.test(tx?.description || '')) || (!destId && tx?.type === 'transfer'));
+          const virtualName = t('debts.virtual_account_name', {}, isEs ? 'Saldos Pendientes (Por Cobrar)' : 'Pending Balances (Receivable)');
+          const destName = dest || (isLoan ? virtualName : '');
+          return destName ? `${src} ➔ ${destName}` : (tx?.description || (isEs ? 'Transferencia' : 'Transfer'));
         }
         return tx?.description || '-';
       }
@@ -297,7 +301,15 @@ export default function TransactionsModule() {
     },
     { 
       label: isEs ? 'Cuenta Destino' : 'Destination Account', 
-      accessor: (tx) => tx?.type === 'transfer' ? (safeAccountsList.find(a => a?.id === (tx?.targetAccountId || tx?.destinationAccountId || tx?.destination_account_id))?.name || '-') : '-' 
+      accessor: (tx) => {
+        if (tx?.type !== 'transfer') return '-';
+        const destId = tx?.targetAccountId || tx?.destinationAccountId || tx?.destination_account_id;
+        const dest = safeAccountsList.find(a => a?.id === destId);
+        if (dest) return dest.name;
+        const isLoan = Boolean(tx?.debtId || tx?.debt_id || (!destId && /pr[eé]stamo/i.test(tx?.description || '')) || !destId);
+        if (isLoan) return t('debts.virtual_account_name', {}, isEs ? 'Saldos Pendientes (Por Cobrar)' : 'Pending Balances (Receivable)');
+        return '-';
+      }
     },
     { 
       label: isEs ? 'Categoría' : 'Category', 
@@ -650,17 +662,22 @@ export default function TransactionsModule() {
                 <div className="space-y-2">
                   {list.map((tx) => {
                     const sourceAcc = safeAccountsList.find(a => a?.id === (tx?.accountId || tx?.account_id));
-                    const destAcc = safeAccountsList.find(a => a?.id === (tx?.targetAccountId || tx?.destinationAccountId || tx?.destination_account_id));
+                    const destAccId = tx?.targetAccountId || tx?.destinationAccountId || tx?.destination_account_id;
+                    const destAcc = safeAccountsList.find(a => a?.id === destAccId);
                     const cat = safeCategoriesList.find(c => c?.id === (tx?.categoryId || tx?.category_id));
-
-                    const sourceAccName = sourceAcc?.name || t('transactions.accountFilter', {}, 'Cuenta');
-                    const destAccName = destAcc?.name || '';
-                    const catName = cat?.name || t('transactions.categoryFilter', {}, 'General');
 
                     const isIncome = tx?.type === 'income';
                     const isExpense = tx?.type === 'expense';
                     const isTransfer = tx?.type === 'transfer';
-                    const emoji = isTransfer ? '🔁' : (cat?.emoji || '💰');
+
+                    const isLoanTransfer = isTransfer && (!destAccId || Boolean(tx?.debtId || tx?.debt_id || /pr[eé]stamo/i.test(tx?.description || '')));
+                    const virtualAccountName = t('debts.virtual_account_name', {}, isEs ? 'Saldos Pendientes (Por Cobrar)' : 'Pending Balances (Receivable)');
+
+                    const sourceAccName = sourceAcc?.name || t('transactions.accountFilter', {}, 'Cuenta');
+                    const destAccName = destAcc?.name || (isLoanTransfer ? virtualAccountName : '');
+                    const catName = cat?.name || t('transactions.categoryFilter', {}, 'General');
+
+                    const emoji = isTransfer ? (isLoanTransfer ? '⏳' : '🔁') : (cat?.emoji || '💰');
 
                     const txTitle = isTransfer && destAccName
                       ? `${sourceAccName} ➔ ${destAccName}`
@@ -690,19 +707,38 @@ export default function TransactionsModule() {
                               {txTitle}
                             </h4>
                             <p className="text-xs text-slate-300 font-medium sm:hidden truncate mt-0.5">
-                              {sourceAccName} • {catName}
+                              {isTransfer 
+                                ? (isLoanTransfer
+                                    ? `${sourceAccName} ➔ ⏳ ${virtualAccountName}`
+                                    : `${sourceAccName} ➔ ${destAccName || ''}`)
+                                : `${sourceAccName} • ${catName}`}
                             </p>
                           </div>
                         </div>
 
                         {/* Col 2 (Centro-Izquierda): Badge de Cuenta y Categoría (Desktop) */}
                         <div className="hidden sm:flex items-center gap-2 min-w-0 flex-1">
-                          <span className="text-xs font-medium text-slate-300 px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 truncate max-w-[140px]">
+                          <span className="text-xs font-medium text-slate-300 px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 truncate max-w-[140px]" title={sourceAccName}>
                             🏦 {sourceAccName}
                           </span>
-                          <span className="text-xs font-medium text-slate-300 px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 truncate max-w-[140px]">
-                            🏷️ {catName}
-                          </span>
+                          {isTransfer ? (
+                            destAcc ? (
+                              <span className="text-xs font-medium text-slate-300 px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 truncate max-w-[140px]" title={destAcc.name}>
+                                ➔ 🏦 {destAcc.name}
+                              </span>
+                            ) : isLoanTransfer ? (
+                              <span 
+                                className="text-slate-400 bg-slate-800/40 border border-slate-700/40 rounded px-2 py-0.5 text-xs truncate max-w-[190px] inline-flex items-center gap-1.5 shrink-0"
+                                title={virtualAccountName}
+                              >
+                                ➔ <span>⏳</span> <span className="truncate">{virtualAccountName}</span>
+                              </span>
+                            ) : null
+                          ) : (
+                            <span className="text-xs font-medium text-slate-300 px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 truncate max-w-[140px]">
+                              🏷️ {catName}
+                            </span>
+                          )}
                         </div>
 
                         {/* Col 3 (Centro-Derecha): Fecha legible (Desktop) */}

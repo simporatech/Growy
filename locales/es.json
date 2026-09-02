@@ -91,7 +91,8 @@
       "due_prefix": "Vence",
       "payments_count": "Abonos ({{count}})"
     },
-    "make_payment": "Abonar"
+    "make_payment": "Abonar",
+    "virtual_account_name": "Saldos Pendientes (Por Cobrar)"
   },
   "dashboard": {
     "topAccounts": "Cuentas Principales",

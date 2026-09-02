@@ -839,6 +839,7 @@ export const dbSaveLoan = async (userId, loanData) => {
   const rawCategoryId = loanData.categoryId || loanData.category_id;
   const validCategoryId = isValidUuid(rawCategoryId) ? rawCategoryId : null;
   const statusVal = (loanData.status === 'paid' || loanData.status === 'settled') ? 'paid' : 'pending';
+  const debtTypeVal = (loanData.type || '').toLowerCase() === 'receivable' ? 'receivable' : 'payable';
 
   const payload = {
     user_id: userId,
@@ -848,7 +849,8 @@ export const dbSaveLoan = async (userId, loanData) => {
     currency: loanData.currency || 'USD',
     start_date: loanData.startDate || loanData.start_date || new Date().toISOString().split('T')[0],
     due_date: loanData.dueDate || loanData.due_date || null,
-    status: statusVal
+    status: statusVal,
+    type: debtTypeVal
   };
 
   // Only pass id when updating an existing UUID record from PostgreSQL
@@ -900,7 +902,11 @@ export const dbSaveLoan = async (userId, loanData) => {
     }
 
     console.log('✅ Deuda/Préstamo guardado en DB:', data);
-    return toCamel(data && data[0] ? data[0] : payload);
+    const resultObj = toCamel(data && data[0] ? data[0] : payload);
+    if (!resultObj.type) {
+      resultObj.type = debtTypeVal;
+    }
+    return resultObj;
   } catch (err) {
     console.error('❌ [Supabase DB Exception] dbSaveLoan:', err);
     return null;

@@ -252,17 +252,16 @@ export default function CategoriesModule() {
 
   return (
     <div 
-      className="w-full min-w-full box-border categories-container space-y-4 md:space-y-6 animate-fadeIn pb-32 md:pb-6"
-      style={{ scrollbarGutter: 'stable', boxSizing: 'border-box', width: '100%' }}
+      className="w-full space-y-6 animate-fadeIn pb-32 md:pb-6"
     >
       
       {/* Standardized Header */}
       <header className="flex items-center justify-between gap-2.5 w-full relative z-30">
         <div className="min-w-0 flex-1">
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white leading-tight truncate">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white leading-tight truncate">
             {t('categories.title', {}, 'Categorías y Presupuestos')}
           </h1>
-          <p className="text-xs md:text-sm text-slate-400 mt-0.5 block font-normal truncate">
+          <p className="text-sm text-slate-400 mt-1 block font-normal truncate">
             {t('categories.subtitle', {}, 'Límites mensuales para gastos y metas')}
           </p>
         </div>

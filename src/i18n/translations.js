@@ -428,6 +428,7 @@ export const translations = {
         "payments_count": "Abonos ({{count}})"
       },
       "make_payment": "Abonar",
+      "virtual_account_name": "Saldos Pendientes (Por Cobrar)",
       "typeLabel": "Tipo de Saldo",
       "payable": "Por Pagar (Deuda Mía)",
       "receivable": "Por Cobrar (A mi Favor)",
@@ -1174,6 +1175,7 @@ export const translations = {
         "payments_count": "Payments ({{count}})"
       },
       "make_payment": "Make Payment",
+      "virtual_account_name": "Pending Balances (Receivable)",
       "typeLabel": "Balance Type",
       "payable": "Payable (My Debt)",
       "receivable": "Receivable (Owed to Me)",

@@ -1323,7 +1323,11 @@ export default function DashboardPreview({ user, onLogout }) {
 
                       const isIncome = tx.type === 'income';
                       const isExpense = tx.type === 'expense';
-                      const emoji = tx.type === 'transfer' ? '🔁' : (cat?.emoji || '💰');
+                      const isTransfer = tx.type === 'transfer';
+                      const destAccId = tx.targetAccountId || tx.destinationAccountId || tx.destination_account_id;
+                      const isLoanTx = isTransfer && (!destAccId || Boolean(tx.debtId || tx.debt_id || /pr[eé]stamo/i.test(tx.description || '')));
+                      const virtualAccountName = t('debts.virtual_account_name', {}, 'Saldos Pendientes (Por Cobrar)');
+                      const emoji = isTransfer ? (isLoanTx ? '⏳' : '🔁') : (cat?.emoji || '💰');
 
                       return (
                         <div 
@@ -1345,7 +1349,15 @@ export default function DashboardPreview({ user, onLogout }) {
                               <h4 className="text-xs font-semibold text-white group-hover:text-[var(--accent)] transition-colors truncate">
                                 {tx.description || cat?.name || 'Movimiento'}
                               </h4>
-                              <p className="text-[11px] text-slate-300 truncate font-medium">{acc?.name} • {formatDateLabel(tx.date, language)}</p>
+                              <p className="text-[11px] text-slate-300 truncate font-medium flex items-center gap-1">
+                                <span>{acc?.name}</span>
+                                {isLoanTx ? (
+                                  <span className="text-slate-400 bg-slate-800/40 border border-slate-700/40 rounded px-1.5 py-0.2 text-[10px] inline-flex items-center gap-1">
+                                    ➔ ⏳ {virtualAccountName}
+                                  </span>
+                                ) : null}
+                                <span>• {formatDateLabel(tx.date, language)}</span>
+                              </p>
                             </div>
                           </div>
 

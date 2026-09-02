@@ -253,17 +253,16 @@ export default function DebtsView() {
 
   return (
     <div 
-      className="w-full min-w-full box-border debts-container space-y-4 md:space-y-6 animate-fadeIn pb-32 md:pb-6"
-      style={{ scrollbarGutter: 'stable', boxSizing: 'border-box', width: '100%' }}
+      className="w-full space-y-6 animate-fadeIn pb-32 md:pb-6"
     >
       
       {/* 1. STANDARDIZED HEADER (Idéntico a Categorías y Cuentas) */}
       <header className="flex items-center justify-between gap-2.5 w-full relative z-30">
         <div className="min-w-0 flex-1">
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white leading-tight truncate">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white leading-tight truncate">
             {t('debts.title', {}, 'Saldos Pendientes')}
           </h1>
-          <p className="text-xs md:text-sm text-slate-400 mt-0.5 block font-normal truncate">
+          <p className="text-sm text-slate-400 mt-1 block font-normal truncate">
             {t('debts.subtitle', {}, 'Controla deudas pendientes, préstamos otorgados y compromisos financieros')}
           </p>
         </div>
@@ -318,7 +317,7 @@ export default function DebtsView() {
       </div>
 
       {/* 3. HERO BANNER: DEDICATED STATS CARDS BY TAB */}
-      <div className="w-full bg-[#111722]/80 border border-white/10 rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6 backdrop-blur-md relative z-10 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] transition-all duration-300 ease-in-out">
+      <div className="w-full bg-[#111722]/80 border border-white/10 rounded-2xl p-4 sm:p-6 backdrop-blur-md relative z-10 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] transition-all duration-300 ease-in-out">
         
         {activeTab === 'payable' ? (
           /* MODO A: POR PAGAR (DEUDAS PROPIAS) */
@@ -341,7 +340,7 @@ export default function DebtsView() {
               </div>
 
               {/* Total Abonado hasta hoy */}
-              <div className="lg:col-span-4">
+              <div className="lg:col-span-3">
                 <span className="text-xs font-semibold tracking-wider text-slate-300 uppercase block">
                   {t('debts.total_paid', {}, 'TOTAL ABONADO')}
                 </span>
@@ -350,8 +349,8 @@ export default function DebtsView() {
                 </span>
               </div>
 
-              {/* Próximo Vencimiento */}
-              <div className="lg:col-span-4 space-y-1.5 sm:space-y-2">
+              {/* Próximo Vencimiento y Progreso */}
+              <div className="lg:col-span-5 space-y-1.5 sm:space-y-2">
                 <div className="flex items-center justify-between text-xs font-semibold">
                   <span className="text-slate-300 uppercase tracking-wider">
                     {t('debts.settlement_progress', {}, 'PROGRESO DE LIQUIDACIÓN')}
@@ -360,9 +359,9 @@ export default function DebtsView() {
                     {tabStats.payableProgress}%
                   </span>
                 </div>
-                <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden shadow-inner">
+                <div className="w-full bg-black/40 rounded-full h-2.5 sm:h-3 p-0.5 border border-white/10 overflow-hidden">
                   <div
-                    className="bg-rose-400 h-full rounded-full transition-all duration-500 ease-out"
+                    className="bg-gradient-to-r from-rose-500 to-rose-400 h-full rounded-full transition-all duration-500 ease-out"
                     style={{ width: `${tabStats.payableProgress}%` }}
                   />
                 </div>
@@ -375,7 +374,7 @@ export default function DebtsView() {
               </div>
             </div>
 
-            <div className="pt-3 sm:pt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
+            <div className="pt-3.5 sm:pt-5 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
               <span>{t('debts.payable_desc', {}, 'Saldos pendientes que debes pagar a bancos, tarjetas o personas.')}</span>
               <span className="font-bold text-white tabular-nums">
                 {filteredDebts.length === 1 
@@ -405,7 +404,7 @@ export default function DebtsView() {
               </div>
 
               {/* Total Cobrado / Recuperado */}
-              <div className="lg:col-span-4">
+              <div className="lg:col-span-3">
                 <span className="text-xs font-semibold tracking-wider text-slate-300 uppercase block">
                   {t('debts.totalCollected', {}, 'Total Cobrado / Recuperado')}
                 </span>
@@ -415,7 +414,7 @@ export default function DebtsView() {
               </div>
 
               {/* Personas / Deudores Activos & Barra */}
-              <div className="lg:col-span-4 space-y-1.5 sm:space-y-2">
+              <div className="lg:col-span-5 space-y-1.5 sm:space-y-2">
                 <div className="flex items-center justify-between text-xs font-semibold">
                   <span className="text-slate-300 uppercase tracking-wider">
                     {t('debts.collectionProgress', {}, 'Tasa de recuperación')}
@@ -424,9 +423,9 @@ export default function DebtsView() {
                     {tabStats.receivableProgress}%
                   </span>
                 </div>
-                <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden shadow-inner">
+                <div className="w-full bg-black/40 rounded-full h-2.5 sm:h-3 p-0.5 border border-white/10 overflow-hidden">
                   <div
-                    className="bg-emerald-400 h-full rounded-full transition-all duration-500 ease-out"
+                    className="bg-gradient-to-r from-[var(--accent,#97F2CC)] to-emerald-400 h-full rounded-full transition-all duration-500 ease-out"
                     style={{ width: `${tabStats.receivableProgress}%` }}
                   />
                 </div>
@@ -439,7 +438,7 @@ export default function DebtsView() {
               </div>
             </div>
 
-            <div className="pt-3 sm:pt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
+            <div className="pt-3.5 sm:pt-5 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
               <span>{t('debts.receivable_desc', {}, 'Dinero prestado o cobros pendientes que ingresarán a tus cuentas.')}</span>
               <span className="font-bold text-emerald-400 tabular-nums">{filteredDebts.length} {t('debts.activeCollections', {}, 'cobros activos')}</span>
             </div>
@@ -480,17 +479,16 @@ export default function DebtsView() {
               </div>
             </div>
 
-            <div className="pt-3 sm:pt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
+            <div className="pt-3.5 sm:pt-5 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
               <span>{t('debts.settledFooterHelp', {}, 'Historial de saldos saldados al 100% y cerrados exitosamente.')}</span>
               <span className="font-bold text-emerald-400 tabular-nums">{filteredDebts.length} {t('debts.settledRecords', {}, 'registros completados')}</span>
             </div>
           </>
         )}
-
       </div>
 
       {/* 4. SEGMENTED TAB FILTER (Idéntico a Categorías) */}
-      <div className="flex items-center justify-between gap-3 relative z-10 w-full min-w-full box-border">
+      <div className="flex items-center justify-between gap-3 relative z-10 w-full">
         <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-white/[0.03] border border-white/5 w-full sm:w-auto overflow-x-auto no-scrollbar">
           
           <button
@@ -548,7 +546,7 @@ export default function DebtsView() {
           }}
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {paginatedDebts.map(debt => {
             const catId = debt.categoryId || debt.category_id;
             const catObj = safeCategoriesList.find(c => c && c.id === catId);
@@ -569,7 +567,7 @@ export default function DebtsView() {
               const duePrefix = t('debts.card.due_prefix', {}, isEs ? 'Vence' : 'Due');
               if (daysDiff < 0) {
                 urgencyLabel = isEs ? `Vencido hace ${Math.abs(daysDiff)} días` : `Overdue by ${Math.abs(daysDiff)} days`;
-                urgencyColor = 'text-rose-400 bg-rose-500/10 border-rose-500/30 font-bold animate-pulse';
+                urgencyColor = 'text-rose-400 bg-rose-500/10 border-rose-500/30 font-bold';
               } else if (daysDiff === 0) {
                 urgencyLabel = isEs ? 'Vence hoy' : 'Due today';
                 urgencyColor = 'text-amber-400 bg-amber-500/10 border-amber-500/30 font-bold';
@@ -584,7 +582,7 @@ export default function DebtsView() {
             return (
               <div
                 key={debt.id}
-                className={`p-5 rounded-3xl bg-[#0D1117]/80 border transition-all duration-200 flex flex-col justify-between gap-4 shadow-lg ${
+                className={`p-5 rounded-2xl bg-[#0D1117]/80 border transition-all duration-200 flex flex-col justify-between gap-4 shadow-lg ${
                   isSettled 
                     ? 'border-emerald-500/20 opacity-80' 
                     : debt.isPayable 
@@ -751,7 +749,7 @@ export default function DebtsView() {
                         {t('debts.noPaymentsYet', {}, 'Aún no hay abonos registrados para este saldo')}
                       </p>
                     ) : (
-                      <div className="space-y-1.5 max-h-48 overflow-y-auto custom-scrollbar pr-1">
+                      <div className="space-y-1.5 max-h-48 overflow-y-auto custom-scrollbar pr-1 overscroll-contain">
                         {associatedPayments.map(payment => {
                           const accId = payment.accountId || payment.account_id;
                           const accObj = safeAccountsList.find(a => a && a.id === accId);
@@ -825,6 +823,7 @@ export default function DebtsView() {
           setDebtToEdit(null);
         }}
         debtToEdit={debtToEdit}
+        initialType={activeTab === 'receivable' ? 'receivable' : 'payable'}
         categories={safeCategoriesList}
         accounts={safeAccountsList}
         onSave={(data) => {

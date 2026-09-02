@@ -62,8 +62,14 @@ export default function TransactionModal({
       setAccountId(initialAccId);
 
       const rawTargetAccId = transactionToEdit?.targetAccountId || transactionToEdit?.target_account_id || transactionToEdit?.destinationAccountId || transactionToEdit?.destination_account_id || transactionToEdit?.targetAccount?.id;
-      const fallbackTarget = safeAccounts.find(a => a?.id !== initialAccId)?.id || (safeAccounts[1]?.id || safeAccounts[0]?.id || '');
-      setTargetAccountId(rawTargetAccId || fallbackTarget);
+      const isLoanTx = Boolean(transactionToEdit?.debtId || transactionToEdit?.debt_id || (!rawTargetAccId && /pr[eé]stamo/i.test(transactionToEdit?.description || '')));
+
+      if (isLoanTx && !rawTargetAccId) {
+        setTargetAccountId('virtual_pending_balances');
+      } else {
+        const fallbackTarget = safeAccounts.find(a => a?.id !== initialAccId)?.id || (safeAccounts[1]?.id || safeAccounts[0]?.id || '');
+        setTargetAccountId(rawTargetAccId || fallbackTarget);
+      }
 
       const rawCatId = transactionToEdit?.categoryId || transactionToEdit?.category_id || transactionToEdit?.category?.id || '';
       setCategoryId(rawCatId);
@@ -105,12 +111,13 @@ export default function TransactionModal({
 
   if (!isOpen) return null;
 
+  const isVirtualTarget = targetAccountId === 'virtual_pending_balances';
   const activeAccountId = accountId || safeAccounts[0]?.id || '';
   const activeTargetAccountId = targetAccountId || (safeAccounts.find(a => a?.id !== activeAccountId)?.id || safeAccounts[0]?.id || '');
   const activeCategoryId = categoryId || (availableCategories[0]?.id || '');
 
   const sourceAccount = safeAccounts.find(a => a?.id === activeAccountId) || safeAccounts[0] || null;
-  const destAccount = safeAccounts.find(a => a?.id === activeTargetAccountId) || safeAccounts[1] || safeAccounts[0] || null;
+  const destAccount = isVirtualTarget ? null : (safeAccounts.find(a => a?.id === activeTargetAccountId) || safeAccounts[1] || safeAccounts[0] || null);
 
   const isMultiCurrencyTransfer = type === 'transfer' && sourceAccount && destAccount && (sourceAccount.currency !== destAccount.currency);
 
@@ -121,6 +128,18 @@ export default function TransactionModal({
     currency: acc.currency || 'USD',
     label: acc.name
   }));
+
+  const virtualAccountName = t('debts.virtual_account_name', {}, 'Saldos Pendientes (Por Cobrar)');
+  const targetAccountSelectOptions = [
+    ...accountSelectOptions,
+    ...(isVirtualTarget ? [{
+      value: 'virtual_pending_balances',
+      name: virtualAccountName,
+      emoji: '⏳',
+      currency: sourceAccount?.currency || 'USD',
+      label: virtualAccountName
+    }] : [])
+  ];
 
   const categorySelectOptions = availableCategories.map(cat => ({
     value: cat.id,
@@ -159,7 +178,8 @@ export default function TransactionModal({
       return;
     }
 
-    if (type === 'transfer' && selectedAccountId === activeTargetAccountId) {
+    const resolvedTargetId = activeTargetAccountId === 'virtual_pending_balances' ? null : activeTargetAccountId;
+    if (type === 'transfer' && resolvedTargetId && selectedAccountId === resolvedTargetId) {
       setError(t('modals.transaction.sameAccountError', {}, 'La cuenta origen y destino deben ser distintas'));
       return;
     }
@@ -184,7 +204,8 @@ export default function TransactionModal({
       type,
       date: date || formatDateISO(),
       accountId: selectedAccountId,
-      targetAccountId: type === 'transfer' ? activeTargetAccountId : null,
+      targetAccountId: type === 'transfer' ? resolvedTargetId : null,
+      destinationAccountId: type === 'transfer' ? resolvedTargetId : null,
       categoryId: type !== 'transfer' ? activeCategoryId : null,
       amount: numericAmount,
       targetAmount: isMultiCurrencyTransfer ? numericTargetAmount : numericAmount,
@@ -337,7 +358,7 @@ export default function TransactionModal({
 
               <FormField label={t('modals.transaction.accountTarget', {}, 'Cuenta Destino (Entra)')}>
                 <CustomSelect
-                  options={accountSelectOptions}
+                  options={targetAccountSelectOptions}
                   value={targetAccountId}
                   onChange={setTargetAccountId}
                   placeholder={safeAccounts.length > 0 ? t('placeholders.selectAccount', {}, 'Seleccionar Cuenta') : t('placeholders.noAccounts', {}, 'No Hay Cuentas Disponibles')}

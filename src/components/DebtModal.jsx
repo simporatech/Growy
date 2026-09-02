@@ -21,7 +21,8 @@ export default function DebtModal({
   debtToEdit = null,
   loanToEdit = null,
   categories = [],
-  accounts = []
+  accounts = [],
+  initialType = 'payable'
 }) {
   const currentItem = debtToEdit || loanToEdit;
   const { t, baseCurrency, language } = useSettings();
@@ -31,7 +32,7 @@ export default function DebtModal({
   }, [language]);
 
   // Form states
-  const [debtType, setDebtType] = useState('payable'); // 'payable' | 'receivable'
+  const [debtType, setDebtType] = useState(() => initialType || 'payable'); // 'payable' | 'receivable'
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [currency, setCurrency] = useState(currentItem?.currency || baseCurrency || 'USD');
@@ -85,7 +86,8 @@ export default function DebtModal({
         setCategoryId(rawCatId || (filteredCategories[0]?.id || ''));
       }
     } else {
-      setDebtType('payable');
+      const defaultType = initialType === 'receivable' ? 'receivable' : 'payable';
+      setDebtType(defaultType);
       setDescription('');
       setAmount('');
       setCurrency(baseCurrency || 'USD');
@@ -96,7 +98,7 @@ export default function DebtModal({
       setSourceAccountId(safeAccounts[0]?.id || '');
     }
     setError('');
-  }, [currentItem, isOpen, baseCurrency, safeAccounts]);
+  }, [currentItem, isOpen, baseCurrency, safeAccounts, initialType]);
 
   if (!isOpen) return null;
 

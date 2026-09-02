@@ -293,7 +293,8 @@ export const recordDirectLoanTransaction = async ({
   amount,
   currency = 'USD',
   concept = '',
-  startDate = new Date().toISOString().split('T')[0]
+  startDate = new Date().toISOString().split('T')[0],
+  debtId = null
 }) => {
   if (!userId || !sourceAccountId || !amount) {
     console.error('❌ Error: userId, sourceAccountId y amount son requeridos para registrar la transacción de préstamo directo.');
@@ -312,6 +313,10 @@ export const recordDirectLoanTransaction = async ({
     transaction_date: startDate || new Date().toISOString().split('T')[0]
   };
 
+  if (debtId && isValidUuid(debtId)) {
+    payload.debt_id = debtId;
+  }
+
   console.log('🚀 [Supabase DB] Creando transacción por préstamo otorgado:', payload);
 
   try {
@@ -328,6 +333,10 @@ export const recordDirectLoanTransaction = async ({
 
       console.warn(`⚠️ [Supabase DB] Error guardando transacción de préstamo (intento ${attempt + 1}):`, error.message);
 
+      if (error.message.includes('debt_id') && currentPayload.debt_id !== undefined) {
+        delete currentPayload.debt_id;
+        continue;
+      }
       if (error.message.includes('exclude_from_budget') && currentPayload.exclude_from_budget !== undefined) {
         delete currentPayload.exclude_from_budget;
         continue;

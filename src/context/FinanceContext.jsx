@@ -384,7 +384,8 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
             amount: newLoan.amount,
             currency: newLoan.currency,
             concept: newLoan.concept || newLoan.description,
-            startDate: newLoan.startDate
+            startDate: newLoan.startDate,
+            debtId: saved?.id || null
           });
           if (directTx) {
             setTransactions(prev => [directTx, ...(Array.isArray(prev) ? prev.filter(Boolean) : [])]);

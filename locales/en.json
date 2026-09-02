@@ -91,7 +91,8 @@
       "due_prefix": "Due",
       "payments_count": "Payments ({{count}})"
     },
-    "make_payment": "Make Payment"
+    "make_payment": "Make Payment",
+    "virtual_account_name": "Pending Balances (Receivable)"
   },
   "dashboard": {
     "topAccounts": "Top Accounts",
