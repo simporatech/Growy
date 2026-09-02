@@ -510,6 +510,15 @@ export const translations = {
       "deletePaymentModalTitle": "Eliminar Abono",
       "deletePaymentModalDesc": "¿Estás seguro de eliminar este abono? El saldo de la cuenta bancaria involucrada y el balance restante de la deuda se restaurarán automáticamente.",
       "new_receivable_btn": "Prestar / Cobrar",
+      "actions": {
+        "new_debt": "Nueva Deuda",
+        "new_loan": "Nuevo Préstamo"
+      },
+      "filters": {
+        "all_categories": "Todas las categorías",
+        "all_accounts": "Todas las cuentas",
+        "search_placeholder": "Buscar por concepto..."
+      },
       "filter_category": "Categoría",
       "all_categories": "Todas las categorías",
       "filter_account": "Cuenta",
@@ -1295,6 +1304,15 @@ export const translations = {
       "deletePaymentModalTitle": "Delete Payment",
       "deletePaymentModalDesc": "Are you sure you want to delete this payment? The involved bank account balance and remaining debt balance will be restored automatically.",
       "new_receivable_btn": "Loan / Receive",
+      "actions": {
+        "new_debt": "New Debt",
+        "new_loan": "New Loan"
+      },
+      "filters": {
+        "all_categories": "All Categories",
+        "all_accounts": "All Accounts",
+        "search_placeholder": "Search by concept..."
+      },
       "filter_category": "Category",
       "all_categories": "All categories",
       "filter_account": "Account",

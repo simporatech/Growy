@@ -94,6 +94,15 @@
     "make_payment": "Abonar",
     "virtual_account_name": "Saldos Pendientes (Por Cobrar)",
     "new_receivable_btn": "Prestar / Cobrar",
+    "actions": {
+      "new_debt": "Nueva Deuda",
+      "new_loan": "Nuevo Préstamo"
+    },
+    "filters": {
+      "all_categories": "Todas las categorías",
+      "all_accounts": "Todas las cuentas",
+      "search_placeholder": "Buscar por concepto..."
+    },
     "filter_category": "Categoría",
     "all_categories": "Todas las categorías",
     "filter_account": "Cuenta",

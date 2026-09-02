@@ -94,6 +94,15 @@
     "make_payment": "Make Payment",
     "virtual_account_name": "Pending Balances (Receivable)",
     "new_receivable_btn": "Loan / Receive",
+    "actions": {
+      "new_debt": "New Debt",
+      "new_loan": "New Loan"
+    },
+    "filters": {
+      "all_categories": "All Categories",
+      "all_accounts": "All Accounts",
+      "search_placeholder": "Search by concept..."
+    },
     "filter_category": "Category",
     "all_categories": "All categories",
     "filter_account": "Account",

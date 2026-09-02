@@ -1,4 +1,5 @@
 import React from 'react';
+import { Plus } from 'lucide-react';
 
 /**
  * Global Design System Standard EmptyState Component
@@ -17,6 +18,7 @@ export default function EmptyState({
   className = ''
 }) {
   const label = actionLabel || actionText;
+  const ButtonIcon = ActionIcon || Plus;
 
   return (
     <div className={`w-full flex flex-col items-center justify-center p-12 my-6 rounded-2xl bg-slate-900/40 border border-slate-800/60 backdrop-blur-sm text-center ${className}`}>
@@ -39,9 +41,9 @@ export default function EmptyState({
         <button
           type="button"
           onClick={onAction}
-          className="mt-6 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl bg-[var(--accent)] text-black hover:opacity-90 transition-opacity shadow-sm cursor-pointer"
+          className="mt-6 inline-flex items-center gap-2 h-9 px-4 text-sm font-semibold rounded-xl bg-[var(--accent)] text-black hover:opacity-90 transition-opacity shadow-sm cursor-pointer"
         >
-          {ActionIcon && <ActionIcon className="w-4 h-4" />}
+          {ButtonIcon && <ButtonIcon className="w-4 h-4" />}
           <span>{label}</span>
         </button>
       )}

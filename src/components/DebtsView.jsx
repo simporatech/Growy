@@ -5,7 +5,6 @@ import {
   ChevronUp, Wallet, Calendar, AlertCircle, Edit3, DollarSign, Clock, Users,
   RotateCcw
 } from 'lucide-react';
-import Button from './Button';
 import CustomSelect from './CustomSelect';
 import CustomDatePicker from './CustomDatePicker';
 import EmptyState from './common/EmptyState';
@@ -176,6 +175,17 @@ export default function DebtsView() {
   }, [filteredDebts, currentPage, pageSize]);
 
   const isEs = language === 'es';
+
+  // Dynamic Action Label based on active tab:
+  // - payable: 'Nueva Deuda' / 'New Debt'
+  // - receivable: 'Nuevo Préstamo' / 'New Loan'
+  // - completed: 'Nueva Deuda' / 'New Debt'
+  const activeActionLabel = useMemo(() => {
+    if (activeTab === 'receivable') {
+      return t('debts.actions.new_loan', {}, isEs ? 'Nuevo Préstamo' : 'New Loan');
+    }
+    return t('debts.actions.new_debt', {}, isEs ? 'Nueva Deuda' : 'New Debt');
+  }, [activeTab, isEs, t]);
 
   // Toggle History Accordion for a card
   const toggleHistory = (debtId, e) => {
@@ -348,10 +358,8 @@ export default function DebtsView() {
             />
           </div>
 
-          <Button
-            size="md"
-            variant="primary"
-            icon={Plus}
+          <button
+            type="button"
             onClick={() => {
               setDebtToEdit(null);
               if (activeTab === 'receivable') {
@@ -360,12 +368,12 @@ export default function DebtsView() {
                 setIsDebtModalOpen(true);
               }
             }}
-            title={activeTab === 'receivable' ? t('debts.new_receivable_btn', {}, 'Prestar / Cobrar') : t('debts.new_balance', {}, 'Nuevo Saldo')}
+            className="bg-[var(--accent)] text-black font-semibold h-9 px-4 rounded-xl inline-flex items-center gap-2 text-sm shadow-sm hover:opacity-90 cursor-pointer"
+            title={activeActionLabel}
           >
-            <span className="hidden sm:inline">
-              {activeTab === 'receivable' ? t('debts.new_receivable_btn', {}, 'Prestar / Cobrar') : t('debts.new_balance', {}, 'Nuevo Saldo')}
-            </span>
-          </Button>
+            <Plus className="w-4 h-4" />
+            <span>{activeActionLabel}</span>
+          </button>
         </div>
       </header>
 
@@ -671,8 +679,9 @@ export default function DebtsView() {
         <EmptyState
           icon={Percent}
           title={t('debts.noDebtsFound', {}, 'No hay compromisos en esta sección')}
-          description={t('debts.noDebtsFoundSub', {}, 'Puedes crear un nuevo saldo por pagar o por cobrar haciendo clic en "Nuevo Saldo".')}
-          actionLabel={activeTab === 'receivable' ? t('debts.new_receivable_btn', {}, 'Prestar / Cobrar') : t('debts.new_balance', {}, 'Nuevo Saldo')}
+          description={t('debts.noDebtsFoundSub', {}, 'Puedes crear un nuevo saldo por pagar o por cobrar.')}
+          actionLabel={activeActionLabel}
+          actionIcon={Plus}
           onAction={() => {
             setDebtToEdit(null);
             if (activeTab === 'receivable') {
