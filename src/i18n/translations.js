@@ -551,6 +551,35 @@ export const translations = {
       "feedback": "Reportes y Sugerencias",
       "about": "Acerca de SIMPORA"
     },
+    "financial_health": {
+      "title": "Salud Financiera",
+      "subtitle": "Evaluación integral del estado de tus finanzas",
+      "score": "Puntuación",
+      "scoreOutOf": "/ 100",
+      "tiers": {
+        "excellent": {
+          "title": "Excelente",
+          "message": "Mírate nada más, pareces adulto funcional. Sigue así y te compras el mundo."
+        },
+        "good": {
+          "title": "Bueno",
+          "message": "Vas bien, pero no te me confíes que cualquier salida de fin de semana te arruina el mes."
+        },
+        "fair": {
+          "title": "Regular",
+          "message": "Sobreviviendo en la cuerda floja. Un imprevisto más y te toca comer aire."
+        },
+        "critical": {
+          "title": "Crítico",
+          "message": "Alerta roja: tus finanzas están pidiendo auxilio a gritos. ¡Deja de gastar en tonterías!"
+        }
+      },
+      "breakdown": {
+        "savings": "Tasa de Ahorro",
+        "debts": "Deudas al Día",
+        "budget": "Apego a Presupuestos"
+      }
+    },
     "icon_picker": {
       "label": "ICONO / LOGO",
       "title": "Seleccionar Icono",
@@ -1156,6 +1185,35 @@ export const translations = {
       "settings": "System Settings",
       "feedback": "Reports & Feedback",
       "about": "About SIMPORA"
+    },
+    "financial_health": {
+      "title": "Financial Health",
+      "subtitle": "Comprehensive assessment of your financial standing",
+      "score": "Score",
+      "scoreOutOf": "/ 100",
+      "tiers": {
+        "excellent": {
+          "title": "Excellent",
+          "message": "Look at you, actually behaving like a functional adult. Keep this up and you'll own the world."
+        },
+        "good": {
+          "title": "Good",
+          "message": "Doing well, but don't get cocky: one reckless weekend out and your whole month is ruined."
+        },
+        "fair": {
+          "title": "Fair",
+          "message": "Living on a tightrope. One more unexpected expense and you'll be having sleep for dinner."
+        },
+        "critical": {
+          "title": "Critical",
+          "message": "Red alert: your finances are screaming for help. Stop spending money on nonsense!"
+        }
+      },
+      "breakdown": {
+        "savings": "Savings Rate",
+        "debts": "Debts on Track",
+        "budget": "Budget Adherence"
+      }
     },
     "icon_picker": {
       "label": "ICON / LOGO",

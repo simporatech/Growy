@@ -34,5 +34,34 @@
       "apply_btn": "Aplicar Icono"
     },
     "current_icon": "Icono actual:"
+  },
+  "financial_health": {
+    "title": "Salud Financiera",
+    "subtitle": "Evaluación integral del estado de tus finanzas",
+    "score": "Puntuación",
+    "scoreOutOf": "/ 100",
+    "tiers": {
+      "excellent": {
+        "title": "Excelente",
+        "message": "Mírate nada más, pareces adulto funcional. Sigue así y te compras el mundo."
+      },
+      "good": {
+        "title": "Bueno",
+        "message": "Vas bien, pero no te me confíes que cualquier salida de fin de semana te arruina el mes."
+      },
+      "fair": {
+        "title": "Regular",
+        "message": "Sobreviviendo en la cuerda floja. Un imprevisto más y te toca comer aire."
+      },
+      "critical": {
+        "title": "Crítico",
+        "message": "Alerta roja: tus finanzas están pidiendo auxilio a gritos. ¡Deja de gastar en tonterías!"
+      }
+    },
+    "breakdown": {
+      "savings": "Tasa de Ahorro",
+      "debts": "Deudas al Día",
+      "budget": "Apego a Presupuestos"
+    }
   }
 }

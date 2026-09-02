@@ -34,5 +34,34 @@
       "apply_btn": "Apply Icon"
     },
     "current_icon": "Current icon:"
+  },
+  "financial_health": {
+    "title": "Financial Health",
+    "subtitle": "Comprehensive assessment of your financial standing",
+    "score": "Score",
+    "scoreOutOf": "/ 100",
+    "tiers": {
+      "excellent": {
+        "title": "Excellent",
+        "message": "Look at you, actually behaving like a functional adult. Keep this up and you'll own the world."
+      },
+      "good": {
+        "title": "Good",
+        "message": "Doing well, but don't get cocky: one reckless weekend out and your whole month is ruined."
+      },
+      "fair": {
+        "title": "Fair",
+        "message": "Living on a tightrope. One more unexpected expense and you'll be having sleep for dinner."
+      },
+      "critical": {
+        "title": "Critical",
+        "message": "Red alert: your finances are screaming for help. Stop spending money on nonsense!"
+      }
+    },
+    "breakdown": {
+      "savings": "Savings Rate",
+      "debts": "Debts on Track",
+      "budget": "Budget Adherence"
+    }
   }
 }
