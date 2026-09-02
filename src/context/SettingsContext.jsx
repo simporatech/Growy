@@ -580,6 +580,7 @@ export function SettingsProvider({ children, userId = null }) {
     convertCurrency,
     convertToGlobal,
     formatCurrency,
+    t,
     availableCurrencies,
     exportBackup,
     resetAllData,
