@@ -93,6 +93,8 @@
     },
     "make_payment": "Abonar",
     "virtual_account_name": "Saldos Pendientes (Por Cobrar)",
+    "loan_to_prefix": "Préstamo a:",
+    "loan_to": "Préstamo a: {{person}}",
     "new_receivable_btn": "Prestar / Cobrar",
     "actions": {
       "new_debt": "Nueva Deuda",

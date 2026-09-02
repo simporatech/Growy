@@ -294,7 +294,9 @@ export const recordDirectLoanTransaction = async ({
   currency = 'USD',
   concept = '',
   startDate = new Date().toISOString().split('T')[0],
-  debtId = null
+  debtId = null,
+  language = 'es',
+  description = null
 }) => {
   if (!userId || !sourceAccountId || !amount) {
     console.error('❌ Error: userId, sourceAccountId y amount son requeridos para registrar la transacción de préstamo directo.');
@@ -307,6 +309,10 @@ export const recordDirectLoanTransaction = async ({
   const currencyCode = (currency || 'USD').toUpperCase();
   const createdDebtId = isValidUuid(debtId) ? debtId : null;
 
+  const isEs = String(language || 'es').toLowerCase().startsWith('es');
+  const loanPrefix = isEs ? 'Préstamo a' : 'Loan to';
+  const effectiveDescription = description || `${loanPrefix}: ${debtConcept}`;
+
   const payload = {
     user_id: String(userId),
     account_id: sourceAccountId,
@@ -315,7 +321,7 @@ export const recordDirectLoanTransaction = async ({
     type: 'transfer',
     amount: numAmount,
     currency: currencyCode,
-    description: `Préstamo a: ${debtConcept}`,
+    description: effectiveDescription,
     transaction_date: cleanDate,
     exclude_from_budget: true
   };

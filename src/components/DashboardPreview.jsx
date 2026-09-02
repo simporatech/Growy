@@ -28,7 +28,7 @@ import AmbientBackground from './AmbientBackground';
 import DynamicIcon from './DynamicIcon';
 import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
-import { formatCurrency, formatDateLabel, formatHeaderDate, parseNumeric } from '../utils/formatters';
+import { formatCurrency, formatDateLabel, formatHeaderDate, parseNumeric, formatLoanDescription } from '../utils/formatters';
 import { safeGetStorage, safeSetStorage } from '../utils/storage';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { calculateDebtRemaining } from '../services/debtsService';
@@ -42,6 +42,7 @@ export default function DashboardPreview({ user, onLogout }) {
   } = useFinance();
 
   const { convertToGlobal, formatToGlobal, baseCurrency, formatCurrency, t, language, currentUser: settingsUser } = useSettings();
+  const isEs = String(language || 'es').toLowerCase().startsWith('es');
 
   const effectiveUser = settingsUser || user;
   const userDisplayName = effectiveUser?.fullName || effectiveUser?.username || 'Admin';
@@ -1325,8 +1326,8 @@ export default function DashboardPreview({ user, onLogout }) {
                       const isExpense = tx.type === 'expense';
                       const isTransfer = tx.type === 'transfer';
                       const destAccId = tx.targetAccountId || tx.destinationAccountId || tx.destination_account_id;
-                      const isLoanTx = isTransfer && (!destAccId || Boolean(tx.debtId || tx.debt_id || /pr[eé]stamo/i.test(tx.description || '')));
-                      const virtualAccountName = t('debts.virtual_account_name', {}, 'Saldos Pendientes (Por Cobrar)');
+                      const isLoanTx = isTransfer && (!destAccId || Boolean(tx.debtId || tx.debt_id || /(pr[eé]stamo|loan)/i.test(tx.description || '')));
+                      const virtualAccountName = t('debts.virtual_account_name', {}, isEs ? 'Saldos Pendientes (Por Cobrar)' : 'Pending Balances (Receivable)');
                       const emoji = isTransfer ? (isLoanTx ? '⏳' : '🔁') : (cat?.emoji || '💰');
 
                       return (
@@ -1347,7 +1348,7 @@ export default function DashboardPreview({ user, onLogout }) {
                             </div>
                             <div className="min-w-0">
                               <h4 className="text-xs font-semibold text-white group-hover:text-[var(--accent)] transition-colors truncate">
-                                {tx.description || cat?.name || 'Movimiento'}
+                                {formatLoanDescription(tx.description, isEs) || cat?.name || (isEs ? 'Movimiento' : 'Transaction')}
                               </h4>
                               <p className="text-[11px] text-slate-300 truncate font-medium flex items-center gap-1">
                                 <span>{acc?.name}</span>

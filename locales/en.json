@@ -93,6 +93,8 @@
     },
     "make_payment": "Make Payment",
     "virtual_account_name": "Pending Balances (Receivable)",
+    "loan_to_prefix": "Loan to:",
+    "loan_to": "Loan to: {{person}}",
     "new_receivable_btn": "Loan / Receive",
     "actions": {
       "new_debt": "New Debt",

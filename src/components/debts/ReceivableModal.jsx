@@ -30,6 +30,7 @@ export default function ReceivableModal({
   accounts = []
 }) {
   const { t, baseCurrency, language } = useSettings();
+  const isEs = String(language || 'es').toLowerCase().startsWith('es');
 
   const currencyOptions = useMemo(() => {
     return getAvailableCurrencies(language);
@@ -172,7 +173,7 @@ export default function ReceivableModal({
             required
             value={concept}
             onChange={(e) => setConcept(e.target.value)}
-            placeholder={t('debts.receivable_modal.concept_placeholder', {}, 'Ej. Préstamo a Carlos, Cobro pendiente de diseño')}
+            placeholder={t('debts.receivable_modal.concept_placeholder', {}, isEs ? 'Ej. Préstamo a Carlos, Cobro pendiente de diseño' : 'e.g. Loan to Charles, Freelance design fee')}
             autoFocus
           />
 

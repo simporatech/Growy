@@ -12,7 +12,7 @@ import SectionKpiHero from './SectionKpiHero';
 import Pagination from './Pagination';
 import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
-import { formatDateISO } from '../utils/formatters';
+import { formatDateISO, formatLoanDescription } from '../utils/formatters';
 import { convertCrossCurrency } from '../utils/currency';
 import DynamicIcon from './DynamicIcon';
 
@@ -297,12 +297,13 @@ export default function TransactionsModule() {
           const src = safeAccountsList.find(a => a?.id === (tx?.accountId || tx?.account_id))?.name || '-';
           const destId = tx?.targetAccountId || tx?.destinationAccountId || tx?.destination_account_id;
           const dest = safeAccountsList.find(a => a?.id === destId)?.name;
-          const isLoan = Boolean(tx?.debtId || tx?.debt_id || (!destId && /pr[eé]stamo/i.test(tx?.description || '')) || (!destId && tx?.type === 'transfer'));
+          const isLoan = Boolean(tx?.debtId || tx?.debt_id || (!destId && /(pr[eé]stamo|loan)/i.test(tx?.description || '')) || (!destId && tx?.type === 'transfer'));
           const virtualName = t('debts.virtual_account_name', {}, isEs ? 'Saldos Pendientes (Por Cobrar)' : 'Pending Balances (Receivable)');
           const destName = dest || (isLoan ? virtualName : '');
-          return destName ? `${src} ➔ ${destName}` : (tx?.description || (isEs ? 'Transferencia' : 'Transfer'));
+          const localizedDesc = formatLoanDescription(tx?.description, isEs);
+          return destName ? `${src} ➔ ${destName}` : (localizedDesc || (isEs ? 'Transferencia' : 'Transfer'));
         }
-        return tx?.description || '-';
+        return formatLoanDescription(tx?.description, isEs) || '-';
       }
     },
     { 
@@ -316,7 +317,7 @@ export default function TransactionsModule() {
         const destId = tx?.targetAccountId || tx?.destinationAccountId || tx?.destination_account_id;
         const dest = safeAccountsList.find(a => a?.id === destId);
         if (dest) return dest.name;
-        const isLoan = Boolean(tx?.debtId || tx?.debt_id || (!destId && /pr[eé]stamo/i.test(tx?.description || '')) || !destId);
+        const isLoan = Boolean(tx?.debtId || tx?.debt_id || (!destId && /(pr[eé]stamo|loan)/i.test(tx?.description || '')) || !destId);
         if (isLoan) return t('debts.virtual_account_name', {}, isEs ? 'Saldos Pendientes (Por Cobrar)' : 'Pending Balances (Receivable)');
         return '-';
       }
@@ -680,18 +681,20 @@ export default function TransactionsModule() {
                     const isExpense = tx?.type === 'expense';
                     const isTransfer = tx?.type === 'transfer';
 
-                    const isLoanTransfer = isTransfer && (!destAccId || Boolean(tx?.debtId || tx?.debt_id || /pr[eé]stamo/i.test(tx?.description || '')));
+                    const isLoanTransfer = isTransfer && (!destAccId || Boolean(tx?.debtId || tx?.debt_id || /(pr[eé]stamo|loan)/i.test(tx?.description || '')));
                     const virtualAccountName = t('debts.virtual_account_name', {}, isEs ? 'Saldos Pendientes (Por Cobrar)' : 'Pending Balances (Receivable)');
 
-                    const sourceAccName = sourceAcc?.name || t('transactions.accountFilter', {}, 'Cuenta');
+                    const sourceAccName = sourceAcc?.name || t('transactions.accountFilter', {}, isEs ? 'Cuenta' : 'Account');
                     const destAccName = destAcc?.name || (isLoanTransfer ? virtualAccountName : '');
-                    const catName = cat?.name || t('transactions.categoryFilter', {}, 'General');
+                    const catName = cat?.name || t('transactions.categoryFilter', {}, isEs ? 'General' : 'General');
 
                     const emoji = isTransfer ? (isLoanTransfer ? '⏳' : '🔁') : (cat?.emoji || '💰');
 
-                    const txTitle = isTransfer && destAccName
-                      ? `${sourceAccName} ➔ ${destAccName}`
-                      : (tx?.description || catName || t('transactions.movement', {}, 'Movimiento'));
+                    const rawDescription = tx?.description || catName || t('transactions.movement', {}, isEs ? 'Movimiento' : 'Transaction');
+                    const localizedDesc = formatLoanDescription(rawDescription, isEs);
+                    const txTitle = isLoanTransfer 
+                      ? localizedDesc 
+                      : (isTransfer && destAccName ? `${sourceAccName} ➔ ${destAccName}` : localizedDesc);
 
                     const displayDate = tx?.date || tx?.transactionDate || tx?.transaction_date || dateStr;
 

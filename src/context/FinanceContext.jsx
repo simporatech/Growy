@@ -68,7 +68,7 @@ function deleteErrMsg(err) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function FinanceProvider({ children, userId = 'usr_admin' }) {
-  const { exchangeRates, baseCurrency } = useSettings();
+  const { exchangeRates, baseCurrency, language } = useSettings();
   const [rawAccounts, setRawAccounts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [transactions, setTransactions] = useState([]);
@@ -387,7 +387,8 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
             currency: newLoan.currency,
             concept: newLoan.concept || newLoan.description,
             startDate: newLoan.startDate || newLoan.start_date,
-            debtId: saved?.id || null
+            debtId: saved?.id || null,
+            language
           });
           if (directTx) {
             setTransactions(prev => [directTx, ...(Array.isArray(prev) ? prev.filter(Boolean) : [])]);
@@ -400,7 +401,7 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
       console.error('❌ Error en addLoan:', err);
       triggerToast('error', syncErrMsg(err));
     }
-  }, [userId, triggerToast]);
+  }, [userId, triggerToast, language]);
 
   const updateLoan = useCallback(async (updatedLoan) => {
     try {

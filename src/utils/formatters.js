@@ -107,3 +107,24 @@ export const getDaysDifference = (dueDateStr) => {
     return null;
   }
 };
+
+/**
+ * Localiza dinámicamente descripciones de transacciones de préstamos.
+ * Convierte "Préstamo a: [Persona]" <-> "Loan to: [Persona]" según el idioma activo.
+ * @param {string} description 
+ * @param {boolean|string} localeOrIsEs - true/'es' para español, false/'en' para inglés
+ * @returns {string}
+ */
+export const formatLoanDescription = (description, localeOrIsEs = true) => {
+  if (!description || typeof description !== 'string') return description || '';
+  const isEs = typeof localeOrIsEs === 'boolean' 
+    ? localeOrIsEs 
+    : String(localeOrIsEs || 'es').toLowerCase().startsWith('es');
+
+  const match = description.match(/^(?:pr[eé]stamo\s*a|loan\s*to):\s*(.+)$/i);
+  if (match) {
+    const person = match[1].trim();
+    return isEs ? `Préstamo a: ${person}` : `Loan to: ${person}`;
+  }
+  return description;
+};

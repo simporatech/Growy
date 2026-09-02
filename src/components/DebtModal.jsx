@@ -26,6 +26,7 @@ export default function DebtModal({
 }) {
   const currentItem = debtToEdit || loanToEdit;
   const { t, baseCurrency, language } = useSettings();
+  const isEs = String(language || 'es').toLowerCase().startsWith('es');
 
   const currencyOptions = useMemo(() => {
     return getAvailableCurrencies(language);
@@ -290,10 +291,10 @@ export default function DebtModal({
             onChange={(e) => setDescription(e.target.value)}
             placeholder={
               debtType === 'payable' 
-                ? t('debts.payablePlaceholder', {}, 'Ej. Préstamo Bancario, Tarjeta Visa, Deuda a Juan') 
+                ? t('debts.payablePlaceholder', {}, isEs ? 'Ej. Préstamo Bancario, Tarjeta Visa, Deuda a Juan' : 'e.g. Bank Loan, Credit Card, Debt to John') 
                 : isDirectLoan
-                  ? t('debts.directLoanPlaceholder', {}, 'Ej. Dinero prestado a Carlos, Préstamo a familiar')
-                  : t('debts.receivablePlaceholder', {}, 'Ej. Venta pendiente de cobro, Sueldo por cobrar')
+                  ? t('debts.directLoanPlaceholder', {}, isEs ? 'Ej. Dinero prestado a Carlos, Préstamo a familiar' : 'e.g. Money loaned to Charles, Loan to relative')
+                  : t('debts.receivablePlaceholder', {}, isEs ? 'Ej. Venta pendiente de cobro, Sueldo por cobrar' : 'e.g. Pending invoice collection, Salary receivable')
             }
           />
 

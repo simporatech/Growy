@@ -6,7 +6,7 @@ import CustomDatePicker from './CustomDatePicker';
 import ModalWrapper from './ModalWrapper';
 import FormField from './FormField';
 import { useSettings } from '../context/SettingsContext';
-import { formatDateISO, parseNumeric } from '../utils/formatters';
+import { formatDateISO, parseNumeric, formatLoanDescription } from '../utils/formatters';
 import { getCurrencySymbol } from '../utils/currency';
 
 export default function TransactionModal({ 
@@ -18,7 +18,8 @@ export default function TransactionModal({
   categories = [],
   initialType = 'expense'
 }) {
-  const { t, baseCurrency } = useSettings();
+  const { t, baseCurrency, language } = useSettings();
+  const isEs = String(language || 'es').toLowerCase().startsWith('es');
 
   const [type, setType] = useState('expense');
   const [date, setDate] = useState(() => formatDateISO());
@@ -62,7 +63,7 @@ export default function TransactionModal({
       setAccountId(initialAccId);
 
       const rawTargetAccId = transactionToEdit?.targetAccountId || transactionToEdit?.target_account_id || transactionToEdit?.destinationAccountId || transactionToEdit?.destination_account_id || transactionToEdit?.targetAccount?.id;
-      const isLoanTx = Boolean(transactionToEdit?.debtId || transactionToEdit?.debt_id || (!rawTargetAccId && /pr[eé]stamo/i.test(transactionToEdit?.description || '')));
+      const isLoanTx = Boolean(transactionToEdit?.debtId || transactionToEdit?.debt_id || (!rawTargetAccId && /(pr[eé]stamo|loan)/i.test(transactionToEdit?.description || '')));
 
       if (isLoanTx && !rawTargetAccId) {
         setTargetAccountId('virtual_pending_balances');
@@ -86,7 +87,8 @@ export default function TransactionModal({
         setTargetAmount('');
       }
 
-      setDescription(transactionToEdit?.description || transactionToEdit?.desc || transactionToEdit?.notes || '');
+      const rawDesc = transactionToEdit?.description || transactionToEdit?.desc || transactionToEdit?.notes || '';
+      setDescription(formatLoanDescription(rawDesc, isEs));
     } else {
       setType(initialType || 'expense');
       setDate(formatDateISO());
@@ -129,7 +131,7 @@ export default function TransactionModal({
     label: acc.name
   }));
 
-  const virtualAccountName = t('debts.virtual_account_name', {}, 'Saldos Pendientes (Por Cobrar)');
+  const virtualAccountName = t('debts.virtual_account_name', {}, isEs ? 'Saldos Pendientes (Por Cobrar)' : 'Pending Balances (Receivable)');
   const targetAccountSelectOptions = [
     ...accountSelectOptions,
     ...(isVirtualTarget ? [{
