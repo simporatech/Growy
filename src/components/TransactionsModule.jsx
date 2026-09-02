@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Plus, ArrowLeftRight, Search, Trash2, RotateCcw, Filter, TrendingUp, TrendingDown } from 'lucide-react';
 import Button from './Button';
-import EmptyState from './EmptyState';
+import EmptyState from './common/EmptyState';
 import TransactionModal from './TransactionModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import AdvancedFiltersModal from './AdvancedFiltersModal';
@@ -646,7 +646,7 @@ export default function TransactionsModule() {
               icon={ArrowLeftRight}
               title={t('transactions.noTxTitle', {}, 'No tienes transacciones registradas')}
               description={t('transactions.noTxDesc', {}, 'Tus movimientos aparecerán aquí conforme los vayas registrando.')}
-              actionText={t('dashboard.registerMovement', {}, 'Registrar Movimiento')}
+              actionLabel={t('dashboard.registerMovement', {}, 'Registrar Movimiento')}
               actionIcon={Plus}
               onAction={() => setIsModalOpen(true)}
             />
@@ -655,7 +655,7 @@ export default function TransactionsModule() {
               icon={Search}
               title={t('common.noResultsTitle', {}, 'No se encontraron resultados')}
               description={t('common.noResultsDesc', {}, 'Prueba ajustando los filtros o el término de búsqueda.')}
-              actionText={t('common.clearFilters', {}, 'Limpiar filtros')}
+              actionLabel={t('common.clearFilters', {}, 'Limpiar filtros')}
               onAction={resetFilters}
             />
           )

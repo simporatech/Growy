@@ -5,7 +5,7 @@ import {
   ChevronUp, Wallet, Calendar, AlertCircle, Edit3, DollarSign, Clock, Users
 } from 'lucide-react';
 import Button from './Button';
-import EmptyState from './EmptyState';
+import EmptyState from './common/EmptyState';
 import DebtModal from './DebtModal';
 import ReceivableModal from './debts/ReceivableModal';
 import DebtPaymentModal from './DebtPaymentModal';
@@ -547,7 +547,7 @@ export default function DebtsView() {
           icon={Percent}
           title={t('debts.noDebtsFound', {}, 'No hay compromisos en esta sección')}
           description={t('debts.noDebtsFoundSub', {}, 'Puedes crear un nuevo saldo por pagar o por cobrar haciendo clic en "Nuevo Saldo".')}
-          actionText={activeTab === 'receivable' ? t('debts.new_receivable_btn', {}, 'Prestar / Cobrar') : t('debts.new_balance', {}, 'Nuevo Saldo')}
+          actionLabel={activeTab === 'receivable' ? t('debts.new_receivable_btn', {}, 'Prestar / Cobrar') : t('debts.new_balance', {}, 'Nuevo Saldo')}
           onAction={() => {
             setDebtToEdit(null);
             if (activeTab === 'receivable') {

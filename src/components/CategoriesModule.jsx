@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Plus, Tag, Trash2, ArrowDownRight, ArrowUpRight, Search } from 'lucide-react';
 import Button from './Button';
-import EmptyState from './EmptyState';
+import EmptyState from './common/EmptyState';
 import CategoryModal from './CategoryModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import ExportDropdown from './ExportDropdown';
@@ -566,7 +566,7 @@ export default function CategoriesModule() {
               icon={Tag}
               title={t('categories.noCategoriesTitle', {}, 'No tienes categorías registradas')}
               description={t('categories.noCategoriesDesc', {}, 'Crea categorías para presupuestar tus gastos y organizar tus metas de ingreso.')}
-              actionText={t('categories.newCategory', {}, 'Nueva Categoría')}
+              actionLabel={t('categories.newCategory', {}, 'Nueva Categoría')}
               actionIcon={Plus}
               onAction={() => {
                 setInitialType(activeTabType);
@@ -578,7 +578,7 @@ export default function CategoriesModule() {
               icon={Search}
               title={t('common.noResultsTitle', {}, 'No se encontraron resultados')}
               description={t('common.noResultsDesc', {}, 'Prueba ajustando los filtros o el término de búsqueda.')}
-              actionText={t('common.clearFilters', {}, 'Limpiar filtros')}
+              actionLabel={t('common.clearFilters', {}, 'Limpiar filtros')}
               onAction={() => setSearchQuery('')}
             />
           )

@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Plus, RefreshCw, Trash2, Search } from 'lucide-react';
 import Button from './Button';
-import EmptyState from './EmptyState';
+import EmptyState from './common/EmptyState';
 import SubscriptionModal from './SubscriptionModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import ExportDropdown from './ExportDropdown';
@@ -216,7 +216,7 @@ export default function SubscriptionsModule() {
               icon={RefreshCw}
               title={t('subscriptions.noSubsTitle', {}, 'No tienes suscripciones registradas')}
               description={t('subscriptions.noSubsDesc', {}, 'Agrega servicios como Netflix, Spotify o iCloud para gestionar tus cobros automáticos.')}
-              actionText={t('subscriptions.newSubscription', {}, 'Nueva Suscripción')}
+              actionLabel={t('subscriptions.newSubscription', {}, 'Nueva Suscripción')}
               actionIcon={Plus}
               onAction={() => setIsModalOpen(true)}
             />
@@ -225,8 +225,8 @@ export default function SubscriptionsModule() {
               icon={Search}
               title={t('common.noResultsTitle', {}, 'No se encontraron resultados')}
               description={t('common.noResultsDesc', {}, 'Prueba ajustando los filtros o el término de búsqueda.')}
-              actionText={t('common.clearFilters', {}, 'Limpiar filtros')}
-              onAction={() => setSearchQuery('')}
+              actionLabel={t('common.clearFilters', {}, 'Limpiar filtros')}
+              onAction={() => setSearchTerm('')}
             />
           )
         ) : (

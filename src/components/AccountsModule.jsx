@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Plus, Trash2, Wallet, Search } from 'lucide-react';
 import Button from './Button';
-import EmptyState from './EmptyState';
+import EmptyState from './common/EmptyState';
 import AccountModal from './AccountModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import ExportDropdown from './ExportDropdown';
@@ -226,7 +226,7 @@ export default function AccountsModule() {
               icon={Wallet}
               title={t('accounts.noAccountsTitle', {}, 'No tienes cuentas registradas')}
               description={t('accounts.noAccountsDesc', {}, 'Agrega tus cuentas bancarias, tarjetas o efectivo para organizar tus finanzas.')}
-              actionText={t('accounts.newAccount', {}, 'Nueva Cuenta')}
+              actionLabel={t('accounts.newAccount', {}, 'Nueva Cuenta')}
               actionIcon={Plus}
               onAction={() => setIsModalOpen(true)}
             />
@@ -235,7 +235,7 @@ export default function AccountsModule() {
               icon={Search}
               title={t('common.noResultsTitle', {}, 'No se encontraron resultados')}
               description={t('common.noResultsDesc', {}, 'Prueba ajustando los filtros o el término de búsqueda.')}
-              actionText={t('common.clearFilters', {}, 'Limpiar filtros')}
+              actionLabel={t('common.clearFilters', {}, 'Limpiar filtros')}
               onAction={() => { setSearchQuery(''); setCurrencyFilter('ALL'); }}
             />
           )
