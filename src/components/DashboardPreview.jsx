@@ -555,9 +555,9 @@ export default function DashboardPreview({ user, onLogout }) {
         </aside>
 
         {/* MAIN CONTENT WRAPPER */}
-        <main className="flex-1 min-h-screen overflow-y-auto overflow-x-hidden max-w-full bg-transparent transition-all duration-200 ease-in-out pb-32 md:pb-8">
+        <main className="flex-1 h-full overflow-y-auto overflow-x-hidden max-w-full bg-transparent transition-all duration-200 ease-in-out pb-32 md:pb-8 overscroll-none">
         
-        <div className="w-full max-w-[1600px] mx-auto px-4 pt-4 pb-32 md:px-6 lg:px-8 md:pt-8 md:pb-12 space-y-4 md:space-y-6 animate-fadeIn isolate transition-all duration-200 ease-in-out">
+        <div className="w-full max-w-[1600px] mx-auto px-4 pt-4 pb-32 md:px-6 lg:px-8 md:pt-8 md:pb-12 space-y-4 md:space-y-6 isolate transition-all duration-200 ease-in-out">
           {activeTab === 'dashboard' ? (
             <>
               {/* PAGE HEADER WITH SPLIT BUTTON */}
