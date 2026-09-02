@@ -2,22 +2,33 @@ import React from 'react';
 
 /**
  * AmbientBackground Component
- * Hardware-accelerated GPU orbs with SVG fractal dithering noise texture
- * to eliminate color banding, pixelation, and dark gradient stepping on high-resolution displays.
+ * Boosted hardware-accelerated ambient glow orbs linked to active theme accent.
+ * Configured with z-0 and organic continuous motion.
  */
 export default function AmbientBackground() {
+  const accentColor = 'var(--accent, #97F2CC)';
+
   return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10 bg-[#090C10]">
-      {/* Orbe 1: Superior Izquierda/Centro */}
-      <div className="glow-orb-1" />
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+      {/* Orbe Principal Superior */}
+      <div 
+        className="absolute -top-[10%] left-[15%] w-[650px] h-[650px] rounded-full blur-[100px] opacity-25 animate-ambient-slow pointer-events-none"
+        style={{
+          background: `radial-gradient(circle, ${accentColor} 0%, transparent 65%)`,
+          willChange: 'transform'
+        }}
+      />
 
-      {/* Orbe 2: Inferior Derecha */}
-      <div className="glow-orb-2" />
+      {/* Orbe Secundario Inferior */}
+      <div 
+        className="absolute top-[45%] -right-[5%] w-[550px] h-[550px] rounded-full blur-[110px] opacity-20 animate-ambient-reverse pointer-events-none"
+        style={{
+          background: `radial-gradient(circle, ${accentColor} 0%, transparent 65%)`,
+          willChange: 'transform'
+        }}
+      />
 
-      {/* Orbe 3: Centro Izquierda */}
-      <div className="glow-orb-3" />
-
-      {/* Textura de Dithering Anti-Banding (Ruido SVG inline sin peticiones de red) */}
+      {/* Textura sutil de dithering anti-banding */}
       <div 
         className="absolute inset-0 opacity-[0.025] mix-blend-overlay pointer-events-none"
         style={{
