@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { 
   Plus, Percent, Trash2, CheckCircle, Search, 
   ArrowDownLeft, ArrowUpRight, History, ChevronDown, 
@@ -188,7 +188,44 @@ export default function DebtsView() {
   ], [isEs]);
 
   return (
-    <div className="space-y-6 animate-fadeIn pb-12">
+    <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-32 md:pb-6">
+      
+      {/* Standardized Page Header */}
+      <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white leading-tight">
+            {t('debts.title', {}, 'Saldos Pendientes')}
+          </h1>
+          <p className="text-xs md:text-sm text-slate-400 mt-1 block font-normal">
+            {t('debts.subtitle', {}, 'Controla deudas pendientes, préstamos otorgados y compromisos financieros')}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3 shrink-0">
+          <div className="hidden sm:block">
+            <ExportDropdown
+              data={filteredDebts}
+              columns={debtColumns}
+              filename={`Growy_Saldos_Pendientes_${formatDateISO()}`}
+              title={t('debts.exportTitle', {}, 'Reporte de Saldos Pendientes')}
+            />
+          </div>
+
+          <Button
+            type="button"
+            variant="primary"
+            size="md"
+            onClick={() => {
+              setDebtToEdit(null);
+              setIsDebtModalOpen(true);
+            }}
+            className="shrink-0"
+          >
+            <Plus className="w-4 h-4 mr-1.5" />
+            <span>{t('debts.newDebtBtn', {}, 'Nuevo Saldo')}</span>
+          </Button>
+        </div>
+      </header>
       
       {/* 1. TOP KPI HERO BANNER */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -250,7 +287,7 @@ export default function DebtsView() {
         </div>
       </div>
 
-      {/* 2. FILTER TABS & ACTIONS TOOLBAR */}
+      {/* 2. FILTER TABS & SEARCH TOOLBAR */}
       <div className="p-4 rounded-3xl bg-[#0D1117]/80 border border-white/10 backdrop-blur-xl shadow-lg space-y-4">
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
           
@@ -277,7 +314,7 @@ export default function DebtsView() {
             ))}
           </div>
 
-          {/* Search and Action Buttons */}
+          {/* Search and Mobile Export */}
           <div className="flex items-center gap-2.5 flex-1 md:justify-end">
             <div className="relative flex-1 md:max-w-xs">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -290,26 +327,14 @@ export default function DebtsView() {
               />
             </div>
 
-            <ExportDropdown
-              data={filteredDebts}
-              columns={debtColumns}
-              filename={`Growy_Saldos_Pendientes_${formatDateISO()}`}
-              title={t('debts.exportTitle', {}, 'Reporte de Saldos Pendientes')}
-            />
-
-            <Button
-              type="button"
-              variant="primary"
-              size="sm"
-              onClick={() => {
-                setDebtToEdit(null);
-                setIsDebtModalOpen(true);
-              }}
-              className="shrink-0 h-10 px-4"
-            >
-              <Plus className="w-4 h-4 mr-1.5" />
-              <span>{t('debts.newDebtBtn', {}, 'Nuevo Saldo')}</span>
-            </Button>
+            <div className="sm:hidden shrink-0">
+              <ExportDropdown
+                data={filteredDebts}
+                columns={debtColumns}
+                filename={`Growy_Saldos_Pendientes_${formatDateISO()}`}
+                title={t('debts.exportTitle', {}, 'Reporte de Saldos Pendientes')}
+              />
+            </div>
           </div>
 
         </div>

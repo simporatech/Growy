@@ -410,8 +410,8 @@ export default function TransactionsModule() {
           {/* Quick Type Chips */}
           <button
             onClick={() => setTypeFilter('all')}
-            className={`h-9 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center shrink-0 cursor-pointer ${
-              typeFilter === 'all' ? 'bg-slate-800 text-white border border-white/20 shadow-sm' : 'bg-white/5 text-slate-300 hover:text-white border border-white/5'
+            className={`h-9 px-3.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center shrink-0 cursor-pointer ${
+              typeFilter === 'all' ? 'bg-[var(--accent,#97F2CC)] text-[var(--accent-text,#091E15)] shadow-sm scale-[1.01]' : 'bg-white/5 text-slate-300 hover:text-white border border-white/5'
             }`}
           >
             {t('transactions.filterAll', {}, 'Todos')}
@@ -427,7 +427,7 @@ export default function TransactionsModule() {
           <button
             onClick={() => setTypeFilter('income')}
             className={`h-9 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center shrink-0 cursor-pointer ${
-              typeFilter === 'income' ? 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] border border-[var(--accent,#97F2CC)]/30 shadow-sm' : 'bg-white/5 text-slate-300 hover:text-white border border-white/5'
+              typeFilter === 'income' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-sm' : 'bg-white/5 text-slate-300 hover:text-white border border-white/5'
             }`}
           >
             {t('transactions.filterIncomes', {}, 'Ingresos')}
@@ -481,8 +481,8 @@ export default function TransactionsModule() {
           <div className="flex items-center gap-1 bg-black/25 p-1 rounded-xl shrink-0">
             <button
               onClick={() => setTypeFilter('all')}
-              className={`h-8 px-3 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center cursor-pointer ${
-                typeFilter === 'all' ? 'bg-slate-800 text-white border border-white/20 shadow-sm' : 'text-slate-300 hover:text-white'
+              className={`h-8 px-3 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center cursor-pointer ${
+                typeFilter === 'all' ? 'bg-[var(--accent,#97F2CC)] text-[var(--accent-text,#091E15)] shadow-sm' : 'text-slate-300 hover:text-white'
               }`}
             >
               {t('transactions.filterAll', {}, 'Todos')}
@@ -498,7 +498,7 @@ export default function TransactionsModule() {
             <button
               onClick={() => setTypeFilter('income')}
               className={`h-8 px-3 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center cursor-pointer ${
-                typeFilter === 'income' ? 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] border border-[var(--accent,#97F2CC)]/30 shadow-sm' : 'text-slate-300 hover:text-white'
+                typeFilter === 'income' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-sm' : 'text-slate-300 hover:text-white'
               }`}
             >
               {t('transactions.filterIncomes', {}, 'Ingresos')}

@@ -537,8 +537,8 @@ export default function CategoriesModule() {
             onClick={() => setActiveTabType('expense')}
             className={`flex-1 sm:flex-initial h-11 px-5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
               activeTabType === 'expense'
-                ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30 font-bold shadow'
-                : 'text-slate-300 hover:text-white'
+                ? 'bg-rose-500/10 text-rose-400 border border-rose-500/30 shadow-sm'
+                : 'text-slate-300 hover:text-white border border-transparent'
             }`}
           >
             <ArrowDownRight className="w-3.5 h-3.5 text-rose-400" />
@@ -549,8 +549,8 @@ export default function CategoriesModule() {
             onClick={() => setActiveTabType('income')}
             className={`flex-1 sm:flex-initial h-11 px-5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
               activeTabType === 'income'
-                ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold shadow'
-                : 'text-slate-300 hover:text-white'
+                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 shadow-sm'
+                : 'text-slate-300 hover:text-white border border-transparent'
             }`}
           >
             <ArrowUpRight className="w-3.5 h-3.5 text-emerald-400" />
