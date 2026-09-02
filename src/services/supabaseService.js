@@ -928,6 +928,17 @@ export const dbDeleteLoan = async (loanId) => {
   }
 };
 
+// --- DEBT PAYMENTS (ABONOS) SERVICES & CALCULATION ENGINE ---
+
+export {
+  calculateDebtRemaining,
+  fetchDebtPayments,
+  fetchAllUserDebtPayments,
+  addDebtPayment,
+  deleteDebtPayment
+} from './debtsService.js';
+
+
 // --- SUBSCRIPTIONS SERVICES & AUTO-DEBIT ENGINE ---
 
 export const dbFetchSubscriptions = async (userId) => {
