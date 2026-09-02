@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Plus, ArrowLeftRight, Search, Trash2, RotateCcw, Filter, TrendingUp, TrendingDown } from 'lucide-react';
 import Button from './Button';
+import EmptyState from './EmptyState';
 import TransactionModal from './TransactionModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import AdvancedFiltersModal from './AdvancedFiltersModal';
@@ -618,21 +619,24 @@ export default function TransactionsModule() {
       />      {/* Structured High-Density Feed */}
       <div className="w-full space-y-6 relative z-10">
         {sortedDates.length === 0 ? (
-          <div className="p-6 rounded-2xl glass-card text-center text-slate-300 space-y-3">
-            <ArrowLeftRight className="w-12 h-12 text-slate-400 mx-auto" />
-            <h4 className="text-base font-bold text-white">{t('transactions.noTxTitle', {}, 'No hay transacciones registradas')}</h4>
-            <p className="text-xs text-slate-300 max-w-sm mx-auto font-medium">
-              {t('transactions.noTxDesc', {}, 'Tus movimientos aparecerán aquí conforme los vayas registrando.')}
-            </p>
-            <Button
-              size="md"
-              variant="primary"
-              icon={Plus}
-              onClick={() => setIsModalOpen(true)}
-            >
-              {t('dashboard.registerMovement', {}, 'Registrar Movimiento')}
-            </Button>
-          </div>
+          safeTxList.length === 0 ? (
+            <EmptyState
+              icon={ArrowLeftRight}
+              title={t('transactions.noTxTitle', {}, 'No tienes transacciones registradas')}
+              description={t('transactions.noTxDesc', {}, 'Tus movimientos aparecerán aquí conforme los vayas registrando.')}
+              actionText={t('dashboard.registerMovement', {}, 'Registrar Movimiento')}
+              actionIcon={Plus}
+              onAction={() => setIsModalOpen(true)}
+            />
+          ) : (
+            <EmptyState
+              icon={Search}
+              title={t('common.noResultsTitle', {}, 'No se encontraron resultados')}
+              description={t('common.noResultsDesc', {}, 'Prueba ajustando los filtros o el término de búsqueda.')}
+              actionText={t('common.clearFilters', {}, 'Limpiar filtros')}
+              onAction={resetFilters}
+            />
+          )
         ) : (
           sortedDates.map((dateStr) => {
             const list = groupedTx[dateStr] || [];

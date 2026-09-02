@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Plus, Tag, Trash2, ArrowDownRight, ArrowUpRight, Search } from 'lucide-react';
 import Button from './Button';
+import EmptyState from './EmptyState';
 import CategoryModal from './CategoryModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import ExportDropdown from './ExportDropdown';
@@ -561,24 +562,27 @@ export default function CategoriesModule() {
       {/* Cards Grid */}
       <div className="w-full min-w-full box-border relative z-10">
         {filteredCategories.length === 0 ? (
-          <div className="p-6 rounded-2xl glass-card text-center text-slate-300 space-y-3">
-            <Tag className="w-12 h-12 text-slate-400 mx-auto" />
-            <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">{t('categories.noCategoriesTitle', {}, 'Sin categorías registradas')}</h3>
-            <p className="text-xs sm:text-sm text-slate-400 max-w-sm mx-auto font-normal">
-              {t('categories.noCategoriesDesc', {}, 'Agrega categorías para presupuestar tus compras y agrupar tus transacciones.')}
-            </p>
-            <Button
-              size="md"
-              variant="primary"
-              icon={Plus}
-              onClick={() => {
+          safeCategoriesList.filter(c => c && c.type === activeTabType).length === 0 ? (
+            <EmptyState
+              icon={Tag}
+              title={t('categories.noCategoriesTitle', {}, 'No tienes categorías registradas')}
+              description={t('categories.noCategoriesDesc', {}, 'Crea categorías para presupuestar tus gastos y organizar tus metas de ingreso.')}
+              actionText={t('categories.newCategory', {}, 'Nueva Categoría')}
+              actionIcon={Plus}
+              onAction={() => {
                 setInitialType(activeTabType);
                 setIsModalOpen(true);
               }}
-            >
-              {t('categories.newCategory', {}, 'Nueva Categoría')}
-            </Button>
-          </div>
+            />
+          ) : (
+            <EmptyState
+              icon={Search}
+              title={t('common.noResultsTitle', {}, 'No se encontraron resultados')}
+              description={t('common.noResultsDesc', {}, 'Prueba ajustando los filtros o el término de búsqueda.')}
+              actionText={t('common.clearFilters', {}, 'Limpiar filtros')}
+              onAction={() => setSearchQuery('')}
+            />
+          )
         ) : (
           <div 
             className="categories-grid grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 w-full min-w-full box-border"

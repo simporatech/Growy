@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Plus, Percent, Trash2, CheckCircle, Search } from 'lucide-react';
 import Button from './Button';
+import EmptyState from './EmptyState';
 import LoanModal from './LoanModal';
 import PayLoanModal from './PayLoanModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
@@ -271,21 +272,24 @@ export default function LoansModule() {
       {/* List View */}
       <div className="w-full space-y-2.5 relative z-10">
         {paginatedLoans.length === 0 ? (
-          <div className="p-6 sm:p-8 rounded-2xl sm:rounded-3xl bg-[#141E22]/70 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] text-center text-slate-300 space-y-3">
-            <Percent className="w-12 h-12 text-slate-400 mx-auto" />
-            <h3 className="text-base md:text-lg font-bold text-white tracking-tight">{t('loans.noLoansTitle', {}, 'Sin deudas pendientes')}</h3>
-            <p className="text-xs md:text-sm text-slate-400 max-w-sm mx-auto font-normal">
-              {t('loans.noLoansDesc', {}, '¡Excelente! No tienes compromisos financieros pendientes de pago en esta categoría.')}
-            </p>
-            <Button
-              size="md"
-              variant="primary"
-              icon={Plus}
-              onClick={() => setIsModalOpen(true)}
-            >
-              {t('loans.newLoan', {}, 'Nueva Deuda')}
-            </Button>
-          </div>
+          safeLoansList.length === 0 ? (
+            <EmptyState
+              icon={Percent}
+              title={t('loans.noLoansTitle', {}, 'No tienes deudas registradas')}
+              description={t('loans.noLoansDesc', {}, 'Registra tus compromisos financieros y préstamos para dar seguimiento a tus pagos.')}
+              actionText={t('loans.newLoan', {}, 'Nueva Deuda')}
+              actionIcon={Plus}
+              onAction={() => setIsModalOpen(true)}
+            />
+          ) : (
+            <EmptyState
+              icon={Search}
+              title={t('common.noResultsTitle', {}, 'No se encontraron resultados')}
+              description={t('common.noResultsDesc', {}, 'Prueba ajustando los filtros o el término de búsqueda.')}
+              actionText={t('common.clearFilters', {}, 'Limpiar filtros')}
+              onAction={() => { setSearchTerm(''); setStatusFilter('all'); }}
+            />
+          )
         ) : (
           paginatedLoans.map((loan) => {
             if (!loan) return null;

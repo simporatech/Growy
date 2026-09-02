@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Plus, RefreshCw, Trash2, Search } from 'lucide-react';
 import Button from './Button';
+import EmptyState from './EmptyState';
 import SubscriptionModal from './SubscriptionModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import ExportDropdown from './ExportDropdown';
@@ -210,25 +211,24 @@ export default function SubscriptionsModule() {
       {/* Chronological Timeline List */}
       <div className="w-full space-y-2.5 relative z-10">
         {paginatedSubs.length === 0 ? (
-          <div className="p-6 rounded-2xl glass-card text-center text-slate-300 space-y-3">
-            <RefreshCw className="w-12 h-12 text-slate-400 mx-auto" />
-            <h3 className="text-base md:text-lg font-bold text-white tracking-tight">
-              {safeSubsList.length === 0 ? t('subscriptions.noSubsTitle', {}, 'No tienes suscripciones activas') : 'Sin resultados de búsqueda'}
-            </h3>
-            <p className="text-xs md:text-sm text-slate-400 max-w-sm mx-auto font-normal">
-              {safeSubsList.length === 0 ? t('subscriptions.noSubsDesc', {}, 'Agrega servicios como Netflix, Spotify o iCloud para gestionar tus cobros automáticos.') : 'Prueba con otro término de búsqueda.'}
-            </p>
-            {safeSubsList.length === 0 && (
-              <Button
-                size="md"
-                variant="primary"
-                icon={Plus}
-                onClick={() => setIsModalOpen(true)}
-              >
-                {t('subscriptions.newSubscription', {}, 'Nueva Suscripción')}
-              </Button>
-            )}
-          </div>
+          safeSubsList.length === 0 ? (
+            <EmptyState
+              icon={RefreshCw}
+              title={t('subscriptions.noSubsTitle', {}, 'No tienes suscripciones registradas')}
+              description={t('subscriptions.noSubsDesc', {}, 'Agrega servicios como Netflix, Spotify o iCloud para gestionar tus cobros automáticos.')}
+              actionText={t('subscriptions.newSubscription', {}, 'Nueva Suscripción')}
+              actionIcon={Plus}
+              onAction={() => setIsModalOpen(true)}
+            />
+          ) : (
+            <EmptyState
+              icon={Search}
+              title={t('common.noResultsTitle', {}, 'No se encontraron resultados')}
+              description={t('common.noResultsDesc', {}, 'Prueba ajustando los filtros o el término de búsqueda.')}
+              actionText={t('common.clearFilters', {}, 'Limpiar filtros')}
+              onAction={() => setSearchQuery('')}
+            />
+          )
         ) : (
           paginatedSubs.map((sub) => {
             const acc = safeAccountsList.find(a => a?.id === sub.accountId);

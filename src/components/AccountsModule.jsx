@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Plus, Trash2, Wallet, Search } from 'lucide-react';
 import Button from './Button';
+import EmptyState from './EmptyState';
 import AccountModal from './AccountModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import ExportDropdown from './ExportDropdown';
@@ -220,25 +221,24 @@ export default function AccountsModule() {
       {/* Structured Grid layout for Cards */}
       <div className="w-full relative z-10">
         {filteredAccounts.length === 0 ? (
-          <div className="p-6 rounded-2xl glass-card text-center text-slate-300 space-y-3">
-            <Wallet className="w-12 h-12 text-slate-400 mx-auto" />
-            <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
-              {safeAccountsList.length === 0 ? t('accounts.noAccountsTitle', {}, 'No tienes cuentas registradas') : (language === 'es' ? 'Sin Resultados de Búsqueda' : 'No Search Results')}
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-400 max-w-sm mx-auto font-normal">
-              {safeAccountsList.length === 0 ? t('accounts.noAccountsDesc', {}, 'Agrega tus cuentas bancarias, tarjetas o efectivo para organizar tus finanzas.') : 'Prueba con otro término de búsqueda.'}
-            </p>
-            {safeAccountsList.length === 0 && (
-              <Button
-                variant="primary"
-                size="md"
-                icon={Plus}
-                onClick={() => setIsModalOpen(true)}
-              >
-                {t('accounts.newAccount', {}, 'Nueva Cuenta')}
-              </Button>
-            )}
-          </div>
+          safeAccountsList.length === 0 ? (
+            <EmptyState
+              icon={Wallet}
+              title={t('accounts.noAccountsTitle', {}, 'No tienes cuentas registradas')}
+              description={t('accounts.noAccountsDesc', {}, 'Agrega tus cuentas bancarias, tarjetas o efectivo para organizar tus finanzas.')}
+              actionText={t('accounts.newAccount', {}, 'Nueva Cuenta')}
+              actionIcon={Plus}
+              onAction={() => setIsModalOpen(true)}
+            />
+          ) : (
+            <EmptyState
+              icon={Search}
+              title={t('common.noResultsTitle', {}, 'No se encontraron resultados')}
+              description={t('common.noResultsDesc', {}, 'Prueba ajustando los filtros o el término de búsqueda.')}
+              actionText={t('common.clearFilters', {}, 'Limpiar filtros')}
+              onAction={() => { setSearchQuery(''); setCurrencyFilter('ALL'); }}
+            />
+          )
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
             {paginatedAccounts.map((account) => {

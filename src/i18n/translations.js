@@ -188,7 +188,10 @@ export const translations = {
       "saving": "Guardando...",
       "search": "Buscar...",
       "filters": "Filtros",
-      "clear": "Limpiar"
+      "clear": "Limpiar",
+      "noResultsTitle": "No se encontraron resultados",
+      "noResultsDesc": "Prueba ajustando los filtros o el término de búsqueda.",
+      "clearFilters": "Limpiar filtros"
     },
     "about": {
       "title": "Acerca de SIMPORA",
@@ -216,7 +219,7 @@ export const translations = {
       "totalConsolidatedBalance": "BALANCE TOTAL CONSOLIDADO",
       "showingRecords": "{count} cuentas",
       "noAccountsTitle": "No tienes cuentas registradas",
-      "noAccountsDesc": "Agrega tu primera cuenta bancaria o billetera digital para comenzar a llevar tus finanzas.",
+      "noAccountsDesc": "Agrega tus cuentas bancarias, tarjetas o efectivo para organizar tus finanzas.",
       "availableBalance": "Balance Disponible"
     },
     "placeholders": {
@@ -255,7 +258,7 @@ export const translations = {
       "subtitle": "Registro completo e historial continuo de movimientos",
       "newTransaction": "Nueva Transacción",
       "netFlowHero": "FLUJO NETO CONSOLIDADO",
-      "noTxTitle": "No hay transacciones registradas",
+      "noTxTitle": "No tienes transacciones registradas",
       "noTxDesc": "Tus movimientos aparecerán aquí conforme los vayas registrando.",
       "movement": "Movimiento",
       "transactionItemType": "transacción"
@@ -309,8 +312,8 @@ export const translations = {
       "goalStatus": "ESTADO DE META",
       "expenseCategories": "Categorías de Gastos",
       "incomeCategories": "Categorías de Ingresos",
-      "noCategoriesTitle": "Sin categorías registradas",
-      "noCategoriesDesc": "Agrega categorías para presupuestar tus compras y agrupar tus transacciones.",
+      "noCategoriesTitle": "No tienes categorías registradas",
+      "noCategoriesDesc": "Crea categorías para presupuestar tus gastos y organizar tus metas de ingreso.",
       "newCategory": "Nueva Categoría",
       "budgetLimit": "Presupuesto",
       "goalLimit": "Meta",
@@ -393,8 +396,8 @@ export const translations = {
       "subtitle": "Control y Seguimiento de Deudas Pendientes",
       "totalPendingDebt": "TOTAL DEUDA PENDIENTE",
       "showingRecords": "Mostrando {count} registros",
-      "noLoansTitle": "Sin deudas pendientes",
-      "noLoansDesc": "¡Excelente! No tienes compromisos financieros pendientes de pago."
+      "noLoansTitle": "No tienes deudas registradas",
+      "noLoansDesc": "Registra tus compromisos financieros y préstamos para dar seguimiento a tus pagos."
     },
     "subscriptions": {
       "newSubscription": "Nueva Suscripción",
@@ -405,7 +408,7 @@ export const translations = {
       "subtitle": "Servicios Recurrentes y Débitos Automáticos",
       "totalMonthly": "TOTAL MENSUAL EN SUSCRIPCIONES",
       "activeServices": "{count} servicios activos",
-      "noSubsTitle": "No tienes suscripciones activas",
+      "noSubsTitle": "No tienes suscripciones registradas",
       "noSubsDesc": "Agrega servicios como Netflix, Spotify o iCloud para gestionar tus cobros automáticos."
     },
     "feedback": {
@@ -791,7 +794,10 @@ export const translations = {
       "saving": "Saving...",
       "search": "Search...",
       "filters": "Filters",
-      "clear": "Clear"
+      "clear": "Clear",
+      "noResultsTitle": "No Results Found",
+      "noResultsDesc": "Try adjusting your filters or search terms.",
+      "clearFilters": "Clear Filters"
     },
     "about": {
       "title": "About SIMPORA",
@@ -818,8 +824,8 @@ export const translations = {
       "newAccount": "New Account",
       "totalConsolidatedBalance": "TOTAL CONSOLIDATED BALANCE",
       "showingRecords": "{count} accounts",
-      "noAccountsTitle": "No accounts registered",
-      "noAccountsDesc": "Add your first bank account or digital wallet to start tracking your finances.",
+      "noAccountsTitle": "No Accounts Registered",
+      "noAccountsDesc": "Add your bank accounts, cards, or cash to organize your finances.",
       "availableBalance": "Available Balance"
     },
     "placeholders": {
@@ -858,7 +864,7 @@ export const translations = {
       "subtitle": "Full record and continuous history of transactions",
       "newTransaction": "New Transaction",
       "netFlowHero": "CONSOLIDATED NET FLOW",
-      "noTxTitle": "No transactions recorded",
+      "noTxTitle": "No Transactions Recorded",
       "noTxDesc": "Your transactions will appear here as you log them.",
       "movement": "Transaction",
       "transactionItemType": "transaction"
@@ -912,8 +918,8 @@ export const translations = {
       "goalStatus": "GOAL STATUS",
       "expenseCategories": "Expense Categories",
       "incomeCategories": "Income Categories",
-      "noCategoriesTitle": "No categories registered",
-      "noCategoriesDesc": "Add categories to budget your purchases and group transactions.",
+      "noCategoriesTitle": "No Categories Registered",
+      "noCategoriesDesc": "Create categories to budget your expenses and organize your income goals.",
       "newCategory": "New Category",
       "budgetLimit": "Budget",
       "goalLimit": "Goal",
@@ -996,8 +1002,8 @@ export const translations = {
       "subtitle": "Track and Manage Pending Balances",
       "totalPendingDebt": "TOTAL PENDING DEBT",
       "showingRecords": "Showing {count} records",
-      "noLoansTitle": "No pending debts",
-      "noLoansDesc": "Great! You have no pending financial commitments to pay."
+      "noLoansTitle": "No Debts Registered",
+      "noLoansDesc": "Record your financial commitments and loans to track your payments."
     },
     "subscriptions": {
       "newSubscription": "New Subscription",
@@ -1008,8 +1014,8 @@ export const translations = {
       "subtitle": "Recurring Services & Monthly Auto-Debits",
       "totalMonthly": "TOTAL MONTHLY SUBSCRIPTIONS",
       "activeServices": "{count} active services",
-      "noSubsTitle": "No active subscriptions",
-      "noSubsDesc": "Add services like Netflix, Spotify, or iCloud to manage auto-debits."
+      "noSubsTitle": "No Subscriptions Registered",
+      "noSubsDesc": "Add recurring services like Netflix, Spotify, or iCloud to manage automated payments."
     },
     "feedback": {
       "types": {
