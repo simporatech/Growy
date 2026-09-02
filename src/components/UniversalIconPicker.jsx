@@ -4,13 +4,22 @@ import { EMOJI_CATEGORIES, BANK_PRESETS, SERVICE_PRESETS } from '../constants/em
 import DynamicIcon from './DynamicIcon';
 import { useSettings } from '../context/SettingsContext';
 
+const normalizeSearch = (str) => {
+  return String(str || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+};
+
 export default function UniversalIconPicker({
   value = '💳',
   onChange,
   label,
   className = ''
 }) {
-  const { t } = useSettings();
+  const { t, language } = useSettings();
+  const isEs = String(language || 'es').toLowerCase().startsWith('es');
   const displayLabel = label !== undefined ? label : t('icon_picker.label', {}, 'ICONO / LOGO');
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('emojis'); // 'emojis' | 'banks' | 'services' | 'custom'
@@ -50,7 +59,7 @@ export default function UniversalIconPicker({
 
   // Filtered Emojis
   const filteredEmojiCategories = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
+    const query = normalizeSearch(searchQuery);
     
     if (!query) {
       if (selectedCategory === 'all') return EMOJI_CATEGORIES;
@@ -58,9 +67,29 @@ export default function UniversalIconPicker({
     }
 
     return EMOJI_CATEGORIES.map(cat => {
-      const translatedCatName = t(`icon_picker.categories.${cat.id}`, {}, cat.name).toLowerCase();
-      const matching = cat.emojis.filter(emoji => {
-        return emoji.includes(query) || cat.name.toLowerCase().includes(query) || translatedCatName.includes(query);
+      const translatedCatName = normalizeSearch(t(`icon_picker.categories.${cat.id}`, {}, cat.name));
+      const normalizedCatName = normalizeSearch(cat.name);
+
+      const matching = cat.emojis.filter(item => {
+        if (typeof item === 'string') {
+          return item.includes(query) || normalizedCatName.includes(query) || translatedCatName.includes(query);
+        }
+
+        const emChar = item.emoji || '';
+        const nameEs = normalizeSearch(item.name);
+        const nameEn = normalizeSearch(item.nameEn);
+        const keywords = Array.isArray(item.keywords)
+          ? item.keywords.map(k => normalizeSearch(k)).join(' ')
+          : normalizeSearch(item.keywords);
+
+        return (
+          emChar.includes(query) ||
+          nameEs.includes(query) ||
+          nameEn.includes(query) ||
+          keywords.includes(query) ||
+          normalizedCatName.includes(query) ||
+          translatedCatName.includes(query)
+        );
       });
       return { ...cat, emojis: matching };
     }).filter(cat => cat.emojis.length > 0);
@@ -68,28 +97,32 @@ export default function UniversalIconPicker({
 
   // Filtered Bank Presets
   const filteredBankPresets = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
+    const query = normalizeSearch(searchQuery);
     if (!query) return BANK_PRESETS;
 
     return BANK_PRESETS.map(cat => {
-      const translatedCat = t(`icon_picker.bank_categories.${cat.category}`, {}, cat.category).toLowerCase();
-      const matching = cat.items.filter(item => 
-        item.name.toLowerCase().includes(query) || cat.category.toLowerCase().includes(query) || translatedCat.includes(query)
-      );
+      const translatedCat = normalizeSearch(t(`icon_picker.bank_categories.${cat.category}`, {}, cat.category));
+      const normalizedCat = normalizeSearch(cat.category);
+      const matching = cat.items.filter(item => {
+        const normName = normalizeSearch(item.name);
+        return normName.includes(query) || normalizedCat.includes(query) || translatedCat.includes(query);
+      });
       return { ...cat, items: matching };
     }).filter(cat => cat.items.length > 0);
   }, [searchQuery, t]);
 
   // Filtered Service Presets
   const filteredServicePresets = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
+    const query = normalizeSearch(searchQuery);
     if (!query) return SERVICE_PRESETS;
 
     return SERVICE_PRESETS.map(cat => {
-      const translatedCat = t(`icon_picker.service_categories.${cat.category}`, {}, cat.category).toLowerCase();
-      const matching = cat.items.filter(item => 
-        item.name.toLowerCase().includes(query) || cat.category.toLowerCase().includes(query) || translatedCat.includes(query)
-      );
+      const translatedCat = normalizeSearch(t(`icon_picker.service_categories.${cat.category}`, {}, cat.category));
+      const normalizedCat = normalizeSearch(cat.category);
+      const matching = cat.items.filter(item => {
+        const normName = normalizeSearch(item.name);
+        return normName.includes(query) || normalizedCat.includes(query) || translatedCat.includes(query);
+      });
       return { ...cat, items: matching };
     }).filter(cat => cat.items.length > 0);
   }, [searchQuery, t]);
@@ -301,18 +334,22 @@ export default function UniversalIconPicker({
 
                       <div className="grid grid-cols-7 sm:grid-cols-8 gap-1">
                         {cat.emojis.map((em, idx) => {
-                          const isSelected = value === em;
+                          const emChar = typeof em === 'object' ? em.emoji : em;
+                          const emTitle = typeof em === 'object' 
+                            ? (isEs ? em.name : (em.nameEn || em.name)) 
+                            : em;
+                          const isSelected = value === emChar;
                           return (
                             <button
                               key={`${cat.id}-${idx}`}
                               type="button"
-                              onClick={() => handleSelectIcon(em)}
+                              onClick={() => handleSelectIcon(emChar)}
                               className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl hover:bg-white/10 hover:scale-110 active:scale-90 transition-all cursor-pointer relative ${
                                 isSelected ? 'bg-[var(--accent-muted,rgba(151,242,204,0.2))] ring-2 ring-[var(--accent,#97F2CC)]' : ''
                               }`}
-                              title={em}
+                              title={emTitle}
                             >
-                              <span>{em}</span>
+                              <span>{emChar}</span>
                             </button>
                           );
                         })}

@@ -564,11 +564,12 @@ export const translations = {
       "categories": {
         "all": "Todos",
         "smileys": "Emoticonos",
+        "nature": "Animales & Naturaleza",
         "food": "Comida",
+        "activities": "Actividades",
         "travel": "Viajes",
         "objects": "Objetos",
         "symbols": "Símbolos",
-        "activities": "Actividades",
         "flags": "Banderas"
       },
       "bank_categories": {
@@ -1166,11 +1167,12 @@ export const translations = {
       "categories": {
         "all": "All",
         "smileys": "Smileys",
+        "nature": "Animals & Nature",
         "food": "Food",
+        "activities": "Activities",
         "travel": "Travel",
         "objects": "Objects",
         "symbols": "Symbols",
-        "activities": "Activities",
         "flags": "Flags"
       },
       "bank_categories": {

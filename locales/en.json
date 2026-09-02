@@ -1,4 +1,4 @@
-﻿{
+{
   "icon_picker": {
     "label": "ICON / LOGO",
     "title": "Select Icon",
@@ -13,11 +13,12 @@
     "categories": {
       "all": "All",
       "smileys": "Smileys",
+      "nature": "Animals & Nature",
       "food": "Food",
+      "activities": "Activities",
       "travel": "Travel",
       "objects": "Objects",
       "symbols": "Symbols",
-      "activities": "Activities",
       "flags": "Flags"
     },
     "custom": {
