@@ -7,6 +7,7 @@ import {
 import Button from './Button';
 import EmptyState from './EmptyState';
 import DebtModal from './DebtModal';
+import ReceivableModal from './debts/ReceivableModal';
 import DebtPaymentModal from './DebtPaymentModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import ExportDropdown from './ExportDropdown';
@@ -39,6 +40,7 @@ export default function DebtsView() {
 
   // Modals state
   const [isDebtModalOpen, setIsDebtModalOpen] = useState(false);
+  const [isReceivableModalOpen, setIsReceivableModalOpen] = useState(false);
   const [debtToEdit, setDebtToEdit] = useState(null);
   const [debtToDelete, setDebtToDelete] = useState(null);
   const [debtToPay, setDebtToPay] = useState(null);
@@ -284,11 +286,17 @@ export default function DebtsView() {
             icon={Plus}
             onClick={() => {
               setDebtToEdit(null);
-              setIsDebtModalOpen(true);
+              if (activeTab === 'receivable') {
+                setIsReceivableModalOpen(true);
+              } else {
+                setIsDebtModalOpen(true);
+              }
             }}
-            title={t('debts.new_balance', {}, 'Nuevo Saldo')}
+            title={activeTab === 'receivable' ? t('debts.new_receivable_btn', {}, 'Prestar / Cobrar') : t('debts.new_balance', {}, 'Nuevo Saldo')}
           >
-            <span className="hidden sm:inline">{t('debts.new_balance', {}, 'Nuevo Saldo')}</span>
+            <span className="hidden sm:inline">
+              {activeTab === 'receivable' ? t('debts.new_receivable_btn', {}, 'Prestar / Cobrar') : t('debts.new_balance', {}, 'Nuevo Saldo')}
+            </span>
           </Button>
         </div>
       </header>
@@ -539,10 +547,14 @@ export default function DebtsView() {
           icon={Percent}
           title={t('debts.noDebtsFound', {}, 'No hay compromisos en esta sección')}
           description={t('debts.noDebtsFoundSub', {}, 'Puedes crear un nuevo saldo por pagar o por cobrar haciendo clic en "Nuevo Saldo".')}
-          actionText={t('debts.new_balance', {}, 'Nuevo Saldo')}
+          actionText={activeTab === 'receivable' ? t('debts.new_receivable_btn', {}, 'Prestar / Cobrar') : t('debts.new_balance', {}, 'Nuevo Saldo')}
           onAction={() => {
             setDebtToEdit(null);
-            setIsDebtModalOpen(true);
+            if (activeTab === 'receivable') {
+              setIsReceivableModalOpen(true);
+            } else {
+              setIsDebtModalOpen(true);
+            }
           }}
         />
       ) : (
@@ -631,7 +643,11 @@ export default function DebtsView() {
                       type="button"
                       onClick={() => {
                         setDebtToEdit(debt);
-                        setIsDebtModalOpen(true);
+                        if (!debt.isPayable) {
+                          setIsReceivableModalOpen(true);
+                        } else {
+                          setIsDebtModalOpen(true);
+                        }
                       }}
                       className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
                       title={t('common.edit', {}, 'Editar')}
@@ -815,7 +831,7 @@ export default function DebtsView() {
       )}
 
       {/* 7. MODALS */}
-      {/* DebtModal (Crear / Editar) */}
+      {/* DebtModal (Crear / Editar Deudas por Pagar) */}
       <DebtModal
         isOpen={isDebtModalOpen}
         onClose={() => {
@@ -823,8 +839,26 @@ export default function DebtsView() {
           setDebtToEdit(null);
         }}
         debtToEdit={debtToEdit}
-        initialType={activeTab === 'receivable' ? 'receivable' : 'payable'}
+        initialType="payable"
         categories={safeCategoriesList}
+        accounts={safeAccountsList}
+        onSave={(data) => {
+          if (debtToEdit) {
+            updateLoan(data);
+          } else {
+            addLoan(data);
+          }
+        }}
+      />
+
+      {/* ReceivableModal (Crear / Editar Saldos por Cobrar y Préstamos Otorgados) */}
+      <ReceivableModal
+        isOpen={isReceivableModalOpen}
+        onClose={() => {
+          setIsReceivableModalOpen(false);
+          setDebtToEdit(null);
+        }}
+        debtToEdit={debtToEdit}
         accounts={safeAccountsList}
         onSave={(data) => {
           if (debtToEdit) {

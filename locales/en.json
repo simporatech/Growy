@@ -92,7 +92,33 @@
       "payments_count": "Payments ({{count}})"
     },
     "make_payment": "Make Payment",
-    "virtual_account_name": "Pending Balances (Receivable)"
+    "virtual_account_name": "Pending Balances (Receivable)",
+    "new_receivable_btn": "Loan / Receive",
+    "receivable_modal": {
+      "new_title": "Register Receivable Balance",
+      "edit_title": "Edit Receivable Balance",
+      "subtitle": "Money you loaned or services pending payment in your favor",
+      "concept_label": "Concept or Debtor Person",
+      "concept_placeholder": "e.g. Loan to Charles, Freelance design fee",
+      "amount_label": "Amount",
+      "currency_label": "Currency",
+      "start_date_label": "Start Date / Loan Date",
+      "due_date_label": "Estimated Collection Date",
+      "direct_loan_switch": "Did this money come out of one of your bank accounts today?",
+      "direct_loan_help": "Check this option if you handed out or transferred real funds today",
+      "source_account_label": "Which account did the money come from?",
+      "select_account_placeholder": "Select source account",
+      "direct_loan_note": "A transfer to Pending Balances will be created without affecting your operating expenses or savings rate.",
+      "notes_label": "Additional Notes (Optional)",
+      "notes_placeholder": "Add details or agreed terms...",
+      "submit_button": "Save Receivable",
+      "submit_button_loan": "Register Loan Issued",
+      "update_button": "Update Balance",
+      "cancel_button": "Cancel",
+      "concept_error": "Enter the debtor person or concept",
+      "amount_error": "Enter a valid amount greater than 0",
+      "source_account_error": "Select the source account where the money came from"
+    }
   },
   "dashboard": {
     "topAccounts": "Top Accounts",

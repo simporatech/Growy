@@ -92,7 +92,33 @@
       "payments_count": "Abonos ({{count}})"
     },
     "make_payment": "Abonar",
-    "virtual_account_name": "Saldos Pendientes (Por Cobrar)"
+    "virtual_account_name": "Saldos Pendientes (Por Cobrar)",
+    "new_receivable_btn": "Prestar / Cobrar",
+    "receivable_modal": {
+      "new_title": "Registrar Saldo Por Cobrar",
+      "edit_title": "Editar Saldo Por Cobrar",
+      "subtitle": "Dinero que prestaste o servicios pendientes de cobro a tu favor",
+      "concept_label": "Concepto o Persona Deudora",
+      "concept_placeholder": "Ej. Préstamo a Carlos, Cobro pendiente de diseño",
+      "amount_label": "Monto a Cobrar",
+      "currency_label": "Moneda",
+      "start_date_label": "Fecha de Inicio / Préstamo",
+      "due_date_label": "Fecha Estimada de Cobro",
+      "direct_loan_switch": "¿Salió este dinero de una de tus cuentas bancarias hoy?",
+      "direct_loan_help": "Marca esta opción si entregaste o transferiste dinero real hoy",
+      "source_account_label": "¿De qué cuenta salió el dinero?",
+      "select_account_placeholder": "Selecciona la cuenta de origen",
+      "direct_loan_note": "Se creará una transferencia hacia Saldos Pendientes sin afectar tus gastos operativos ni tu tasa de ahorro.",
+      "notes_label": "Notas Adicionales (Opcional)",
+      "notes_placeholder": "Agrega detalles o condiciones acordadas...",
+      "submit_button": "Guardar Saldo a Favor",
+      "submit_button_loan": "Registrar Préstamo Otorgado",
+      "update_button": "Actualizar Saldo",
+      "cancel_button": "Cancelar",
+      "concept_error": "Ingresa la persona o concepto del saldo por cobrar",
+      "amount_error": "Ingresa un monto válido mayor a 0",
+      "source_account_error": "Selecciona la cuenta de origen de donde salió el dinero"
+    }
   },
   "dashboard": {
     "topAccounts": "Cuentas Principales",
