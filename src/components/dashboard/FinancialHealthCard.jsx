@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   HeartPulse, Sparkles, TrendingUp, TrendingDown, AlertTriangle, 
   CheckCircle2, ArrowRight, ShieldCheck, ChevronRight, X, PiggyBank, 
@@ -23,10 +24,10 @@ export default function FinancialHealthCard({
     if (score >= 80) {
       return {
         color: 'var(--accent, #97F2CC)',
-        hexColor: '#34D399',
-        bgClass: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300',
-        badgeClass: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
-        ringGlow: 'rgba(52, 211, 153, 0.25)',
+        hexColor: 'var(--accent, #97F2CC)',
+        bgClass: 'bg-[var(--accent)]/10 border-[var(--accent)]/20 text-[var(--accent)]',
+        badgeClass: 'bg-[var(--accent)]/15 text-[var(--accent)] border-[var(--accent)]/30',
+        ringGlow: 'var(--color-glow, rgba(151, 242, 204, 0.25))',
         icon: Sparkles
       };
     }
@@ -66,8 +67,8 @@ export default function FinancialHealthCard({
       >
         {/* Subtle background ambient glow */}
         <div 
-          className="absolute -right-12 -top-12 w-36 h-36 rounded-full blur-3xl pointer-events-none transition-opacity opacity-40 group-hover:opacity-70"
-          style={{ backgroundColor: theme.ringGlow }}
+          className="absolute -right-12 -top-12 w-36 h-36 rounded-full blur-3xl pointer-events-none transition-opacity opacity-30 group-hover:opacity-60"
+          style={{ backgroundColor: score >= 80 ? 'var(--accent, #97F2CC)' : theme.hexColor }}
         />
 
         {/* Header */}
@@ -97,7 +98,7 @@ export default function FinancialHealthCard({
                 cx="50"
                 cy="50"
                 r={radius}
-                stroke={theme.hexColor}
+                stroke={score >= 80 ? 'var(--accent, #97F2CC)' : theme.hexColor}
                 strokeWidth="8"
                 strokeDasharray={circumference}
                 strokeDashoffset={strokeDashoffset}
@@ -105,7 +106,7 @@ export default function FinancialHealthCard({
                 fill="transparent"
                 className="transition-all duration-1000 ease-out"
                 style={{
-                  filter: `drop-shadow(0 0 6px ${theme.ringGlow})`
+                  filter: `drop-shadow(0 0 6px ${score >= 80 ? 'var(--color-glow, rgba(151,242,204,0.3))' : theme.ringGlow})`
                 }}
               />
             </svg>
@@ -138,14 +139,14 @@ export default function FinancialHealthCard({
           <div className="p-2 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
             <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400">
               <span className="flex items-center gap-1 min-w-0">
-                <PiggyBank className="w-3 h-3 text-emerald-400 shrink-0" />
+                <PiggyBank className="w-3 h-3 text-[var(--accent,#97F2CC)] shrink-0" />
                 <span className="truncate">{isEs ? 'Ahorro' : 'Save'}</span>
               </span>
               <span className="text-white font-bold tabular-nums text-xs shrink-0">{breakdown?.savings?.points ?? 0}/40</span>
             </div>
             <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
               <div 
-                className="h-full rounded-full transition-all duration-500 bg-emerald-400"
+                className="h-full rounded-full transition-all duration-500 bg-[var(--accent,#97F2CC)]"
                 style={{ width: `${((breakdown?.savings?.points ?? 0) / 40) * 100}%` }}
               />
             </div>
@@ -162,7 +163,7 @@ export default function FinancialHealthCard({
             </div>
             <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
               <div 
-                className={`h-full rounded-full transition-all duration-500 ${(breakdown?.debts?.overdueCount ?? 0) > 0 ? 'bg-rose-400' : 'bg-emerald-400'}`}
+                className={`h-full rounded-full transition-all duration-500 ${(breakdown?.debts?.overdueCount ?? 0) > 0 ? 'bg-rose-400' : 'bg-[var(--accent,#97F2CC)]'}`}
                 style={{ width: `${((breakdown?.debts?.points ?? 0) / 30) * 100}%` }}
               />
             </div>
@@ -187,12 +188,12 @@ export default function FinancialHealthCard({
         </div>
       </div>
 
-      {/* DETAILED DIAGNOSIS MODAL */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+      {/* DETAILED DIAGNOSIS MODAL - RENDERED IN ROOT PORTAL */}
+      {isModalOpen && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
           <div 
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-lg bg-[#0E131D] border border-white/10 rounded-2xl sm:rounded-3xl p-5 sm:p-7 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar"
+            className="w-full max-w-lg bg-[#0F141C] border border-white/10 rounded-2xl sm:rounded-3xl p-5 sm:p-7 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar"
           >
             {/* Modal Header */}
             <div className="flex items-start justify-between gap-3">
@@ -248,10 +249,10 @@ export default function FinancialHealthCard({
               </h4>
 
               {/* 1. Ahorro */}
-              <div className="p-3.5 rounded-2xl bg-[#141E22] border border-white/5 space-y-2">
+              <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/5 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 font-bold text-white text-xs sm:text-sm">
-                    <PiggyBank className="w-4 h-4 text-emerald-400" />
+                    <PiggyBank className="w-4 h-4 text-[var(--accent,#97F2CC)]" />
                     <span>{isEs ? '1. Ratio Ahorro / Gasto' : '1. Savings / Expense Ratio'}</span>
                   </div>
                   <span className="font-black text-white text-xs sm:text-sm tabular-nums">
@@ -265,14 +266,14 @@ export default function FinancialHealthCard({
                 </p>
                 <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden">
                   <div 
-                    className="h-full rounded-full bg-emerald-400 transition-all duration-500"
+                    className="h-full rounded-full bg-[var(--accent,#97F2CC)] transition-all duration-500"
                     style={{ width: `${((breakdown?.savings?.points ?? 0) / 40) * 100}%` }}
                   />
                 </div>
               </div>
 
               {/* 2. Deudas */}
-              <div className="p-3.5 rounded-2xl bg-[#141E22] border border-white/5 space-y-2">
+              <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/5 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 font-bold text-white text-xs sm:text-sm">
                     <Percent className="w-4 h-4 text-amber-400" />
@@ -291,14 +292,14 @@ export default function FinancialHealthCard({
                 </p>
                 <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden">
                   <div 
-                    className={`h-full rounded-full transition-all duration-500 ${(breakdown?.debts?.overdueCount ?? 0) > 0 ? 'bg-rose-400' : 'bg-emerald-400'}`}
+                    className={`h-full rounded-full transition-all duration-500 ${(breakdown?.debts?.overdueCount ?? 0) > 0 ? 'bg-rose-400' : 'bg-[var(--accent,#97F2CC)]'}`}
                     style={{ width: `${((breakdown?.debts?.points ?? 0) / 30) * 100}%` }}
                   />
                 </div>
               </div>
 
               {/* 3. Presupuesto */}
-              <div className="p-3.5 rounded-2xl bg-[#141E22] border border-white/5 space-y-2">
+              <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/5 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 font-bold text-white text-xs sm:text-sm">
                     <Target className="w-4 h-4 text-sky-400" />
@@ -348,7 +349,8 @@ export default function FinancialHealthCard({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

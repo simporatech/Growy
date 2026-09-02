@@ -307,7 +307,7 @@ export default function CategoriesModule() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={t('placeholders.search', {}, 'Buscar por nombre...')}
-            className="w-full h-11 pl-9 pr-3 bg-[#131E22] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[var(--accent,#97F2CC)] shadow-inner transition-colors"
+            className="w-full h-11 pl-9 pr-3 bg-white/[0.04] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[var(--accent,#97F2CC)] shadow-inner transition-colors"
           />
         </div>
         <div className="sm:hidden shrink-0">
@@ -322,7 +322,7 @@ export default function CategoriesModule() {
       </div>
 
       {/* Hero Banner: Dynamic Bimodal (Expense vs Income Goals) */}
-      <div className="w-full bg-[#141E22]/70 border border-white/10 rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6 backdrop-blur-md relative z-10 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] transition-all duration-300 ease-in-out">
+      <div className="w-full bg-[#111722]/80 border border-white/10 rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6 backdrop-blur-md relative z-10 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] transition-all duration-300 ease-in-out">
         
         {activeTabType === 'expense' ? (
           /* MODO A: PRESUPUESTO DE GASTOS */
@@ -603,13 +603,13 @@ export default function CategoriesModule() {
                     setCategoryToEdit(cat);
                     setIsModalOpen(true);
                   }}
-                  className="p-5 rounded-xl bg-[#162226] border border-white/10 h-full flex flex-col justify-between space-y-4 relative overflow-hidden group shadow-lg cursor-pointer hover:bg-white/[0.04] transition-all"
+                  className="p-5 rounded-xl bg-white/[0.03] border border-white/10 h-full flex flex-col justify-between space-y-4 relative overflow-hidden group shadow-lg cursor-pointer hover:bg-white/[0.06] hover:border-[var(--accent,#97F2CC)]/30 transition-all"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3 min-w-0 pr-2">
                       <div 
                         className="w-10 h-10 rounded-2xl flex items-center justify-center text-xl shrink-0 border border-white/10 overflow-hidden"
-                        style={{ backgroundColor: `${cat.color || '#AEEDD0'}20` }}
+                        style={{ backgroundColor: `${cat.color || 'var(--accent, #97F2CC)'}25` }}
                       >
                         <DynamicIcon value={cat.emoji} fallback="🏷️" className="w-6 h-6 text-xl" />
                       </div>

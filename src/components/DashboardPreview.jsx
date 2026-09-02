@@ -883,7 +883,7 @@ export default function DashboardPreview({ user, onLogout }) {
                     />
                   ) : (
                     currentMonthTx.length === 0 && chartPeriod === 'this_month' ? (
-                      <div className="w-full h-48 sm:h-56 flex flex-col items-center justify-center text-center text-slate-300 space-y-3 bg-[#162226] rounded-xl border border-dashed border-white/10">
+                      <div className="w-full h-48 sm:h-56 flex flex-col items-center justify-center text-center text-slate-300 space-y-3 bg-white/[0.03] rounded-xl border border-dashed border-white/10">
                         <Layers className="w-8 h-8 text-slate-400" />
                         <p className="text-xs font-medium">{t('dashboard.noMovementsMonth', {}, 'Sin movimientos registrados este mes')}</p>
                         <button
@@ -907,10 +907,10 @@ export default function DashboardPreview({ user, onLogout }) {
                               <div key={idx} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
                                 <div className="flex items-end gap-1 h-full w-full justify-center">
                                   <div 
-                                    className="w-1/3 max-w-[12px] rounded-t-md bg-emerald-400 transition-all duration-300 hover:opacity-80 relative group/bar"
+                                    className="w-1/3 max-w-[12px] rounded-t-md bg-[var(--accent)] transition-all duration-300 hover:opacity-80 relative group/bar"
                                     style={{ height: `${incHeight}px` }}
                                   >
-                                    <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-[#1E2D32] border border-white/20 text-emerald-400 text-xs font-semibold px-2 py-0.5 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none tabular-nums shadow-lg">
+                                    <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-[#111722] border border-white/20 text-[var(--accent)] text-xs font-semibold px-2 py-0.5 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none tabular-nums shadow-lg">
                                       {formatCurrency(pt.income)}
                                     </div>
                                   </div>
@@ -919,7 +919,7 @@ export default function DashboardPreview({ user, onLogout }) {
                                     className="w-1/3 max-w-[12px] rounded-t-md bg-rose-400 transition-all duration-300 hover:opacity-80 relative group/bar"
                                     style={{ height: `${expHeight}px` }}
                                   >
-                                    <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-[#1E2D32] border border-white/20 text-rose-400 text-xs font-semibold px-2 py-0.5 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none tabular-nums shadow-lg">
+                                    <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-[#111722] border border-white/20 text-rose-400 text-xs font-semibold px-2 py-0.5 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none tabular-nums shadow-lg">
                                       {formatCurrency(pt.expense)}
                                     </div>
                                   </div>
@@ -933,7 +933,7 @@ export default function DashboardPreview({ user, onLogout }) {
                           })}
                         </div>
 
-                        <div className="p-3 rounded-xl bg-[#162226] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                        <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                           <div className="flex items-center gap-2">
                             <Activity className="w-3.5 h-3.5 text-[var(--accent)] shrink-0" />
                             <span className="text-slate-300 font-medium">
@@ -965,7 +965,7 @@ export default function DashboardPreview({ user, onLogout }) {
                   </div>
 
                   {categoryExpenses.length === 0 ? (
-                    <div className="w-full h-44 flex flex-col items-center justify-center text-center text-slate-300 space-y-2 bg-[#162226] rounded-xl border border-dashed border-white/10">
+                    <div className="w-full h-44 flex flex-col items-center justify-center text-center text-slate-300 space-y-2 bg-white/[0.03] rounded-xl border border-dashed border-white/10">
                       <Layers className="w-7 h-7 text-slate-400" />
                       <p className="text-xs font-medium">{t('dashboard.noExpensesMonth', {}, 'Sin gastos registrados este mes')}</p>
                     </div>
@@ -1084,7 +1084,7 @@ export default function DashboardPreview({ user, onLogout }) {
                         <div 
                           key={acc.id}
                           onClick={() => setActiveTab('accounts')}
-                          className="p-3 sm:p-3.5 rounded-xl bg-[#162226] border border-white/10 flex items-center justify-between hover:bg-white/[0.06] hover:border-[var(--accent)]/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
+                          className="p-3 sm:p-3.5 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between hover:bg-white/[0.06] hover:border-[var(--accent)]/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
                           title={t('dashboard.viewAccounts', {}, 'Ver Cuentas')}
                         >
                           <div className="flex items-center gap-3 min-w-0 pr-2">
@@ -1143,13 +1143,13 @@ export default function DashboardPreview({ user, onLogout }) {
                       criticalBudgets.map((cat) => {
                         const isOverLimit = cat.percentage >= 90;
                         const isWarning = cat.percentage >= 75 && cat.percentage < 90;
-                        const barColor = isOverLimit ? '#F87171' : isWarning ? '#F59E0B' : (cat.color || '#34D399');
+                        const barColor = isOverLimit ? '#F87171' : isWarning ? '#F59E0B' : (cat.color || 'var(--accent, #97F2CC)');
 
                         return (
                           <div 
                             key={cat.id} 
                             onClick={() => setActiveTab('categories')}
-                            className="p-3 rounded-xl bg-[#162226] border border-white/10 space-y-1.5 hover:bg-white/[0.06] hover:border-[var(--accent)]/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
+                            className="p-3 rounded-xl bg-white/[0.03] border border-white/10 space-y-1.5 hover:bg-white/[0.06] hover:border-[var(--accent)]/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
                             title={t('dashboard.viewCategories', {}, 'Ver Categorías')}
                           >
                             <div className="flex items-center justify-between text-xs">
@@ -1192,7 +1192,7 @@ export default function DashboardPreview({ user, onLogout }) {
                           <div 
                             key={cat.id} 
                             onClick={() => setActiveTab('categories')}
-                            className="p-3 rounded-xl bg-[#162226] border border-white/10 space-y-1.5 hover:bg-white/[0.06] hover:border-[var(--accent)]/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
+                            className="p-3 rounded-xl bg-white/[0.03] border border-white/10 space-y-1.5 hover:bg-white/[0.06] hover:border-[var(--accent)]/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
                             title={t('dashboard.viewCategories', {}, 'Ver Categorías')}
                           >
                             <div className="flex items-center justify-between text-xs">
@@ -1208,14 +1208,14 @@ export default function DashboardPreview({ user, onLogout }) {
                                 className="h-full rounded-full transition-all duration-300"
                                 style={{ 
                                   width: `${Math.min(100, pct)}%`, 
-                                  backgroundColor: cat.color || '#34D399' 
+                                  backgroundColor: cat.color || 'var(--accent, #97F2CC)' 
                                 }}
                               />
                             </div>
 
                             <div className="flex justify-between items-center text-[11px] text-slate-300 font-medium">
                               <span className="tabular-nums">{pct}% {t('dashboard.ofTotalSpent', {}, 'del total gastado')}</span>
-                              <span className="text-emerald-400 font-semibold">
+                              <span className="text-[var(--accent)] font-semibold">
                                 {t('dashboard.healthyBudget', {}, 'Presupuesto saludable')}
                               </span>
                             </div>
@@ -1256,7 +1256,7 @@ export default function DashboardPreview({ user, onLogout }) {
                           <div 
                             key={loan.id}
                             onClick={() => setLoanToPay(loan)}
-                            className="p-3 sm:p-3.5 rounded-xl bg-[#162226] border border-amber-500/20 flex items-center justify-between hover:bg-white/[0.06] hover:border-amber-500/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
+                            className="p-3 sm:p-3.5 rounded-xl bg-white/[0.03] border border-amber-500/20 flex items-center justify-between hover:bg-white/[0.06] hover:border-amber-500/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
                             title={t('common.payNow', {}, 'Pagar')}
                           >
                             <div className="min-w-0 flex-1 pr-2">
@@ -1288,7 +1288,7 @@ export default function DashboardPreview({ user, onLogout }) {
                           <div 
                             key={sub.id}
                             onClick={() => setActiveTab('subscriptions')}
-                            className="p-3 sm:p-3.5 rounded-xl bg-[#162226] border border-white/10 flex items-center justify-between hover:bg-white/[0.06] hover:border-[var(--accent)]/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
+                            className="p-3 sm:p-3.5 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between hover:bg-white/[0.06] hover:border-[var(--accent)]/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
                             title={t('nav.subscriptions', {}, 'Suscripciones')}
                           >
                             <div className="min-w-0 flex-1 pr-2">
@@ -1361,12 +1361,12 @@ export default function DashboardPreview({ user, onLogout }) {
                             setTxToEdit(tx);
                             setIsTxModalOpen(true);
                           }}
-                          className="p-3.5 rounded-xl bg-[#162226] border border-white/10 flex items-center justify-between hover:bg-white/[0.06] hover:border-[var(--accent)]/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
+                          className="p-3.5 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between hover:bg-white/[0.06] hover:border-[var(--accent)]/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
                           title={t('autoDebitToast.viewTransaction', {}, 'Haz clic para ver o editar el movimiento')}
                         >
                           <div className="flex items-center gap-3 min-w-0 pr-2">
                             <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm shrink-0 group-hover:scale-105 transition-transform overflow-hidden ${
-                              isIncome ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' : isExpense ? 'bg-rose-500/15 text-rose-400 border border-rose-500/20' : 'bg-sky-500/15 text-sky-400 border border-sky-500/20'
+                              isIncome ? 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] border border-[var(--accent,#97F2CC)]/20' : isExpense ? 'bg-rose-500/15 text-rose-400 border border-rose-500/20' : 'bg-sky-500/15 text-sky-400 border border-sky-500/20'
                             }`}>
                               <DynamicIcon value={emoji} fallback="💰" className="w-5 h-5 text-sm" />
                             </div>
@@ -1378,7 +1378,7 @@ export default function DashboardPreview({ user, onLogout }) {
                             </div>
                           </div>
 
-                          <div className={`text-xs font-bold shrink-0 tabular-nums ${isIncome ? 'text-emerald-400' : isExpense ? 'text-rose-400' : 'text-sky-400'}`}>
+                          <div className={`text-xs font-bold shrink-0 tabular-nums ${isIncome ? 'text-[var(--accent,#97F2CC)]' : isExpense ? 'text-rose-400' : 'text-sky-400'}`}>
                             {isIncome ? '+ ' : isExpense ? '- ' : ''}
                             {formatCurrency(tx.amount, tx.currency || acc.currency || 'USD')}
                           </div>
