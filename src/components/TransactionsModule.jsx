@@ -364,9 +364,9 @@ export default function TransactionsModule() {
         formattedAmount={formatCurrency(netFlow, baseCurrency)}
         currency={baseCurrency}
         icon={netFlow >= 0 ? TrendingUp : TrendingDown}
-        iconBgColor={netFlow >= 0 ? 'bg-emerald-500/15' : 'bg-rose-500/15'}
-        iconBorderColor={netFlow >= 0 ? 'border-emerald-500/30' : 'border-rose-500/30'}
-        iconTextColor={netFlow >= 0 ? 'text-emerald-400' : 'text-rose-400'}
+        iconBgColor={netFlow >= 0 ? 'bg-[var(--accent-muted,rgba(151,242,204,0.15))]' : 'bg-rose-500/15'}
+        iconBorderColor={netFlow >= 0 ? 'border-[var(--accent,#97F2CC)]/30' : 'border-rose-500/30'}
+        iconTextColor={netFlow >= 0 ? 'text-[var(--accent,#97F2CC)]' : 'text-rose-400'}
         badgeText={currentMonthLabel}
         badgeColor="bg-white/5 text-slate-300 border-white/10"
         isLoading={isLoading || !isInitialized}

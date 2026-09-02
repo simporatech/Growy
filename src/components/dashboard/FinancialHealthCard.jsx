@@ -78,11 +78,6 @@ export default function FinancialHealthCard({
               {t('financial_health.title', {}, 'Salud Financiera')}
             </h2>
           </div>
-
-          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold border shadow-sm ${theme.badgeClass}`}>
-            <StatusIcon className="w-3 h-3" />
-            <span>{statusTitle}</span>
-          </span>
         </div>
 
         {/* Main Score & Dynamic Message Body */}
@@ -141,9 +136,12 @@ export default function FinancialHealthCard({
         <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/5 relative z-10">
           {/* 1. Ahorro */}
           <div className="p-2 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
-            <div className="flex items-center justify-between text-[10px] font-semibold text-slate-400">
-              <span className="truncate">{isEs ? 'Ahorro' : 'Savings'}</span>
-              <span className="text-white font-bold tabular-nums">{breakdown?.savings?.points ?? 0}/40</span>
+            <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400">
+              <span className="flex items-center gap-1 min-w-0">
+                <PiggyBank className="w-3 h-3 text-emerald-400 shrink-0" />
+                <span className="truncate">{isEs ? 'Ahorro' : 'Save'}</span>
+              </span>
+              <span className="text-white font-bold tabular-nums text-xs shrink-0">{breakdown?.savings?.points ?? 0}/40</span>
             </div>
             <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
               <div 
@@ -155,9 +153,12 @@ export default function FinancialHealthCard({
 
           {/* 2. Deudas */}
           <div className="p-2 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
-            <div className="flex items-center justify-between text-[10px] font-semibold text-slate-400">
-              <span className="truncate">{isEs ? 'Deudas' : 'Debts'}</span>
-              <span className="text-white font-bold tabular-nums">{breakdown?.debts?.points ?? 0}/30</span>
+            <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400">
+              <span className="flex items-center gap-1 min-w-0">
+                <Percent className="w-3 h-3 text-amber-400 shrink-0" />
+                <span className="truncate">{isEs ? 'Deudas' : 'Debt'}</span>
+              </span>
+              <span className="text-white font-bold tabular-nums text-xs shrink-0">{breakdown?.debts?.points ?? 0}/30</span>
             </div>
             <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
               <div 
@@ -169,9 +170,12 @@ export default function FinancialHealthCard({
 
           {/* 3. Presupuesto */}
           <div className="p-2 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
-            <div className="flex items-center justify-between text-[10px] font-semibold text-slate-400">
-              <span className="truncate">{isEs ? 'Presupuesto' : 'Budget'}</span>
-              <span className="text-white font-bold tabular-nums">{breakdown?.budget?.points ?? 0}/30</span>
+            <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400">
+              <span className="flex items-center gap-1 min-w-0">
+                <Target className="w-3 h-3 text-sky-400 shrink-0" />
+                <span className="truncate">{isEs ? 'Metas' : 'Goals'}</span>
+              </span>
+              <span className="text-white font-bold tabular-nums text-xs shrink-0">{breakdown?.budget?.points ?? 0}/30</span>
             </div>
             <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
               <div 
@@ -185,7 +189,7 @@ export default function FinancialHealthCard({
 
       {/* DETAILED DIAGNOSIS MODAL */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in">
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
           <div 
             onClick={(e) => e.stopPropagation()}
             className="w-full max-w-lg bg-[#0E131D] border border-white/10 rounded-2xl sm:rounded-3xl p-5 sm:p-7 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar"
