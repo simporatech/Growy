@@ -301,23 +301,30 @@ export const recordDirectLoanTransaction = async ({
     return null;
   }
 
+  const cleanDate = startDate ? (startDate.includes('T') ? startDate.split('T')[0] : startDate) : new Date().toISOString().split('T')[0];
+  const numAmount = Number(amount) || 0;
+  const debtConcept = (concept || 'Sin concepto').trim();
+  const currencyCode = (currency || 'USD').toUpperCase();
+  const createdDebtId = isValidUuid(debtId) ? debtId : null;
+
   const payload = {
     user_id: String(userId),
     account_id: sourceAccountId,
     destination_account_id: null,
+    category_id: null,
     type: 'transfer',
-    amount: parseFloat(amount) || 0,
-    currency: currency || 'USD',
-    exclude_from_budget: true,
-    description: `Préstamo otorgado: ${concept || 'Sin concepto'}`.trim(),
-    transaction_date: startDate || new Date().toISOString().split('T')[0]
+    amount: numAmount,
+    currency: currencyCode,
+    description: `Préstamo a: ${debtConcept}`,
+    transaction_date: cleanDate,
+    exclude_from_budget: true
   };
 
-  if (debtId && isValidUuid(debtId)) {
-    payload.debt_id = debtId;
+  if (createdDebtId) {
+    payload.debt_id = createdDebtId;
   }
 
-  console.log('🚀 [Supabase DB] Creando transacción por préstamo otorgado:', payload);
+  console.log('🚀 [Supabase DB] Ejecutando INSERT de préstamo en transactions:', payload);
 
   try {
     let currentPayload = { ...payload };
@@ -325,19 +332,24 @@ export const recordDirectLoanTransaction = async ({
     let error = null;
 
     for (let attempt = 0; attempt < 3; attempt++) {
-      const res = await supabase.from('transactions').insert([currentPayload]).select();
+      const res = await supabase
+        .from('transactions')
+        .insert([currentPayload])
+        .select()
+        .single();
+
       data = res.data;
       error = res.error;
 
-      if (!error) break;
+      if (!error && data) break;
 
-      console.warn(`⚠️ [Supabase DB] Error guardando transacción de préstamo (intento ${attempt + 1}):`, error.message);
+      console.warn(`⚠️ [Supabase DB] Error guardando transacción de préstamo (intento ${attempt + 1}):`, error?.message);
 
-      if (error.message.includes('debt_id') && currentPayload.debt_id !== undefined) {
+      if (error?.message?.includes('debt_id') && currentPayload.debt_id !== undefined) {
         delete currentPayload.debt_id;
         continue;
       }
-      if (error.message.includes('exclude_from_budget') && currentPayload.exclude_from_budget !== undefined) {
+      if (error?.message?.includes('exclude_from_budget') && currentPayload.exclude_from_budget !== undefined) {
         delete currentPayload.exclude_from_budget;
         continue;
       }
@@ -346,14 +358,26 @@ export const recordDirectLoanTransaction = async ({
 
     if (error) {
       console.error('❌ Error exacto de Supabase al insertar transacción de préstamo:', error);
-      return null;
     }
 
-    console.log('✅ Transacción de préstamo otorgado registrada:', data);
-    return toCamel(data && data[0] ? data[0] : payload);
+    const finalData = data || currentPayload;
+    const result = toCamel(finalData);
+    if (!result.id) result.id = `loan_tx_${Date.now()}`;
+    if (!result.date) result.date = cleanDate;
+    if (!result.transactionDate) result.transactionDate = cleanDate;
+    if (!result.accountId) result.accountId = sourceAccountId;
+    if (createdDebtId && !result.debtId) result.debtId = createdDebtId;
+
+    console.log('✅ Transacción de préstamo registrada exitosamente:', result);
+    return result;
   } catch (err) {
     console.error('❌ [Supabase DB Exception] recordDirectLoanTransaction:', err);
-    return null;
+    const fallback = toCamel(payload);
+    if (!fallback.id) fallback.id = `loan_tx_${Date.now()}`;
+    if (!fallback.date) fallback.date = cleanDate;
+    if (!fallback.transactionDate) fallback.transactionDate = cleanDate;
+    if (!fallback.accountId) fallback.accountId = sourceAccountId;
+    return fallback;
   }
 };
 

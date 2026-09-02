@@ -377,14 +377,16 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
         setLoans(prev => [saved, ...(Array.isArray(prev) ? prev.filter(Boolean) : [])]);
         
         // Handle Direct Loan Transfer Transaction if selected
-        if (newLoan.isDirectLoan && newLoan.sourceAccountId) {
+        const isDirect = Boolean(newLoan.isDirectLoan || newLoan.is_direct_loan);
+        const sourceAccId = newLoan.sourceAccountId || newLoan.source_account_id;
+        if (isDirect && sourceAccId) {
           const directTx = await recordDirectLoanTransaction({
             userId,
-            sourceAccountId: newLoan.sourceAccountId,
+            sourceAccountId: sourceAccId,
             amount: newLoan.amount,
             currency: newLoan.currency,
             concept: newLoan.concept || newLoan.description,
-            startDate: newLoan.startDate,
+            startDate: newLoan.startDate || newLoan.start_date,
             debtId: saved?.id || null
           });
           if (directTx) {
@@ -475,6 +477,16 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
       const success = await dbDeleteLoan(loanId);
       if (success !== false) {
         setLoans(prev => (Array.isArray(prev) ? prev.filter(Boolean) : []).filter(l => l.id !== loanId));
+        // Revertir y eliminar transacciones vinculadas por debt_id en estado
+        setTransactions(prev => (Array.isArray(prev) ? prev.filter(Boolean) : []).filter(tx => {
+          const txDebtId = tx.debtId || tx.debt_id;
+          return String(txDebtId) !== String(loanId);
+        }));
+        // Eliminar abonos vinculados en estado
+        setDebtPayments(prev => (Array.isArray(prev) ? prev.filter(Boolean) : []).filter(p => {
+          const pDebtId = p.debtId !== undefined ? p.debtId : p.debt_id;
+          return String(pDebtId) !== String(loanId);
+        }));
         triggerToast('success', i18nMsg('Saldo pendiente eliminado correctamente', 'Pending balance deleted successfully'));
       }
     } catch (err) {

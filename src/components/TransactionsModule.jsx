@@ -172,25 +172,34 @@ export default function TransactionsModule() {
 
       // Account Filter
       if (accountIdFilter !== 'all') {
-        const matchAcc = tx.accountId === accountIdFilter || tx.targetAccountId === accountIdFilter;
+        const txAccId = tx.accountId || tx.account_id;
+        const txDestId = tx.targetAccountId || tx.destinationAccountId || tx.destination_account_id;
+        const matchAcc = txAccId === accountIdFilter || txDestId === accountIdFilter;
         if (!matchAcc) return false;
       }
 
-      // Category Filter
-      if (categoryIdFilter !== 'all' && tx.categoryId !== categoryIdFilter) return false;
+      // Category Filter (Preserve transactions with categoryId: null when all categories are selected)
+      if (categoryIdFilter !== 'all') {
+        const txCatId = tx.categoryId || tx.category_id;
+        if (txCatId !== categoryIdFilter) return false;
+      }
 
       // Search Query
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase();
         const descMatch = (tx.description || '').toLowerCase().includes(query);
-        const catMatch = (safeCategoriesList.find(c => c?.id === tx.categoryId)?.name || '').toLowerCase().includes(query);
-        const accMatch = (safeAccountsList.find(a => a?.id === tx.accountId)?.name || '').toLowerCase().includes(query);
+        const catId = tx.categoryId || tx.category_id;
+        const catMatch = catId ? (safeCategoriesList.find(c => c?.id === catId)?.name || '').toLowerCase().includes(query) : false;
+        const accId = tx.accountId || tx.account_id;
+        const accMatch = (safeAccountsList.find(a => a?.id === accId)?.name || '').toLowerCase().includes(query);
         if (!descMatch && !catMatch && !accMatch) return false;
       }
 
-      // Date Range Filter
-      if (startDate && tx.date && tx.date < startDate) return false;
-      if (endDate && tx.date && tx.date > endDate) return false;
+      // Date Range Filter (Safe ISO date string comparison)
+      const rawDate = tx.date || tx.transactionDate || tx.transaction_date || '';
+      const txDate = rawDate ? (rawDate.includes('T') ? rawDate.split('T')[0] : rawDate) : '';
+      if (startDate && txDate && txDate < startDate) return false;
+      if (endDate && txDate && txDate > endDate) return false;
 
       return true;
     });
@@ -232,7 +241,8 @@ export default function TransactionsModule() {
   const groupedTx = useMemo(() => {
     const groups = {};
     paginatedTx.forEach((tx) => {
-      const dateKey = tx.date || t('transactions.noDate', {}, 'Sin Fecha');
+      const rawDate = tx.date || tx.transactionDate || tx.transaction_date || '';
+      const dateKey = rawDate ? (rawDate.includes('T') ? rawDate.split('T')[0] : rawDate) : t('transactions.noDate', {}, 'Sin Fecha');
       if (!groups[dateKey]) {
         groups[dateKey] = [];
       }

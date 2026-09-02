@@ -915,8 +915,32 @@ export const dbSaveLoan = async (userId, loanData) => {
 
 export const dbDeleteLoan = async (loanId) => {
   if (!loanId) return false;
-  console.log('🗑️ Eliminando préstamo de Supabase DB:', loanId);
+  console.log('🗑️ Eliminando préstamo y registros vinculados en Supabase DB:', loanId);
   try {
+    // 1. Eliminar automáticamente las transacciones contables vinculadas por debt_id
+    try {
+      const { error: txDelErr } = await supabase
+        .from('transactions')
+        .delete()
+        .eq('debt_id', loanId);
+      if (txDelErr) {
+        console.warn('⚠️ No se pudieron eliminar transacciones asociadas a debt_id:', txDelErr.message);
+      }
+    } catch (txEx) {
+      console.warn('⚠️ Excepción eliminando transacciones por debt_id:', txEx);
+    }
+
+    // 2. Eliminar abonos vinculados en debt_payments
+    try {
+      await supabase
+        .from('debt_payments')
+        .delete()
+        .eq('debt_id', loanId);
+    } catch (payEx) {
+      console.warn('⚠️ Excepción eliminando abonos por debt_id:', payEx);
+    }
+
+    // 3. Eliminar el registro principal en pending_debts
     const { error } = await supabase
       .from('pending_debts')
       .delete()
@@ -926,7 +950,7 @@ export const dbDeleteLoan = async (loanId) => {
       console.error('❌ Error exacto de Supabase al eliminar préstamo:', error);
       return false;
     }
-    console.log('✅ Préstamo eliminado con éxito de Supabase DB:', loanId);
+    console.log('✅ Préstamo y registros vinculados eliminados con éxito de Supabase DB:', loanId);
     return true;
   } catch (err) {
     console.error('❌ [Supabase DB Exception] dbDeleteLoan:', err);
