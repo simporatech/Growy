@@ -325,8 +325,8 @@ export default function DashboardPreview({ user, onLogout }) {
   }, [safeCategoriesList, currentMonthTx, formatToGlobal, convertToGlobal, baseCurrency]);
 
   const topExpenses = useMemo(() => categoryExpenses.slice(0, 3), [categoryExpenses]);
-  const pendingLoansList = useMemo(() => safeLoansList.filter(l => l && l.status === 'pending'), [safeLoansList]);
-  const activeSubsList = useMemo(() => safeSubsList.filter(s => s && s.isActive), [safeSubsList]);
+  const pendingLoansList = useMemo(() => safeLoansList.filter(l => l && l.status !== 'paid' && l.status !== 'settled'), [safeLoansList]);
+  const activeSubsList = useMemo(() => safeSubsList.filter(s => s && s.isActive !== false && s.is_active !== false && s.status !== 'inactive'), [safeSubsList]);
   const recentTransactions = useMemo(() => safeTransactionsList.slice(0, 5), [safeTransactionsList]);
 
   const handleSaveTransaction = useCallback(async (txData) => {
@@ -876,7 +876,7 @@ export default function DashboardPreview({ user, onLogout }) {
 
                   {chartViewMode === 'projection' ? (
                     <CashflowForecastChart
-                      currentTotalBalance={totalConsolidatedBalance}
+                      currentTotalBalance={totalBalance}
                       currentMonthTransactions={currentMonthTx}
                       activeSubscriptions={activeSubsList}
                       pendingDebts={pendingLoansList}

@@ -55,7 +55,18 @@ export class ErrorBoundary extends React.Component {
             </div>
 
             <h2 className="text-xl font-bold text-white mb-2">{texts.title}</h2>
-            <p className="text-xs text-slate-400 leading-relaxed mb-8">{texts.subtitle}</p>
+            <p className="text-xs text-slate-400 leading-relaxed mb-4">{texts.subtitle}</p>
+
+            {this.state.error && (
+              <div className="w-full text-left p-3 mb-6 bg-black/40 border border-rose-500/20 rounded-xl overflow-hidden text-[11px] font-mono text-rose-300 max-h-36 overflow-y-auto custom-scrollbar select-text">
+                <p className="font-bold text-rose-400">{String(this.state.error?.message || this.state.error)}</p>
+                {this.state.error?.stack && (
+                  <pre className="text-[10px] text-slate-400 mt-1 whitespace-pre-wrap leading-tight">
+                    {this.state.error.stack.split('\n').slice(0, 4).join('\n')}
+                  </pre>
+                )}
+              </div>
+            )}
 
             <div className="w-full flex items-center gap-3">
               <Button
