@@ -77,11 +77,12 @@ export const ExportDropdown = ({
         ref={buttonRef}
         type="button"
         onClick={handleToggle}
-        className="h-11 px-4 bg-[#121721] hover:bg-white/5 border border-white/10 rounded-xl text-xs font-semibold text-white flex items-center gap-2 transition-all shadow-inner shrink-0 cursor-pointer"
+        className="h-9 px-2.5 sm:px-3.5 bg-[#121721] hover:bg-white/10 border border-white/10 rounded-xl text-xs font-semibold text-white flex items-center gap-1.5 sm:gap-2 transition-all shadow-inner shrink-0 cursor-pointer"
+        title={exportLabel}
       >
-        <Download className="text-[var(--accent,#97F2CC)]" size={15} />
-        <span>{exportLabel}</span>
-        <ChevronDown className={`text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-[var(--accent,#97F2CC)]' : ''}`} size={14} />
+        <Download className="text-[var(--accent,#97F2CC)] shrink-0" size={14} />
+        <span className="hidden sm:inline">{exportLabel}</span>
+        <ChevronDown className={`text-slate-400 transition-transform duration-200 shrink-0 ${isOpen ? 'rotate-180 text-[var(--accent,#97F2CC)]' : ''}`} size={13} />
       </button>
 
       {isOpen && createPortal(

@@ -141,5 +141,57 @@
   "dashboard": {
     "topAccounts": "Cuentas Principales",
     "viewAccounts": "Ver Cuentas"
+  },
+  "common": {
+    "allCurrencies": "Todas las divisas",
+    "all": "Todas",
+    "selected": "seleccionadas",
+    "clearFilters": "Limpiar filtros",
+    "clear": "Limpiar",
+    "noResultsTitle": "No se encontraron resultados",
+    "noResultsDesc": "Prueba ajustando los filtros o el término de búsqueda."
+  },
+  "accounts": {
+    "title": "Gestión de Cuentas",
+    "subtitle": "Administra tus bancos, tarjetas y efectivo",
+    "newAccount": "Nueva Cuenta",
+    "totalConsolidatedBalance": "BALANCE TOTAL CONSOLIDADO",
+    "showingRecords": "{{count}} cuentas",
+    "searchPlaceholder": "Buscar por nombre o divisa..."
+  },
+  "transactions": {
+    "title": "Historial de Transacciones",
+    "subtitle": "Registro completo e historial continuo de movimientos",
+    "newTransaction": "Nueva Transacción",
+    "netFlowHero": "FLUJO NETO CONSOLIDADO",
+    "searchPlaceholder": "Buscar transacciones...",
+    "accountsPlaceholder": "Cuentas",
+    "categoriesPlaceholder": "Categorías",
+    "allAccounts": "Todas las cuentas",
+    "allCategories": "Todas las categorías",
+    "filterAll": "Todos los tipos",
+    "filterExpenses": "Gastos",
+    "filterIncomes": "Ingresos",
+    "filterTransfers": "Transferencias",
+    "from": "Desde",
+    "to": "Hasta",
+    "clearFilters": "Limpiar filtros"
+  },
+  "subscriptions": {
+    "title": "Gestión de Suscripciones",
+    "subtitle": "Servicios recurrentes y débitos automáticos mensuales",
+    "newSubscription": "Nueva Suscripción",
+    "totalMonthly": "TOTAL MENSUAL EN SUSCRIPCIONES",
+    "activeServices": "{{count}} servicios activos",
+    "searchPlaceholder": "Buscar por servicio o cuenta...",
+    "accountsPlaceholder": "Cuentas",
+    "allAccounts": "Todas las cuentas"
+  },
+  "categories": {
+    "title": "Categorías y Presupuestos",
+    "subtitle": "Límites mensuales para gastos y metas",
+    "newBudget": "Nuevo Presupuesto",
+    "newGoal": "Nueva Meta",
+    "searchPlaceholder": "Buscar por nombre..."
   }
 }

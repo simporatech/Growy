@@ -191,7 +191,10 @@ export const translations = {
       "clear": "Limpiar",
       "noResultsTitle": "No se encontraron resultados",
       "noResultsDesc": "Prueba ajustando los filtros o el término de búsqueda.",
-      "clearFilters": "Limpiar filtros"
+      "clearFilters": "Limpiar filtros",
+      "allCurrencies": "Todas las divisas",
+      "all": "Todas",
+      "selected": "seleccionadas"
     },
     "about": {
       "title": "Acerca de SIMPORA",
@@ -220,7 +223,8 @@ export const translations = {
       "showingRecords": "{count} cuentas",
       "noAccountsTitle": "No tienes cuentas registradas",
       "noAccountsDesc": "Agrega tus cuentas bancarias, tarjetas o efectivo para organizar tus finanzas.",
-      "availableBalance": "Balance Disponible"
+      "availableBalance": "Balance Disponible",
+      "searchPlaceholder": "Buscar por nombre o divisa..."
     },
     "placeholders": {
       "search": "Buscar...",
@@ -233,7 +237,7 @@ export const translations = {
       "advancedFilters": "Filtros Avanzados",
       "activeCount": "{count} Activos",
       "transactionType": "Tipo de Movimiento",
-      "filterAll": "Todos",
+      "filterAll": "Todos los tipos",
       "filterExpenses": "Gastos",
       "filterIncomes": "Ingresos",
       "filterTransfers": "Transferencias",
@@ -242,17 +246,20 @@ export const translations = {
       "to": "Hasta",
       "accountFilter": "Cuenta",
       "categoryFilter": "Categoría",
-      "clearFilters": "Limpiar Filtros",
+      "clearFilters": "Limpiar",
       "presets": {
         "thisMonth": "Este Mes",
         "lastMonth": "Mes Anterior",
         "last30Days": "Últimos 30 Días",
         "thisYear": "Este Año",
         "allHistory": "Todo el Historial",
-        "custom": "Rango Personalizado"
+        "custom": "Personalizado"
       },
       "allAccounts": "Todas las Cuentas",
       "allCategories": "Todas las Categorías",
+      "accountsPlaceholder": "Cuentas",
+      "categoriesPlaceholder": "Categorías",
+      "searchPlaceholder": "Buscar transacciones...",
       "noDate": "Sin Fecha",
       "title": "Historial de Transacciones",
       "subtitle": "Registro completo e historial continuo de movimientos",
@@ -318,7 +325,8 @@ export const translations = {
       "budgetLimit": "Presupuesto",
       "goalLimit": "Meta",
       "executed": "Ejecutado",
-      "collected": "Recaudado"
+      "collected": "Recaudado",
+      "searchPlaceholder": "Buscar por nombre..."
     },
     "speedActions": {
       "newMovement": "Nuevo Movimiento"
@@ -404,7 +412,13 @@ export const translations = {
       "title": "Saldos Pendientes",
       "subtitle": "Controla deudas pendientes, préstamos otorgados y compromisos financieros",
       "new_balance": "Nuevo Saldo",
-      "search_placeholder": "Buscar por concepto o categoría...",
+      "search_placeholder": "Buscar por concepto...",
+      "filter_category": "Categorías",
+      "all_categories": "Todas las categorías",
+      "categoriesPlaceholder": "Categorías",
+      "date_from": "Desde",
+      "date_to": "Hasta",
+      "clear_filters": "Limpiar",
       "total_payable": "TOTAL POR PAGAR (DEUDAS)",
       "total_paid": "TOTAL ABONADO",
       "settlement_progress": "PROGRESO DE LIQUIDACIÓN",
@@ -569,7 +583,10 @@ export const translations = {
       "totalMonthly": "TOTAL MENSUAL EN SUSCRIPCIONES",
       "activeServices": "{count} servicios activos",
       "noSubsTitle": "No tienes suscripciones registradas",
-      "noSubsDesc": "Agrega servicios como Netflix, Spotify o iCloud para gestionar tus cobros automáticos."
+      "noSubsDesc": "Agrega servicios como Netflix, Spotify o iCloud para gestionar tus cobros automáticos.",
+      "searchPlaceholder": "Buscar por servicio o cuenta...",
+      "accountsPlaceholder": "Cuentas",
+      "allAccounts": "Todas las cuentas"
     },
     "feedback": {
       "types": {
@@ -986,7 +1003,10 @@ export const translations = {
       "clear": "Clear",
       "noResultsTitle": "No Results Found",
       "noResultsDesc": "Try adjusting your filters or search terms.",
-      "clearFilters": "Clear Filters"
+      "clearFilters": "Clear Filters",
+      "allCurrencies": "All Currencies",
+      "all": "All",
+      "selected": "selected"
     },
     "about": {
       "title": "About SIMPORA",
@@ -1015,7 +1035,8 @@ export const translations = {
       "showingRecords": "{count} accounts",
       "noAccountsTitle": "No Accounts Registered",
       "noAccountsDesc": "Add your bank accounts, cards, or cash to organize your finances.",
-      "availableBalance": "Available Balance"
+      "availableBalance": "Available Balance",
+      "searchPlaceholder": "Search by name or currency..."
     },
     "placeholders": {
       "search": "Search...",
@@ -1028,7 +1049,7 @@ export const translations = {
       "advancedFilters": "Advanced Filters",
       "activeCount": "{count} Active",
       "transactionType": "Transaction Type",
-      "filterAll": "All",
+      "filterAll": "All Types",
       "filterExpenses": "Expenses",
       "filterIncomes": "Income",
       "filterTransfers": "Transfers",
@@ -1037,7 +1058,7 @@ export const translations = {
       "to": "To",
       "accountFilter": "Account",
       "categoryFilter": "Category",
-      "clearFilters": "Clear Filters",
+      "clearFilters": "Clear",
       "presets": {
         "thisMonth": "This Month",
         "lastMonth": "Last Month",
@@ -1048,6 +1069,9 @@ export const translations = {
       },
       "allAccounts": "All Accounts",
       "allCategories": "All Categories",
+      "accountsPlaceholder": "Accounts",
+      "categoriesPlaceholder": "Categories",
+      "searchPlaceholder": "Search transactions...",
       "noDate": "No Date",
       "title": "Transaction History",
       "subtitle": "Full record and continuous history of transactions",
@@ -1113,7 +1137,8 @@ export const translations = {
       "budgetLimit": "Budget",
       "goalLimit": "Goal",
       "executed": "Spent",
-      "collected": "Collected"
+      "collected": "Collected",
+      "searchPlaceholder": "Search by name..."
     },
     "speedActions": {
       "newMovement": "New Transaction"
@@ -1199,7 +1224,13 @@ export const translations = {
       "title": "Pending Balances",
       "subtitle": "Track pending debts, loans given, and financial commitments",
       "new_balance": "New Balance",
-      "search_placeholder": "Search by concept or category...",
+      "search_placeholder": "Search by concept...",
+      "filter_category": "Categories",
+      "all_categories": "All Categories",
+      "categoriesPlaceholder": "Categories",
+      "date_from": "From",
+      "date_to": "To",
+      "clear_filters": "Clear",
       "total_payable": "TOTAL PAYABLE (DEBTS)",
       "total_paid": "TOTAL PAID",
       "settlement_progress": "SETTLEMENT PROGRESS",
@@ -1365,7 +1396,10 @@ export const translations = {
       "totalMonthly": "TOTAL MONTHLY SUBSCRIPTIONS",
       "activeServices": "{count} active services",
       "noSubsTitle": "No Subscriptions Registered",
-      "noSubsDesc": "Add recurring services like Netflix, Spotify, or iCloud to manage automated payments."
+      "noSubsDesc": "Add recurring services like Netflix, Spotify, or iCloud to manage automated payments.",
+      "searchPlaceholder": "Search by service or account...",
+      "accountsPlaceholder": "Accounts",
+      "allAccounts": "All Accounts"
     },
     "feedback": {
       "types": {

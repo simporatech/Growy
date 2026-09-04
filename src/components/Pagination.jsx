@@ -8,8 +8,8 @@ import { useSettings } from '../context/SettingsContext';
 export default function Pagination({
   currentPage = 1,
   totalItems = 0,
-  pageSize = 10,
-  pageSizeOptions = [10, 30, 50],
+  pageSize = 30,
+  pageSizeOptions = [30, 50, 100],
   onPageChange,
   onPageSizeChange,
   className = ''

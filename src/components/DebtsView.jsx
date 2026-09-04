@@ -53,8 +53,9 @@ export default function DebtsView() {
   const [searchTerm, setSearchTerm] = useState('');
 
   // Advanced Filter states
-  const [categoryFilter, setCategoryFilter] = useState('all');
-  const [accountFilter, setAccountFilter] = useState('all');
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState([]);
+  const [currencyFilter, setCurrencyFilter] = useState('all');
+  const [datePreset, setDatePreset] = useState('all');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
@@ -63,52 +64,108 @@ export default function DebtsView() {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(30);
 
   const safeLoansList = useMemo(() => Array.isArray(loans) ? loans.filter(Boolean) : [], [loans]);
   const safePaymentsList = useMemo(() => Array.isArray(debtPayments) ? debtPayments.filter(Boolean) : [], [debtPayments]);
   const safeCategoriesList = useMemo(() => Array.isArray(categories) ? categories.filter(Boolean) : [], [categories]);
   const safeAccountsList = useMemo(() => Array.isArray(accounts) ? accounts.filter(Boolean) : [], [accounts]);
 
+  // Date Preset handler
+  const handlePresetChange = useCallback((preset) => {
+    setDatePreset(preset);
+    const now = new Date();
+    switch (preset) {
+      case 'this_month': {
+        const start = new Date(now.getFullYear(), now.getMonth(), 1);
+        const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        setStartDate(formatDateISO(start));
+        setEndDate(formatDateISO(end));
+        break;
+      }
+      case 'last_month': {
+        const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const end = new Date(now.getFullYear(), now.getMonth(), 0);
+        setStartDate(formatDateISO(start));
+        setEndDate(formatDateISO(end));
+        break;
+      }
+      case 'last_30_days': {
+        const end = new Date();
+        const start = new Date();
+        start.setDate(end.getDate() - 30);
+        setStartDate(formatDateISO(start));
+        setEndDate(formatDateISO(end));
+        break;
+      }
+      case 'this_year': {
+        const start = new Date(now.getFullYear(), 0, 1);
+        const end = new Date(now.getFullYear(), 11, 31);
+        setStartDate(formatDateISO(start));
+        setEndDate(formatDateISO(end));
+        break;
+      }
+      case 'all': {
+        setStartDate('');
+        setEndDate('');
+        break;
+      }
+      default:
+        break;
+    }
+  }, []);
+
+  const datePresetOptions = useMemo(() => [
+    { value: 'all', label: t('transactions.presets.allHistory', {}, isEs ? 'Todo el Historial' : 'All History') },
+    { value: 'this_month', label: t('transactions.presets.thisMonth', {}, isEs ? 'Este Mes' : 'This Month') },
+    { value: 'last_month', label: t('transactions.presets.lastMonth', {}, isEs ? 'Mes Anterior' : 'Last Month') },
+    { value: 'last_30_days', label: t('transactions.presets.last30Days', {}, isEs ? 'Últimos 30 Días' : 'Last 30 Days') },
+    { value: 'this_year', label: t('transactions.presets.thisYear', {}, isEs ? 'Este Año' : 'This Year') },
+    { value: 'custom', label: t('transactions.presets.custom', {}, isEs ? 'Personalizado' : 'Custom Range') }
+  ], [t, isEs]);
+
   // Category Filter Options (Sorted with Logos)
   const categoryFilterOptions = useMemo(() => [
-    { value: 'all', label: t('debts.all_categories', {}, 'Todas las categorías'), emoji: '🏷️' },
     ...[...safeCategoriesList]
       .sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' }))
       .map(cat => ({
         value: cat.id,
         label: cat.name,
+        name: cat.name,
         emoji: cat.emoji || '🏷️'
       }))
-  ], [safeCategoriesList, t]);
+  ], [safeCategoriesList]);
 
-  // Account Filter Options (Sorted with Logos)
-  const accountFilterOptions = useMemo(() => [
-    { value: 'all', label: t('debts.all_accounts', {}, 'Todas las cuentas'), emoji: '🏦' },
-    ...[...safeAccountsList]
-      .sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' }))
-      .map(acc => ({
-        value: acc.id,
-        label: acc.name,
-        emoji: acc.emoji || '🏦'
+  // Currency Filter Options
+  const currencyOptions = useMemo(() => {
+    const set = new Set(safeLoansList.map(l => l.currency || baseCurrency));
+    if (baseCurrency) set.add(baseCurrency);
+    return [
+      { value: 'all', label: t('common.allCurrencies', {}, isEs ? 'Todas las divisas' : 'All Currencies'), emoji: '🌐' },
+      ...Array.from(set).map(c => ({
+        value: c,
+        label: c,
+        name: c,
+        emoji: '💱'
       }))
-  ], [safeAccountsList, t]);
+    ];
+  }, [safeLoansList, baseCurrency, t, isEs]);
 
   const hasActiveFilters = Boolean(
-    categoryFilter !== 'all' || 
-    accountFilter !== 'all' || 
+    selectedCategoryIds.length > 0 || 
+    currencyFilter !== 'all' || 
+    datePreset !== 'all' || 
     startDate || 
     endDate || 
     searchTerm.trim()
   );
 
-  const resetFilters = () => {
+  const resetFilters = useCallback(() => {
     setSearchTerm('');
-    setCategoryFilter('all');
-    setAccountFilter('all');
-    setStartDate('');
-    setEndDate('');
-  };
+    setSelectedCategoryIds([]);
+    setCurrencyFilter('all');
+    handlePresetChange('all');
+  }, [handlePresetChange]);
 
   // Enrich each loan with its calculated remaining balance, total paid, and settlement status
   const enrichedDebts = useMemo(() => {
@@ -123,7 +180,7 @@ export default function DebtsView() {
     });
   }, [safeLoansList, safePaymentsList]);
 
-  // Filter enriched debts by search, tab, category, account, and date range
+  // Filter enriched debts by search, tab, category, currency, and date range
   const filteredDebts = useMemo(() => {
     return enrichedDebts.filter(d => {
       if (!d) return false;
@@ -141,17 +198,16 @@ export default function DebtsView() {
         if (!conceptText.includes(q)) return false;
       }
 
-      // 3. Category filter (debt.category_id === selectedCategory)
-      if (categoryFilter !== 'all') {
+      // 3. Category filter (Multi-select)
+      if (selectedCategoryIds.length > 0) {
         const catId = d.categoryId || d.category_id;
-        if (catId !== categoryFilter) return false;
+        if (!selectedCategoryIds.includes(catId)) return false;
       }
 
-      // 4. Account filter (debt.source_account_id === selectedAccount or linked/payment account)
-      if (accountFilter !== 'all') {
-        const dAccId = d.sourceAccountId || d.source_account_id || d.accountId || d.account_id;
-        const hasPaymentAcc = Array.isArray(d.calc?.payments) && d.calc.payments.some(p => (p.accountId || p.account_id) === accountFilter);
-        if (dAccId !== accountFilter && !hasPaymentAcc) return false;
+      // 4. Currency filter
+      if (currencyFilter !== 'all') {
+        const debtCurrency = d.currency || 'USD';
+        if (debtCurrency !== currencyFilter) return false;
       }
 
       // 5. Date Range Filter (due_date or start_date between startDate and endDate)
@@ -162,12 +218,12 @@ export default function DebtsView() {
 
       return true;
     });
-  }, [enrichedDebts, activeTab, searchTerm, categoryFilter, accountFilter, startDate, endDate]);
+  }, [enrichedDebts, activeTab, searchTerm, selectedCategoryIds, currencyFilter, startDate, endDate]);
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeTab, searchTerm, categoryFilter, accountFilter, startDate, endDate]);
+  }, [activeTab, searchTerm, selectedCategoryIds, currencyFilter, startDate, endDate]);
 
   const paginatedDebts = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
@@ -337,26 +393,24 @@ export default function DebtsView() {
     >
       
       {/* 1. STANDARDIZED HEADER (Idéntico a Categorías y Cuentas) */}
-      <header className="flex items-center justify-between gap-2.5 w-full relative z-30">
+      <header className="flex items-center justify-between gap-3 w-full relative z-30">
         <div className="min-w-0 flex-1">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white leading-tight truncate">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white leading-tight truncate">
             {t('debts.title', {}, 'Saldos Pendientes')}
           </h1>
-          <p className="text-sm text-slate-400 mt-1 block font-normal truncate">
+          <p className="text-xs md:text-sm text-slate-400 mt-0.5 block font-normal truncate">
             {t('debts.subtitle', {}, 'Controla deudas pendientes, préstamos otorgados y compromisos financieros')}
           </p>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <div className="hidden sm:block">
-            <ExportDropdown
-              data={filteredDebts}
-              columns={debtColumns}
-              title={t('debts.exportTitle', {}, 'Reporte de Saldos Pendientes')}
-              filename={exportFilename}
-              summary={debtSummary}
-            />
-          </div>
+          <ExportDropdown
+            data={filteredDebts}
+            columns={debtColumns}
+            title={t('debts.exportTitle', {}, 'Reporte de Saldos Pendientes')}
+            filename={exportFilename}
+            summary={debtSummary}
+          />
 
           <button
             type="button"
@@ -368,97 +422,101 @@ export default function DebtsView() {
                 setIsDebtModalOpen(true);
               }
             }}
-            className="bg-[var(--accent)] text-black font-semibold h-9 px-4 rounded-xl inline-flex items-center gap-2 text-sm shadow-sm hover:opacity-90 cursor-pointer"
+            className="bg-[var(--accent)] text-black font-semibold h-9 px-4 rounded-xl inline-flex items-center gap-2 text-sm shadow-sm hover:opacity-90 transition-opacity cursor-pointer shrink-0"
             title={activeActionLabel}
           >
             <Plus className="w-4 h-4" />
-            <span>{activeActionLabel}</span>
+            <span className="hidden sm:inline">{activeActionLabel}</span>
           </button>
         </div>
       </header>
 
-      {/* 2. TOOLBAR: HOMOLOGATED ADVANCED FILTERS CONTAINER */}
-      <div className="bg-slate-900/50 border border-slate-800/60 p-3 rounded-2xl gap-3 flex flex-wrap items-center w-full relative z-20">
-        {/* Buscador (Input) */}
-        <div className="flex-1 min-w-[180px] sm:min-w-[200px] relative">
-          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+      {/* 2. TOOLBAR: UNIFIED CARBON-GRAY FILTER BAR */}
+      <div className="w-full bg-[#0D1117]/90 border border-white/10 rounded-2xl p-3 gap-2.5 sm:gap-3 flex flex-wrap items-center relative z-20 backdrop-blur-xl shadow-lg">
+        {/* 1. Período */}
+        <div className="w-[135px] sm:w-[145px] shrink-0">
+          <CustomSelect
+            options={datePresetOptions}
+            value={datePreset}
+            onChange={handlePresetChange}
+            isSmall
+          />
+        </div>
+
+        {/* Fechas personalizadas condicionales */}
+        {datePreset === 'custom' && (
+          <div className="flex items-center gap-1.5 shrink-0">
+            <div className="w-28 sm:w-32">
+              <CustomDatePicker
+                value={startDate}
+                onChange={(newDate) => setStartDate(newDate)}
+                placeholder={t('debts.date_from', {}, isEs ? 'Desde' : 'From')}
+                isSmall
+              />
+            </div>
+            <span className="text-slate-500 text-xs font-bold">—</span>
+            <div className="w-28 sm:w-32">
+              <CustomDatePicker
+                value={endDate}
+                onChange={(newDate) => setEndDate(newDate)}
+                placeholder={t('debts.date_to', {}, isEs ? 'Hasta' : 'To')}
+                isSmall
+              />
+            </div>
+          </div>
+        )}
+
+        {/* 2. Categorías (Multi-select) */}
+        <div className="w-[140px] sm:w-[160px] shrink-0">
+          <CustomSelect
+            isMulti
+            options={categoryFilterOptions}
+            value={selectedCategoryIds}
+            onChange={setSelectedCategoryIds}
+            placeholder={t('debts.categoriesPlaceholder', {}, isEs ? 'Categorías' : 'Categories')}
+            allLabel={t('debts.all_categories', {}, isEs ? 'Todas las categorías' : 'All Categories')}
+            isSmall
+          />
+        </div>
+
+        {/* 3. Divisa */}
+        <div className="w-[110px] sm:w-[125px] shrink-0">
+          <CustomSelect
+            options={currencyOptions}
+            value={currencyFilter}
+            onChange={setCurrencyFilter}
+            isSmall
+          />
+        </div>
+
+        {/* 4. Barra de Búsqueda */}
+        <div className="flex-1 min-w-[180px] relative">
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder={t('debts.search_placeholder', {}, 'Buscar por concepto...')}
-            className="w-full h-9 pl-9 pr-3 text-sm bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-500 focus:outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
+            placeholder={t('debts.search_placeholder', {}, isEs ? 'Buscar por concepto...' : 'Search by concept...')}
+            className="w-full h-9 pl-9 pr-3 rounded-xl bg-[#121721] border border-white/10 text-xs font-medium text-white placeholder:text-slate-500 focus:outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
           />
         </div>
 
-        {/* Filtro de Categoría (Dropdown Select) */}
-        <div className="w-full sm:w-auto min-w-[140px] sm:min-w-[160px] flex-1 sm:flex-initial">
-          <CustomSelect
-            options={categoryFilterOptions}
-            value={categoryFilter}
-            onChange={setCategoryFilter}
-            placeholder={t('debts.filter_category', {}, 'Categoría')}
-          />
-        </div>
-
-        {/* Filtro de Cuenta (Dropdown Select) */}
-        <div className="w-full sm:w-auto min-w-[140px] sm:min-w-[160px] flex-1 sm:flex-initial">
-          <CustomSelect
-            options={accountFilterOptions}
-            value={accountFilter}
-            onChange={setAccountFilter}
-            placeholder={t('debts.filter_account', {}, 'Cuenta')}
-          />
-        </div>
-
-        {/* Filtro de Rango de Fechas (Date Range h-9) */}
-        <div className="flex items-center gap-1.5 p-1 bg-[#0D1117]/80 rounded-xl border border-white/10 h-9 shrink-0 w-full sm:w-auto justify-between sm:justify-start">
-          <span className="text-[11px] font-semibold text-slate-400 shrink-0 pl-1.5">{t('debts.date_from', {}, 'Desde')}</span>
-          <div className="w-28 sm:w-32">
-            <CustomDatePicker
-              value={startDate}
-              onChange={setStartDate}
-              placeholder={t('debts.date_from', {}, 'Desde')}
-            />
-          </div>
-          <span className="text-slate-500 text-xs">—</span>
-          <span className="text-[11px] font-semibold text-slate-400 shrink-0">{t('debts.date_to', {}, 'Hasta')}</span>
-          <div className="w-28 sm:w-32">
-            <CustomDatePicker
-              value={endDate}
-              onChange={setEndDate}
-              placeholder={t('debts.date_to', {}, 'Hasta')}
-            />
-          </div>
-        </div>
-
-        {/* Botón Limpiar filtros */}
+        {/* 5. Limpiar Filtros */}
         {hasActiveFilters && (
           <button
             type="button"
             onClick={resetFilters}
-            className="h-9 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-rose-300 border border-rose-500/20 flex items-center gap-1.5 transition-all shrink-0 cursor-pointer"
-            title={t('debts.clear_filters', {}, 'Limpiar filtros')}
+            className="h-9 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-rose-300 border border-white/10 flex items-center gap-1.5 transition-all shrink-0 cursor-pointer"
+            title={t('debts.clear_filters', {}, isEs ? 'Limpiar filtros' : 'Clear filters')}
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{t('debts.clear_filters', {}, 'Limpiar')}</span>
+            <span>{t('common.clear', {}, isEs ? 'Limpiar' : 'Clear')}</span>
           </button>
         )}
-
-        {/* ExportDropdown en móvil */}
-        <div className="sm:hidden shrink-0 ml-auto">
-          <ExportDropdown
-            data={filteredDebts}
-            columns={debtColumns}
-            title={t('debts.exportTitle', {}, 'Reporte de Saldos Pendientes')}
-            filename={exportFilename}
-            summary={debtSummary}
-          />
-        </div>
       </div>
 
       {/* 3. HERO BANNER: DEDICATED STATS CARDS BY TAB */}
-      <div className="w-full bg-[#111722]/80 border border-white/10 rounded-2xl p-4 sm:p-6 backdrop-blur-md relative z-10 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] transition-colors duration-150">
+      <div className="w-full p-4 sm:p-5 md:p-6 rounded-2xl md:rounded-3xl bg-[#0D1117]/80 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] relative z-10 transition-colors duration-150">
         
         {activeTab === 'payable' ? (
           /* MODO A: POR PAGAR (DEUDAS PROPIAS) */
@@ -963,9 +1021,12 @@ export default function DebtsView() {
           currentPage={currentPage}
           totalItems={filteredDebts.length}
           pageSize={pageSize}
-          pageSizeOptions={[10, 30, 50]}
+          pageSizeOptions={[30, 50, 100]}
           onPageChange={setCurrentPage}
-          onPageSizeChange={setPageSize}
+          onPageSizeChange={(newSize) => {
+            setPageSize(newSize);
+            setCurrentPage(1);
+          }}
         />
       )}
 

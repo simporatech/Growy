@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Plus, ArrowLeftRight, Search, Trash2, RotateCcw, Filter, TrendingUp, TrendingDown } from 'lucide-react';
+import { Plus, ArrowLeftRight, Search, Trash2, RotateCcw, TrendingUp, TrendingDown } from 'lucide-react';
 import Button from './Button';
 import EmptyState from './common/EmptyState';
 import TransactionModal from './TransactionModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
-import AdvancedFiltersModal from './AdvancedFiltersModal';
 import CustomSelect from './CustomSelect';
 import CustomDatePicker from './CustomDatePicker';
 import ExportDropdown from './ExportDropdown';
@@ -21,7 +20,6 @@ export default function TransactionsModule() {
   const { formatCurrency, t, language, exchangeRates, baseCurrency, formatToGlobal } = useSettings();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [txToEdit, setTxToEdit] = useState(null);
   const [txToDelete, setTxToDelete] = useState(null);
 
@@ -41,8 +39,9 @@ export default function TransactionsModule() {
     const now = new Date();
     return formatDateISO(new Date(now.getFullYear(), now.getMonth() + 1, 0));
   });
-  const [accountIdFilter, setAccountIdFilter] = useState('all');
-  const [categoryIdFilter, setCategoryIdFilter] = useState('all');
+  const [selectedAccountIds, setSelectedAccountIds] = useState([]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState([]);
+  const [currencyFilter, setCurrencyFilter] = useState('all');
 
   const safeTxList = useMemo(() => Array.isArray(transactions) ? transactions.filter(Boolean) : [], [transactions]);
   const safeAccountsList = useMemo(() => {
@@ -108,41 +107,39 @@ export default function TransactionsModule() {
       typeFilter !== 'all' ||
       searchQuery.trim() !== '' ||
       datePreset !== 'this_month' ||
-      accountIdFilter !== 'all' ||
-      categoryIdFilter !== 'all'
+      selectedAccountIds.length > 0 ||
+      selectedCategoryIds.length > 0 ||
+      currencyFilter !== 'all'
     );
-  }, [typeFilter, searchQuery, datePreset, accountIdFilter, categoryIdFilter]);
-
-  const activeFilterCount = useMemo(() => {
-    let count = 0;
-    if (typeFilter !== 'all') count++;
-    if (searchQuery.trim() !== '') count++;
-    if (datePreset !== 'this_month') count++;
-    if (accountIdFilter !== 'all') count++;
-    if (categoryIdFilter !== 'all') count++;
-    return count;
-  }, [typeFilter, searchQuery, datePreset, accountIdFilter, categoryIdFilter]);
+  }, [typeFilter, searchQuery, datePreset, selectedAccountIds, selectedCategoryIds, currencyFilter]);
 
   const resetFilters = useCallback(() => {
     setTypeFilter('all');
     setSearchQuery('');
     handlePresetChange('this_month');
-    setAccountIdFilter('all');
-    setCategoryIdFilter('all');
+    setSelectedAccountIds([]);
+    setSelectedCategoryIds([]);
+    setCurrencyFilter('all');
   }, [handlePresetChange]);
 
   // Options for Dropdowns
+  const typeOptions = useMemo(() => [
+    { value: 'all', label: t('transactions.filterAll', {}, language === 'es' ? 'Todos los tipos' : 'All Types') },
+    { value: 'expense', label: t('transactions.filterExpenses', {}, language === 'es' ? 'Gastos' : 'Expenses'), emoji: '📉' },
+    { value: 'income', label: t('transactions.filterIncomes', {}, language === 'es' ? 'Ingresos' : 'Income'), emoji: '📈' },
+    { value: 'transfer', label: t('transactions.filterTransfers', {}, language === 'es' ? 'Transferencias' : 'Transfers'), emoji: '🔄' }
+  ], [t, language]);
+
   const datePresetOptions = useMemo(() => [
-    { value: 'this_month', label: t('transactions.presets.thisMonth', {}, 'Este Mes') },
-    { value: 'last_month', label: t('transactions.presets.lastMonth', {}, 'Mes Anterior') },
-    { value: 'last_30_days', label: t('transactions.presets.last30Days', {}, 'Últimos 30 Días') },
-    { value: 'this_year', label: t('transactions.presets.thisYear', {}, 'Este Año') },
-    { value: 'all', label: t('transactions.presets.allHistory', {}, 'Todo el Historial') },
-    { value: 'custom', label: t('transactions.presets.custom', {}, 'Personalizado') }
-  ], [t]);
+    { value: 'this_month', label: t('transactions.presets.thisMonth', {}, language === 'es' ? 'Este Mes' : 'This Month') },
+    { value: 'last_month', label: t('transactions.presets.lastMonth', {}, language === 'es' ? 'Mes Anterior' : 'Last Month') },
+    { value: 'last_30_days', label: t('transactions.presets.last30Days', {}, language === 'es' ? 'Últimos 30 Días' : 'Last 30 Days') },
+    { value: 'this_year', label: t('transactions.presets.thisYear', {}, language === 'es' ? 'Este Año' : 'This Year') },
+    { value: 'all', label: t('transactions.presets.allHistory', {}, language === 'es' ? 'Todo el Historial' : 'All History') },
+    { value: 'custom', label: t('transactions.presets.custom', {}, language === 'es' ? 'Personalizado' : 'Custom Range') }
+  ], [t, language]);
 
   const accountOptions = useMemo(() => [
-    { value: 'all', label: t('transactions.allAccounts', {}, 'Todas las Cuentas') },
     ...safeAccountsList.map(a => ({ 
       value: a.id, 
       name: a.name, 
@@ -150,41 +147,58 @@ export default function TransactionsModule() {
       currency: a.currency || 'USD',
       label: a.name 
     }))
-  ], [safeAccountsList, t]);
+  ], [safeAccountsList]);
 
   const categoryOptions = useMemo(() => [
-    { value: 'all', label: t('transactions.allCategories', {}, 'Todas las Categorías') },
     ...safeCategoriesList.map(c => ({ 
       value: c.id, 
       name: c.name, 
       emoji: c.emoji || '🏷️', 
       label: c.name 
     }))
-  ], [safeCategoriesList, t]);
+  ], [safeCategoriesList]);
+
+  const currencyOptions = useMemo(() => {
+    const set = new Set(safeTxList.map(t => t.currency || baseCurrency));
+    if (baseCurrency) set.add(baseCurrency);
+    return [
+      { value: 'all', label: t('common.allCurrencies', {}, language === 'es' ? 'Todas las divisas' : 'All Currencies'), emoji: '🌐' },
+      ...Array.from(set).map(c => ({
+        value: c,
+        label: c,
+        name: c,
+        emoji: '💱'
+      }))
+    ];
+  }, [safeTxList, baseCurrency, t, language]);
 
   // Filtering Logic
   const filteredTx = useMemo(() => {
     return safeTxList.filter((tx) => {
       if (!tx) return false;
 
-      // Type Filter
+      // 1. Type Filter
       if (typeFilter !== 'all' && tx.type !== typeFilter) return false;
 
-      // Account Filter
-      if (accountIdFilter !== 'all') {
-        const txAccId = tx.accountId || tx.account_id;
-        const txDestId = tx.targetAccountId || tx.destinationAccountId || tx.destination_account_id;
-        const matchAcc = txAccId === accountIdFilter || txDestId === accountIdFilter;
+      // 2. Currency Filter
+      if (currencyFilter !== 'all' && (tx.currency || baseCurrency) !== currencyFilter) return false;
+
+      // 3. Account Filter (Multi-select: match if any selected account matches source or destination)
+      if (selectedAccountIds.length > 0) {
+        const txAccId = String(tx.accountId || tx.account_id || '');
+        const txDestId = String(tx.targetAccountId || tx.destinationAccountId || tx.destination_account_id || '');
+        const matchAcc = selectedAccountIds.some(id => String(id) === txAccId || String(id) === txDestId);
         if (!matchAcc) return false;
       }
 
-      // Category Filter (Preserve transactions with categoryId: null when all categories are selected)
-      if (categoryIdFilter !== 'all') {
-        const txCatId = tx.categoryId || tx.category_id;
-        if (txCatId !== categoryIdFilter) return false;
+      // 4. Category Filter (Multi-select)
+      if (selectedCategoryIds.length > 0) {
+        const txCatId = String(tx.categoryId || tx.category_id || '');
+        const matchCat = selectedCategoryIds.some(id => String(id) === txCatId);
+        if (!matchCat) return false;
       }
 
-      // Search Query
+      // 5. Search Query
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase();
         const descMatch = (tx.description || '').toLowerCase().includes(query);
@@ -195,7 +209,7 @@ export default function TransactionsModule() {
         if (!descMatch && !catMatch && !accMatch) return false;
       }
 
-      // Date Range Filter (Safe ISO date string comparison)
+      // 6. Date Range Filter (Safe ISO date string comparison)
       const rawDate = tx.date || tx.transactionDate || tx.transaction_date || '';
       const txDate = rawDate ? (rawDate.includes('T') ? rawDate.split('T')[0] : rawDate) : '';
       if (startDate && txDate && txDate < startDate) return false;
@@ -203,7 +217,7 @@ export default function TransactionsModule() {
 
       return true;
     });
-  }, [safeTxList, typeFilter, accountIdFilter, categoryIdFilter, searchQuery, startDate, endDate, safeAccountsList, safeCategoriesList]);
+  }, [safeTxList, typeFilter, currencyFilter, selectedAccountIds, selectedCategoryIds, searchQuery, startDate, endDate, safeAccountsList, safeCategoriesList, baseCurrency]);
 
   // Dynamic Totals Calculation
   const { totalIncome, totalExpense, netFlow } = useMemo(() => {
@@ -223,12 +237,12 @@ export default function TransactionsModule() {
 
   // Smart Pagination State
   const [currentPage, setCurrentPage] = React.useState(1);
-  const [pageSize, setPageSize] = React.useState(10);
+  const [pageSize, setPageSize] = React.useState(30);
 
   // Reset page to 1 when filters change
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [typeFilter, accountIdFilter, categoryIdFilter, searchQuery, startDate, endDate]);
+  }, [typeFilter, currencyFilter, selectedAccountIds, selectedCategoryIds, searchQuery, startDate, endDate]);
 
   const totalPages = Math.ceil(filteredTx.length / pageSize) || 1;
 
@@ -356,7 +370,7 @@ export default function TransactionsModule() {
     <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-32 md:pb-6">
       
       {/* Standardized Header */}
-      <header className="flex items-center justify-between gap-2.5 w-full relative z-30">
+      <header className="flex items-center justify-between gap-3 w-full relative z-30">
         <div className="min-w-0 flex-1">
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white leading-tight truncate">
             {t('transactions.title', {}, 'Historial de Transacciones')}
@@ -367,17 +381,25 @@ export default function TransactionsModule() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <Button
-            size="md"
-            variant="primary"
-            icon={Plus}
+          <ExportDropdown
+            data={filteredTx}
+            columns={transactionColumns}
+            title={t('transactions.title', {}, 'Historial de Transacciones')}
+            filename={exportFilename}
+            summary={transactionSummary}
+          />
+          <button
+            type="button"
             onClick={() => {
               setTxToEdit(null);
               setIsModalOpen(true);
             }}
+            className="bg-[var(--accent)] text-black font-semibold h-9 px-4 rounded-xl inline-flex items-center gap-2 text-sm shadow-sm hover:opacity-90 transition-opacity cursor-pointer shrink-0"
+            title={t('transactions.newTransaction', {}, 'Nueva Transacción')}
           >
+            <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">{t('transactions.newTransaction', {}, 'Nueva Transacción')}</span>
-          </Button>
+          </button>
         </div>
       </header>
 
@@ -414,232 +436,112 @@ export default function TransactionsModule() {
         </div>
       </SectionKpiHero>
 
-      {/* MOBILE COMPACT FILTER TOOLBAR (< lg) */}
-      <div className="lg:hidden space-y-2.5 w-full relative z-20">
-        {/* Full-width Search Bar */}
-        <div className="relative w-full">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+      {/* UNIFIED CARBON-GRAY FILTER BAR */}
+      <div className="w-full bg-[#0D1117]/90 border border-white/10 rounded-2xl p-3 gap-2.5 sm:gap-3 flex flex-wrap items-center relative z-20 backdrop-blur-xl shadow-lg">
+        {/* 1. Tipo de Transacción */}
+        <div className="w-[125px] sm:w-[135px] shrink-0">
+          <CustomSelect
+            options={typeOptions}
+            value={typeFilter}
+            onChange={setTypeFilter}
+            isSmall
+          />
+        </div>
+
+        {/* 2. Período */}
+        <div className="w-[135px] sm:w-[145px] shrink-0">
+          <CustomSelect
+            options={datePresetOptions}
+            value={datePreset}
+            onChange={handlePresetChange}
+            isSmall
+          />
+        </div>
+
+        {/* Fechas personalizadas condicionales */}
+        {datePreset === 'custom' && (
+          <div className="flex items-center gap-1.5 shrink-0">
+            <div className="w-28 sm:w-32">
+              <CustomDatePicker
+                value={startDate}
+                onChange={(newDate) => setStartDate(newDate)}
+                placeholder={t('transactions.from', {}, language === 'es' ? 'Desde' : 'From')}
+                isSmall
+              />
+            </div>
+            <span className="text-slate-500 text-xs font-bold">—</span>
+            <div className="w-28 sm:w-32">
+              <CustomDatePicker
+                value={endDate}
+                onChange={(newDate) => setEndDate(newDate)}
+                placeholder={t('transactions.to', {}, language === 'es' ? 'Hasta' : 'To')}
+                isSmall
+              />
+            </div>
+          </div>
+        )}
+
+        {/* 3. Cuentas Afectadas (Multi-select) */}
+        <div className="w-[140px] sm:w-[160px] shrink-0">
+          <CustomSelect
+            isMulti
+            options={accountOptions}
+            value={selectedAccountIds}
+            onChange={setSelectedAccountIds}
+            placeholder={t('transactions.accountsPlaceholder', {}, language === 'es' ? 'Cuentas' : 'Accounts')}
+            allLabel={t('transactions.allAccounts', {}, language === 'es' ? 'Todas las cuentas' : 'All Accounts')}
+            isSmall
+          />
+        </div>
+
+        {/* 4. Categorías (Multi-select) */}
+        <div className="w-[140px] sm:w-[160px] shrink-0">
+          <CustomSelect
+            isMulti
+            options={categoryOptions}
+            value={selectedCategoryIds}
+            onChange={setSelectedCategoryIds}
+            placeholder={t('transactions.categoriesPlaceholder', {}, language === 'es' ? 'Categorías' : 'Categories')}
+            allLabel={t('transactions.allCategories', {}, language === 'es' ? 'Todas las categorías' : 'All Categories')}
+            isSmall
+          />
+        </div>
+
+        {/* 5. Divisa */}
+        <div className="w-[110px] sm:w-[125px] shrink-0">
+          <CustomSelect
+            options={currencyOptions}
+            value={currencyFilter}
+            onChange={setCurrencyFilter}
+            isSmall
+          />
+        </div>
+
+        {/* 6. Barra de Búsqueda */}
+        <div className="flex-1 min-w-[180px] relative">
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={t('common.search', {}, 'Buscar por descripción, cuenta o categoría...')}
-            className="w-full h-10 pl-9 pr-3 rounded-xl bg-[#121721] border border-white/10 text-xs font-medium text-white focus:outline-none focus:border-[var(--accent,#97F2CC)] shadow-inner transition-colors"
+            placeholder={t('transactions.searchPlaceholder', {}, language === 'es' ? 'Buscar transacciones...' : 'Search transactions...')}
+            className="w-full h-9 pl-9 pr-3 rounded-xl bg-[#121721] border border-white/10 text-xs font-medium text-white placeholder:text-slate-500 focus:outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
           />
         </div>
 
-        {/* Quick Chips & Filter Trigger Row with Fluid Horizontal Scroll */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full pb-1 pr-4">
-          {/* Quick Type Chips */}
+        {/* 7. Limpiar Filtros */}
+        {isFilterActive && (
           <button
-            onClick={() => setTypeFilter('all')}
-            className={`h-9 px-3.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center shrink-0 cursor-pointer ${
-              typeFilter === 'all' ? 'bg-[var(--accent,#97F2CC)] text-[var(--accent-text,#091E15)] shadow-sm scale-[1.01]' : 'bg-white/5 text-slate-300 hover:text-white border border-white/5'
-            }`}
+            type="button"
+            onClick={resetFilters}
+            className="h-9 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-rose-300 border border-white/10 flex items-center gap-1.5 transition-all shrink-0 cursor-pointer"
+            title={t('transactions.clearFilters', {}, language === 'es' ? 'Limpiar filtros' : 'Clear filters')}
           >
-            {t('transactions.filterAll', {}, 'Todos')}
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>{t('common.clear', {}, language === 'es' ? 'Limpiar' : 'Clear')}</span>
           </button>
-          <button
-            onClick={() => setTypeFilter('expense')}
-            className={`h-9 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center shrink-0 cursor-pointer ${
-              typeFilter === 'expense' ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30 shadow-sm' : 'bg-white/5 text-slate-300 hover:text-white border border-white/5'
-            }`}
-          >
-            {t('transactions.filterExpenses', {}, 'Gastos')}
-          </button>
-          <button
-            onClick={() => setTypeFilter('income')}
-            className={`h-9 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center shrink-0 cursor-pointer ${
-              typeFilter === 'income' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-sm' : 'bg-white/5 text-slate-300 hover:text-white border border-white/5'
-            }`}
-          >
-            {t('transactions.filterIncomes', {}, 'Ingresos')}
-          </button>
-
-          {/* Action Triggers: Filter Modal + Export */}
-          <button
-            onClick={() => setIsFilterDrawerOpen(true)}
-            className={`h-9 px-3.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shrink-0 cursor-pointer border ${
-              activeFilterCount > 0
-                ? 'bg-white/15 border-white/40 text-white'
-                : 'bg-white/[0.04] border-white/10 text-slate-300 hover:text-white'
-            }`}
-          >
-            <Filter className="w-3.5 h-3.5" />
-            <span>{t('common.filters', {}, 'Filtros')}</span>
-            {activeFilterCount > 0 && (
-              <span className="w-4 h-4 rounded-full bg-white text-[#091E15] text-[10px] font-extrabold flex items-center justify-center">
-                {activeFilterCount}
-              </span>
-            )}
-          </button>
-
-          <div className="lg:hidden shrink-0">
-            <ExportDropdown
-              data={filteredTx}
-              columns={transactionColumns}
-              title={t('transactions.title', {}, 'Historial de Transacciones')}
-              filename={exportFilename}
-              summary={transactionSummary}
-            />
-          </div>
-
-          {isFilterActive && (
-            <button
-              onClick={resetFilters}
-              className="h-9 px-3 rounded-xl bg-rose-500/10 text-rose-300 border border-rose-500/20 text-xs font-bold flex items-center shrink-0 cursor-pointer"
-              title={t('transactions.clearFilters', {}, 'Limpiar Filtros')}
-            >
-              <RotateCcw className="w-3.5 h-3.5 mr-1" />
-              <span>{t('common.clear', {}, 'Limpiar')}</span>
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* DESKTOP FILTER BAR (>= lg) - UNIFIED SINGLE ROW */}
-      <div className="hidden lg:block mb-6 relative z-30">
-        <div className="flex items-center justify-between gap-3 p-2.5 bg-[#0D1117]/80 rounded-2xl border border-white/10 backdrop-blur-xl shadow-lg flex-wrap">
-          {/* Segmented Control de Tipo */}
-          <div className="flex items-center gap-1 bg-black/25 p-1 rounded-xl shrink-0">
-            <button
-              onClick={() => setTypeFilter('all')}
-              className={`h-8 px-3 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center cursor-pointer ${
-                typeFilter === 'all' ? 'bg-[var(--accent,#97F2CC)] text-[var(--accent-text,#091E15)] shadow-sm' : 'text-slate-300 hover:text-white'
-              }`}
-            >
-              {t('transactions.filterAll', {}, 'Todos')}
-            </button>
-            <button
-              onClick={() => setTypeFilter('expense')}
-              className={`h-8 px-3 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center cursor-pointer ${
-                typeFilter === 'expense' ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30 shadow-sm' : 'text-slate-300 hover:text-white'
-              }`}
-            >
-              {t('transactions.filterExpenses', {}, 'Gastos')}
-            </button>
-            <button
-              onClick={() => setTypeFilter('income')}
-              className={`h-8 px-3 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center cursor-pointer ${
-                typeFilter === 'income' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-sm' : 'text-slate-300 hover:text-white'
-              }`}
-            >
-              {t('transactions.filterIncomes', {}, 'Ingresos')}
-            </button>
-            <button
-              onClick={() => setTypeFilter('transfer')}
-              className={`h-8 px-3 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center cursor-pointer ${
-                typeFilter === 'transfer' ? 'bg-sky-500/15 text-sky-400 border border-sky-500/30 shadow-sm' : 'text-slate-300 hover:text-white'
-              }`}
-            >
-              {t('transactions.filterTransfers', {}, 'Transferencias')}
-            </button>
-          </div>
-
-          {/* Buscador */}
-          <div className="flex-1 min-w-[180px] relative">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t('common.search', {}, 'Buscar transacciones...')}
-              className="w-full h-9 pl-9 pr-3 text-sm bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-500 focus:outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
-            />
-          </div>
-
-          {/* Selects Compactos de Rango, Cuenta, Categoría & Exportar */}
-          <div className="flex items-center gap-2 shrink-0">
-            <div className="min-w-[130px]">
-              <CustomSelect
-                options={datePresetOptions}
-                value={datePreset}
-                onChange={handlePresetChange}
-              />
-            </div>
-            <div className="min-w-[130px]">
-              <CustomSelect
-                options={accountOptions}
-                value={accountIdFilter}
-                onChange={setAccountIdFilter}
-              />
-            </div>
-            <div className="min-w-[130px]">
-              <CustomSelect
-                options={categoryOptions}
-                value={categoryIdFilter}
-                onChange={setCategoryIdFilter}
-              />
-            </div>
-            <ExportDropdown
-              data={filteredTx}
-              columns={transactionColumns}
-              title={t('transactions.title', {}, 'Historial de Transacciones')}
-              filename={exportFilename}
-              summary={transactionSummary}
-            />
-            {isFilterActive && (
-              <button
-                onClick={resetFilters}
-                className="h-11 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-rose-300 border border-rose-500/20 flex items-center gap-1.5 transition-all shrink-0 cursor-pointer"
-                title={t('transactions.clearFilters', {}, 'Limpiar')}
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>{t('transactions.clearFilters', {}, 'Limpiar')}</span>
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Fechas personalizadas condicionales si el usuario elige "custom" */}
-        {datePreset === 'custom' && (
-          <div className="flex items-center gap-2 mt-2 animate-fadeIn">
-            <div className="flex items-center gap-2 p-2 bg-[#0D1117]/80 rounded-xl border border-white/10">
-              <span className="text-[11px] font-semibold text-slate-400 shrink-0 pl-1">{t('transactions.from', {}, 'Desde')}</span>
-              <div className="w-32">
-                <CustomDatePicker
-                  value={startDate}
-                  onChange={(newDate) => setStartDate(newDate)}
-                  placeholder={t('transactions.from', {}, 'Desde')}
-                />
-              </div>
-              <span className="text-[11px] font-semibold text-slate-400 shrink-0">—</span>
-              <span className="text-[11px] font-semibold text-slate-400 shrink-0">{t('transactions.to', {}, 'Hasta')}</span>
-              <div className="w-32">
-                <CustomDatePicker
-                  value={endDate}
-                  onChange={(newDate) => setEndDate(newDate)}
-                  placeholder={t('transactions.to', {}, 'Hasta')}
-                />
-              </div>
-            </div>
-          </div>
         )}
-      </div>
-
-      {/* MOBILE ADVANCED FILTER MODAL VIA PORTAL */}
-      <AdvancedFiltersModal
-        isOpen={isFilterDrawerOpen}
-        onClose={() => setIsFilterDrawerOpen(false)}
-        typeFilter={typeFilter}
-        setTypeFilter={setTypeFilter}
-        datePreset={datePreset}
-        setDatePreset={setDatePreset}
-        handlePresetChange={handlePresetChange}
-        datePresetOptions={datePresetOptions}
-        startDate={startDate}
-        setStartDate={setStartDate}
-        endDate={endDate}
-        setEndDate={setEndDate}
-        accountIdFilter={accountIdFilter}
-        setAccountIdFilter={setAccountIdFilter}
-        accountOptions={accountOptions}
-        categoryIdFilter={categoryIdFilter}
-        setCategoryIdFilter={setCategoryIdFilter}
-        categoryOptions={categoryOptions}
-        activeFilterCount={activeFilterCount}
-        resetFilters={resetFilters}
-      />      {/* Structured High-Density Feed */}
+      </div>      {/* Structured High-Density Feed */}
       <div className="w-full space-y-6 relative z-10">
         {sortedDates.length === 0 ? (
           safeTxList.length === 0 ? (
@@ -795,7 +697,7 @@ export default function TransactionsModule() {
         currentPage={currentPage}
         totalItems={filteredTx.length}
         pageSize={pageSize}
-        pageSizeOptions={[10, 30, 50]}
+        pageSizeOptions={[30, 50, 100]}
         onPageChange={setCurrentPage}
         onPageSizeChange={(newSize) => {
           setPageSize(newSize);

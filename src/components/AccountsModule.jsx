@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Plus, Trash2, Wallet, Search } from 'lucide-react';
+import { Plus, Trash2, Wallet, Search, RotateCcw } from 'lucide-react';
 import Button from './Button';
 import EmptyState from './common/EmptyState';
 import AccountModal from './AccountModal';
@@ -21,47 +21,43 @@ export default function AccountsModule() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [accountToEdit, setAccountToEdit] = useState(null);
   const [accountToDelete, setAccountToDelete] = useState(null);
-  const [currencyFilter, setCurrencyFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [currencyFilter, setCurrencyFilter] = useState('all');
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(30);
 
   const safeAccountsList = useMemo(() => {
-    const list = Array.isArray(accounts) ? accounts.filter(Boolean) : [];
-    return [...list].sort((a, b) => 
-      (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' })
-    );
+    return Array.isArray(accounts) ? accounts.filter(Boolean) : [];
   }, [accounts]);
 
+  // Unique currency options for filtering
   const uniqueCurrencies = useMemo(() => {
-    const codes = [...new Set(safeAccountsList.map(a => a?.currency || 'USD'))];
+    const set = new Set(safeAccountsList.map(a => a?.currency || 'USD'));
+    const options = Array.from(set).map(curr => ({
+      value: curr,
+      label: curr,
+      name: curr,
+      emoji: '💱'
+    }));
     return [
-      { value: 'all', label: t('accounts.allCurrencies', {}, 'Todas las Divisas') },
-      ...codes.map(c => {
-        const item = CURRENCY_MAP[c];
-        const isEs = String(language || 'es').toLowerCase().startsWith('es');
-        const localizedName = item ? (isEs ? item.name : item.nameEn) : c;
-        return {
-          value: c,
-          label: `${item?.flag || '🌐'} ${c} - ${localizedName}`
-        };
-      })
+      { value: 'all', label: t('common.allCurrencies', {}, language === 'es' ? 'Todas las divisas' : 'All Currencies'), name: t('common.allCurrencies', {}, language === 'es' ? 'Todas las divisas' : 'All Currencies'), emoji: '🌐' },
+      ...options
     ];
   }, [safeAccountsList, t, language]);
 
+  // Filtered Accounts
   const filteredAccounts = useMemo(() => {
-    return safeAccountsList.filter(a => {
-      if (currencyFilter !== 'all' && (a.currency || 'USD') !== currencyFilter) return false;
-      if (!searchTerm.trim()) return true;
-      const q = searchTerm.toLowerCase();
-      return (a.name || '').toLowerCase().includes(q) ||
-        (a.currency || '').toLowerCase().includes(q);
+    return safeAccountsList.filter(acc => {
+      const matchesSearch = (acc?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            (acc?.currency || '').toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCurrency = currencyFilter === 'all' || (acc?.currency || 'USD') === currencyFilter;
+      return matchesSearch && matchesCurrency;
     });
   }, [safeAccountsList, searchTerm, currencyFilter]);
 
-  // Reset page when filters change
+  // Reset page on filter change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, currencyFilter]);
@@ -71,42 +67,37 @@ export default function AccountsModule() {
     return filteredAccounts.slice(start, start + pageSize);
   }, [filteredAccounts, currentPage, pageSize]);
 
+  // Consolidated Balance in Base Currency
+  const totalConsolidatedBalance = useMemo(() => {
+    return safeAccountsList.reduce((sum, acc) => {
+      const rawBalance = parseNumeric(acc?.balance, 0);
+      const converted = (!acc?.currency || acc.currency === baseCurrency)
+        ? rawBalance
+        : convertToGlobal(rawBalance, acc.currency);
+      return sum + converted;
+    }, 0);
+  }, [safeAccountsList, convertToGlobal, baseCurrency]);
+
   const isEs = language === 'es';
 
   const accountColumns = useMemo(() => [
-    { 
-      label: isEs ? 'Nombre de Cuenta' : 'Account Name', 
-      accessor: (a) => a.name || '-' 
-    },
-    { 
-      label: isEs ? 'Moneda' : 'Currency', 
-      accessor: (a) => a.currency || 'USD' 
-    },
-    { 
-      label: isEs ? 'Balance Disponible' : 'Available Balance', 
-      accessor: (a) => Number(a.balance || 0).toFixed(2) 
-    },
-    { 
-      label: isEs ? `Balance en ${baseCurrency}` : `Balance in ${baseCurrency}`, 
-      accessor: (a) => convertToGlobal(parseNumeric(a.balance, 0), a.currency || 'USD').toFixed(2) 
-    }
+    { label: isEs ? 'Nombre' : 'Name', accessor: (a) => a?.name || '-' },
+    { label: isEs ? 'Divisa' : 'Currency', accessor: (a) => a?.currency || 'USD' },
+    { label: isEs ? 'Saldo' : 'Balance', accessor: (a) => parseNumeric(a?.balance, 0).toFixed(2) },
+    { label: isEs ? 'Saldo en ' + baseCurrency : 'Balance in ' + baseCurrency, accessor: (a) => {
+      const rawBalance = parseNumeric(a?.balance, 0);
+      const converted = (!a?.currency || a.currency === baseCurrency)
+        ? rawBalance
+        : convertToGlobal(rawBalance, a.currency);
+      return converted.toFixed(2);
+    }}
   ], [isEs, baseCurrency, convertToGlobal]);
 
-  // Reactive Consolidated Balance converted to Base Currency
-  const totalConsolidatedBalance = useMemo(() => {
-    return (filteredAccounts || []).reduce((sum, acc) => {
-      if (!acc) return sum;
-      const accCurr = acc?.currency || 'USD';
-      const balance = parseNumeric(acc?.balance, 0);
-      return sum + (convertToGlobal ? convertToGlobal(balance, accCurr) : balance);
-    }, 0);
-  }, [filteredAccounts, convertToGlobal]);
-
   const accountSummary = useMemo(() => ({
-    totalRecords: filteredAccounts?.length || 0,
-    consolidatedTotal: `${formatCurrency ? formatCurrency(totalConsolidatedBalance, baseCurrency) : totalConsolidatedBalance}`,
+    totalRecords: filteredAccounts.length,
+    consolidatedTotal: formatCurrency(totalConsolidatedBalance, baseCurrency),
     baseCurrency
-  }), [filteredAccounts?.length, totalConsolidatedBalance, baseCurrency, formatCurrency]);
+  }), [filteredAccounts.length, totalConsolidatedBalance, baseCurrency, formatCurrency]);
 
   const exportFilename = isEs ? 'Growy_Cuentas' : 'Growy_Accounts';
 
@@ -130,7 +121,7 @@ export default function AccountsModule() {
     <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-32 md:pb-6">
       
       {/* Standardized Header */}
-      <header className="flex items-center justify-between gap-2.5 w-full relative z-30">
+      <header className="flex items-center justify-between gap-3 w-full relative z-30">
         <div className="min-w-0 flex-1">
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white leading-tight truncate">
             {t('accounts.title', {}, 'Gestión de Cuentas')}
@@ -141,28 +132,26 @@ export default function AccountsModule() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <div className="hidden sm:block">
-            <ExportDropdown
-              data={filteredAccounts}
-              columns={accountColumns}
-              title={t('accounts.title', {}, 'Gestión de Cuentas')}
-              filename={exportFilename}
-              summary={accountSummary}
-            />
-          </div>
+          <ExportDropdown
+            data={filteredAccounts}
+            columns={accountColumns}
+            title={t('accounts.title', {}, 'Gestión de Cuentas')}
+            filename={exportFilename}
+            summary={accountSummary}
+          />
 
-          <Button
-            size="md"
-            variant="primary"
-            icon={Plus}
+          <button
+            type="button"
             onClick={() => {
               setAccountToEdit(null);
               setIsModalOpen(true);
             }}
+            className="bg-[var(--accent)] text-black font-semibold h-9 px-4 rounded-xl inline-flex items-center gap-2 text-sm shadow-sm hover:opacity-90 transition-opacity cursor-pointer shrink-0"
             title={t('accounts.newAccount', {}, 'Nueva Cuenta')}
           >
+            <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">{t('accounts.newAccount', {}, 'Nueva Cuenta')}</span>
-          </Button>
+          </button>
         </div>
       </header>
 
@@ -183,39 +172,45 @@ export default function AccountsModule() {
         isLoading={isLoading || !isInitialized}
       />
 
-      {/* RESPONSIVE TOOLBAR: 2 Rows on Mobile (< sm), 1 Row on Desktop (sm:) */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 relative z-20">
-        {/* Search Input - Full width on mobile */}
-        <div className="w-full sm:flex-1 relative order-1 sm:order-2">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+      {/* 3. TOOLBAR: UNIFIED CARBON-GRAY FILTER BAR */}
+      <div className="w-full bg-[#0D1117]/90 border border-white/10 rounded-2xl p-3 gap-2.5 sm:gap-3 flex flex-wrap items-center relative z-20 backdrop-blur-xl shadow-lg">
+        {/* Filtro de Divisa */}
+        <div className="w-[120px] sm:w-[135px] shrink-0">
+          <CustomSelect
+            options={uniqueCurrencies}
+            value={currencyFilter}
+            onChange={setCurrencyFilter}
+            isSmall
+          />
+        </div>
+
+        {/* Buscador */}
+        <div className="flex-1 min-w-[180px] relative">
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder={t('placeholders.search', {}, 'Buscar por nombre o divisa...')}
-            className="w-full h-11 pl-9 pr-3 bg-[#121721] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[var(--accent,#97F2CC)] shadow-inner transition-colors"
+            placeholder={t('accounts.searchPlaceholder', {}, language === 'es' ? 'Buscar por nombre o divisa...' : 'Search by name or currency...')}
+            className="w-full h-9 pl-9 pr-3 rounded-xl bg-[#121721] border border-white/10 text-xs font-medium text-white placeholder:text-slate-500 focus:outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
           />
         </div>
 
-        {/* Currency Filter & Mobile Export */}
-        <div className="flex items-center justify-between gap-2.5 w-full sm:w-auto order-2 sm:order-1">
-          <div className="w-full sm:w-44 shrink-0 flex-1 sm:flex-none">
-            <CustomSelect
-              options={uniqueCurrencies}
-              value={currencyFilter}
-              onChange={setCurrencyFilter}
-            />
-          </div>
-          <div className="sm:hidden shrink-0">
-            <ExportDropdown
-              data={filteredAccounts}
-              columns={accountColumns}
-              title={t('accounts.title', {}, 'Gestión de Cuentas')}
-              filename={exportFilename}
-              summary={accountSummary}
-            />
-          </div>
-        </div>
+        {/* Reset Button */}
+        {(searchTerm || (currencyFilter && currencyFilter !== 'all')) && (
+          <button
+            type="button"
+            onClick={() => {
+              setSearchTerm('');
+              setCurrencyFilter('all');
+            }}
+            className="h-9 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-rose-300 border border-white/10 flex items-center gap-1.5 transition-all shrink-0 cursor-pointer"
+            title={t('common.clearFilters', {}, language === 'es' ? 'Limpiar filtros' : 'Clear filters')}
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>{t('common.clear', {}, language === 'es' ? 'Limpiar' : 'Clear')}</span>
+          </button>
+        )}
       </div>
 
       {/* Structured Grid layout for Cards */}
@@ -236,7 +231,7 @@ export default function AccountsModule() {
               title={t('common.noResultsTitle', {}, 'No se encontraron resultados')}
               description={t('common.noResultsDesc', {}, 'Prueba ajustando los filtros o el término de búsqueda.')}
               actionLabel={t('common.clearFilters', {}, 'Limpiar filtros')}
-              onAction={() => { setSearchQuery(''); setCurrencyFilter('ALL'); }}
+              onAction={() => { setSearchTerm(''); setCurrencyFilter('all'); }}
             />
           )
         ) : (
@@ -328,7 +323,7 @@ export default function AccountsModule() {
         currentPage={currentPage}
         totalItems={filteredAccounts.length}
         pageSize={pageSize}
-        pageSizeOptions={[10, 30, 50]}
+        pageSizeOptions={[30, 50, 100]}
         onPageChange={setCurrentPage}
         onPageSizeChange={(newSize) => {
           setPageSize(newSize);

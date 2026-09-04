@@ -208,6 +208,8 @@ export default function CustomDatePicker({
     setIsOpen(false);
   }, [onChange]);
 
+  const isSmall = className?.includes('h-9');
+
   return (
     <div className={`relative w-full ${className}`}>
       {/* Trigger Button */}
@@ -216,7 +218,7 @@ export default function CustomDatePicker({
         type="button"
         disabled={disabled}
         onClick={handleToggle}
-        className={`form-input w-full h-11 px-3.5 bg-[#121721] border border-white/[0.08] rounded-xl text-xs sm:text-sm font-medium text-white flex items-center justify-between hover:border-[var(--accent,#97F2CC)]/50 active:scale-[0.99] transition-all shadow-inner cursor-pointer select-none ${
+        className={`form-input w-full ${isSmall ? 'h-9 px-2.5 text-xs' : 'h-11 px-3.5 text-xs sm:text-sm'} bg-[#121721] border border-white/10 rounded-xl font-medium text-white flex items-center justify-between hover:border-[var(--accent,#97F2CC)]/50 active:scale-[0.99] transition-all shadow-inner cursor-pointer select-none ${
           disabled ? 'opacity-50 cursor-not-allowed' : ''
         } ${isOpen ? 'border-[var(--accent,#97F2CC)] ring-1 ring-[var(--accent,#97F2CC)]' : ''}`}
       >

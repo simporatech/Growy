@@ -599,27 +599,27 @@ export default function DashboardPreview({ user, onLogout }) {
 
                 {/* QUICK CREATION DROPDOWN */}
                 <div className="relative inline-block z-50 shrink-0" ref={menuRef}>
-                  <div className="inline-flex items-stretch bg-[var(--accent,#97F2CC)] rounded-xl overflow-hidden shadow-md shadow-[var(--accent,#97F2CC)]/15 h-11 md:h-10">
+                  <div className="inline-flex items-stretch bg-[var(--accent,#97F2CC)] rounded-xl overflow-hidden shadow-sm h-9">
                     <button 
                       onClick={() => {
                         setInitialTxType('expense');
                         setIsTxModalOpen(true);
                       }}
-                      className="px-3 sm:px-4 font-bold text-xs sm:text-sm text-[var(--accent-text,#091E15)] hover:brightness-105 active:scale-[0.98] transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
+                      className="px-3 sm:px-4 font-semibold text-xs sm:text-sm text-[var(--accent-text,#091E15)] hover:opacity-90 active:scale-[0.98] transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
                     >
                       <Plus className="w-4 h-4 stroke-[2.5] shrink-0" />
                       <span className="hidden sm:inline">{t('speedActions.newMovement', {}, 'Nuevo Movimiento')}</span>
                     </button>
 
-                    <div className="w-[1px] bg-black/15 my-2" />
+                    <div className="w-[1px] bg-black/15 my-1.5" />
 
                     <button
                       onClick={() => setIsQuickMenuOpen(!isQuickMenuOpen)}
-                      className="px-2.5 sm:px-3 hover:brightness-105 active:scale-[0.98] transition-all flex items-center justify-center text-[var(--accent-text,#091E15)] cursor-pointer"
+                      className="px-2.5 sm:px-3 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center text-[var(--accent-text,#091E15)] cursor-pointer"
                       title={t('dashboard.quickActions', {}, 'Opciones de registro rápido')}
                       aria-label={t('dashboard.quickActions', {}, 'Opciones de registro rápido')}
                     >
-                      <ChevronDown className={`w-4 h-4 stroke-[2.5] transition-transform duration-200 ${isQuickMenuOpen ? 'rotate-180' : ''}`} />
+                      <ChevronDown className={`w-3.5 h-3.5 stroke-[2.5] transition-transform duration-200 ${isQuickMenuOpen ? 'rotate-180' : ''}`} />
                     </button>
                   </div>
 
@@ -711,14 +711,14 @@ export default function DashboardPreview({ user, onLogout }) {
                 {/* KPI 1: Patrimonio Neto Real (Colspan 2 en mobile, 1 en desktop) */}
                 <div 
                   onClick={() => setActiveTab('accounts')}
-                  className="col-span-2 lg:col-span-1 growy-glass growy-card-hover rounded-2xl h-auto lg:h-32 p-4 lg:p-5 bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 flex flex-col justify-between space-y-1 lg:space-y-0 overflow-hidden isolate transform-gpu-layer cursor-pointer transition-all duration-200 hover:border-[var(--accent)]/40 hover:scale-[1.01] active:scale-[0.99] group"
+                  className="col-span-2 lg:col-span-1 growy-glass growy-card-hover rounded-2xl min-h-[120px] lg:min-h-[128px] h-auto p-4 lg:p-5 bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 flex flex-col justify-between space-y-2 lg:space-y-1.5 isolate transform-gpu-layer cursor-pointer transition-all duration-200 hover:border-[var(--accent)]/40 hover:scale-[1.01] active:scale-[0.99] group"
                   title={t('dashboard.viewAccounts', {}, 'Ver Cuentas')}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 group-hover:text-white transition-colors">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 group-hover:text-white transition-colors truncate">
                       {t('dashboard.netWealth', {}, 'Patrimonio Neto')}
                     </span>
-                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] border border-[var(--accent,#97F2CC)]/20">
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] border border-[var(--accent,#97F2CC)]/20 shrink-0">
                       {baseCurrency}
                     </span>
                   </div>
@@ -729,13 +729,22 @@ export default function DashboardPreview({ user, onLogout }) {
                     </div>
                   ) : (
                     <>
-                      <div className="text-xl lg:text-2xl font-bold tracking-tight text-white tabular-nums group-hover:text-[var(--accent)] transition-colors">
+                      <div className="text-xl lg:text-2xl font-bold tracking-tight text-white tabular-nums group-hover:text-[var(--accent)] transition-colors truncate">
                         {formatCurrency(netWealth, baseCurrency)}
                       </div>
-                      <div className="flex items-center gap-2 sm:gap-3 text-xs text-slate-300 font-medium tabular-nums flex-wrap pt-0.5">
-                        <span className="text-emerald-400 font-semibold">{formatCurrency(totalAssets, baseCurrency)} {t('dashboard.assets', {}, 'Activos')}</span>
-                        <span className="text-slate-400">•</span>
-                        <span className="text-rose-400 font-semibold">{formatCurrency(totalPendingDebt, baseCurrency)} {t('dashboard.liabilities', {}, 'Pasivos')}</span>
+                      <div className="grid grid-cols-2 gap-2 text-[11px] font-medium tabular-nums pt-1 border-t border-white/5">
+                        <div className="flex items-center gap-1.5 min-w-0" title={`${formatCurrency(totalAssets, baseCurrency)} ${t('dashboard.assets', {}, 'Activos')}`}>
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+                          <span className="text-emerald-400 font-semibold truncate">
+                            {formatCurrency(totalAssets, baseCurrency)}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-end gap-1.5 min-w-0" title={`${formatCurrency(totalPendingDebt, baseCurrency)} ${t('dashboard.liabilities', {}, 'Pasivos')}`}>
+                          <span className="w-1.5 h-1.5 rounded-full bg-rose-400 shrink-0" />
+                          <span className="text-rose-400 font-semibold truncate text-right">
+                            {formatCurrency(totalPendingDebt, baseCurrency)}
+                          </span>
+                        </div>
                       </div>
                     </>
                   )}
@@ -744,7 +753,7 @@ export default function DashboardPreview({ user, onLogout }) {
                 {/* KPI 2: Ingresos del Mes (Col 1 en mobile, 1 en desktop) */}
                 <div 
                   onClick={() => setActiveTab('transactions')}
-                  className="col-span-1 lg:col-span-1 h-24 lg:h-32 growy-glass growy-card-hover rounded-2xl p-3.5 lg:p-5 flex flex-col justify-between overflow-hidden isolate transform-gpu-layer cursor-pointer transition-all duration-200 hover:border-emerald-500/40 hover:scale-[1.01] active:scale-[0.99] group"
+                  className="col-span-1 lg:col-span-1 min-h-[120px] lg:min-h-[128px] h-auto growy-glass growy-card-hover rounded-2xl p-4 lg:p-5 flex flex-col justify-between space-y-2 lg:space-y-1.5 isolate transform-gpu-layer cursor-pointer transition-all duration-200 hover:border-emerald-500/40 hover:scale-[1.01] active:scale-[0.99] group"
                   title={t('common.viewFullHistory', {}, 'Ver Transacciones')}
                 >
                   <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 truncate block group-hover:text-white transition-colors">
@@ -760,7 +769,7 @@ export default function DashboardPreview({ user, onLogout }) {
                       <div className="text-lg lg:text-2xl font-bold tracking-tight text-emerald-400 tabular-nums truncate group-hover:scale-105 transition-transform origin-left">
                         {formatCurrency(monthlyIncomes, baseCurrency)}
                       </div>
-                      <p className="text-xs text-slate-300 font-medium truncate">
+                      <p className="text-[11px] text-slate-300 font-medium truncate pt-1 border-t border-white/5">
                         <span className="text-emerald-400 font-bold tabular-nums">
                           {incomeDiffPercentage >= 0 ? `+${incomeDiffPercentage}%` : `${incomeDiffPercentage}%`}
                         </span> <span className="hidden sm:inline">{t('dashboard.vsPrevMonth', {}, 'vs. mes anterior')}</span><span className="sm:hidden">vs mes ant.</span>
@@ -772,7 +781,7 @@ export default function DashboardPreview({ user, onLogout }) {
                 {/* KPI 3: Gastos del Mes & Burn Rate (Col 2 en mobile, 1 en desktop) */}
                 <div 
                   onClick={() => setActiveTab('transactions')}
-                  className="col-span-1 lg:col-span-1 h-24 lg:h-32 growy-glass growy-card-hover rounded-2xl p-3.5 lg:p-5 flex flex-col justify-between overflow-hidden isolate transform-gpu-layer cursor-pointer transition-all duration-200 hover:border-rose-500/40 hover:scale-[1.01] active:scale-[0.99] group"
+                  className="col-span-1 lg:col-span-1 min-h-[120px] lg:min-h-[128px] h-auto growy-glass growy-card-hover rounded-2xl p-4 lg:p-5 flex flex-col justify-between space-y-2 lg:space-y-1.5 isolate transform-gpu-layer cursor-pointer transition-all duration-200 hover:border-rose-500/40 hover:scale-[1.01] active:scale-[0.99] group"
                   title={t('common.viewFullHistory', {}, 'Ver Transacciones')}
                 >
                   <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 truncate block group-hover:text-white transition-colors">
@@ -788,7 +797,7 @@ export default function DashboardPreview({ user, onLogout }) {
                       <div className="text-lg lg:text-2xl font-bold tracking-tight text-rose-400 tabular-nums truncate group-hover:scale-105 transition-transform origin-left">
                         {formatCurrency(monthlyExpenses, baseCurrency)}
                       </div>
-                      <p className="text-xs text-slate-300 font-medium truncate">
+                      <p className="text-[11px] text-slate-300 font-medium truncate pt-1 border-t border-white/5">
                         <span className="text-rose-400 font-bold tabular-nums">
                           {expenseDiffPercentage >= 0 ? `+${expenseDiffPercentage}%` : `${expenseDiffPercentage}%`}
                         </span> <span className="hidden sm:inline">{t('dashboard.vsPrevMonth', {}, 'vs. mes anterior')}</span><span className="sm:hidden">vs mes ant.</span>
@@ -800,14 +809,14 @@ export default function DashboardPreview({ user, onLogout }) {
                 {/* KPI 4: Tasa de Ahorro Real (Colspan 2 en mobile, 1 en desktop) */}
                 <div 
                   onClick={() => setActiveTab('categories')}
-                  className="col-span-2 lg:col-span-1 h-auto lg:h-32 growy-glass growy-card-hover rounded-2xl p-3.5 lg:p-5 flex flex-col justify-between space-y-1 lg:space-y-0 overflow-hidden isolate transform-gpu-layer cursor-pointer transition-all duration-200 hover:border-[var(--accent)]/40 hover:scale-[1.01] active:scale-[0.99] group"
+                  className="col-span-2 lg:col-span-1 min-h-[120px] lg:min-h-[128px] h-auto growy-glass growy-card-hover rounded-2xl p-4 lg:p-5 flex flex-col justify-between space-y-2 lg:space-y-1.5 isolate transform-gpu-layer cursor-pointer transition-all duration-200 hover:border-[var(--accent)]/40 hover:scale-[1.01] active:scale-[0.99] group"
                   title={t('dashboard.viewCategories', {}, 'Ver Categorías')}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 group-hover:text-white transition-colors">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 group-hover:text-white transition-colors truncate">
                       {t('dashboard.savingsRate', {}, 'Tasa de Ahorro')}
                     </span>
-                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] border border-[var(--accent,#97F2CC)]/20 tabular-nums">
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] border border-[var(--accent,#97F2CC)]/20 tabular-nums shrink-0">
                       Score {financialScore}/100
                     </span>
                   </div>
@@ -818,10 +827,10 @@ export default function DashboardPreview({ user, onLogout }) {
                     </div>
                   ) : (
                     <>
-                      <div className="text-lg lg:text-2xl font-bold tracking-tight text-white tabular-nums group-hover:text-[var(--accent)] transition-colors">
+                      <div className="text-lg lg:text-2xl font-bold tracking-tight text-white tabular-nums group-hover:text-[var(--accent)] transition-colors truncate">
                         {savingsRate}%
                       </div>
-                      <p className="text-xs text-slate-300 font-medium truncate">
+                      <p className="text-[11px] text-slate-300 font-medium truncate pt-1 border-t border-white/5">
                         {netSavingsAmount >= 0 ? t('dashboard.positiveCashflow', {}, 'Superávit:') : t('dashboard.deficitCashflow', {}, 'Déficit:')} <span className="text-white font-semibold tabular-nums">{formatCurrency(netSavingsAmount, baseCurrency)}</span>
                       </p>
                     </>

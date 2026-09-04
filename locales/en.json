@@ -146,5 +146,57 @@
   "dashboard": {
     "topAccounts": "Top Accounts",
     "viewAccounts": "View Accounts"
+  },
+  "common": {
+    "allCurrencies": "All Currencies",
+    "all": "All",
+    "selected": "selected",
+    "clearFilters": "Clear filters",
+    "clear": "Clear",
+    "noResultsTitle": "No results found",
+    "noResultsDesc": "Try adjusting your filters or search term."
+  },
+  "accounts": {
+    "title": "Account Management",
+    "subtitle": "Manage your banks, cards, and cash",
+    "newAccount": "New Account",
+    "totalConsolidatedBalance": "TOTAL CONSOLIDATED BALANCE",
+    "showingRecords": "{{count}} accounts",
+    "searchPlaceholder": "Search by name or currency..."
+  },
+  "transactions": {
+    "title": "Transaction History",
+    "subtitle": "Complete records and continuous movement history",
+    "newTransaction": "New Transaction",
+    "netFlowHero": "CONSOLIDATED NET FLOW",
+    "searchPlaceholder": "Search transactions...",
+    "accountsPlaceholder": "Accounts",
+    "categoriesPlaceholder": "Categories",
+    "allAccounts": "All Accounts",
+    "allCategories": "All Categories",
+    "filterAll": "All types",
+    "filterExpenses": "Expenses",
+    "filterIncomes": "Income",
+    "filterTransfers": "Transfers",
+    "from": "From",
+    "to": "To",
+    "clearFilters": "Clear filters"
+  },
+  "subscriptions": {
+    "title": "Subscription Management",
+    "subtitle": "Recurring services and monthly automated debits",
+    "newSubscription": "New Subscription",
+    "totalMonthly": "TOTAL MONTHLY SUBSCRIPTIONS",
+    "activeServices": "{{count}} active services",
+    "searchPlaceholder": "Search by service or account...",
+    "accountsPlaceholder": "Accounts",
+    "allAccounts": "All Accounts"
+  },
+  "categories": {
+    "title": "Categories & Budgets",
+    "subtitle": "Monthly limits for expenses and income goals",
+    "newBudget": "New Budget",
+    "newGoal": "New Goal",
+    "searchPlaceholder": "Search by name..."
   }
 }

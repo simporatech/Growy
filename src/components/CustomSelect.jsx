@@ -62,7 +62,9 @@ export const CustomSelect = ({
   placeholder, 
   searchPlaceholder = null,
   className = "",
-  disabled = false
+  disabled = false,
+  isMulti = false,
+  size = 'md'
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -71,10 +73,23 @@ export const CustomSelect = ({
 
   const { t } = useSettings();
 
+  const isSmall = className?.includes('h-9') || size === 'sm';
   const resolvedPlaceholder = placeholder || t('common.select', {}, 'Seleccionar...');
   const safeOptions = Array.isArray(options) ? options : [];
-  const selectedOption = safeOptions.find(opt => opt && String(opt.value) === String(value));
+
+  const selectedValues = isMulti 
+    ? (Array.isArray(value) ? value.map(String) : [])
+    : [];
+
+  const selectedOption = !isMulti 
+    ? safeOptions.find(opt => opt && String(opt.value) === String(value))
+    : null;
   const selectedParsed = selectedOption ? parseOption(selectedOption) : null;
+
+  // For multi-select: if exactly 1 is selected, get its parsed label
+  const singleMultiSelected = isMulti && selectedValues.length === 1
+    ? parseOption(safeOptions.find(opt => opt && String(opt.value) === selectedValues[0]))
+    : null;
 
   // Activate search input ONLY when options count > 7
   const showSearch = safeOptions.length > 7;
@@ -182,11 +197,35 @@ export const CustomSelect = ({
         type="button"
         disabled={disabled}
         onClick={handleToggle}
-        className={`form-select w-full h-11 flex items-center justify-between px-3.5 bg-[#121721] border border-white/[0.08] rounded-xl text-white hover:border-[var(--accent,#97F2CC)]/50 active:scale-[0.99] transition-all shadow-inner cursor-pointer select-none ${
+        className={`form-select w-full ${isSmall ? 'h-9 px-2.5 text-xs' : 'h-11 px-3.5 text-xs sm:text-sm'} flex items-center justify-between bg-[#121721] border border-white/10 rounded-xl text-white hover:border-[var(--accent,#97F2CC)]/50 active:scale-[0.99] transition-all shadow-inner cursor-pointer select-none ${
           disabled ? 'opacity-50 cursor-not-allowed' : ''
         } ${isOpen ? 'border-[var(--accent,#97F2CC)] ring-1 ring-[var(--accent,#97F2CC)]' : ''}`}
       >
-        {selectedParsed ? (
+        {isMulti ? (
+          selectedValues.length === 0 ? (
+            <span className="truncate font-medium text-slate-400">
+              {resolvedPlaceholder}
+            </span>
+          ) : selectedValues.length === 1 && singleMultiSelected ? (
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              {singleMultiSelected.emoji ? (
+                <span className="text-sm leading-none shrink-0">{singleMultiSelected.emoji}</span>
+              ) : null}
+              <span className="font-medium text-white truncate flex-1">
+                {singleMultiSelected.displayName}
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 min-w-0 flex-1">
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] border border-[var(--accent,#97F2CC)]/30 shrink-0 tabular-nums">
+                {selectedValues.length}
+              </span>
+              <span className="font-medium text-white truncate flex-1">
+                {resolvedPlaceholder}
+              </span>
+            </div>
+          )
+        ) : selectedParsed ? (
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
             {selectedParsed.emoji ? (
               <div className="w-5 h-5 flex-shrink-0 flex items-center justify-center overflow-hidden">
@@ -202,18 +241,18 @@ export const CustomSelect = ({
                 )}
               </div>
             ) : null}
-            <span className="text-xs sm:text-sm font-medium text-white truncate flex-1">
+            <span className="font-medium text-white truncate flex-1">
               {selectedParsed.displayName} {selectedParsed.currency ? `(${selectedParsed.currency === 'HNL' ? 'L.' : '$'} ${selectedParsed.currency})` : ''}
             </span>
           </div>
         ) : (
-          <span className="text-xs sm:text-sm truncate font-medium text-slate-400">
+          <span className="truncate font-medium text-slate-400">
             {resolvedPlaceholder}
           </span>
         )}
         <ChevronDown 
-          className={`text-slate-400 transition-transform duration-200 shrink-0 ml-2 ${isOpen ? 'rotate-180 text-[var(--accent,#97F2CC)]' : ''}`} 
-          size={16} 
+          className={`text-slate-400 transition-transform duration-200 shrink-0 ml-1.5 ${isOpen ? 'rotate-180 text-[var(--accent,#97F2CC)]' : ''}`} 
+          size={isSmall ? 14 : 16} 
         />
       </button>
 
@@ -226,8 +265,26 @@ export const CustomSelect = ({
             width: `${coords.width}px`,
             maxWidth: 'calc(100vw - 24px)'
           }}
-          className="custom-select-portal fixed z-[9999] p-2 bg-[#0A0D14] border border-white/[0.08] rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.7)] flex flex-col animate-in fade-in zoom-in-95 duration-150 backdrop-blur-xl isolate"
+          className="custom-select-portal fixed z-[9999] p-2 bg-[#0A0D14] border border-white/10 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] flex flex-col animate-in fade-in zoom-in-95 duration-150 backdrop-blur-xl isolate"
         >
+          {/* Multi-select Quick Clear/Select All Header */}
+          {isMulti && (
+            <div className="flex items-center justify-between px-2 py-1 mb-1 border-b border-white/10 text-xs">
+              <span className="text-slate-400 font-medium">
+                {selectedValues.length === 0 ? t('common.all', {}, 'Todas') : `${selectedValues.length} ${t('common.selected', {}, 'seleccionadas')}`}
+              </span>
+              {selectedValues.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => onChange([])}
+                  className="text-xs font-semibold text-[var(--accent,#97F2CC)] hover:underline cursor-pointer"
+                >
+                  {t('common.clear', {}, 'Limpiar')}
+                </button>
+              )}
+            </div>
+          )}
+
           {/* Render search input ONLY for long lists (> 7 options) */}
           {showSearch && (
             <div className="relative mb-2 px-1 pt-1">
@@ -237,7 +294,7 @@ export const CustomSelect = ({
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={resolvedSearchPlaceholder}
-                className="w-full pl-9 pr-3 py-2 bg-[#121721] border border-white/[0.08] rounded-lg text-xs sm:text-sm text-white placeholder:text-slate-400 outline-none focus:border-[var(--accent,#97F2CC)] focus:ring-1 focus:ring-[var(--accent,#97F2CC)] transition-colors"
+                className="w-full pl-9 pr-3 py-1.5 bg-[#121721] border border-white/10 rounded-lg text-xs sm:text-sm text-white placeholder:text-slate-400 outline-none focus:border-[var(--accent,#97F2CC)] focus:ring-1 focus:ring-[var(--accent,#97F2CC)] transition-colors"
               />
             </div>
           )}
@@ -248,48 +305,69 @@ export const CustomSelect = ({
               filteredOptions.map((opt) => {
                 const parsed = parseOption(opt);
                 if (!parsed) return null;
-                const isSelected = String(parsed.value) === String(value);
+                const isSelected = isMulti 
+                  ? selectedValues.includes(String(parsed.value))
+                  : String(parsed.value) === String(value);
 
                 return (
                   <button
                     key={String(parsed.value)}
                     type="button"
                     onClick={() => {
-                      onChange(parsed.value);
-                      setIsOpen(false);
-                      setSearch('');
+                      if (isMulti) {
+                        const valStr = String(parsed.value);
+                        const isSel = selectedValues.includes(valStr);
+                        const next = isSel
+                          ? selectedValues.filter(v => v !== valStr)
+                          : [...selectedValues, parsed.value];
+                        onChange(next);
+                      } else {
+                        onChange(parsed.value);
+                        setIsOpen(false);
+                        setSearch('');
+                      }
                     }}
-                    className={`w-full px-2.5 py-2 rounded-xl flex items-center justify-between gap-3 cursor-pointer transition-all text-left group ${
+                    className={`w-full px-2.5 py-1.5 rounded-lg flex items-center justify-between gap-2.5 cursor-pointer transition-all text-left group ${
                       isSelected
                         ? 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] font-medium'
                         : 'text-slate-200 hover:bg-white/10 hover:text-white'
                     }`}
                   >
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      {isMulti && (
+                        <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all ${
+                          isSelected 
+                            ? 'bg-[var(--accent,#97F2CC)] border-[var(--accent,#97F2CC)] text-[var(--accent-text,#091E15)]' 
+                            : 'border-white/20 bg-white/5'
+                        }`}>
+                          {isSelected && <Check size={11} strokeWidth={3} />}
+                        </div>
+                      )}
+
                       {/* Contenedor del Icono / Imagen */}
                       {parsed.emoji ? (
-                        <div className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
+                        <div className="w-5 h-5 flex-shrink-0 flex items-center justify-center">
                           {parsed.isImage ? (
                             <img 
                               src={parsed.emoji} 
                               alt={parsed.displayName} 
-                              className="w-5 h-5 object-contain rounded"
+                              className="w-4.5 h-4.5 object-contain rounded"
                               onError={(e) => { e.target.style.display = 'none'; }} 
                             />
                           ) : (
-                            <span className="text-base leading-none">{parsed.emoji}</span>
+                            <span className="text-sm leading-none">{parsed.emoji}</span>
                           )}
                         </div>
                       ) : null}
 
                       {/* Nombre y Moneda */}
-                      <span className={`text-sm font-medium truncate flex-1 ${isSelected ? 'text-[var(--accent,#97F2CC)]' : 'text-slate-200 group-hover:text-white'}`}>
+                      <span className={`text-xs sm:text-sm font-medium truncate flex-1 ${isSelected ? 'text-[var(--accent,#97F2CC)]' : 'text-slate-200 group-hover:text-white'}`}>
                         {parsed.displayName} {parsed.currency ? `(${parsed.currency === 'HNL' ? 'L.' : '$'} ${parsed.currency})` : ''} {parsed.extra ? <span className="text-xs text-slate-400 ml-1">{parsed.extra}</span> : ''}
                       </span>
                     </div>
 
-                    {isSelected && (
-                      <Check className="text-[var(--accent,#97F2CC)] shrink-0 ml-1" size={16} strokeWidth={2.5} />
+                    {!isMulti && isSelected && (
+                      <Check className="text-[var(--accent,#97F2CC)] shrink-0 ml-1" size={15} strokeWidth={2.5} />
                     )}
                   </button>
                 );

@@ -1,9 +1,10 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Plus, RefreshCw, Trash2, Search } from 'lucide-react';
+import { Plus, RefreshCw, Trash2, Search, RotateCcw } from 'lucide-react';
 import Button from './Button';
 import EmptyState from './common/EmptyState';
 import SubscriptionModal from './SubscriptionModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
+import CustomSelect from './CustomSelect';
 import ExportDropdown from './ExportDropdown';
 import SectionKpiHero from './SectionKpiHero';
 import Pagination from './Pagination';
@@ -17,18 +18,47 @@ export default function SubscriptionsModule() {
   const { subscriptions, accounts, categories, addSubscription, updateSubscription, deleteSubscription, toggleSubscription } = useFinance();
   const { formatCurrency, t, baseCurrency, exchangeRates, language } = useSettings();
 
+  const isEs = language === 'es';
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [subToEdit, setSubToEdit] = useState(null);
   const [subToDelete, setSubToDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currencyFilter, setCurrencyFilter] = useState('all');
+  const [selectedAccountIds, setSelectedAccountIds] = useState([]);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(30);
 
   const safeSubsList = useMemo(() => Array.isArray(subscriptions) ? subscriptions.filter(Boolean) : [], [subscriptions]);
   const safeAccountsList = useMemo(() => Array.isArray(accounts) ? accounts.filter(Boolean) : [], [accounts]);
   const safeCategoriesList = useMemo(() => Array.isArray(categories) ? categories.filter(Boolean) : [], [categories]);
+
+  // Account Filter Options (Sorted with Logos)
+  const accountOptions = useMemo(() => [
+    ...safeAccountsList.map(a => ({
+      value: a.id,
+      name: a.name,
+      label: a.name,
+      emoji: a.emoji || '🏦'
+    }))
+  ], [safeAccountsList]);
+
+  // Currency Filter Options
+  const currencyOptions = useMemo(() => {
+    const set = new Set(safeSubsList.map(s => s.currency || safeAccountsList.find(a => a?.id === s.accountId)?.currency || baseCurrency));
+    if (baseCurrency) set.add(baseCurrency);
+    return [
+      { value: 'all', label: t('common.allCurrencies', {}, isEs ? 'Todas las divisas' : 'All Currencies'), emoji: '🌐' },
+      ...Array.from(set).map(c => ({
+        value: c,
+        label: c,
+        name: c,
+        emoji: '💱'
+      }))
+    ];
+  }, [safeSubsList, safeAccountsList, baseCurrency, isEs, t]);
 
   // Sort subscriptions chronologically by billingDay (1 to 31)
   const sortedSubs = useMemo(() => {
@@ -36,24 +66,52 @@ export default function SubscriptionsModule() {
   }, [safeSubsList]);
 
   const filteredSubs = useMemo(() => {
-    if (!searchTerm.trim()) return sortedSubs;
-    const q = searchTerm.toLowerCase();
-    return sortedSubs.filter(s =>
-      (s.name || '').toLowerCase().includes(q)
-    );
-  }, [sortedSubs, searchTerm]);
+    return sortedSubs.filter(s => {
+      // 1. Currency filter
+      if (currencyFilter !== 'all') {
+        const subCurrency = s.currency || safeAccountsList.find(a => a?.id === s.accountId)?.currency || 'USD';
+        if (subCurrency !== currencyFilter) return false;
+      }
+
+      // 2. Affected Accounts filter (Multi-select)
+      if (selectedAccountIds.length > 0) {
+        if (!selectedAccountIds.includes(s.accountId)) return false;
+      }
+
+      // 3. Search Term
+      if (searchTerm.trim()) {
+        const q = searchTerm.toLowerCase();
+        const nameMatch = (s.name || '').toLowerCase().includes(q);
+        const accName = (safeAccountsList.find(a => a?.id === s.accountId)?.name || '').toLowerCase();
+        const accMatch = accName.includes(q);
+        if (!nameMatch && !accMatch) return false;
+      }
+
+      return true;
+    });
+  }, [sortedSubs, currencyFilter, selectedAccountIds, searchTerm, safeAccountsList]);
+
+  const isFilterActive = Boolean(
+    currencyFilter !== 'all' ||
+    selectedAccountIds.length > 0 ||
+    searchTerm.trim() !== ''
+  );
+
+  const resetFilters = useCallback(() => {
+    setCurrencyFilter('all');
+    setSelectedAccountIds([]);
+    setSearchTerm('');
+  }, []);
 
   // Reset page when filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm]);
+  }, [searchTerm, currencyFilter, selectedAccountIds]);
 
   const paginatedSubs = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return filteredSubs.slice(start, start + pageSize);
   }, [filteredSubs, currentPage, pageSize]);
-
-  const isEs = language === 'es';
 
   const subColumns = useMemo(() => [
     { 
@@ -137,7 +195,7 @@ export default function SubscriptionsModule() {
     <div className="w-full space-y-4 md:space-y-6 animate-fadeIn pb-32 md:pb-6">
       
       {/* Standardized Header */}
-      <header className="flex items-center justify-between gap-2.5 w-full relative z-30">
+      <header className="flex items-center justify-between gap-3 w-full relative z-30">
         <div className="min-w-0 flex-1">
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white leading-tight truncate">
             {t('subscriptions.title', {}, 'Gestión de Suscripciones')}
@@ -148,27 +206,25 @@ export default function SubscriptionsModule() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <div className="hidden sm:block">
-            <ExportDropdown
-              data={filteredSubs}
-              columns={subColumns}
-              title={t('subscriptions.title', {}, 'Gestión de Suscripciones')}
-              filename={exportFilename}
-              summary={subSummary}
-            />
-          </div>
+          <ExportDropdown
+            data={filteredSubs}
+            columns={subColumns}
+            title={t('subscriptions.title', {}, 'Gestión de Suscripciones')}
+            filename={exportFilename}
+            summary={subSummary}
+          />
 
-          <Button
-            size="md"
-            variant="primary"
-            icon={Plus}
+          <button
+            type="button"
             onClick={() => {
               setSubToEdit(null);
               setIsModalOpen(true);
             }}
+            className="bg-[var(--accent)] text-black font-semibold h-9 px-4 rounded-xl inline-flex items-center gap-2 text-sm shadow-sm hover:opacity-90 transition-opacity cursor-pointer shrink-0"
           >
+            <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">{t('subscriptions.newSubscription', {}, 'Nueva Suscripción')}</span>
-          </Button>
+          </button>
         </div>
       </header>
 
@@ -185,27 +241,55 @@ export default function SubscriptionsModule() {
         secondaryValue={baseCurrency}
       />
 
-      {/* Toolbar: Search and Mobile Export */}
-      <div className="flex items-center gap-2 w-full relative z-20">
-        <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+      {/* 3. TOOLBAR: UNIFIED CARBON-GRAY FILTER BAR */}
+      <div className="w-full bg-[#0D1117]/90 border border-white/10 rounded-2xl p-3 gap-2.5 sm:gap-3 flex flex-wrap items-center relative z-20 backdrop-blur-xl shadow-lg">
+        {/* 1. Divisa */}
+        <div className="w-[110px] sm:w-[125px] shrink-0">
+          <CustomSelect
+            options={currencyOptions}
+            value={currencyFilter}
+            onChange={setCurrencyFilter}
+            isSmall
+          />
+        </div>
+
+        {/* 2. Cuentas Afectadas (Multi-select) */}
+        <div className="w-[140px] sm:w-[160px] shrink-0">
+          <CustomSelect
+            isMulti
+            options={accountOptions}
+            value={selectedAccountIds}
+            onChange={setSelectedAccountIds}
+            placeholder={t('subscriptions.accountsPlaceholder', {}, isEs ? 'Cuentas' : 'Accounts')}
+            allLabel={t('subscriptions.allAccounts', {}, isEs ? 'Todas las cuentas' : 'All Accounts')}
+            isSmall
+          />
+        </div>
+
+        {/* 3. Barra de Búsqueda */}
+        <div className="flex-1 min-w-[180px] relative">
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder={t('placeholders.search', {}, 'Buscar por nombre de servicio...')}
-            className="w-full h-11 pl-9 pr-3 bg-[#121721] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[var(--accent,#97F2CC)] shadow-inner transition-colors"
+            placeholder={t('subscriptions.searchPlaceholder', {}, isEs ? 'Buscar por servicio o cuenta...' : 'Search by service or account...')}
+            className="w-full h-9 pl-9 pr-3 rounded-xl bg-[#121721] border border-white/10 text-xs font-medium text-white placeholder:text-slate-500 focus:outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
           />
         </div>
-        <div className="sm:hidden shrink-0">
-          <ExportDropdown
-            data={filteredSubs}
-            columns={subColumns}
-            title={t('subscriptions.title', {}, 'Gestión de Suscripciones')}
-            filename={exportFilename}
-            summary={subSummary}
-          />
-        </div>
+
+        {/* 4. Limpiar Filtros */}
+        {isFilterActive && (
+          <button
+            type="button"
+            onClick={resetFilters}
+            className="h-9 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-rose-300 border border-white/10 flex items-center gap-1.5 transition-all shrink-0 cursor-pointer"
+            title={t('common.clearFilters', {}, isEs ? 'Limpiar filtros' : 'Clear filters')}
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>{t('common.clear', {}, isEs ? 'Limpiar' : 'Clear')}</span>
+          </button>
+        )}
       </div>
 
       {/* Chronological Timeline List */}
@@ -343,7 +427,7 @@ export default function SubscriptionsModule() {
         currentPage={currentPage}
         totalItems={filteredSubs.length}
         pageSize={pageSize}
-        pageSizeOptions={[10, 30, 50]}
+        pageSizeOptions={[30, 50, 100]}
         onPageChange={setCurrentPage}
         onPageSizeChange={(newSize) => {
           setPageSize(newSize);

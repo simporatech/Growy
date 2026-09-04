@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Plus, Tag, Trash2, ArrowDownRight, ArrowUpRight, Search } from 'lucide-react';
+import { Plus, Tag, Trash2, ArrowDownRight, ArrowUpRight, Search, RotateCcw } from 'lucide-react';
 import Button from './Button';
 import EmptyState from './common/EmptyState';
 import CategoryModal from './CategoryModal';
@@ -25,7 +25,7 @@ export default function CategoriesModule() {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(30);
 
   const safeAccountsList = useMemo(() => {
     const list = Array.isArray(accounts) ? accounts.filter(Boolean) : [];
@@ -256,60 +256,17 @@ export default function CategoriesModule() {
     >
       
       {/* Standardized Header */}
-      <header className="flex items-center justify-between gap-2.5 w-full relative z-30">
+      <header className="flex items-center justify-between gap-3 w-full relative z-30">
         <div className="min-w-0 flex-1">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white leading-tight truncate">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white leading-tight truncate">
             {t('categories.title', {}, 'Categorías y Presupuestos')}
           </h1>
-          <p className="text-sm text-slate-400 mt-1 block font-normal truncate">
+          <p className="text-xs md:text-sm text-slate-400 mt-0.5 block font-normal truncate">
             {t('categories.subtitle', {}, 'Límites mensuales para gastos y metas')}
           </p>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <div className="hidden sm:block">
-            <ExportDropdown
-              data={filteredCategories}
-              columns={categoryColumns}
-              title={t('categories.title', {}, 'Categorías y Presupuestos')}
-              filename={exportFilename}
-              summary={categorySummary}
-            />
-          </div>
-
-          <Button
-            size="md"
-            variant="primary"
-            icon={Plus}
-            onClick={() => {
-              setCategoryToEdit(null);
-              setInitialType(activeTabType);
-              setIsModalOpen(true);
-            }}
-          >
-            <span className="hidden sm:inline">
-              {activeTabType === 'expense'
-                ? t('categories.newBudget', {}, 'Nuevo Presupuesto')
-                : t('categories.newGoal', {}, 'Nueva Meta')
-              }
-            </span>
-          </Button>
-        </div>
-      </header>
-
-      {/* Toolbar: Search and Mobile Export */}
-      <div className="flex items-center gap-2 w-full relative z-20">
-        <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder={t('placeholders.search', {}, 'Buscar por nombre...')}
-            className="w-full h-11 pl-9 pr-3 bg-white/[0.04] border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-[var(--accent,#97F2CC)] shadow-inner transition-colors"
-          />
-        </div>
-        <div className="sm:hidden shrink-0">
           <ExportDropdown
             data={filteredCategories}
             columns={categoryColumns}
@@ -317,11 +274,57 @@ export default function CategoriesModule() {
             filename={exportFilename}
             summary={categorySummary}
           />
+
+          <button
+            type="button"
+            onClick={() => {
+              setCategoryToEdit(null);
+              setInitialType(activeTabType);
+              setIsModalOpen(true);
+            }}
+            className="bg-[var(--accent)] text-black font-semibold h-9 px-4 rounded-xl inline-flex items-center gap-2 text-sm shadow-sm hover:opacity-90 transition-opacity cursor-pointer shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            <span className="hidden sm:inline">
+              {activeTabType === 'expense'
+                ? t('categories.newBudget', {}, 'Nuevo Presupuesto')
+                : t('categories.newGoal', {}, 'Nueva Meta')
+              }
+            </span>
+          </button>
         </div>
+      </header>
+
+      {/* 3. TOOLBAR: UNIFIED CARBON-GRAY FILTER BAR */}
+      <div className="w-full bg-[#0D1117]/90 border border-white/10 rounded-2xl p-3 gap-2.5 sm:gap-3 flex flex-wrap items-center relative z-20 backdrop-blur-xl shadow-lg">
+        {/* Buscador */}
+        <div className="flex-1 min-w-[180px] relative">
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder={t('categories.searchPlaceholder', {}, isEs ? 'Buscar por nombre...' : 'Search by name...')}
+            className="w-full h-9 pl-9 pr-3 rounded-xl bg-[#121721] border border-white/10 text-xs font-medium text-white placeholder:text-slate-500 focus:outline-none focus:border-[var(--accent,#97F2CC)] transition-colors"
+          />
+        </div>
+
+        {/* Reset Button */}
+        {searchTerm && (
+          <button
+            type="button"
+            onClick={() => setSearchTerm('')}
+            className="h-9 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-rose-300 border border-white/10 flex items-center gap-1.5 transition-all shrink-0 cursor-pointer"
+            title={t('common.clearFilters', {}, isEs ? 'Limpiar filtros' : 'Clear filters')}
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>{t('common.clear', {}, isEs ? 'Limpiar' : 'Clear')}</span>
+          </button>
+        )}
       </div>
 
       {/* Hero Banner: Dynamic Bimodal (Expense vs Income Goals) */}
-      <div className="w-full bg-[#111722]/80 border border-white/10 rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6 backdrop-blur-md relative z-10 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] transition-all duration-300 ease-in-out">
+      <div className="w-full p-4 sm:p-5 md:p-6 rounded-2xl md:rounded-3xl bg-[#0D1117]/80 border border-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] mb-4 sm:mb-6 relative z-10 transition-all duration-300 ease-in-out">
         
         {activeTabType === 'expense' ? (
           /* MODO A: PRESUPUESTO DE GASTOS */
@@ -670,7 +673,7 @@ export default function CategoriesModule() {
         currentPage={currentPage}
         totalItems={filteredCategories.length}
         pageSize={pageSize}
-        pageSizeOptions={[10, 30, 50]}
+        pageSizeOptions={[30, 50, 100]}
         onPageChange={setCurrentPage}
         onPageSizeChange={(newSize) => {
           setPageSize(newSize);
