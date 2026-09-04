@@ -145,7 +145,10 @@
   },
   "dashboard": {
     "topAccounts": "Top Accounts",
-    "viewAccounts": "View Accounts"
+    "viewAccounts": "View Accounts",
+    "topExpenses": "Top 3 Monthly Expenses",
+    "viewTransactions": "View Transactions",
+    "ofTotal": "of total"
   },
   "common": {
     "allCurrencies": "All Currencies",

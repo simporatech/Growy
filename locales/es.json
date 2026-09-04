@@ -140,7 +140,10 @@
   },
   "dashboard": {
     "topAccounts": "Cuentas Principales",
-    "viewAccounts": "Ver Cuentas"
+    "viewAccounts": "Ver Cuentas",
+    "topExpenses": "Top 3 Gastos del Mes",
+    "viewTransactions": "Ver Transacciones",
+    "ofTotal": "del total"
   },
   "common": {
     "allCurrencies": "Todas las divisas",

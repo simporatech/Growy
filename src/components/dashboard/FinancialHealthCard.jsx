@@ -52,7 +52,7 @@ export default function FinancialHealthCard({
   }, [score]);
 
   // Circular Gauge Calculations
-  const radius = 38;
+  const radius = 35;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (score / 100) * circumference;
 
@@ -82,9 +82,9 @@ export default function FinancialHealthCard({
         </div>
 
         {/* Main Score & Dynamic Message Body */}
-        <div className="flex items-center gap-4 relative z-10">
+        <div className="flex items-center gap-3 sm:gap-4 relative z-10">
           {/* Circular SVG Gauge */}
-          <div className="relative w-24 h-24 shrink-0 flex items-center justify-center">
+          <div className="relative w-20 h-20 sm:w-22 sm:h-22 shrink-0 flex items-center justify-center">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
               <circle
                 cx="50"
@@ -112,10 +112,10 @@ export default function FinancialHealthCard({
             </svg>
 
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center select-none pointer-events-none">
-              <span className="text-2xl sm:text-3xl font-black text-white tabular-nums tracking-tight">
+              <span className="text-xl sm:text-2xl font-black text-white tabular-nums tracking-tight">
                 {score}
               </span>
-              <span className="text-[10px] text-slate-400 font-semibold -mt-1">
+              <span className="text-[9px] sm:text-[10px] text-slate-400 font-semibold -mt-0.5">
                 / 100
               </span>
             </div>
@@ -123,10 +123,10 @@ export default function FinancialHealthCard({
 
           {/* Dynamic Sarcastic / Realistic Message */}
           <div className="flex-1 min-w-0 pr-1">
-            <p className="text-sm leading-relaxed text-slate-300 break-words line-clamp-3 group-hover:text-white transition-colors">
+            <p className="text-xs sm:text-sm leading-relaxed text-slate-300 break-words line-clamp-3 group-hover:text-white transition-colors">
               "{statusMessage}"
             </p>
-            <div className="flex items-center gap-1 text-[11px] text-[var(--accent,#97F2CC)] font-semibold mt-2 group-hover:underline">
+            <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-[var(--accent,#97F2CC)] font-semibold mt-1.5 group-hover:underline">
               <span>{isEs ? 'Ver diagnóstico completo' : 'View full diagnosis'}</span>
               <ChevronRight className="w-3.5 h-3.5" />
             </div>
@@ -134,15 +134,15 @@ export default function FinancialHealthCard({
         </div>
 
         {/* Quick Micro Breakdown Progress Bars */}
-        <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/5 relative z-10">
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2 pt-2 border-t border-white/5 relative z-10">
           {/* 1. Ahorro */}
-          <div className="p-2 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
-            <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400">
-              <div className="flex items-center gap-1.5 min-w-0">
-                <PiggyBank className="w-3.5 h-3.5 text-[var(--accent)] shrink-0" />
+          <div className="p-1.5 sm:p-2 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
+            <div className="flex items-center justify-between text-[10px] sm:text-[11px] font-semibold text-slate-400 gap-1">
+              <div className="flex items-center gap-1 min-w-0 truncate">
+                <PiggyBank className="w-3 h-3 text-[var(--accent)] shrink-0" />
                 <span className="truncate">{isEs ? 'Ahorro' : 'Savings'}</span>
               </div>
-              <span className="text-white font-bold tabular-nums text-xs shrink-0">{breakdown?.savings?.points ?? 0}/40</span>
+              <span className="text-white font-bold tabular-nums text-[10px] sm:text-xs shrink-0">{breakdown?.savings?.points ?? 0}/40</span>
             </div>
             <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
               <div 
@@ -153,13 +153,13 @@ export default function FinancialHealthCard({
           </div>
 
           {/* 2. Deudas */}
-          <div className="p-2 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
-            <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400">
-              <div className="flex items-center gap-1.5 min-w-0">
-                <Percent className="w-3.5 h-3.5 text-[var(--accent)] shrink-0" />
+          <div className="p-1.5 sm:p-2 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
+            <div className="flex items-center justify-between text-[10px] sm:text-[11px] font-semibold text-slate-400 gap-1">
+              <div className="flex items-center gap-1 min-w-0 truncate">
+                <Percent className="w-3 h-3 text-[var(--accent)] shrink-0" />
                 <span className="truncate">{isEs ? 'Deudas' : 'Debts'}</span>
               </div>
-              <span className="text-white font-bold tabular-nums text-xs shrink-0">{breakdown?.debts?.points ?? 0}/30</span>
+              <span className="text-white font-bold tabular-nums text-[10px] sm:text-xs shrink-0">{breakdown?.debts?.points ?? 0}/30</span>
             </div>
             <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
               <div 
@@ -170,13 +170,13 @@ export default function FinancialHealthCard({
           </div>
 
           {/* 3. Presupuesto */}
-          <div className="p-2 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
-            <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400">
-              <div className="flex items-center gap-1.5 min-w-0">
-                <Target className="w-3.5 h-3.5 text-[var(--accent)] shrink-0" />
+          <div className="p-1.5 sm:p-2 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
+            <div className="flex items-center justify-between text-[10px] sm:text-[11px] font-semibold text-slate-400 gap-1">
+              <div className="flex items-center gap-1 min-w-0 truncate">
+                <Target className="w-3 h-3 text-[var(--accent)] shrink-0" />
                 <span className="truncate">{isEs ? 'Metas' : 'Budget'}</span>
               </div>
-              <span className="text-white font-bold tabular-nums text-xs shrink-0">{breakdown?.budget?.points ?? 0}/30</span>
+              <span className="text-white font-bold tabular-nums text-[10px] sm:text-xs shrink-0">{breakdown?.budget?.points ?? 0}/30</span>
             </div>
             <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
               <div 

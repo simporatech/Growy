@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { 
   LogOut,
   LayoutDashboard, Landmark, Tag, ArrowLeftRight, Percent, RefreshCw, UserCheck,
-  Plus, AlertCircle, CheckCircle2, Clock,
+  Plus, AlertCircle, CheckCircle2, Clock, TrendingDown,
   Layers, Activity, Settings as SettingsIcon,
   ChevronDown, Info, MessageSquarePlus, PanelLeftClose, PanelLeftOpen, X
 } from 'lucide-react';
@@ -350,7 +350,32 @@ export default function DashboardPreview({ user, onLogout }) {
       .sort((a, b) => b.percentage - a.percentage);
   }, [safeCategoriesList, currentMonthTx, formatToGlobal, convertToGlobal, baseCurrency]);
 
-  const topExpenses = useMemo(() => categoryExpenses.slice(0, 3), [categoryExpenses]);
+  const totalMonthlyExpenses = useMemo(() => {
+    return currentMonthTx
+      .filter(t => t && t.type === 'expense')
+      .reduce((sum, t) => sum + Math.abs(formatToGlobal(t)), 0);
+  }, [currentMonthTx, formatToGlobal]);
+
+  const topExpenseTransactions = useMemo(() => {
+    return currentMonthTx
+      .filter(t => t && t.type === 'expense')
+      .map(t => {
+        const globalAmount = Math.abs(formatToGlobal(t));
+        const cat = safeCategoriesList.find(c => c?.id === (t.categoryId || t.category_id));
+        const acc = safeAccountsList.find(a => a?.id === (t.accountId || t.account_id));
+        return {
+          ...t,
+          globalAmount,
+          categoryName: cat?.name || t('transactions.general', {}, isEs ? 'General' : 'General'),
+          categoryEmoji: cat?.emoji || '💸',
+          categoryColor: cat?.color || '#FF6B6B',
+          accountName: acc?.name || ''
+        };
+      })
+      .sort((a, b) => b.globalAmount - a.globalAmount)
+      .slice(0, 3);
+  }, [currentMonthTx, formatToGlobal, safeCategoriesList, safeAccountsList, isEs, t]);
+
   const pendingLoansList = useMemo(() => safeLoansList.filter(l => l && l.status !== 'paid' && l.status !== 'settled'), [safeLoansList]);
   const activeSubsList = useMemo(() => safeSubsList.filter(s => s && s.isActive !== false && s.is_active !== false && s.status !== 'inactive'), [safeSubsList]);
   const recentTransactions = useMemo(() => safeTransactionsList.slice(0, 5), [safeTransactionsList]);
@@ -1083,7 +1108,7 @@ export default function DashboardPreview({ user, onLogout }) {
               </div>
 
               {/* LOWER WIDGETS ROW */}
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 items-stretch w-full relative z-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-4.5 sm:gap-5.5 items-stretch w-full relative z-10">
                 
                 {/* WIDGET 0: Salud Financiera */}
                 <FinancialHealthCard onNavigateTab={setActiveTab} className="h-full" />
@@ -1100,112 +1125,82 @@ export default function DashboardPreview({ user, onLogout }) {
                   className="h-full"
                 />
 
-                {/* WIDGET 2: Alertas de Presupuesto */}
+                {/* WIDGET 2: Top 3 Gastos del Mes (Transacciones individuales de gasto más caras) */}
                 <div className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 h-full flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <AlertCircle className={`w-4 h-4 ${criticalBudgets.length > 0 ? 'text-amber-400' : 'text-[var(--accent)]'}`} />
+                      <TrendingDown className="w-4 h-4 text-rose-400 shrink-0" />
                       <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
-                        {criticalBudgets.length > 0
-                          ? t('dashboard.budgetAlerts', {}, 'Alertas de Presupuesto')
-                          : t('dashboard.topExpenses', {}, 'Top 3 Gastos del Mes')}
+                        {t('dashboard.topExpenses', {}, isEs ? 'Top 3 Gastos del Mes' : 'Top 3 Monthly Expenses')}
                       </h2>
                     </div>
                     <button 
-                      onClick={() => setActiveTab('categories')}
-                      className="text-xs font-semibold text-[var(--accent)] hover:underline cursor-pointer"
+                      onClick={() => setActiveTab('transactions')}
+                      className="text-xs font-semibold text-[var(--accent)] hover:underline cursor-pointer shrink-0"
                     >
-                      {t('dashboard.viewCategories', {}, 'Ver Categorías')}
+                      {t('dashboard.viewTransactions', {}, isEs ? 'Ver Transacciones' : 'View Transactions')}
                     </button>
                   </div>
 
-                  <div className="space-y-3 flex-1">
-                    {criticalBudgets.length > 0 ? (
-                      criticalBudgets.map((cat) => {
-                        const isOverLimit = cat.percentage >= 90;
-                        const isWarning = cat.percentage >= 75 && cat.percentage < 90;
-                        const barColor = isOverLimit ? '#F87171' : isWarning ? '#F59E0B' : (cat.color || 'var(--accent, #97F2CC)');
+                  <div className="space-y-2.5 flex-1">
+                    {topExpenseTransactions.length > 0 ? (
+                      topExpenseTransactions.map((tx) => {
+                        const pct = totalMonthlyExpenses > 0 ? Math.round((tx.globalAmount / totalMonthlyExpenses) * 100) : 0;
+                        const rawDate = tx?.date || tx?.transactionDate || tx?.transaction_date || '';
+                        const dateStr = rawDate ? formatDateLabel(rawDate, language) : '';
 
                         return (
                           <div 
-                            key={cat.id} 
-                            onClick={() => setActiveTab('categories')}
-                            className="p-3 rounded-xl bg-white/[0.03] border border-white/10 space-y-1.5 hover:bg-white/[0.06] hover:border-[var(--accent)]/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
-                            title={t('dashboard.viewCategories', {}, 'Ver Categorías')}
+                            key={tx.id} 
+                            onClick={() => {
+                              setTxToEdit(tx);
+                              setIsTxModalOpen(true);
+                            }}
+                            className="p-2.5 sm:p-3 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between hover:bg-white/[0.06] hover:border-rose-500/30 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
+                            title={t('transactions.edit', {}, isEs ? 'Editar Transacción' : 'Edit Transaction')}
                           >
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="font-semibold text-white flex items-center gap-1.5 group-hover:text-[var(--accent)] transition-colors">
-                                <DynamicIcon value={cat.emoji} fallback="🏷️" className="w-4 h-4 text-xs" />
-                                <span>{cat.name}</span>
-                              </span>
-                              
-                              <div className="flex items-center gap-2">
-                                {isOverLimit && (
-                                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 uppercase">
-                                    {t('dashboard.limitReached', {}, '¡Límite alcanzado!')}
-                                  </span>
-                                )}
-                                <span className="font-bold text-white tabular-nums">{cat.percentage}%</span>
+                            <div className="flex items-center gap-2.5 min-w-0 flex-1 pr-2">
+                              <div className="w-8 h-8 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-base shrink-0 group-hover:scale-105 transition-transform overflow-hidden">
+                                <DynamicIcon value={tx.categoryEmoji} fallback="💸" className="w-4 h-4 text-sm" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <h4 className="text-xs font-semibold text-white truncate group-hover:text-rose-300 transition-colors">
+                                  {tx.description || tx.categoryName}
+                                </h4>
+                                <p className="text-[10px] sm:text-[11px] text-slate-400 font-medium truncate flex items-center gap-1.5 mt-0.5">
+                                  <span className="text-slate-300 truncate">{tx.categoryName}</span>
+                                  {tx.accountName && (
+                                    <>
+                                      <span>•</span>
+                                      <span className="truncate">{tx.accountName}</span>
+                                    </>
+                                  )}
+                                  {dateStr && (
+                                    <>
+                                      <span>•</span>
+                                      <span className="shrink-0">{dateStr}</span>
+                                    </>
+                                  )}
+                                </p>
                               </div>
                             </div>
 
-                            <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden border border-white/5">
-                              <div 
-                                className="h-full rounded-full transition-all duration-300"
-                                style={{ 
-                                  width: `${Math.min(100, cat.percentage)}%`, 
-                                  backgroundColor: barColor 
-                                }}
-                              />
-                            </div>
-
-                            <div className="flex justify-between items-center text-[11px] text-slate-300 font-medium tabular-nums">
-                              <span>{t('dashboard.executed', {}, 'Ejecutado')}: {formatCurrency(cat.executed)}</span>
-                              <span>{t('dashboard.limit', {}, 'Límite')}: {formatCurrency(cat.target)}</span>
-                            </div>
-                          </div>
-                        );
-                      })
-                    ) : topExpenses.length > 0 ? (
-                      topExpenses.map((cat) => {
-                        const pct = totalCatExpenses > 0 ? Math.round((cat.totalSpent / totalCatExpenses) * 100) : 0;
-                        return (
-                          <div 
-                            key={cat.id} 
-                            onClick={() => setActiveTab('categories')}
-                            className="p-3 rounded-xl bg-white/[0.03] border border-white/10 space-y-1.5 hover:bg-white/[0.06] hover:border-[var(--accent)]/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
-                            title={t('dashboard.viewCategories', {}, 'Ver Categorías')}
-                          >
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="font-semibold text-white flex items-center gap-1.5 group-hover:text-[var(--accent)] transition-colors">
-                                <DynamicIcon value={cat.emoji} fallback="🏷️" className="w-4 h-4 text-xs" />
-                                <span>{cat.name}</span>
+                            <div className="text-right shrink-0">
+                              <span className="text-xs sm:text-sm font-bold text-rose-400 tabular-nums block">
+                                -{formatCurrency(tx.amount || tx.globalAmount, tx.currency || baseCurrency)}
                               </span>
-                              <span className="font-bold text-white tabular-nums">{formatCurrency(cat.totalSpent)}</span>
-                            </div>
-
-                            <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden border border-white/5">
-                              <div 
-                                className="h-full rounded-full transition-all duration-300"
-                                style={{ 
-                                  width: `${Math.min(100, pct)}%`, 
-                                  backgroundColor: cat.color || 'var(--accent, #97F2CC)' 
-                                }}
-                              />
-                            </div>
-
-                            <div className="flex justify-between items-center text-[11px] text-slate-300 font-medium">
-                              <span className="tabular-nums">{pct}% {t('dashboard.ofTotalSpent', {}, 'del total gastado')}</span>
-                              <span className="text-[var(--accent)] font-semibold">
-                                {t('dashboard.healthyBudget', {}, 'Presupuesto saludable')}
-                              </span>
+                              {pct > 0 && (
+                                <span className="text-[10px] text-slate-400 font-medium tabular-nums block">
+                                  {pct}% {t('dashboard.ofTotal', {}, isEs ? 'del total' : 'of total')}
+                                </span>
+                              )}
                             </div>
                           </div>
                         );
                       })
                     ) : (
                       <div className="text-center py-6 text-xs text-slate-300 space-y-1">
-                        <p>{t('dashboard.noExpensesMonth', {}, 'Sin gastos registrados este mes')}</p>
+                        <p>{t('dashboard.noExpensesMonth', {}, isEs ? 'Sin gastos registrados este mes' : 'No expenses recorded this month')}</p>
                       </div>
                     )}
                   </div>
@@ -1215,18 +1210,18 @@ export default function DashboardPreview({ user, onLogout }) {
                 <div className="growy-glass growy-card-hover rounded-2xl p-4 sm:p-6 h-full flex flex-col justify-between space-y-4 overflow-hidden isolate transform-gpu-layer">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-[var(--accent,#97F2CC)]" />
+                      <Clock className="w-4 h-4 text-[var(--accent,#97F2CC)] shrink-0" />
                       <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">{t('dashboard.upcomingCommitments', {}, 'Próximos Compromisos')}</h2>
                     </div>
                     <button 
                       onClick={() => setActiveTab('loans')}
-                      className="text-xs font-semibold text-[var(--accent)] hover:underline cursor-pointer"
+                      className="text-xs font-semibold text-[var(--accent)] hover:underline cursor-pointer shrink-0"
                     >
                       {t('dashboard.viewLoans', {}, 'Ver Saldos')}
                     </button>
                   </div>
 
-                  <div className="space-y-3 flex-1">
+                  <div className="space-y-2.5 flex-1">
                     {pendingLoansList.length === 0 && activeSubsList.length === 0 ? (
                       <div className="text-center py-6 text-xs text-slate-300">
                         {t('dashboard.noCommitments', {}, '¡Excelente! No tienes saldos ni cobros pendientes próximos.')}
@@ -1237,29 +1232,34 @@ export default function DashboardPreview({ user, onLogout }) {
                           <div 
                             key={loan.id}
                             onClick={() => setLoanToPay(loan)}
-                            className="p-3 sm:p-3.5 rounded-xl bg-white/[0.03] border border-amber-500/20 flex items-center justify-between hover:bg-white/[0.06] hover:border-amber-500/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
-                            title={t('common.payNow', {}, 'Pagar')}
+                            className="p-2.5 sm:p-3 rounded-xl bg-white/[0.03] border border-amber-500/20 hover:bg-white/[0.06] hover:border-amber-500/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
+                            title={t('common.payNow', {}, isEs ? 'Pagar' : 'Pay Now')}
                           >
-                            <div className="min-w-0 flex-1 pr-2">
-                              <h4 className="text-xs font-semibold text-white group-hover:text-amber-300 transition-colors truncate">{loan.description}</h4>
-                              <p className="text-[11px] text-amber-300 font-medium">
-                                {t('dashboard.due', {}, 'Vence')}: {loan.dueDate || 'Pronto'} • {loan.currency || 'USD'}
-                              </p>
+                            <div className="flex items-center justify-between gap-2">
+                              <h4 className="text-xs font-semibold text-white group-hover:text-amber-300 transition-colors truncate flex-1 min-w-0">
+                                {loan.description || (isEs ? 'Saldo pendiente' : 'Pending debt')}
+                              </h4>
+                              <span className="text-xs sm:text-sm font-bold text-white tabular-nums shrink-0">
+                                {formatCurrency(loan.amount, loan.currency || baseCurrency)}
+                              </span>
                             </div>
 
-                            <div className="flex items-center gap-2 shrink-0">
-                              <span className="text-xs font-bold text-white tabular-nums">
-                                {formatCurrency(loan.amount, loan.currency || 'USD')}
+                            <div className="flex items-center justify-between gap-2 mt-1.5 pt-1.5 border-t border-white/5">
+                              <span className="text-[10px] sm:text-[11px] text-amber-300/90 font-medium truncate flex items-center gap-1">
+                                <Clock className="w-3 h-3 text-amber-400 shrink-0" />
+                                <span className="truncate">{t('dashboard.due', {}, isEs ? 'Vence' : 'Due')}: {loan.dueDate || (isEs ? 'Pronto' : 'Soon')}</span>
                               </span>
+
                               <button
+                                type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setLoanToPay(loan);
                                 }}
-                                className="py-1 px-2.5 rounded-lg bg-[var(--accent)] text-[var(--accent-text)] text-xs font-semibold flex items-center gap-1 shadow hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer"
+                                className="h-6 px-2.5 rounded-lg bg-[var(--accent)] text-black text-[10px] sm:text-[11px] font-bold inline-flex items-center gap-1 shadow-sm hover:brightness-105 active:scale-95 transition-all cursor-pointer shrink-0"
                               >
-                                <CheckCircle2 className="w-3.5 h-3.5" />
-                                <span>{t('common.payNow', {}, 'Pagar')}</span>
+                                <CheckCircle2 className="w-3 h-3" />
+                                <span>{t('common.payNow', {}, isEs ? 'Pagar' : 'Pay Now')}</span>
                               </button>
                             </div>
                           </div>
@@ -1269,21 +1269,26 @@ export default function DashboardPreview({ user, onLogout }) {
                           <div 
                             key={sub.id}
                             onClick={() => setActiveTab('subscriptions')}
-                            className="p-3 sm:p-3.5 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between hover:bg-white/[0.06] hover:border-[var(--accent)]/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
-                            title={t('nav.subscriptions', {}, 'Suscripciones')}
+                            className="p-2.5 sm:p-3 rounded-xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.06] hover:border-[var(--accent)]/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
+                            title={t('nav.subscriptions', {}, isEs ? 'Suscripciones' : 'Subscriptions')}
                           >
-                            <div className="min-w-0 flex-1 pr-2">
-                              <h4 className="text-xs font-semibold text-white group-hover:text-[var(--accent)] transition-colors truncate flex items-center gap-1.5">
-                                <DynamicIcon value={sub.emoji} fallback="🔄" className="w-4 h-4 text-xs" />
-                                <span>{sub.name}</span>
+                            <div className="flex items-center justify-between gap-2">
+                              <h4 className="text-xs font-semibold text-white group-hover:text-[var(--accent)] transition-colors truncate flex-1 min-w-0 flex items-center gap-1.5">
+                                <DynamicIcon value={sub.emoji} fallback="🔄" className="w-3.5 h-3.5 text-xs shrink-0" />
+                                <span className="truncate">{sub.name}</span>
                               </h4>
-                              <p className="text-[11px] text-slate-300 font-medium">
-                                {t('dashboard.autoDebitDay', { day: sub.billingDay }, `Débito aut. el día ${sub.billingDay} de cada mes`)}
-                              </p>
+                              <span className="text-xs sm:text-sm font-bold text-rose-400 tabular-nums shrink-0">
+                                {formatCurrency(sub.amount, sub.currency || baseCurrency)}
+                              </span>
                             </div>
 
-                            <div className="text-xs font-bold text-rose-400 shrink-0 tabular-nums">
-                              {formatCurrency(sub.amount, sub.currency || 'USD')} / {t('common.month', {}, 'mes')}
+                            <div className="flex items-center justify-between gap-2 mt-1.5 pt-1.5 border-t border-white/5">
+                              <span className="text-[10px] sm:text-[11px] text-slate-400 font-medium truncate">
+                                {t('dashboard.autoDebitDay', { day: sub.billingDay }, isEs ? `Débito aut. día ${sub.billingDay}` : `Auto-debit on day ${sub.billingDay}`)}
+                              </span>
+                              <span className="text-[10px] text-slate-400 font-medium shrink-0">
+                                / {t('common.month', {}, isEs ? 'mes' : 'mo')}
+                              </span>
                             </div>
                           </div>
                         ))}
