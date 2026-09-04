@@ -14,6 +14,7 @@ import SubscriptionsModule from './SubscriptionsModule';
 import SettingsModule from './SettingsModule';
 import AboutModule from './AboutModule';
 import FeedbackModule from './FeedbackModule';
+import NotFoundPage from './NotFoundPage';
 import CashflowForecastChart from './dashboard/CashflowForecastChart';
 import FinancialHealthCard from './dashboard/FinancialHealthCard';
 import TopAccountsWidget from './dashboard/TopAccountsWidget';
@@ -33,7 +34,7 @@ import { safeGetStorage, safeSetStorage } from '../utils/storage';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { calculateDebtRemaining } from '../services/debtsService';
 
-export default function DashboardPreview({ user, onLogout }) {
+export default function DashboardPreview({ user, onLogout, onOpenPrivacy }) {
   const { 
     accounts, categories, transactions, loans, debtPayments, subscriptions, isLoading, isInitialized,
     autoDebitsNotification, clearAutoDebitsNotification,
@@ -432,7 +433,7 @@ export default function DashboardPreview({ user, onLogout }) {
                     title={t('dashboard.goToSummary', {}, 'Ir a Resumen / Dashboard')}
                   >
                     <div className="w-9 h-9 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex items-center justify-center p-2 shadow-inner group-hover:scale-105 transition-transform shrink-0">
-                      <img src="/logos/Transparent.svg" alt="Growy" className="w-full h-full object-contain" />
+                      <img src="/logos/Transparent.svg" alt="Growy - Finanzas Personales Inteligentes" className="w-full h-full object-contain" />
                     </div>
                     <div className="min-w-0">
                       <h1 className="text-lg font-bold text-white tracking-tight leading-none group-hover:text-[var(--accent,#97F2CC)] transition-colors truncate">
@@ -461,7 +462,7 @@ export default function DashboardPreview({ user, onLogout }) {
                     className="w-9 h-9 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex items-center justify-center p-2 shadow-inner hover:scale-105 transition-transform cursor-pointer"
                     title="Growy"
                   >
-                    <img src="/logos/Transparent.svg" alt="Growy" className="w-full h-full object-contain" />
+                    <img src="/logos/Transparent.svg" alt="Growy - Finanzas Personales Inteligentes" className="w-full h-full object-contain" />
                   </div>
 
                   <button
@@ -1402,9 +1403,47 @@ export default function DashboardPreview({ user, onLogout }) {
             <SettingsModule onLogout={onLogout} />
           ) : activeTab === 'feedback' ? (
             <FeedbackModule />
-          ) : (
+          ) : activeTab === 'about' ? (
             <AboutModule />
+          ) : (
+            <NotFoundPage 
+              isLoggedIn={true}
+              onNavigateTab={(tab) => setActiveTab(tab || 'dashboard')}
+              onGoHome={() => setActiveTab('dashboard')}
+              onOpenPrivacy={onOpenPrivacy}
+            />
           )}
+
+          {/* PERSISTENT FOOTER WITH PRIVACY POLICY */}
+          <footer className="w-full mt-14 pt-6 pb-4 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+            <div className="flex items-center gap-2 text-slate-400">
+              <span className="font-semibold text-slate-300">Growy</span>
+              <span>&copy; {new Date().getFullYear()}</span>
+              <span className="text-slate-600">•</span>
+              <span>{t('footer.rights', {}, isEs ? 'Todos los derechos reservados.' : 'All rights reserved.')}</span>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-medium">
+              <button
+                type="button"
+                onClick={onOpenPrivacy}
+                className="text-slate-300 hover:text-[var(--accent,#97F2CC)] transition-colors underline cursor-pointer"
+              >
+                {t('footer.privacyPolicy', {}, isEs ? 'Política de Privacidad' : 'Privacy Policy')}
+              </button>
+              <span className="text-slate-600 hidden sm:inline">•</span>
+              <button
+                type="button"
+                onClick={() => setActiveTab('about')}
+                className="text-slate-300 hover:text-[var(--accent,#97F2CC)] transition-colors underline cursor-pointer"
+              >
+                {t('footer.about', {}, isEs ? 'Acerca de SIMPORA' : 'About SIMPORA')}
+              </button>
+              <span className="text-slate-600 hidden sm:inline">•</span>
+              <span className="text-slate-500">
+                {t('footer.tagline', {}, isEs ? 'Ecosistema de Finanzas Personales Inteligentes' : 'Smart Personal Finance Ecosystem')}
+              </span>
+            </div>
+          </footer>
         </div>
 
       </main>
@@ -1439,7 +1478,7 @@ export default function DashboardPreview({ user, onLogout }) {
             <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex items-center justify-center p-1.5 shadow-inner">
-                  <img src="/logos/Transparent.svg" alt="Growy" className="w-full h-full object-contain" />
+                  <img src="/logos/Transparent.svg" alt="Growy - Finanzas Personales Inteligentes" className="w-full h-full object-contain" />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-white tracking-tight">{t('common.moreOptions', {}, 'Más Opciones')}</h3>

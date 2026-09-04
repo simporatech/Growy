@@ -14,28 +14,32 @@ import { useDocumentTitle } from './hooks/useDocumentTitle';
 import AmbientBackground from './components/AmbientBackground';
 import SplashScreen from './components/SplashScreen';
 
-function LoginScreen({ onLoginSuccess, onOpenForgotPassword, onOpenRegister }) {
-  const { t } = useSettings();
+import PrivacyPolicyModal from './components/PrivacyPolicyModal';
+import NotFoundPage from './components/NotFoundPage';
+
+function LoginScreen({ onLoginSuccess, onOpenForgotPassword, onOpenRegister, onOpenPrivacy }) {
+  const { t, language } = useSettings();
+  const isEs = String(language || 'es').toLowerCase().startsWith('es');
   useDocumentTitle('login');
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-[#090C10] relative flex flex-col justify-between selection:bg-[var(--accent,#97F2CC)] selection:text-[var(--accent-text,#091E15)]">
+    <div className="min-h-screen w-screen overflow-x-hidden bg-[#090C10] relative flex flex-col justify-between selection:bg-[var(--accent,#97F2CC)] selection:text-[var(--accent-text,#091E15)]">
       
       {/* Fondo Ambiental Dinámico con Anti-Banding Dithering y Aceleración GPU */}
       <AmbientBackground />
 
       {/* TOP DECORATIVE HEADER */}
-      <header className="relative z-10 p-6 flex items-center justify-between max-w-7xl mx-auto w-full">
+      <header className="relative z-10 p-4 sm:p-6 flex items-center justify-between max-w-7xl mx-auto w-full">
         <div className="flex items-center gap-2.5">
           <div className="w-10 h-10 rounded-2xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex items-center justify-center p-2 shadow-lg">
-            <img src="/logos/Transparent.svg" alt="Growy" className="w-full h-full object-contain" />
+            <img src="/logos/Transparent.svg" alt="Growy - Finanzas Personales Inteligentes" className="w-full h-full object-contain" />
           </div>
           <span className="text-sm font-black tracking-wider text-white">GROWY</span>
         </div>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
           <ShieldCheck className="w-4 h-4 text-[var(--accent,#97F2CC)]" />
           <span className="text-[11px] font-semibold text-slate-300">
-            {t('modals.auth.encryptedConnection', {}, 'Conexión Encriptada 256-bit')}
+            {t('modals.auth.encryptedConnection', {}, isEs ? 'Conexión Encriptada 256-bit' : '256-bit Encrypted Connection')}
           </span>
         </div>
       </header>
@@ -49,14 +53,29 @@ function LoginScreen({ onLoginSuccess, onOpenForgotPassword, onOpenRegister }) {
         />
       </main>
 
-      {/* FOOTER */}
-      <footer className="relative z-10 mt-8 pb-4 flex flex-col items-center gap-1">
-        <p className="text-xs text-slate-400 font-medium">
-          Growy &copy; {new Date().getFullYear()}
-        </p>
-        <p className="text-xs text-slate-500 font-medium">
-          {t('common.footerTagline', {}, 'Ecosistema de Finanzas Personales Inteligentes')}
-        </p>
+      {/* FUNCTIONAL FIXED FOOTER */}
+      <footer className="relative z-10 py-5 px-4 border-t border-white/5 bg-[#090C10]/80 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+          <div className="flex items-center gap-2">
+            <span>Growy &copy; {new Date().getFullYear()}</span>
+            <span>•</span>
+            <span>{t('footer.rights', {}, isEs ? 'Todos los derechos reservados.' : 'All rights reserved.')}</span>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-medium">
+            <button
+              type="button"
+              onClick={onOpenPrivacy}
+              className="text-slate-300 hover:text-[var(--accent,#97F2CC)] transition-colors underline cursor-pointer"
+            >
+              {t('footer.privacyPolicy', {}, isEs ? 'Política de Privacidad' : 'Privacy Policy')}
+            </button>
+            <span className="text-slate-600 hidden sm:inline">•</span>
+            <span className="text-slate-400">
+              {t('footer.tagline', {}, isEs ? 'Ecosistema de Finanzas Personales Inteligentes' : 'Smart Personal Finance Ecosystem')}
+            </span>
+          </div>
+        </div>
       </footer>
     </div>
   );
@@ -68,6 +87,17 @@ export default function App() {
   const [showWalkthrough, setShowWalkthrough] = useState(false);
   const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
+
+  // Path detection for direct 404 access
+  const [pathname, setPathname] = useState(() => {
+    if (typeof window !== 'undefined' && window.location) {
+      return window.location.pathname || '/';
+    }
+    return '/';
+  });
+
+  const isExplicit404 = pathname === '/404';
 
   // Auto session restoration on reload (F5) with live Supabase DB user validation
   useEffect(() => {
@@ -134,10 +164,25 @@ export default function App() {
     <ErrorBoundary>
       <DbConnectionGuard>
         <SettingsProvider userId={user?.id || getActiveSessionUserId()}>
-          {user ? (
+          {isExplicit404 ? (
+            <NotFoundPage 
+              isLoggedIn={!!user}
+              onGoHome={() => {
+                if (typeof window !== 'undefined') {
+                  window.history.pushState({}, '', '/');
+                  setPathname('/');
+                }
+              }}
+              onOpenPrivacy={() => setIsPrivacyModalOpen(true)}
+            />
+          ) : user ? (
             <FinanceProvider userId={user.id}>
               <div className="h-screen w-screen overflow-hidden bg-[#090C10] selection:bg-[var(--color-primary,#97F2CC)] selection:text-[#091E15]">
-                <DashboardPreview user={user} onLogout={handleLogout} />
+                <DashboardPreview 
+                  user={user} 
+                  onLogout={handleLogout}
+                  onOpenPrivacy={() => setIsPrivacyModalOpen(true)}
+                />
                 <WalkthroughModal
                   isOpen={showWalkthrough}
                   onComplete={handleCompleteWalkthrough}
@@ -150,6 +195,7 @@ export default function App() {
                 onLoginSuccess={handleLoginSuccess}
                 onOpenForgotPassword={() => setIsForgotPasswordOpen(true)}
                 onOpenRegister={() => setIsRegisterOpen(true)}
+                onOpenPrivacy={() => setIsPrivacyModalOpen(true)}
               />
               <ForgotPasswordModal
                 isOpen={isForgotPasswordOpen}
@@ -164,6 +210,12 @@ export default function App() {
               />
             </>
           )}
+
+          {/* GLOBAL PRIVACY POLICY MODAL */}
+          <PrivacyPolicyModal
+            isOpen={isPrivacyModalOpen}
+            onClose={() => setIsPrivacyModalOpen(false)}
+          />
         </SettingsProvider>
       </DbConnectionGuard>
     </ErrorBoundary>

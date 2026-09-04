@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <!-- Homepage / Application Portal -->
+  <url>
+    <loc>https://growy.app/</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://growy.app/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://growy.app/en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://growy.app/" />
+  </url>
+
+  <!-- Login & Authentication -->
+  <url>
+    <loc>https://growy.app/login</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://growy.app/login" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://growy.app/en/login" />
+  </url>
+
+  <!-- Privacy Policy -->
+  <url>
+    <loc>https://growy.app/privacy</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://growy.app/privacy" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://growy.app/en/privacy" />
+  </url>
+
+  <!-- About SIMPORA -->
+  <url>
+    <loc>https://growy.app/about</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://growy.app/about" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://growy.app/en/about" />
+  </url>
+
+</urlset>

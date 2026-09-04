@@ -196,5 +196,31 @@
     "newBudget": "Nuevo Presupuesto",
     "newGoal": "Nueva Meta",
     "searchPlaceholder": "Buscar por nombre..."
+  },
+  "notFound": {
+    "title": "404 - Página No Encontrada",
+    "badge": "Error 404 • Fuera de Ruta",
+    "headline": "Esta página se desvió del presupuesto",
+    "description": "El enlace o recurso al que intentas acceder no existe, ha sido reubicado o la dirección ingresada es incorrecta.",
+    "backHome": "Volver al Inicio",
+    "backDashboard": "Volver al Panel",
+    "quickLinksTitle": "O navega directamente a estas secciones:"
+  },
+  "privacy": {
+    "modalTitle": "Política de Privacidad y Seguridad de Datos",
+    "modalSubtitle": "Transparencia absoluta, encriptación bancaria y soberanía total sobre tu información",
+    "lastUpdated": "Última actualización: Septiembre 2026",
+    "badgeEncrypted": "Conexión Cifrada TLS 1.3 / SSL 256-bit",
+    "badgeNoSale": "Cero Venta ni Rastreo de Datos",
+    "badgeRls": "Aislamiento Estricto Supabase RLS",
+    "close": "Cerrar"
+  },
+  "footer": {
+    "privacyPolicy": "Política de Privacidad",
+    "terms": "Términos de Servicio",
+    "about": "Acerca de SIMPORA",
+    "support": "Reportes & Soporte",
+    "tagline": "Ecosistema de Finanzas Personales Inteligentes",
+    "rights": "Todos los derechos reservados."
   }
 }

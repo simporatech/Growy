@@ -1,0 +1,28 @@
+# ==============================================================================
+# Growy - Smart Personal Finances
+# Robots.txt configuration for search engine crawlers
+# ==============================================================================
+
+User-agent: *
+Allow: /
+Allow: /favicon.svg
+Allow: /manifest.json
+Allow: /logos/
+Allow: /privacy
+Allow: /about
+
+# Disallow private application state and internal APIs
+Disallow: /api/
+Disallow: /private/
+Disallow: /admin/
+Disallow: /*?token=*
+Disallow: /*?session=*
+
+# Sitemap location
+Sitemap: https://growy.app/sitemap.xml
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
+
+# Host
+Host: https://growy.app

@@ -196,6 +196,52 @@ export const translations = {
       "all": "Todas",
       "selected": "seleccionadas"
     },
+    "notFound": {
+      "title": "404 - Página No Encontrada",
+      "badge": "Error 404 • Fuera de Ruta",
+      "headline": "Esta página se desvió del presupuesto",
+      "description": "El enlace o recurso al que intentas acceder no existe, ha sido reubicado o la dirección ingresada es incorrecta.",
+      "backHome": "Volver al Inicio",
+      "backDashboard": "Volver al Panel",
+      "quickLinksTitle": "O navega directamente a estas secciones:",
+      "navDashboard": "Panel Principal",
+      "navTransactions": "Transacciones",
+      "navAccounts": "Cuentas",
+      "navDebts": "Saldos Pendientes",
+      "navSubscriptions": "Suscripciones",
+      "navSupport": "Reportar un Problema"
+    },
+    "privacy": {
+      "modalTitle": "Política de Privacidad y Seguridad de Datos",
+      "modalSubtitle": "Transparencia absoluta, encriptación bancaria y soberanía total sobre tu información",
+      "lastUpdated": "Última actualización: Septiembre 2026",
+      "badgeEncrypted": "Conexión Cifrada TLS 1.3 / SSL 256-bit",
+      "badgeNoSale": "Cero Venta ni Rastreo de Datos",
+      "badgeRls": "Aislamiento Estricto Supabase RLS",
+      "close": "Cerrar",
+      "sections": {
+        "commitmentTitle": "1. Compromiso Fundamental de Privacidad",
+        "commitmentContent": "En Growy (desarrollado por SIMPORA), creemos que tus finanzas son estrictamente tuyas. No monetizamos tus datos, no mostramos publicidad basada en tu historial financiero y no vendemos tu información a bancos, financieras ni corredores de datos.",
+        "dataCollectedTitle": "2. Información que Procesamos",
+        "dataCollectedContent": "Únicamente procesamos los datos que tú decides registrar en la plataforma: nombre de usuario, correo electrónico, cuentas financieras, transacciones de gastos e ingresos, presupuestos y saldos pendientes.",
+        "securityTitle": "3. Encriptación y Seguridad de Grado Bancario",
+        "securityContent": "Toda la comunicación entre tu navegador y nuestros servidores viaja cifrada mediante protocolos SSL/TLS de 256 bits. La base de datos opera bajo políticas de seguridad a nivel de fila (Row Level Security - RLS), garantizando que ningún otro usuario ni proceso no autorizado pueda leer o modificar tus registros.",
+        "rightsTitle": "4. Soberanía, Exportación y Derecho al Olvido",
+        "rightsContent": "Tienes el derecho en todo momento a exportar tu información financiera en formatos abiertos (CSV, JSON, PDF) y a solicitar o ejecutar la eliminación total e irreversible de tu cuenta y todos sus registros asociados de nuestras bases de datos.",
+        "cookiesTitle": "5. Almacenamiento Local y Cookies",
+        "cookiesContent": "Utilizamos el almacenamiento local de tu navegador exclusivamente para guardar tus preferencias de interfaz (idioma, divisa base, tema y estado de sesión activa). No empleamos cookies de rastreo de terceros.",
+        "contactTitle": "6. Contacto y Responsable de Protección",
+        "contactContent": "Para cualquier consulta, aclaración o ejercicio de tus derechos de privacidad, puedes contactar al equipo de desarrollo oficial de SIMPORA a través de la sección de Soporte & Feedback dentro de la app o vía correo electrónico oficial."
+      }
+    },
+    "footer": {
+      "privacyPolicy": "Política de Privacidad",
+      "terms": "Términos de Servicio",
+      "about": "Acerca de SIMPORA",
+      "support": "Reportes & Soporte",
+      "tagline": "Ecosistema de Finanzas Personales Inteligentes",
+      "rights": "Todos los derechos reservados."
+    },
     "about": {
       "title": "Acerca de SIMPORA",
       "subtitle": "Conoce al equipo de software detrás del ecosistema Growy",
@@ -1009,6 +1055,52 @@ export const translations = {
       "allCurrencies": "All Currencies",
       "all": "All",
       "selected": "selected"
+    },
+    "notFound": {
+      "title": "404 - Page Not Found",
+      "badge": "Error 404 • Out of Bounds",
+      "headline": "This page went off budget",
+      "description": "The link or resource you are looking for does not exist, has been moved, or the URL entered is incorrect.",
+      "backHome": "Back to Home",
+      "backDashboard": "Back to Dashboard",
+      "quickLinksTitle": "Or navigate directly to these sections:",
+      "navDashboard": "Main Dashboard",
+      "navTransactions": "Transactions",
+      "navAccounts": "Accounts",
+      "navDebts": "Pending Balances",
+      "navSubscriptions": "Subscriptions",
+      "navSupport": "Report an Issue"
+    },
+    "privacy": {
+      "modalTitle": "Privacy Policy & Data Protection",
+      "modalSubtitle": "Absolute transparency, bank-grade encryption, and full sovereignty over your information",
+      "lastUpdated": "Last updated: September 2026",
+      "badgeEncrypted": "TLS 1.3 / SSL 256-bit Encrypted",
+      "badgeNoSale": "Zero Data Selling & No Tracking",
+      "badgeRls": "Supabase Row Level Security (RLS)",
+      "close": "Close",
+      "sections": {
+        "commitmentTitle": "1. Fundamental Privacy Commitment",
+        "commitmentContent": "At Growy (developed by SIMPORA), we believe your finances belong strictly to you. We do not monetize your data, we do not serve ads based on your financial habits, and we never sell your records to banks or data brokers.",
+        "dataCollectedTitle": "2. Information We Process",
+        "dataCollectedContent": "We only process the data you voluntarily register in the application: username, email address, financial accounts, income/expense transactions, monthly budgets, and pending debts.",
+        "securityTitle": "3. Bank-Grade Security & Encryption",
+        "securityContent": "All communication between your client device and our servers is encrypted using 256-bit SSL/TLS protocols. Database access is governed by strict Row Level Security (RLS), ensuring that only your authenticated session can access your financial data.",
+        "rightsTitle": "4. Data Sovereignty, Export & Right to be Forgotten",
+        "rightsContent": "You retain full ownership of your data at all times. You can export your complete records in standard open formats (CSV, JSON, PDF) or permanently delete your account and all associated records whenever you choose.",
+        "cookiesTitle": "5. Local Storage & Cookies",
+        "cookiesContent": "We use your browser's local storage exclusively to persist user interface preferences (selected language, base currency, theme, and session token). We do not use third-party tracking cookies.",
+        "contactTitle": "6. Contact & Data Protection Officer",
+        "contactContent": "For any inquiries or to exercise your data privacy rights, you can reach out to the official SIMPORA engineering team through the Reports & Feedback module in the app or via official support email."
+      }
+    },
+    "footer": {
+      "privacyPolicy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "about": "About SIMPORA",
+      "support": "Reports & Support",
+      "tagline": "Smart Personal Finance Ecosystem",
+      "rights": "All rights reserved."
     },
     "about": {
       "title": "About SIMPORA",

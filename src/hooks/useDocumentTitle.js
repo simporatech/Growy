@@ -24,7 +24,12 @@ const ROUTE_TITLE_KEYS = {
   '/feedback': 'titles.feedback',
   'feedback': 'titles.feedback',
   '/about': 'titles.about',
-  'about': 'titles.about'
+  'about': 'titles.about',
+  '/privacy': 'titles.privacy',
+  'privacy': 'titles.privacy',
+  '/404': 'titles.not_found',
+  '404': 'titles.not_found',
+  'not_found': 'titles.not_found'
 };
 
 const DEFAULT_FALLBACKS_ES = {
@@ -37,7 +42,9 @@ const DEFAULT_FALLBACKS_ES = {
   'titles.categories': 'Categorías y Presupuestos',
   'titles.settings': 'Ajustes del Sistema',
   'titles.feedback': 'Reportes y Sugerencias',
-  'titles.about': 'Acerca de SIMPORA'
+  'titles.about': 'Acerca de SIMPORA',
+  'titles.privacy': 'Política de Privacidad',
+  'titles.not_found': '404 - Página No Encontrada'
 };
 
 const DEFAULT_FALLBACKS_EN = {
@@ -50,7 +57,9 @@ const DEFAULT_FALLBACKS_EN = {
   'titles.categories': 'Categories & Budgets',
   'titles.settings': 'System Settings',
   'titles.feedback': 'Reports & Feedback',
-  'titles.about': 'About SIMPORA'
+  'titles.about': 'About SIMPORA',
+  'titles.privacy': 'Privacy Policy',
+  'titles.not_found': '404 - Page Not Found'
 };
 
 export const useDocumentTitle = (activeView = null) => {

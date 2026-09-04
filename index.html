@@ -1,24 +1,106 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-[#1E2D32]">
+<html lang="es" class="h-full bg-[#090C10]">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+    
+    <!-- Primary Meta Tags -->
+    <title>Growy • Finanzas Personales Inteligentes, Presupuestos y Control de Gastos</title>
+    <meta name="title" content="Growy • Finanzas Personales Inteligentes, Presupuestos y Control de Gastos" />
+    <meta name="description" content="Growy es el ecosistema inteligente de finanzas personales para gestionar presupuestos, registrar transacciones, proyectar tu flujo de caja en tiempo real y controlar saldos pendientes con diseño ultra moderno." />
+    <meta name="keywords" content="finanzas personales, control de gastos, presupuestos mensuales, flujo de caja, gestión de deudas, suscripciones, ahorro inteligente, growy, app finanzas" />
+    <meta name="author" content="SIMPORA" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow" />
+
+    <!-- Canonical & Multilingual SEO -->
+    <link rel="canonical" href="https://growy.app/" />
+    <link rel="alternate" hreflang="es" href="https://growy.app/" />
+    <link rel="alternate" hreflang="en" href="https://growy.app/en" />
+    <link rel="alternate" hreflang="x-default" href="https://growy.app/" />
+
+    <!-- Favicons & Icons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <meta name="theme-color" content="#1E2D32" />
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="description" content="Growy - Tu aplicación de finanzas personales con diseño ultra moderno y minimalista." />
+    <link rel="apple-touch-icon" href="/logos/Transparent.svg" />
     <link rel="manifest" href="/manifest.json" />
 
-    <!-- Google Fonts: Plus Jakarta Sans -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Color Theme & Mobile App Capabilities -->
+    <meta name="theme-color" content="#090C10" />
+    <meta name="msapplication-TileColor" content="#090C10" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Growy" />
+    <meta name="application-name" content="Growy" />
 
-    <title>Growy • Iniciar Sesión</title>
+    <!-- Open Graph / Facebook / WhatsApp / LinkedIn -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://growy.app/" />
+    <meta property="og:site_name" content="Growy" />
+    <meta property="og:title" content="Growy • Finanzas Personales Inteligentes y Control de Gastos" />
+    <meta property="og:description" content="Ecosistema inteligente para la gestión de finanzas personales, presupuestos mensuales, control de deudas, suscripciones y proyección de flujo de caja en tiempo real." />
+    <meta property="og:image" content="https://growy.app/logos/Transparent.svg" />
+    <meta property="og:image:alt" content="Growy Smart Personal Finances Dashboard" />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:locale:alternate" content="en_US" />
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://growy.app/" />
+    <meta name="twitter:site" content="@simporatech" />
+    <meta name="twitter:creator" content="@simporatech" />
+    <meta name="twitter:title" content="Growy • Finanzas Personales Inteligentes" />
+    <meta name="twitter:description" content="Controla tus cuentas, gastos, deudas y suscripciones con proyecciones de flujo de caja en tiempo real." />
+    <meta name="twitter:image" content="https://growy.app/logos/Transparent.svg" />
+    <meta name="twitter:image:alt" content="Growy - Smart Finances" />
+
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+    <!-- Schema.org JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "@id": "https://growy.app/#webapp",
+          "name": "Growy",
+          "url": "https://growy.app/",
+          "applicationCategory": "FinanceApplication",
+          "operatingSystem": "Web, iOS, Android, macOS, Windows",
+          "browserRequirements": "Requires JavaScript. Requires HTML5.",
+          "description": "Ecosistema inteligente de finanzas personales, presupuestos mensuales, control de deudas, suscripciones y proyecciones de flujo de caja.",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "author": {
+            "@type": "Organization",
+            "@id": "https://growy.app/#organization",
+            "name": "SIMPORA",
+            "url": "https://growy.app/about"
+          }
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://growy.app/#organization",
+          "name": "SIMPORA",
+          "url": "https://growy.app/",
+          "logo": "https://growy.app/logos/Transparent.svg",
+          "sameAs": [
+            "https://github.com/simporatech/Growy"
+          ]
+        }
+      ]
+    }
+    </script>
   </head>
-  <body class="h-full bg-[#1E2D32] text-white font-['Plus_Jakarta_Sans',sans-serif] antialiased selection:bg-[#AEEDD0] selection:text-[#1E2D32] overflow-x-hidden">
+  <body class="h-full bg-[#090C10] text-white font-['Plus_Jakarta_Sans',sans-serif] antialiased selection:bg-[#97F2CC] selection:text-[#091E15] overflow-x-hidden">
     <div id="root" class="min-h-full flex flex-col"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
