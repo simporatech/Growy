@@ -39,6 +39,7 @@ export default function DebtsView() {
   } = useFinance();
 
   const { formatCurrency, language, t, baseCurrency, exchangeRates } = useSettings();
+  const isEs = language === 'es';
 
   // Modals state
   const [isDebtModalOpen, setIsDebtModalOpen] = useState(false);
@@ -229,8 +230,6 @@ export default function DebtsView() {
     const start = (currentPage - 1) * pageSize;
     return filteredDebts.slice(start, start + pageSize);
   }, [filteredDebts, currentPage, pageSize]);
-
-  const isEs = language === 'es';
 
   // Dynamic Action Label based on active tab:
   // - payable: 'Nueva Deuda' / 'New Debt'

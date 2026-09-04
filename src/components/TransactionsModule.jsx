@@ -18,6 +18,7 @@ import DynamicIcon from './DynamicIcon';
 export default function TransactionsModule() {
   const { transactions, accounts, categories, addTransaction, updateTransaction, deleteTransaction, isLoading, isInitialized } = useFinance();
   const { formatCurrency, t, language, exchangeRates, baseCurrency, formatToGlobal } = useSettings();
+  const isEs = language === 'es';
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [txToEdit, setTxToEdit] = useState(null);
@@ -296,8 +297,6 @@ export default function TransactionsModule() {
     const monthName = d.toLocaleDateString(language === 'es' ? 'es-ES' : 'en-US', { month: 'long', year: 'numeric' });
     return monthName.charAt(0).toUpperCase() + monthName.slice(1);
   }, [currentYear, currentMonth, language]);
-
-  const isEs = language === 'es';
 
   const transactionColumns = useMemo(() => [
     { 

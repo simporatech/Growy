@@ -17,6 +17,7 @@ import { CURRENCY_MAP } from '../utils/currency';
 export default function AccountsModule() {
   const { accounts, addAccount, updateAccount, deleteAccount, isLoading, isInitialized } = useFinance();
   const { convertToGlobal, baseCurrency, formatCurrency, t, language } = useSettings();
+  const isEs = language === 'es';
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [accountToEdit, setAccountToEdit] = useState(null);
@@ -77,8 +78,6 @@ export default function AccountsModule() {
       return sum + converted;
     }, 0);
   }, [safeAccountsList, convertToGlobal, baseCurrency]);
-
-  const isEs = language === 'es';
 
   const accountColumns = useMemo(() => [
     { label: isEs ? 'Nombre' : 'Name', accessor: (a) => a?.name || '-' },

@@ -15,6 +15,7 @@ import DynamicIcon from './DynamicIcon';
 export default function CategoriesModule() {
   const { accounts, categories, transactions, addCategory, updateCategory, deleteCategory } = useFinance();
   const { baseCurrency, formatCurrency, language, t, formatToGlobal, convertToGlobal } = useSettings();
+  const isEs = language === 'es';
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [categoryToEdit, setCategoryToEdit] = useState(null);
@@ -99,8 +100,6 @@ export default function CategoriesModule() {
     const start = (currentPage - 1) * pageSize;
     return filteredCategories.slice(start, start + pageSize);
   }, [filteredCategories, currentPage, pageSize]);
-
-  const isEs = language === 'es';
 
   const categoryColumns = useMemo(() => [
     { 
