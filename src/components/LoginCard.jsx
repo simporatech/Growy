@@ -73,16 +73,21 @@ export default function LoginCard({ onLoginSuccess, onOpenForgotPassword, onOpen
             <div className="relative bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/25 rounded-2xl p-3.5 shadow-lg flex items-center justify-center">
               <img 
                 src="/logos/Transparent.svg" 
-                alt="Growy Logo" 
+                alt="Growy - Finanzas Personales Inteligentes" 
                 className="w-14 h-14 sm:w-16 sm:h-16 object-contain filter drop-shadow-[0_4px_12px_rgba(151,242,204,0.3)] transition-transform duration-300 group-hover:scale-105"
               />
             </div>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-            Growy
-          </h1>
-          <p className="text-[#8EA7A8] text-xs sm:text-sm mt-1.5 font-medium">
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-none">
+              Growy
+            </h1>
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold tracking-wider uppercase bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 text-[var(--accent,#97F2CC)] shadow-sm leading-none">
+              by SIMPORA
+            </span>
+          </div>
+          <p className="text-[#8EA7A8] text-xs sm:text-sm font-medium">
             {t('modals.auth.loginSubtitle', {}, 'Gestión financiera inteligente')}
           </p>
         </div>

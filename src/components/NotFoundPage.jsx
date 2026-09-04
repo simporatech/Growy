@@ -207,20 +207,23 @@ export default function NotFoundPage({
       </main>
 
       {/* FOOTER */}
-      <footer className="relative z-20 py-6 px-4 border-t border-white/5 bg-[#090C10]/80 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
-          <div className="flex items-center gap-2">
-            <span>Growy &copy; {new Date().getFullYear()}</span>
-            <span>•</span>
-            <span>{t('footer.rights', {}, isEs ? 'Todos los derechos reservados.' : 'All rights reserved.')}</span>
+      <footer className="relative z-20 py-5 px-4 border-t border-white/5 bg-[#090C10]/80 backdrop-blur-md">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400 text-center sm:text-left">
+          <div className="flex items-center justify-center gap-2">
+            <span className="font-bold text-slate-300">Growy</span>
+            <span className="text-[10px] font-bold text-[var(--accent,#97F2CC)] uppercase px-1.5 py-0.5 rounded bg-[var(--accent,#97F2CC)]/10 border border-[var(--accent,#97F2CC)]/20 leading-none">by SIMPORA</span>
+            <span className="text-slate-600">•</span>
+            <span>&copy; {new Date().getFullYear()}</span>
+            <span className="text-slate-600 hidden sm:inline">•</span>
+            <span className="hidden sm:inline">{t('footer.rights', {}, isEs ? 'Todos los derechos reservados.' : 'All rights reserved.')}</span>
           </div>
 
-          <div className="flex items-center gap-4 text-xs font-medium">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs font-medium">
             {onOpenPrivacy && (
               <button
                 type="button"
                 onClick={onOpenPrivacy}
-                className="hover:text-[var(--accent,#97F2CC)] transition-colors underline cursor-pointer"
+                className="text-slate-300 hover:text-[var(--accent,#97F2CC)] transition-colors underline cursor-pointer"
               >
                 {t('footer.privacyPolicy', {}, isEs ? 'Política de Privacidad' : 'Privacy Policy')}
               </button>

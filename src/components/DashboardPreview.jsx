@@ -607,9 +607,9 @@ export default function DashboardPreview({ user, onLogout, onOpenPrivacy }) {
         </aside>
 
         {/* MAIN CONTENT WRAPPER */}
-        <main className="flex-1 h-full overflow-y-auto overflow-x-hidden max-w-full bg-transparent transition-all duration-200 ease-in-out pb-32 md:pb-8 overscroll-none">
+        <main className="flex-1 h-full overflow-y-auto overflow-x-hidden max-w-full bg-transparent transition-all duration-200 ease-in-out overscroll-none flex flex-col justify-between">
         
-        <div className="w-full max-w-[1600px] mx-auto px-4 pt-4 pb-32 md:px-6 lg:px-8 md:pt-8 md:pb-12 space-y-4 md:space-y-6 isolate transition-all duration-200 ease-in-out">
+        <div className="w-full max-w-[1600px] mx-auto px-4 pt-4 md:px-6 lg:px-8 md:pt-8 space-y-4 md:space-y-6 isolate transition-all duration-200 ease-in-out flex-1 flex flex-col justify-between">
           {activeTab === 'dashboard' ? (
             <>
               {/* PAGE HEADER WITH SPLIT BUTTON */}
@@ -1415,14 +1415,16 @@ export default function DashboardPreview({ user, onLogout, onOpenPrivacy }) {
           )}
 
           {/* PERSISTENT FOOTER WITH PRIVACY POLICY */}
-          <footer className="w-full mt-14 pt-6 pb-4 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-            <div className="flex items-center gap-2 text-slate-400">
-              <span className="font-semibold text-slate-300">Growy</span>
-              <span>&copy; {new Date().getFullYear()}</span>
+          <footer className="w-full mt-10 pt-5 pb-24 md:pb-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400 text-center sm:text-left">
+            <div className="flex items-center justify-center gap-2">
+              <span className="font-bold text-slate-300">Growy</span>
+              <span className="text-[10px] font-bold text-[var(--accent,#97F2CC)] uppercase px-1.5 py-0.5 rounded bg-[var(--accent,#97F2CC)]/10 border border-[var(--accent,#97F2CC)]/20 leading-none">by SIMPORA</span>
               <span className="text-slate-600">•</span>
-              <span>{t('footer.rights', {}, isEs ? 'Todos los derechos reservados.' : 'All rights reserved.')}</span>
+              <span>&copy; {new Date().getFullYear()}</span>
+              <span className="text-slate-600 hidden sm:inline">•</span>
+              <span className="hidden sm:inline">{t('footer.rights', {}, isEs ? 'Todos los derechos reservados.' : 'All rights reserved.')}</span>
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-medium">
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs font-medium">
               <button
                 type="button"
                 onClick={onOpenPrivacy}
@@ -1430,7 +1432,7 @@ export default function DashboardPreview({ user, onLogout, onOpenPrivacy }) {
               >
                 {t('footer.privacyPolicy', {}, isEs ? 'Política de Privacidad' : 'Privacy Policy')}
               </button>
-              <span className="text-slate-600 hidden sm:inline">•</span>
+              <span className="text-slate-600">•</span>
               <button
                 type="button"
                 onClick={() => setActiveTab('about')}
@@ -1438,8 +1440,8 @@ export default function DashboardPreview({ user, onLogout, onOpenPrivacy }) {
               >
                 {t('footer.about', {}, isEs ? 'Acerca de SIMPORA' : 'About SIMPORA')}
               </button>
-              <span className="text-slate-600 hidden sm:inline">•</span>
-              <span className="text-slate-500">
+              <span className="text-slate-600 hidden md:inline">•</span>
+              <span className="text-slate-500 hidden md:inline">
                 {t('footer.tagline', {}, isEs ? 'Ecosistema de Finanzas Personales Inteligentes' : 'Smart Personal Finance Ecosystem')}
               </span>
             </div>

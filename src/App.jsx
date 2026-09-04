@@ -30,11 +30,17 @@ function LoginScreen({ onLoginSuccess, onOpenForgotPassword, onOpenRegister, onO
 
       {/* TOP DECORATIVE HEADER */}
       <header className="relative z-10 p-4 sm:p-6 flex items-center justify-between max-w-7xl mx-auto w-full">
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex items-center justify-center p-2 shadow-lg">
             <img src="/logos/Transparent.svg" alt="Growy - Finanzas Personales Inteligentes" className="w-full h-full object-contain" />
           </div>
-          <span className="text-sm font-black tracking-wider text-white">GROWY</span>
+          <div className="flex flex-col">
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm font-black tracking-wider text-white leading-none">GROWY</span>
+              <span className="text-[9px] font-extrabold tracking-widest text-[var(--accent,#97F2CC)] uppercase px-1.5 py-0.5 rounded bg-[var(--accent,#97F2CC)]/10 border border-[var(--accent,#97F2CC)]/25 leading-none">by SIMPORA</span>
+            </div>
+            <span className="text-[10px] text-slate-400 font-medium tracking-wide mt-1">Ecosistema Financiero</span>
+          </div>
         </div>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
           <ShieldCheck className="w-4 h-4 text-[var(--accent,#97F2CC)]" />
@@ -55,14 +61,17 @@ function LoginScreen({ onLoginSuccess, onOpenForgotPassword, onOpenRegister, onO
 
       {/* FUNCTIONAL FIXED FOOTER */}
       <footer className="relative z-10 py-5 px-4 border-t border-white/5 bg-[#090C10]/80 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
-          <div className="flex items-center gap-2">
-            <span>Growy &copy; {new Date().getFullYear()}</span>
-            <span>•</span>
-            <span>{t('footer.rights', {}, isEs ? 'Todos los derechos reservados.' : 'All rights reserved.')}</span>
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400 text-center sm:text-left">
+          <div className="flex items-center justify-center gap-2">
+            <span className="font-bold text-slate-300">Growy</span>
+            <span className="text-[10px] font-bold text-[var(--accent,#97F2CC)] uppercase px-1.5 py-0.5 rounded bg-[var(--accent,#97F2CC)]/10 border border-[var(--accent,#97F2CC)]/20 leading-none">by SIMPORA</span>
+            <span className="text-slate-600">•</span>
+            <span>&copy; {new Date().getFullYear()}</span>
+            <span className="text-slate-600 hidden sm:inline">•</span>
+            <span className="hidden sm:inline">{t('footer.rights', {}, isEs ? 'Todos los derechos reservados.' : 'All rights reserved.')}</span>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-medium">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs font-medium">
             <button
               type="button"
               onClick={onOpenPrivacy}
@@ -70,7 +79,7 @@ function LoginScreen({ onLoginSuccess, onOpenForgotPassword, onOpenRegister, onO
             >
               {t('footer.privacyPolicy', {}, isEs ? 'Política de Privacidad' : 'Privacy Policy')}
             </button>
-            <span className="text-slate-600 hidden sm:inline">•</span>
+            <span className="text-slate-600">•</span>
             <span className="text-slate-400">
               {t('footer.tagline', {}, isEs ? 'Ecosistema de Finanzas Personales Inteligentes' : 'Smart Personal Finance Ecosystem')}
             </span>
