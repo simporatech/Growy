@@ -92,6 +92,14 @@
       "payments_count": "Abonos ({{count}})"
     },
     "make_payment": "Abonar",
+    "payment": {
+      "debt_amount_label": "Monto a amortizar deuda",
+      "account_debit_label": "Monto a debitar de cuenta",
+      "account_credit_label": "Monto a acreditar en cuenta",
+      "exchange_notice": "Conversión multidivisa requerida",
+      "applied_rate_label": "Tipo de cambio aplicado",
+      "multi_currency_desc": "La deuda está en {debtCurrency} pero la cuenta seleccionada opera en {accountCurrency}. Define cuánto amortizarás de la deuda y cuánto dinero real se debitará de tu cuenta."
+    },
     "virtual_account_name": "Saldos Pendientes (Por Cobrar)",
     "loan_to_prefix": "Préstamo a:",
     "loan_to": "Préstamo a: {{person}}",

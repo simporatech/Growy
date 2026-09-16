@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabaseClient.js';
 import { toCamel, isValidUuid } from './supabaseService.js';
+import { formatCurrency } from '../utils/currency.js';
 
 /**
  * Service for handling debt payments (abonos) in Supabase DB
@@ -406,9 +407,13 @@ export const recordDebtPaymentWithTransaction = async ({
   debt,
   userId,
   amount,
+  accountDebitAmount = null,
+  accountAmount = null,
+  accountCurrency: customAccountCurrency = null,
   paymentDate = new Date().toISOString().split('T')[0],
   accountId = null,
-  notes = ''
+  notes = '',
+  accounts = []
 }) => {
   if (!debt || !userId || !amount) {
     console.error('❌ Error: debt, userId y amount son requeridos.');
@@ -424,7 +429,22 @@ export const recordDebtPaymentWithTransaction = async ({
   const debtType = (debt.type || '').toLowerCase();
   const isPayable = debtType === 'payable' || debtType === 'debt' || !debtType;
   const debtConcept = debt.concept || debt.description || 'Deuda';
-  const debtCurrency = debt.currency || 'USD';
+  const debtCurrency = (debt.currency || 'USD').toUpperCase();
+
+  // Determine selected account & account currency
+  let selectedAccount = null;
+  if (Array.isArray(accounts)) {
+    selectedAccount = accounts.find(a => a && a.id === accountId) || null;
+  }
+  const accountCurrency = (customAccountCurrency || selectedAccount?.currency || debtCurrency).toUpperCase();
+  const isDifferentCurrency = Boolean(accountId && accountCurrency !== debtCurrency);
+
+  const rawDebit = accountDebitAmount ?? accountAmount;
+  const numDebitAmount = (isDifferentCurrency && rawDebit !== null && rawDebit !== undefined && !isNaN(Number(rawDebit)) && Number(rawDebit) > 0)
+    ? Number(rawDebit)
+    : numAmount;
+
+  const effectiveExchangeRate = numAmount > 0 ? (numDebitAmount / numAmount) : 1;
 
   let createdTx = null;
 
@@ -432,9 +452,14 @@ export const recordDebtPaymentWithTransaction = async ({
   if (accountId && isValidUuid(accountId)) {
     try {
       let txPayload = {};
+      const formattedDebt = formatCurrency(numAmount, debtCurrency);
 
       if (isPayable) {
-        // Paying off my debt: Money leaves account (Expense)
+        // Paying off debt: Money leaves bank account in account's currency
+        const txDesc = isDifferentCurrency
+          ? `Abono a deuda: ${debtConcept} (${numAmount} ${debtCurrency})`.trim()
+          : `Abono a deuda: ${debtConcept}`.trim();
+
         txPayload = {
           user_id: String(userId),
           account_id: accountId,
@@ -442,24 +467,32 @@ export const recordDebtPaymentWithTransaction = async ({
           category_id: isValidUuid(debt.categoryId || debt.category_id) ? (debt.categoryId || debt.category_id) : null,
           debt_id: isValidUuid(debt.id) ? debt.id : null,
           type: 'expense',
-          amount: numAmount,
-          currency: debtCurrency,
+          amount: numDebitAmount,
+          currency: accountCurrency,
+          exchange_rate_at_transaction: effectiveExchangeRate,
           exclude_from_budget: false,
-          description: `Abono a deuda: ${debtConcept}`.trim(),
+          description: txDesc,
           transaction_date: paymentDate
         };
       } else {
-        // Received repayment for money I lent: Money enters account (Transfer / Non-budget inflow)
+        // Received repayment: Money enters bank account in account's currency
+        const txDesc = isDifferentCurrency
+          ? `Abono recibido de: ${debtConcept} (${numAmount} ${debtCurrency})`.trim()
+          : `Abono recibido de: ${debtConcept}`.trim();
+
         txPayload = {
           user_id: String(userId),
           account_id: null,
           destination_account_id: accountId,
           debt_id: isValidUuid(debt.id) ? debt.id : null,
           type: 'transfer',
-          amount: numAmount,
-          currency: debtCurrency,
+          amount: numDebitAmount,
+          target_amount: numDebitAmount,
+          destination_amount: numDebitAmount,
+          currency: accountCurrency,
+          exchange_rate_at_transaction: effectiveExchangeRate,
           exclude_from_budget: true,
-          description: `Abono recibido de: ${debtConcept}`.trim(),
+          description: txDesc,
           transaction_date: paymentDate
         };
       }
@@ -467,7 +500,7 @@ export const recordDebtPaymentWithTransaction = async ({
       console.log('🚀 [Supabase DB] Creando transacción vinculada al abono:', txPayload);
 
       let currentTxPayload = { ...txPayload };
-      for (let attempt = 0; attempt < 4; attempt++) {
+      for (let attempt = 0; attempt < 5; attempt++) {
         const txRes = await supabase.from('transactions').insert([currentTxPayload]).select();
         if (!txRes.error) {
           createdTx = toCamel(txRes.data && txRes.data[0] ? txRes.data[0] : currentTxPayload);
@@ -475,6 +508,18 @@ export const recordDebtPaymentWithTransaction = async ({
         }
 
         console.warn(`⚠️ [Supabase DB] Error guardando transacción de abono (intento ${attempt + 1}):`, txRes.error.message);
+        if (txRes.error.message.includes('exchange_rate_at_transaction') && currentTxPayload.exchange_rate_at_transaction !== undefined) {
+          delete currentTxPayload.exchange_rate_at_transaction;
+          continue;
+        }
+        if (txRes.error.message.includes('target_amount') && currentTxPayload.target_amount !== undefined) {
+          delete currentTxPayload.target_amount;
+          continue;
+        }
+        if (txRes.error.message.includes('destination_amount') && currentTxPayload.destination_amount !== undefined) {
+          delete currentTxPayload.destination_amount;
+          continue;
+        }
         if (txRes.error.message.includes('debt_id') && currentTxPayload.debt_id !== undefined) {
           delete currentTxPayload.debt_id;
           continue;
@@ -487,6 +532,12 @@ export const recordDebtPaymentWithTransaction = async ({
           delete currentTxPayload.account_id;
           continue;
         }
+        const colMatch = txRes.error.message.match(/Could not find the '([^']+)' column/i) ||
+                         txRes.error.message.match(/column "([^"]+)" of relation/i);
+        if (colMatch && colMatch[1] && currentTxPayload[colMatch[1]] !== undefined) {
+          delete currentTxPayload[colMatch[1]];
+          continue;
+        }
         break;
       }
     } catch (txErr) {
@@ -495,6 +546,14 @@ export const recordDebtPaymentWithTransaction = async ({
   }
 
   // 2. Insert into debt_payments with linked transaction_id
+  let auditNote = '';
+  if (isDifferentCurrency) {
+    const formattedDebt = formatCurrency(numAmount, debtCurrency);
+    const formattedBankDebit = formatCurrency(numDebitAmount, accountCurrency);
+    auditNote = `Abono de ${formattedDebt} liquidado con ${formattedBankDebit}`;
+  }
+  const finalNotes = [notes?.trim(), auditNote].filter(Boolean).join(' • ');
+
   const paymentRecord = await addDebtPayment({
     debtId: debt.id,
     userId,
@@ -502,7 +561,7 @@ export const recordDebtPaymentWithTransaction = async ({
     paymentDate,
     accountId,
     transactionId: createdTx?.id || null,
-    notes
+    notes: finalNotes
   });
 
   // 3. Fetch all payments to compute new remaining balance and update debt status if settled

@@ -416,15 +416,18 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
     }
   }, [userId, triggerToast]);
 
-  const addDebtPaymentAction = useCallback(async ({ debt, amount, paymentDate, accountId, notes }) => {
+  const addDebtPaymentAction = useCallback(async ({ debt, amount, accountDebitAmount, accountAmount, accountCurrency, paymentDate, accountId, notes }) => {
     try {
       const res = await recordDebtPaymentWithTransaction({
         debt,
         userId,
         amount,
+        accountDebitAmount: accountDebitAmount ?? accountAmount,
+        accountCurrency,
         paymentDate,
         accountId,
-        notes
+        notes,
+        accounts
       });
 
       if (res.payment) {
@@ -445,7 +448,7 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
       triggerToast('error', syncErrMsg(err));
     }
     return null;
-  }, [userId, triggerToast]);
+  }, [userId, triggerToast, accounts]);
 
   const deleteDebtPaymentAction = useCallback(async (paymentId, cachedPayment = null) => {
     try {

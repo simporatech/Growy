@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { PlusCircle, Wallet, ArrowDownLeft, ArrowUpRight, Sparkles, AlertCircle } from 'lucide-react';
+import { PlusCircle, Sparkles, ArrowLeftRight } from 'lucide-react';
 import Button from './Button';
 import CustomSelect from './CustomSelect';
 import CustomDatePicker from './CustomDatePicker';
@@ -7,11 +7,11 @@ import ModalWrapper from './ModalWrapper';
 import FormField from './FormField';
 import { useSettings } from '../context/SettingsContext';
 import { formatCurrency, parseNumeric, formatDateISO } from '../utils/formatters';
-import { getCurrencySymbol } from '../utils/currency';
+import { getCurrencySymbol, getCrossRate, FALLBACK_EXCHANGE_RATES } from '../utils/currency';
 import { calculateDebtRemaining } from '../services/debtsService';
 
 /**
- * DebtPaymentModal (Modal de Registro de Abonos)
+ * DebtPaymentModal (Modal de Registro de Abonos con soporte Multidivisa)
  */
 export default function DebtPaymentModal({ 
   isOpen, 
@@ -21,9 +21,11 @@ export default function DebtPaymentModal({
   payments = [],
   accounts = [] 
 }) {
-  const { t, baseCurrency } = useSettings();
+  const { t, baseCurrency, exchangeRates } = useSettings();
 
   const [amount, setAmount] = useState('');
+  const [accountAmount, setAccountAmount] = useState('');
+  const [isManualAccountAmount, setIsManualAccountAmount] = useState(false);
   const [accountId, setAccountId] = useState('');
   const [paymentDate, setPaymentDate] = useState(formatDateISO());
   const [notes, setNotes] = useState('');
@@ -36,7 +38,7 @@ export default function DebtPaymentModal({
 
   const debtType = (debt?.type || '').toLowerCase();
   const isPayable = debtType === 'payable' || debtType === 'debt' || !debtType;
-  const debtCurr = debt?.currency || baseCurrency || 'USD';
+  const debtCurr = (debt?.currency || baseCurrency || 'USD').toUpperCase();
   const currencySymbol = getCurrencySymbol(debtCurr);
 
   const safeAccounts = useMemo(() => {
@@ -45,6 +47,24 @@ export default function DebtPaymentModal({
       (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' })
     );
   }, [accounts]);
+
+  const selectedAccount = useMemo(() => {
+    return safeAccounts.find(a => a?.id === accountId) || null;
+  }, [safeAccounts, accountId]);
+
+  const accountCurr = (selectedAccount?.currency || debtCurr).toUpperCase();
+  const accountCurrencySymbol = getCurrencySymbol(accountCurr);
+  const isDifferentCurrency = Boolean(selectedAccount && accountCurr !== debtCurr);
+
+  const safeRates = useMemo(() => {
+    return (exchangeRates && typeof exchangeRates === 'object') ? exchangeRates : FALLBACK_EXCHANGE_RATES;
+  }, [exchangeRates]);
+
+  const impliedRate = useMemo(() => {
+    if (!isDifferentCurrency) return 1;
+    const rate = getCrossRate(debtCurr, accountCurr, safeRates);
+    return (rate && !isNaN(rate) && rate > 0) ? rate : 1;
+  }, [isDifferentCurrency, debtCurr, accountCurr, safeRates]);
 
   useEffect(() => {
     if (!isOpen || !debt) return;
@@ -57,6 +77,8 @@ export default function DebtPaymentModal({
     }
 
     setAmount('');
+    setAccountAmount('');
+    setIsManualAccountAmount(false);
     setPaymentDate(formatDateISO());
     setNotes('');
     setError('');
@@ -74,9 +96,65 @@ export default function DebtPaymentModal({
     label: acc.name
   }));
 
-  const handlePayAll = () => {
-    setAmount(calculations.remainingAmount.toFixed(2));
+  const handleAccountChange = (newAccId) => {
+    setAccountId(newAccId);
+    const newAcc = safeAccounts.find(a => a?.id === newAccId);
+    const newAccCurr = (newAcc?.currency || debtCurr).toUpperCase();
+    const diffCurr = Boolean(newAcc && newAccCurr !== debtCurr);
+
+    if (diffCurr) {
+      const rate = getCrossRate(debtCurr, newAccCurr, safeRates);
+      const numDebt = parseNumeric(amount, 0);
+      if (numDebt > 0 && rate > 0) {
+        setAccountAmount((numDebt * rate).toFixed(2));
+      } else {
+        setAccountAmount('');
+      }
+      setIsManualAccountAmount(false);
+    } else {
+      setAccountAmount('');
+      setIsManualAccountAmount(false);
+    }
   };
+
+  const handleAmountChange = (val) => {
+    setAmount(val);
+    if (isDifferentCurrency && !isManualAccountAmount) {
+      const num = parseNumeric(val, 0);
+      if (num > 0 && impliedRate > 0) {
+        setAccountAmount((num * impliedRate).toFixed(2));
+      } else {
+        setAccountAmount('');
+      }
+    }
+  };
+
+  const handleAccountAmountChange = (val) => {
+    setAccountAmount(val);
+    setIsManualAccountAmount(true);
+  };
+
+  const handlePayAll = () => {
+    const rem = calculations.remainingAmount.toFixed(2);
+    setAmount(rem);
+    if (isDifferentCurrency) {
+      const num = calculations.remainingAmount;
+      if (num > 0 && impliedRate > 0) {
+        setAccountAmount((num * impliedRate).toFixed(2));
+      }
+      setIsManualAccountAmount(false);
+    }
+  };
+
+  const calculatedRate = useMemo(() => {
+    const numDebt = parseNumeric(amount, 0);
+    const numAcc = parseNumeric(accountAmount, 0);
+    if (numDebt > 0 && numAcc > 0) {
+      const eff = numAcc / numDebt;
+      return eff >= 100 ? eff.toFixed(2) : (eff >= 1 ? eff.toFixed(4) : eff.toFixed(6));
+    }
+    return impliedRate >= 100 ? impliedRate.toFixed(2) : (impliedRate >= 1 ? impliedRate.toFixed(4) : impliedRate.toFixed(6));
+  }, [amount, accountAmount, impliedRate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -84,7 +162,7 @@ export default function DebtPaymentModal({
 
     const numAmount = parseNumeric(amount, -1);
     if (numAmount <= 0) {
-      setError(t('debts.invalidAmountError', {}, 'Ingresa un monto de abono válido mayor a 0'));
+      setError(t('debts.payment.invalid_debt_amount', {}, t('debts.invalidAmountError', {}, 'Ingresa un monto de abono válido mayor a 0')));
       return;
     }
 
@@ -93,11 +171,22 @@ export default function DebtPaymentModal({
       return;
     }
 
+    let numAccountAmount = numAmount;
+    if (isDifferentCurrency) {
+      numAccountAmount = parseNumeric(accountAmount, -1);
+      if (numAccountAmount <= 0) {
+        setError(t('debts.payment.invalid_debit_amount', {}, 'Ingresa un monto de débito bancario válido mayor a 0'));
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     try {
       await onConfirmPayment({
         debt,
         amount: numAmount,
+        accountDebitAmount: isDifferentCurrency ? numAccountAmount : numAmount,
+        accountCurrency: accountCurr,
         paymentDate,
         accountId: accountId || null,
         notes: notes.trim()
@@ -180,44 +269,120 @@ export default function DebtPaymentModal({
             </div>
           </div>
 
-          {/* 2. Amount Input with Quick "Pay All" button */}
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 block">
-                {t('debts.amountToPay', {}, 'Monto a Abonar')} *
-              </label>
-              <button
-                type="button"
-                onClick={handlePayAll}
-                className="text-[11px] font-bold text-[var(--accent,#97F2CC)] hover:underline flex items-center gap-1 cursor-pointer"
-              >
-                <Sparkles className="w-3 h-3" />
-                <span>{t('debts.payAllBtn', {}, 'Abonar Todo el Saldo')}</span>
-              </button>
-            </div>
-
-            <FormField
-              prefix={currencySymbol}
-              type="number"
-              step="0.01"
-              required
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="0.00"
-            />
-          </div>
-
-          {/* 3. Account Select */}
+          {/* 2. Account Select */}
           <FormField label={isPayable ? t('debts.payingAccount', {}, 'Cuenta Pagadora (De donde sale el dinero)') : t('debts.destinationAccount', {}, 'Cuenta Destino (A donde ingresa el dinero)')}>
             <CustomSelect
               options={accountSelectOptions}
               value={accountId}
-              onChange={setAccountId}
+              onChange={handleAccountChange}
               placeholder={safeAccounts.length > 0 ? t('debts.selectAccount', {}, 'Selecciona cuenta') : t('debts.noAccounts', {}, 'Sin cuentas')}
             />
           </FormField>
 
-          {/* 4. Payment Date */}
+          {/* 3. Multi-currency Notice Box (if currencies differ) */}
+          {isDifferentCurrency && (
+            <div className="p-3.5 rounded-2xl bg-sky-500/10 border border-sky-500/20 text-sky-200 space-y-1.5">
+              <div className="flex items-center gap-2 text-xs font-semibold text-sky-300">
+                <ArrowLeftRight className="w-4 h-4 text-sky-400 shrink-0" />
+                <span>{t('debts.payment.exchange_notice', {}, 'Conversión multidivisa requerida')}</span>
+              </div>
+              <p className="text-[11px] text-sky-200/80 leading-relaxed">
+                {t('debts.payment.multi_currency_desc', { debtCurrency: debtCurr, accountCurrency: accountCurr }, `La deuda está en ${debtCurr} pero la cuenta seleccionada opera en ${accountCurr}. Define cuánto amortizarás de la deuda y cuánto dinero real se debitará de tu cuenta.`)}
+              </p>
+            </div>
+          )}
+
+          {/* 4. Amount Inputs (Single or Dual based on isDifferentCurrency) */}
+          {!isDifferentCurrency ? (
+            /* Single Amount Field (Same currency) */
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 block">
+                  {t('debts.amountToPay', {}, 'Monto a Abonar')} ({debtCurr}) *
+                </label>
+                <button
+                  type="button"
+                  onClick={handlePayAll}
+                  className="text-[11px] font-bold text-[var(--accent,#97F2CC)] hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <Sparkles className="w-3 h-3" />
+                  <span>{t('debts.payAllBtn', {}, 'Abonar Todo el Saldo')}</span>
+                </button>
+              </div>
+
+              <FormField
+                prefix={currencySymbol}
+                type="number"
+                step="0.01"
+                required
+                value={amount}
+                onChange={(e) => handleAmountChange(e.target.value)}
+                placeholder="0.00"
+              />
+            </div>
+          ) : (
+            /* Dual Amount Fields (Multi-currency) */
+            <div className="space-y-3.5">
+              {/* Campo 1: Amortización de la Deuda */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 block">
+                    {t('debts.payment.debt_amount_label', {}, 'Monto a amortizar deuda')} ({debtCurr}) *
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handlePayAll}
+                    className="text-[11px] font-bold text-[var(--accent,#97F2CC)] hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <Sparkles className="w-3 h-3" />
+                    <span>{t('debts.payAllBtn', {}, 'Abonar Todo el Saldo')}</span>
+                  </button>
+                </div>
+
+                <FormField
+                  prefix={currencySymbol}
+                  type="number"
+                  step="0.01"
+                  required
+                  value={amount}
+                  onChange={(e) => handleAmountChange(e.target.value)}
+                  placeholder="0.00"
+                />
+              </div>
+
+              {/* Campo 2: Débito Real Bancario */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 block">
+                  {isPayable 
+                    ? t('debts.payment.account_debit_label', {}, 'Monto a debitar de cuenta') 
+                    : t('debts.payment.account_credit_label', {}, 'Monto a acreditar en cuenta')} ({accountCurr}) *
+                </label>
+
+                <FormField
+                  prefix={accountCurrencySymbol}
+                  type="number"
+                  step="0.01"
+                  required
+                  value={accountAmount}
+                  onChange={(e) => handleAccountAmountChange(e.target.value)}
+                  placeholder="0.00"
+                />
+              </div>
+
+              {/* Badge de Tasa Aplicada */}
+              <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-slate-300 font-medium shadow-inner">
+                <span className="flex items-center gap-1.5 text-slate-400 text-[11px]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent,#97F2CC)]" />
+                  <span>{t('debts.payment.applied_rate_label', {}, 'Tipo de cambio aplicado')}:</span>
+                </span>
+                <span className="font-bold text-white tabular-nums text-xs">
+                  1 {debtCurr} ≈ {calculatedRate} {accountCurr}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* 5. Payment Date */}
           <FormField label={t('debts.paymentDate', {}, 'Fecha del Abono')}>
             <CustomDatePicker
               value={paymentDate}
@@ -225,7 +390,7 @@ export default function DebtPaymentModal({
             />
           </FormField>
 
-          {/* 5. Notes / Observaciones */}
+          {/* 6. Notes / Observaciones */}
           <FormField label={t('debts.notesLabel', {}, 'Notas u Observaciones (Opcional)')}>
             <input
               type="text"

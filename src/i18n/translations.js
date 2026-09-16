@@ -857,6 +857,16 @@ export const translations = {
       "current_icon": "Icono actual:",
       "no_results": "No se encontraron resultados",
       "change_icon": "Cambiar icono o logo"
+    },
+    "debts": {
+      "payment": {
+        "debt_amount_label": "Monto a amortizar deuda",
+        "account_debit_label": "Monto a debitar de cuenta",
+        "account_credit_label": "Monto a acreditar en cuenta",
+        "exchange_notice": "Conversión multidivisa requerida",
+        "applied_rate_label": "Tipo de cambio aplicado",
+        "multi_currency_desc": "La deuda está en {debtCurrency} pero la cuenta seleccionada opera en {accountCurrency}. Define cuánto amortizarás de la deuda y cuánto dinero real se debitará de tu cuenta."
+      }
     }
   },
   "en": {
@@ -1718,6 +1728,16 @@ export const translations = {
       "current_icon": "Current icon:",
       "no_results": "No results found",
       "change_icon": "Change icon or logo"
+    },
+    "debts": {
+      "payment": {
+        "debt_amount_label": "Debt amount to pay off",
+        "account_debit_label": "Amount debited from account",
+        "account_credit_label": "Amount credited to account",
+        "exchange_notice": "Multi-currency conversion required",
+        "applied_rate_label": "Exchange rate applied",
+        "multi_currency_desc": "The debt is in {debtCurrency} but the selected account operates in {accountCurrency}. Specify the debt payoff amount and the actual money debited from your account."
+      }
     }
   }
 };
