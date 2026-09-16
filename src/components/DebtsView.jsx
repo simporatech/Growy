@@ -935,7 +935,7 @@ export default function DebtsView() {
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[var(--accent)]/15 text-[var(--accent)] hover:bg-[var(--accent)]/25 transition-colors whitespace-nowrap border border-[var(--accent)]/30 cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5" />
-                      <span>{t('debts.make_payment')}</span>
+                      <span>{t('debts.make_payment', {}, isEs ? 'Abonar' : 'Make Payment')}</span>
                     </button>
                   ) : (
                     <div className="whitespace-nowrap flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20 shrink-0">

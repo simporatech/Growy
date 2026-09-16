@@ -85,16 +85,26 @@ export default function DebtPaymentModal({
     setIsSubmitting(false);
   }, [isOpen, debt, safeAccounts, debtCurr]);
 
-  if (!isOpen || !debt) return null;
+  const accountSelectOptions = useMemo(() => {
+    return safeAccounts.map(acc => ({
+      value: acc.id,
+      name: acc.name,
+      emoji: acc.emoji || '🏦',
+      currency: acc.currency || 'USD',
+      extra: `- Balance: ${formatCurrency(acc.balance, acc.currency || 'USD')}`,
+      label: acc.name
+    }));
+  }, [safeAccounts]);
 
-  const accountSelectOptions = safeAccounts.map(acc => ({
-    value: acc.id,
-    name: acc.name,
-    emoji: acc.emoji || '🏦',
-    currency: acc.currency || 'USD',
-    extra: `- Balance: ${formatCurrency(acc.balance, acc.currency || 'USD')}`,
-    label: acc.name
-  }));
+  const calculatedRate = useMemo(() => {
+    const numDebt = parseNumeric(amount, 0);
+    const numAcc = parseNumeric(accountAmount, 0);
+    if (numDebt > 0 && numAcc > 0) {
+      const eff = numAcc / numDebt;
+      return eff >= 100 ? eff.toFixed(2) : (eff >= 1 ? eff.toFixed(4) : eff.toFixed(6));
+    }
+    return impliedRate >= 100 ? impliedRate.toFixed(2) : (impliedRate >= 1 ? impliedRate.toFixed(4) : impliedRate.toFixed(6));
+  }, [amount, accountAmount, impliedRate]);
 
   const handleAccountChange = (newAccId) => {
     setAccountId(newAccId);
@@ -146,16 +156,6 @@ export default function DebtPaymentModal({
     }
   };
 
-  const calculatedRate = useMemo(() => {
-    const numDebt = parseNumeric(amount, 0);
-    const numAcc = parseNumeric(accountAmount, 0);
-    if (numDebt > 0 && numAcc > 0) {
-      const eff = numAcc / numDebt;
-      return eff >= 100 ? eff.toFixed(2) : (eff >= 1 ? eff.toFixed(4) : eff.toFixed(6));
-    }
-    return impliedRate >= 100 ? impliedRate.toFixed(2) : (impliedRate >= 1 ? impliedRate.toFixed(4) : impliedRate.toFixed(6));
-  }, [amount, accountAmount, impliedRate]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -199,6 +199,8 @@ export default function DebtPaymentModal({
       setIsSubmitting(false);
     }
   };
+
+  if (!isOpen || !debt) return null;
 
   return (
     <ModalWrapper
