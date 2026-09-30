@@ -47,47 +47,93 @@ export function calculateMonthEndProjection({
   baseCurrency = 'USD'
 } = {}) {
   try {
-    const now = referenceDate instanceof Date 
+    const today = referenceDate instanceof Date 
       ? referenceDate 
       : (referenceDate ? parseLocalDate(referenceDate) || new Date() : new Date());
 
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth(); // 0-indexed (8 para septiembre)
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth(); // 0-indexed (8 para septiembre)
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-    const currentDay = Math.min(daysInMonth, Math.max(1, now.getDate()));
+    const currentDay = today.getDate(); // Entero exacto (ej. 30)
     const daysRemaining = Math.max(0, daysInMonth - currentDay);
 
+    const startOfMonth = new Date(currentYear, currentMonth, 1, 0, 0, 0, 0);
     const startOfToday = new Date(currentYear, currentMonth, currentDay, 0, 0, 0, 0);
+    const endOfToday = new Date(currentYear, currentMonth, currentDay, 23, 59, 59, 999);
     const endOfMonth = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59, 999);
 
-    // 1. Expenses recorded so far this month
-    const expensesSoFar = (currentMonthTransactions || [])
+    // Helper seguro para convertir montos/transacciones a la divisa base activa
+    // Compatible con SettingsContext.formatToGlobal(txObj) y con callbacks (amount, currency)
+    const toGlobalAmount = (itemOrAmount, currency = baseCurrency) => {
+      if (itemOrAmount === null || itemOrAmount === undefined) return 0;
+      if (typeof itemOrAmount === 'object') {
+        const rawAmt = itemOrAmount.amount !== undefined ? itemOrAmount.amount : itemOrAmount.value;
+        const numAmt = Math.abs(Number(rawAmt) || 0);
+        const curr = itemOrAmount.currency || currency || baseCurrency;
+        const wrapped = {
+          ...itemOrAmount,
+          amount: numAmt,
+          currency: curr,
+          valueOf: () => numAmt
+        };
+        return Math.abs(Number(formatToGlobal(wrapped, curr)) || 0);
+      }
+      const numAmt = Math.abs(Number(itemOrAmount) || 0);
+      const curr = currency || baseCurrency;
+      const wrapped = {
+        amount: numAmt,
+        currency: curr,
+        valueOf: () => numAmt
+      };
+      return Math.abs(Number(formatToGlobal(wrapped, curr)) || 0);
+    };
+
+    // 1. Expenses recorded so far this month (matching Monthly Expenses widget)
+    const monthlyExpenses = (currentMonthTransactions || [])
       .filter((tx) => {
         if (!tx) return false;
         const txType = (tx.type || '').toLowerCase();
-        return txType === 'expense';
+        if (txType !== 'expense') return false;
+        if (tx.exclude_from_budget === true || tx.excludeFromBudget === true) return false;
+
+        const dateStr = tx.date || tx.transactionDate || tx.transaction_date;
+        if (dateStr) {
+          const txDate = parseLocalDate(dateStr);
+          if (txDate && (txDate.getTime() < startOfMonth.getTime() || txDate.getTime() > endOfToday.getTime())) {
+            return false;
+          }
+        }
+        return true;
       })
       .reduce((sum, tx) => {
-        const rawAmt = tx.amount !== undefined ? tx.amount : tx.value;
-        const converted = formatToGlobal(rawAmt, tx.currency || baseCurrency);
-        return sum + Math.abs(Number(converted) || 0);
+        return sum + toGlobalAmount(tx, tx.currency || baseCurrency);
       }, 0);
+
+    const expensesSoFar = monthlyExpenses;
 
     // Incomes recorded so far this month (for complete flow awareness)
     const incomesSoFar = (currentMonthTransactions || [])
       .filter((tx) => {
         if (!tx) return false;
         const txType = (tx.type || '').toLowerCase();
-        return txType === 'income';
+        if (txType !== 'income') return false;
+        if (tx.exclude_from_budget === true || tx.excludeFromBudget === true) return false;
+
+        const dateStr = tx.date || tx.transactionDate || tx.transaction_date;
+        if (dateStr) {
+          const txDate = parseLocalDate(dateStr);
+          if (txDate && (txDate.getTime() < startOfMonth.getTime() || txDate.getTime() > endOfToday.getTime())) {
+            return false;
+          }
+        }
+        return true;
       })
       .reduce((sum, tx) => {
-        const rawAmt = tx.amount !== undefined ? tx.amount : tx.value;
-        const converted = formatToGlobal(rawAmt, tx.currency || baseCurrency);
-        return sum + Math.abs(Number(converted) || 0);
+        return sum + toGlobalAmount(tx, tx.currency || baseCurrency);
       }, 0);
 
-    // 2. Daily Burn Rate (average daily expenses)
-    const dailyBurnRate = currentDay > 0 ? (expensesSoFar / currentDay) : 0;
+    // 2. Daily Burn Rate (average daily expenses over integer calendar days elapsed)
+    const dailyBurnRate = currentDay > 0 ? (monthlyExpenses / currentDay) : 0;
 
     // 3. Projected variable daily expenses for the rest of the month
     const projectedDailyExpenses = dailyBurnRate * daysRemaining;
@@ -104,8 +150,7 @@ export function calculateMonthEndProjection({
         return billingDay > currentDay && billingDay <= daysInMonth;
       })
       .reduce((sum, sub) => {
-        const converted = formatToGlobal(sub.amount, sub.currency || baseCurrency);
-        return sum + Math.abs(Number(converted) || 0);
+        return sum + toGlobalAmount(sub.amount, sub.currency || baseCurrency);
       }, 0);
 
     // Helper to get remaining amount of a debt/loan
@@ -142,16 +187,14 @@ export function calculateMonthEndProjection({
     const pendingPayablesTotal = validPendingDebts
       .filter((debt) => (debt.type || '').toLowerCase() !== 'receivable')
       .reduce((sum, debt) => {
-        const converted = formatToGlobal(getRemainingAmount(debt), debt.currency || baseCurrency);
-        return sum + Math.abs(Number(converted) || 0);
+        return sum + toGlobalAmount(getRemainingAmount(debt), debt.currency || baseCurrency);
       }, 0);
 
     // + Préstamos por cobrar pendientes (type === 'receivable') con cobro pactado este mes
     const pendingReceivablesTotal = validPendingDebts
       .filter((debt) => (debt.type || '').toLowerCase() === 'receivable')
       .reduce((sum, debt) => {
-        const converted = formatToGlobal(getRemainingAmount(debt), debt.currency || baseCurrency);
-        return sum + Math.abs(Number(converted) || 0);
+        return sum + toGlobalAmount(getRemainingAmount(debt), debt.currency || baseCurrency);
       }, 0);
 
     // Retrocompatibilidad
@@ -180,6 +223,7 @@ export function calculateMonthEndProjection({
 
     (currentMonthTransactions || []).forEach((tx) => {
       if (!tx) return;
+      if (tx.exclude_from_budget === true || tx.excludeFromBudget === true) return;
       const dateStr = tx.date || tx.transactionDate || tx.transaction_date;
       if (!dateStr) return;
 
@@ -188,8 +232,7 @@ export function calculateMonthEndProjection({
         if (txDate && txDate.getFullYear() === currentYear && txDate.getMonth() === currentMonth) {
           const txDay = txDate.getDate();
           if (txDay >= 1 && txDay <= currentDay) {
-            const rawAmt = tx.amount !== undefined ? tx.amount : tx.value;
-            const amt = Math.abs(Number(formatToGlobal(rawAmt, tx.currency || baseCurrency)) || 0);
+            const amt = toGlobalAmount(tx, tx.currency || baseCurrency);
             if (tx.type === 'income') {
               dailyNetChange[txDay] = (dailyNetChange[txDay] || 0) + amt;
             } else if (tx.type === 'expense') {
@@ -230,7 +273,7 @@ export function calculateMonthEndProjection({
           if (isActive === false) return false;
           const bDay = Number(s?.billingDay || s?.billing_day || s?.day || 0);
           return bDay > currentDay && bDay <= day;
-        }).reduce((sum, s) => sum + Math.abs(Number(formatToGlobal(s.amount, s.currency || baseCurrency)) || 0), 0);
+        }).reduce((sum, s) => sum + toGlobalAmount(s.amount, s.currency || baseCurrency), 0);
 
         // Deudas por pagar que vencen en o antes de este día
         const dayPayables = validPendingDebts
@@ -241,7 +284,7 @@ export function calculateMonthEndProjection({
             if (!dDate) return false;
             return dDate.getDate() <= day;
           })
-          .reduce((sum, d) => sum + Math.abs(Number(formatToGlobal(getRemainingAmount(d), d.currency || baseCurrency)) || 0), 0);
+          .reduce((sum, d) => sum + toGlobalAmount(getRemainingAmount(d), d.currency || baseCurrency), 0);
 
         // Préstamos por cobrar que se esperan en o antes de este día
         const dayReceivables = validPendingDebts
@@ -252,7 +295,7 @@ export function calculateMonthEndProjection({
             if (!dDate) return false;
             return dDate.getDate() <= day;
           })
-          .reduce((sum, d) => sum + Math.abs(Number(formatToGlobal(getRemainingAmount(d), d.currency || baseCurrency)) || 0), 0);
+          .reduce((sum, d) => sum + toGlobalAmount(getRemainingAmount(d), d.currency || baseCurrency), 0);
 
         const projectedVal = currentTotalBalance - accumulatedBurn - daySubs - dayPayables + dayReceivables;
 
