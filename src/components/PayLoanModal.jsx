@@ -6,7 +6,8 @@ import CustomDatePicker from './CustomDatePicker';
 import ModalWrapper from './ModalWrapper';
 import FormField from './FormField';
 import { useSettings } from '../context/SettingsContext';
-import { formatCurrency, parseNumeric, formatDateISO } from '../utils/formatters';
+import { formatCurrency, parseNumeric } from '../utils/formatters';
+import { getLocalDateString } from '../utils/dateUtils';
 import { getCurrencySymbol } from '../utils/currency';
 
 export default function PayLoanModal({ 
@@ -19,7 +20,7 @@ export default function PayLoanModal({
   const { t, baseCurrency } = useSettings();
 
   const [accountId, setAccountId] = useState('');
-  const [paymentDate, setPaymentDate] = useState(formatDateISO());
+  const [paymentDate, setPaymentDate] = useState(() => getLocalDateString());
   const [customDebitAmount, setCustomDebitAmount] = useState('');
   const [keepRecord, setKeepRecord] = useState(false);
   const [error, setError] = useState('');
@@ -41,7 +42,7 @@ export default function PayLoanModal({
       setAccountId('');
     }
 
-    setPaymentDate(formatDateISO());
+    setPaymentDate(getLocalDateString());
     setCustomDebitAmount(loan.amount !== undefined ? Math.abs(loan.amount).toString() : '');
     setKeepRecord(false);
     setError('');

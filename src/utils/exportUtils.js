@@ -2,6 +2,7 @@
  * Universal Export Utilities with Consolidated Summary (CSV / PDF)
  * Fully bilingual (ES / EN) supporting dynamic localized headers and formatting.
  */
+import { getLocalDateString } from './dateUtils';
 
 // 1. Exportar a CSV (Compatible con Excel, BOM UTF-8 y bloque de resumen consolidado)
 export const exportToCSV = (data, filename = 'export', columns = [], summary = null, language = 'es') => {
@@ -52,7 +53,7 @@ export const exportToCSV = (data, filename = 'export', columns = [], summary = n
   const encodedUri = encodeURI(csvContent);
   const link = document.createElement('a');
   link.setAttribute('href', encodedUri);
-  const cleanFilename = filename.endsWith('.csv') ? filename : `${filename}_${new Date().toISOString().split('T')[0]}.csv`;
+  const cleanFilename = filename.endsWith('.csv') ? filename : `${filename}_${getLocalDateString()}.csv`;
   link.setAttribute('download', cleanFilename);
   document.body.appendChild(link);
   link.click();

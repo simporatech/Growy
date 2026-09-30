@@ -6,7 +6,8 @@ import CustomDatePicker from './CustomDatePicker';
 import ModalWrapper from './ModalWrapper';
 import FormField from './FormField';
 import { useSettings } from '../context/SettingsContext';
-import { formatDateISO, parseNumeric, formatLoanDescription } from '../utils/formatters';
+import { parseNumeric, formatLoanDescription } from '../utils/formatters';
+import { getLocalDateString } from '../utils/dateUtils';
 import { getCurrencySymbol } from '../utils/currency';
 
 export default function TransactionModal({ 
@@ -22,7 +23,7 @@ export default function TransactionModal({
   const isEs = String(language || 'es').toLowerCase().startsWith('es');
 
   const [type, setType] = useState('expense');
-  const [date, setDate] = useState(() => formatDateISO());
+  const [date, setDate] = useState(() => getLocalDateString());
   const [accountId, setAccountId] = useState('');
   const [targetAccountId, setTargetAccountId] = useState('');
   const [categoryId, setCategoryId] = useState('');
@@ -56,7 +57,7 @@ export default function TransactionModal({
     if (transactionToEdit) {
       const editType = transactionToEdit?.type || 'expense';
       setType(editType);
-      setDate(transactionToEdit?.date || transactionToEdit?.transaction_date || transactionToEdit?.transactionDate || formatDateISO());
+      setDate(transactionToEdit?.date || transactionToEdit?.transaction_date || transactionToEdit?.transactionDate || getLocalDateString());
       
       const rawAccId = transactionToEdit?.accountId || transactionToEdit?.account_id || transactionToEdit?.account?.id;
       const initialAccId = rawAccId || (safeAccounts[0]?.id || '');
@@ -91,7 +92,7 @@ export default function TransactionModal({
       setDescription(formatLoanDescription(rawDesc, isEs));
     } else {
       setType(initialType || 'expense');
-      setDate(formatDateISO());
+      setDate(getLocalDateString());
       if (safeAccounts.length > 0) {
         const matchingBaseAcc = safeAccounts.find(a => (a?.currency || '').toUpperCase() === (baseCurrency || 'USD').toUpperCase()) || safeAccounts[0];
         setAccountId(matchingBaseAcc.id);

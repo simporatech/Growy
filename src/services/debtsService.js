@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabaseClient.js';
 import { toCamel, isValidUuid } from './supabaseService.js';
 import { formatCurrency } from '../utils/currency.js';
+import { getLocalDateString } from '../utils/dateUtils.js';
 
 /**
  * Service for handling debt payments (abonos) in Supabase DB
@@ -162,7 +163,7 @@ export const addDebtPayment = async ({
   debtId,
   userId,
   amount,
-  paymentDate = new Date().toISOString().split('T')[0],
+  paymentDate = getLocalDateString(),
   accountId = null,
   transactionId = null,
   notes = ''
@@ -182,7 +183,7 @@ export const addDebtPayment = async ({
     debt_id: debtId,
     user_id: String(userId),
     amount: numAmount,
-    payment_date: paymentDate || new Date().toISOString().split('T')[0],
+    payment_date: paymentDate || getLocalDateString(),
     account_id: isValidUuid(accountId) ? accountId : null,
     transaction_id: isValidUuid(transactionId) ? transactionId : null,
     notes: (notes || '').trim()
@@ -294,7 +295,7 @@ export const recordDirectLoanTransaction = async ({
   amount,
   currency = 'USD',
   concept = '',
-  startDate = new Date().toISOString().split('T')[0],
+  startDate = getLocalDateString(),
   debtId = null,
   language = 'es',
   description = null
@@ -304,7 +305,7 @@ export const recordDirectLoanTransaction = async ({
     return null;
   }
 
-  const cleanDate = startDate ? (startDate.includes('T') ? startDate.split('T')[0] : startDate) : new Date().toISOString().split('T')[0];
+  const cleanDate = startDate ? (startDate.includes('T') ? startDate.split('T')[0] : startDate) : getLocalDateString();
   const numAmount = Number(amount) || 0;
   const debtConcept = (concept || 'Sin concepto').trim();
   const currencyCode = (currency || 'USD').toUpperCase();
@@ -410,7 +411,7 @@ export const recordDebtPaymentWithTransaction = async ({
   accountDebitAmount = null,
   accountAmount = null,
   accountCurrency: customAccountCurrency = null,
-  paymentDate = new Date().toISOString().split('T')[0],
+  paymentDate = getLocalDateString(),
   accountId = null,
   notes = '',
   accounts = []

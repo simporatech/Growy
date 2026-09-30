@@ -4,6 +4,7 @@
  */
 
 import { safeGetStorage, safeSetStorage } from '../utils/storage';
+import { getLocalDateString } from '../utils/dateUtils';
 import { dbFetchExchangeRates, dbUpsertExchangeRates } from './supabaseService';
 
 export const FX_API_URL = 'https://open.er-api.com/v6/latest/USD';
@@ -52,7 +53,7 @@ export function purgeExchangeRatesCache() {
  * @returns {Promise<{rates: object, last_updated_at: string, last_fetch_date: string, timestamp: number}>}
  */
 export async function fetchLiveExchangeRates(forceRefresh = false) {
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getLocalDateString();
   const now = Date.now();
 
   try {

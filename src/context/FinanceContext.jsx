@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { parseNumeric, formatDateISO } from '../utils/formatters';
+import { parseNumeric } from '../utils/formatters';
+import { getLocalDateString } from '../utils/dateUtils';
 import { getCrossRate, FALLBACK_EXCHANGE_RATES } from '../utils/currency';
 import { detectUserLanguage } from '../utils/defaultCategories';
 import { 
@@ -522,7 +523,7 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
 
     const newTx = {
       type: 'expense',
-      transactionDate: paymentDate || formatDateISO(),
+      transactionDate: paymentDate || getLocalDateString(),
       accountId: validAccountId,
       categoryId: validCategoryId,
       amount: actualAmount,

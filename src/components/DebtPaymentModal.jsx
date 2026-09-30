@@ -6,7 +6,8 @@ import CustomDatePicker from './CustomDatePicker';
 import ModalWrapper from './ModalWrapper';
 import FormField from './FormField';
 import { useSettings } from '../context/SettingsContext';
-import { formatCurrency, parseNumeric, formatDateISO } from '../utils/formatters';
+import { formatCurrency, parseNumeric } from '../utils/formatters';
+import { getLocalDateString } from '../utils/dateUtils';
 import { getCurrencySymbol, getCrossRate, FALLBACK_EXCHANGE_RATES } from '../utils/currency';
 import { calculateDebtRemaining } from '../services/debtsService';
 
@@ -27,7 +28,7 @@ export default function DebtPaymentModal({
   const [accountAmount, setAccountAmount] = useState('');
   const [isManualAccountAmount, setIsManualAccountAmount] = useState(false);
   const [accountId, setAccountId] = useState('');
-  const [paymentDate, setPaymentDate] = useState(formatDateISO());
+  const [paymentDate, setPaymentDate] = useState(() => getLocalDateString());
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -79,7 +80,7 @@ export default function DebtPaymentModal({
     setAmount('');
     setAccountAmount('');
     setIsManualAccountAmount(false);
-    setPaymentDate(formatDateISO());
+    setPaymentDate(getLocalDateString());
     setNotes('');
     setError('');
     setIsSubmitting(false);

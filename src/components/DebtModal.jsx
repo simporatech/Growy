@@ -6,7 +6,8 @@ import CustomDatePicker from './CustomDatePicker';
 import ModalWrapper from './ModalWrapper';
 import FormField from './FormField';
 import { useSettings } from '../context/SettingsContext';
-import { formatDateISO, parseNumeric, formatCurrency } from '../utils/formatters';
+import { parseNumeric, formatCurrency } from '../utils/formatters';
+import { getLocalDateString } from '../utils/dateUtils';
 import { getCurrencySymbol, getAvailableCurrencies } from '../utils/currency';
 
 /**
@@ -38,7 +39,7 @@ export default function DebtModal({
   const [amount, setAmount] = useState('');
   const [currency, setCurrency] = useState(currentItem?.currency || baseCurrency || 'USD');
   const [categoryId, setCategoryId] = useState('');
-  const [startDate, setStartDate] = useState(() => formatDateISO());
+  const [startDate, setStartDate] = useState(() => getLocalDateString());
   const [dueDate, setDueDate] = useState('');
   const [isDirectLoan, setIsDirectLoan] = useState(false);
   const [sourceAccountId, setSourceAccountId] = useState('');
@@ -75,7 +76,7 @@ export default function DebtModal({
       setDescription(currentItem.concept || currentItem.description || '');
       setAmount(currentItem.amount !== undefined ? currentItem.amount.toString() : '');
       setCurrency(currentItem.currency || baseCurrency || 'USD');
-      setStartDate(currentItem.startDate || currentItem.start_date || formatDateISO());
+      setStartDate(currentItem.startDate || currentItem.start_date || getLocalDateString());
       setDueDate(currentItem.dueDate || currentItem.due_date || '');
       setIsDirectLoan(isDirect);
       setSourceAccountId(currentItem.sourceAccountId || currentItem.source_account_id || (safeAccounts[0]?.id || ''));
@@ -93,7 +94,7 @@ export default function DebtModal({
       setAmount('');
       setCurrency(baseCurrency || 'USD');
       setCategoryId(filteredCategories[0]?.id || '');
-      setStartDate(formatDateISO());
+      setStartDate(getLocalDateString());
       setDueDate('');
       setIsDirectLoan(false);
       setSourceAccountId(safeAccounts[0]?.id || '');

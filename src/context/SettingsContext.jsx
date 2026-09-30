@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { safeGetStorage, safeSetStorage, safeRemoveStorage } from '../utils/storage';
+import { getLocalDateString } from '../utils/dateUtils';
 import { translations } from '../i18n/translations';
 import { supabase } from '../lib/supabaseClient';
 import { getActiveSessionUserId } from '../utils/userStorage';
@@ -528,7 +529,7 @@ export function SettingsProvider({ children, userId = null }) {
 
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
       const downloadAnchor = document.createElement('a');
-      const dateSuffix = new Date().toISOString().split('T')[0];
+      const dateSuffix = getLocalDateString();
       downloadAnchor.setAttribute("href", dataStr);
       downloadAnchor.setAttribute("download", `growy_backup_${dateSuffix}.json`);
       document.body.appendChild(downloadAnchor);

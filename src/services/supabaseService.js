@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabaseClient';
 import { SEED_CATEGORIES, detectUserLanguage } from '../utils/defaultCategories';
 import { getCrossRate, FALLBACK_EXCHANGE_RATES } from '../utils/currency';
+import { getLocalDateString } from '../utils/dateUtils';
 
 /**
  * Validates whether a string is a standard PostgreSQL UUID (v4)
@@ -712,7 +713,7 @@ export const dbSaveTransaction = async (userId, txData) => {
 
   const numAmount = parseFloat(txData.amount || 0);
   const cleanCurrency = (txData.currency || 'USD').toUpperCase();
-  const cleanDate = txData.transactionDate || txData.date || new Date().toISOString().split('T')[0];
+  const cleanDate = txData.transactionDate || txData.date || getLocalDateString();
   const txType = txData.type || 'expense';
 
   const rawAccountId = txData.accountId || txData.account_id;
@@ -847,7 +848,7 @@ export const dbSaveLoan = async (userId, loanData) => {
     concept: conceptText,
     amount: isNaN(numAmount) ? 0 : numAmount,
     currency: loanData.currency || 'USD',
-    start_date: loanData.startDate || loanData.start_date || new Date().toISOString().split('T')[0],
+    start_date: loanData.startDate || loanData.start_date || getLocalDateString(),
     due_date: loanData.dueDate || loanData.due_date || null,
     status: statusVal,
     type: debtTypeVal
@@ -1088,7 +1089,7 @@ export const processSubscriptionsCron = async (userId, currentAccounts = [], cur
 
     const subs = toCamel(subsData);
     const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
+    const todayStr = getLocalDateString(today);
     const currentYear = today.getFullYear();
     const currentMonthNum = String(today.getMonth() + 1).padStart(2, '0');
     const currentMonthStr = `${currentYear}-${currentMonthNum}`;
@@ -1210,7 +1211,7 @@ export const dbUpsertExchangeRates = async (ratesPayload) => {
   try {
     const payload = {
       id: 'latest',
-      last_fetch_date: ratesPayload.last_fetch_date || ratesPayload.lastFetchDate || new Date().toISOString().split('T')[0],
+      last_fetch_date: ratesPayload.last_fetch_date || ratesPayload.lastFetchDate || getLocalDateString(),
       rates: ratesPayload.rates,
       updated_at: ratesPayload.updated_at || ratesPayload.updatedAt || new Date().toISOString()
     };
@@ -1258,7 +1259,7 @@ export const consolidateOldTransactions = async (userId) => {
   try {
     const oneYearAgo = new Date();
     oneYearAgo.setDate(oneYearAgo.getDate() - 365);
-    const cutoffDateStr = oneYearAgo.toISOString().split('T')[0];
+    const cutoffDateStr = getLocalDateString(oneYearAgo);
 
     // Fetch transactions older than 365 days
     const { data: oldTxData, error: fetchErr } = await supabase

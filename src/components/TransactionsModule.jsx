@@ -11,7 +11,8 @@ import SectionKpiHero from './SectionKpiHero';
 import Pagination from './Pagination';
 import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
-import { formatDateISO, formatLoanDescription } from '../utils/formatters';
+import { formatLoanDescription } from '../utils/formatters';
+import { getLocalDateString } from '../utils/dateUtils';
 import { convertCrossCurrency } from '../utils/currency';
 import DynamicIcon from './DynamicIcon';
 
@@ -34,11 +35,11 @@ export default function TransactionsModule() {
   const [datePreset, setDatePreset] = useState('this_month');
   const [startDate, setStartDate] = useState(() => {
     const now = new Date();
-    return formatDateISO(new Date(now.getFullYear(), now.getMonth(), 1));
+    return getLocalDateString(new Date(now.getFullYear(), now.getMonth(), 1));
   });
   const [endDate, setEndDate] = useState(() => {
     const now = new Date();
-    return formatDateISO(new Date(now.getFullYear(), now.getMonth() + 1, 0));
+    return getLocalDateString(new Date(now.getFullYear(), now.getMonth() + 1, 0));
   });
   const [selectedAccountIds, setSelectedAccountIds] = useState([]);
   const [selectedCategoryIds, setSelectedCategoryIds] = useState([]);
@@ -67,29 +68,29 @@ export default function TransactionsModule() {
       case 'this_month': {
         const start = new Date(now.getFullYear(), now.getMonth(), 1);
         const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-        setStartDate(formatDateISO(start));
-        setEndDate(formatDateISO(end));
+        setStartDate(getLocalDateString(start));
+        setEndDate(getLocalDateString(end));
         break;
       }
       case 'last_month': {
         const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
         const end = new Date(now.getFullYear(), now.getMonth(), 0);
-        setStartDate(formatDateISO(start));
-        setEndDate(formatDateISO(end));
+        setStartDate(getLocalDateString(start));
+        setEndDate(getLocalDateString(end));
         break;
       }
       case 'last_30_days': {
         const start = new Date(now);
         start.setDate(now.getDate() - 30);
-        setStartDate(formatDateISO(start));
-        setEndDate(formatDateISO(now));
+        setStartDate(getLocalDateString(start));
+        setEndDate(getLocalDateString(now));
         break;
       }
       case 'this_year': {
         const start = new Date(now.getFullYear(), 0, 1);
         const end = new Date(now.getFullYear(), 11, 31);
-        setStartDate(formatDateISO(start));
-        setEndDate(formatDateISO(end));
+        setStartDate(getLocalDateString(start));
+        setEndDate(getLocalDateString(end));
         break;
       }
       case 'all': {

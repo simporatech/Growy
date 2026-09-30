@@ -3,6 +3,9 @@
  */
 
 import { formatCurrency as formatCurrencyUtil } from './currency';
+import { getLocalDateString } from './dateUtils';
+
+export { getLocalDateString };
 
 /**
  * Format monetary amount with standard Intl.NumberFormat and symbol overrides
@@ -17,7 +20,8 @@ export const formatCurrency = (amount, currency = null, globalCurrency = 'USD') 
 export const formatDateLabel = (dateStr, locale = 'es') => {
   if (!dateStr) return 'Hoy';
   try {
-    const d = new Date(dateStr + 'T00:00:00');
+    const cleanStr = String(dateStr).split('T')[0];
+    const d = new Date(cleanStr + 'T00:00:00');
     if (isNaN(d.getTime())) return dateStr;
     return d.toLocaleDateString(locale === 'es' ? 'es-ES' : 'en-US', { day: 'numeric', month: 'short' });
   } catch (e) {
@@ -43,16 +47,10 @@ export const formatHeaderDate = (dateObj = new Date(), locale = 'es') => {
 };
 
 /**
- * Format Date to ISO string YYYY-MM-DD
+ * Format Date to local YYYY-MM-DD string (timezone-safe, avoids UTC shift)
  */
 export const formatDateISO = (d = new Date()) => {
-  try {
-    const dateObj = d instanceof Date ? d : new Date(d);
-    return dateObj.toISOString().split('T')[0];
-  } catch (e) {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-  }
+  return getLocalDateString(d);
 };
 
 /**

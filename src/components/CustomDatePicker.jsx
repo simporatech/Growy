@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { createPortal } from 'react-dom';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
-import { formatDateISO } from '../utils/formatters';
+import { getLocalDateString } from '../utils/dateUtils';
 
 export default function CustomDatePicker({
   value,
@@ -175,7 +175,7 @@ export default function CustomDatePicker({
       });
     }
 
-    const todayStr = formatDateISO(new Date());
+    const todayStr = getLocalDateString(new Date());
     for (let d = 1; d <= daysInMonth; d++) {
       const monthStr = String(month + 1).padStart(2, '0');
       const dayStr = String(d).padStart(2, '0');
@@ -310,7 +310,7 @@ export default function CustomDatePicker({
             <button
               type="button"
               onClick={() => {
-                const todayISO = formatDateISO(new Date());
+                const todayISO = getLocalDateString(new Date());
                 handleSelectDay(todayISO);
               }}
               className="text-xs font-semibold text-[var(--accent,#97F2CC)] hover:underline cursor-pointer"

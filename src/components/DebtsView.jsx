@@ -17,7 +17,8 @@ import Pagination from './Pagination';
 import DynamicIcon from './DynamicIcon';
 import { useFinance } from '../context/FinanceContext';
 import { useSettings } from '../context/SettingsContext';
-import { parseNumeric, getDaysDifference, formatDateISO } from '../utils/formatters';
+import { parseNumeric, getDaysDifference } from '../utils/formatters';
+import { getLocalDateString } from '../utils/dateUtils';
 import { convertCrossCurrency } from '../utils/currency';
 import { calculateDebtRemaining } from '../services/debtsService';
 
@@ -80,30 +81,30 @@ export default function DebtsView() {
       case 'this_month': {
         const start = new Date(now.getFullYear(), now.getMonth(), 1);
         const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-        setStartDate(formatDateISO(start));
-        setEndDate(formatDateISO(end));
+        setStartDate(getLocalDateString(start));
+        setEndDate(getLocalDateString(end));
         break;
       }
       case 'last_month': {
         const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
         const end = new Date(now.getFullYear(), now.getMonth(), 0);
-        setStartDate(formatDateISO(start));
-        setEndDate(formatDateISO(end));
+        setStartDate(getLocalDateString(start));
+        setEndDate(getLocalDateString(end));
         break;
       }
       case 'last_30_days': {
         const end = new Date();
         const start = new Date();
         start.setDate(end.getDate() - 30);
-        setStartDate(formatDateISO(start));
-        setEndDate(formatDateISO(end));
+        setStartDate(getLocalDateString(start));
+        setEndDate(getLocalDateString(end));
         break;
       }
       case 'this_year': {
         const start = new Date(now.getFullYear(), 0, 1);
         const end = new Date(now.getFullYear(), 11, 31);
-        setStartDate(formatDateISO(start));
-        setEndDate(formatDateISO(end));
+        setStartDate(getLocalDateString(start));
+        setEndDate(getLocalDateString(end));
         break;
       }
       case 'all': {
