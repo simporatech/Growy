@@ -297,6 +297,7 @@ export const recordDirectLoanTransaction = async ({
   concept = '',
   startDate = getLocalDateString(),
   debtId = null,
+  type = 'receivable',
   language = 'es',
   description = null
 }) => {
@@ -310,23 +311,41 @@ export const recordDirectLoanTransaction = async ({
   const debtConcept = (concept || 'Sin concepto').trim();
   const currencyCode = (currency || 'USD').toUpperCase();
   const createdDebtId = isValidUuid(debtId) ? debtId : null;
+  const isPayableLoan = String(type || 'receivable').toLowerCase() === 'payable';
 
   const isEs = String(language || 'es').toLowerCase().startsWith('es');
-  const loanPrefix = isEs ? 'Préstamo a' : 'Loan to';
-  const effectiveDescription = description || `${loanPrefix}: ${debtConcept}`;
+  const defaultPrefix = isPayableLoan
+    ? (isEs ? 'Préstamo recibido de' : 'Loan received from')
+    : (isEs ? 'Préstamo a' : 'Loan to');
+  const effectiveDescription = description || `${defaultPrefix}: ${debtConcept}`;
 
-  const payload = {
-    user_id: String(userId),
-    account_id: sourceAccountId,
-    destination_account_id: null,
-    category_id: null,
-    type: 'transfer',
-    amount: numAmount,
-    currency: currencyCode,
-    description: effectiveDescription,
-    transaction_date: cleanDate,
-    exclude_from_budget: true
-  };
+  const payload = isPayableLoan
+    ? {
+        user_id: String(userId),
+        account_id: null,
+        destination_account_id: sourceAccountId,
+        category_id: null,
+        type: 'transfer',
+        amount: numAmount,
+        target_amount: numAmount,
+        destination_amount: numAmount,
+        currency: currencyCode,
+        description: effectiveDescription,
+        transaction_date: cleanDate,
+        exclude_from_budget: true
+      }
+    : {
+        user_id: String(userId),
+        account_id: sourceAccountId,
+        destination_account_id: null,
+        category_id: null,
+        type: 'transfer',
+        amount: numAmount,
+        currency: currencyCode,
+        description: effectiveDescription,
+        transaction_date: cleanDate,
+        exclude_from_budget: true
+      };
 
   if (createdDebtId) {
     payload.debt_id = createdDebtId;
@@ -339,7 +358,7 @@ export const recordDirectLoanTransaction = async ({
     let data = null;
     let error = null;
 
-    for (let attempt = 0; attempt < 3; attempt++) {
+    for (let attempt = 0; attempt < 5; attempt++) {
       const res = await supabase
         .from('transactions')
         .insert([currentPayload])
@@ -361,6 +380,18 @@ export const recordDirectLoanTransaction = async ({
         delete currentPayload.exclude_from_budget;
         continue;
       }
+      if (error?.message?.includes('target_amount') && currentPayload.target_amount !== undefined) {
+        delete currentPayload.target_amount;
+        continue;
+      }
+      if (error?.message?.includes('destination_amount') && currentPayload.destination_amount !== undefined) {
+        delete currentPayload.destination_amount;
+        continue;
+      }
+      if (error?.message?.includes('account_id') && currentPayload.account_id === null) {
+        delete currentPayload.account_id;
+        continue;
+      }
       break;
     }
 
@@ -373,8 +404,15 @@ export const recordDirectLoanTransaction = async ({
     if (!result.id) result.id = `loan_tx_${Date.now()}`;
     if (!result.date) result.date = cleanDate;
     if (!result.transactionDate) result.transactionDate = cleanDate;
-    if (!result.accountId) result.accountId = sourceAccountId;
+    if (isPayableLoan) {
+      result.accountId = null;
+      result.destinationAccountId = sourceAccountId;
+    } else if (!result.accountId) {
+      result.accountId = sourceAccountId;
+    }
     if (createdDebtId && !result.debtId) result.debtId = createdDebtId;
+    result.excludeFromBudget = true;
+    result.exclude_from_budget = true;
 
     console.log('✅ Transacción de préstamo registrada exitosamente:', result);
     return result;
@@ -384,16 +422,25 @@ export const recordDirectLoanTransaction = async ({
     if (!fallback.id) fallback.id = `loan_tx_${Date.now()}`;
     if (!fallback.date) fallback.date = cleanDate;
     if (!fallback.transactionDate) fallback.transactionDate = cleanDate;
-    if (!fallback.accountId) fallback.accountId = sourceAccountId;
+    if (isPayableLoan) {
+      fallback.accountId = null;
+      fallback.destinationAccountId = sourceAccountId;
+    } else if (!fallback.accountId) {
+      fallback.accountId = sourceAccountId;
+    }
+    fallback.excludeFromBudget = true;
+    fallback.exclude_from_budget = true;
     return fallback;
   }
 };
 
 /**
  * Registers an abono in debt_payments and creates the corresponding financial transaction
- * in transactions table according to debt type:
- * - 'payable' (Deuda por pagar): Creates 'expense' transaction from account_id (reduces balance, records expense).
- * - 'receivable' (Por cobrar): Creates 'transfer' (or income with exclude_from_budget: true) to destination_account_id (increases balance, excluded from budget).
+ * in transactions table according to the 4-Quadrant Accounting Matrix:
+ * - CASO A ('receivable' + isDirectLoan = true): Recuperación de capital prestado -> 'transfer' (account_id: null -> destination_account_id: paymentAccountId, exclude_from_budget: true)
+ * - CASO B ('receivable' + isDirectLoan = false): Cobro de servicio/factura/venta pendiente -> 'income' (account_id: paymentAccountId, category_id: debt.category_id, exclude_from_budget: false)
+ * - CASO C ('payable' + isDirectLoan = true): Devolución de dinero prestado recibido -> 'transfer' (account_id: paymentAccountId -> destination_account_id: null, exclude_from_budget: true)
+ * - CASO D ('payable' + isDirectLoan = false): Pago de deuda/servicio/tarjeta (gasto adeudado) -> 'expense' (account_id: paymentAccountId, category_id: debt.category_id, exclude_from_budget: false)
  * 
  * @param {Object} params
  * @param {Object} params.debt - Debt object
@@ -427,10 +474,15 @@ export const recordDebtPaymentWithTransaction = async ({
     return { payment: null, transaction: null, isSettled: false };
   }
 
-  const debtType = (debt.type || '').toLowerCase();
-  const isPayable = debtType === 'payable' || debtType === 'debt' || !debtType;
+  const rawType = (debt.type || '').toLowerCase();
+  const isReceivable = rawType === 'receivable' || rawType === 'loan';
+  const debtType = isReceivable ? 'receivable' : 'payable';
+  const isDirectLoan = Boolean(debt.is_direct_loan ?? debt.isDirectLoan ?? false);
   const debtConcept = debt.concept || debt.description || 'Deuda';
   const debtCurrency = (debt.currency || 'USD').toUpperCase();
+  const rawCategoryId = debt.category_id || debt.categoryId || null;
+  const validCategoryId = isValidUuid(rawCategoryId) ? rawCategoryId : null;
+  const validDebtId = isValidUuid(debt.id) ? debt.id : null;
 
   // Determine selected account & account currency
   let selectedAccount = null;
@@ -449,62 +501,100 @@ export const recordDebtPaymentWithTransaction = async ({
 
   let createdTx = null;
 
-  // 1. Create linked financial transaction if accountId is provided
-  if (accountId && isValidUuid(accountId)) {
+  // 1. Create linked financial transaction if accountId is provided (4-Quadrant Matrix)
+  const paymentAccountId = accountId;
+  if (paymentAccountId && isValidUuid(paymentAccountId)) {
     try {
-      let txPayload = {};
-      const formattedDebt = formatCurrency(numAmount, debtCurrency);
+      let transactionPayload = {};
+      const fxSuffix = isDifferentCurrency ? ` (${numAmount} ${debtCurrency})` : '';
 
-      if (isPayable) {
-        // Paying off debt: Money leaves bank account in account's currency
-        const txDesc = isDifferentCurrency
-          ? `Abono a deuda: ${debtConcept} (${numAmount} ${debtCurrency})`.trim()
-          : `Abono a deuda: ${debtConcept}`.trim();
-
-        txPayload = {
-          user_id: String(userId),
-          account_id: accountId,
-          destination_account_id: null,
-          category_id: isValidUuid(debt.categoryId || debt.category_id) ? (debt.categoryId || debt.category_id) : null,
-          debt_id: isValidUuid(debt.id) ? debt.id : null,
-          type: 'expense',
-          amount: numDebitAmount,
-          currency: accountCurrency,
-          exchange_rate_at_transaction: effectiveExchangeRate,
-          exclude_from_budget: false,
-          description: txDesc,
-          transaction_date: paymentDate
-        };
-      } else {
-        // Received repayment: Money enters bank account in account's currency
-        const txDesc = isDifferentCurrency
-          ? `Abono recibido de: ${debtConcept} (${numAmount} ${debtCurrency})`.trim()
-          : `Abono recibido de: ${debtConcept}`.trim();
-
-        txPayload = {
-          user_id: String(userId),
-          account_id: null,
-          destination_account_id: accountId,
-          debt_id: isValidUuid(debt.id) ? debt.id : null,
-          type: 'transfer',
-          amount: numDebitAmount,
-          target_amount: numDebitAmount,
-          destination_amount: numDebitAmount,
-          currency: accountCurrency,
-          exchange_rate_at_transaction: effectiveExchangeRate,
-          exclude_from_budget: true,
-          description: txDesc,
-          transaction_date: paymentDate
-        };
+      if (debtType === 'receivable') {
+        if (isDirectLoan) {
+          // CASO A: Recuperación de capital prestado
+          // Es transferencia: de cuenta virtual a la cuenta real del usuario.
+          transactionPayload = {
+            user_id: String(userId),
+            type: 'transfer',
+            account_id: null, // Cuenta virtual
+            destination_account_id: paymentAccountId,
+            category_id: null,
+            debt_id: validDebtId,
+            amount: numDebitAmount,
+            target_amount: numDebitAmount,
+            destination_amount: numDebitAmount,
+            currency: accountCurrency,
+            exchange_rate_at_transaction: effectiveExchangeRate,
+            exclude_from_budget: true, // No cuenta como ingreso ordinario
+            description: `Abono de préstamo recuperado: ${debtConcept}${fxSuffix}`.trim(),
+            transaction_date: paymentDate
+          };
+        } else {
+          // CASO B: Cobro de servicio/factura/venta pendiente
+          // SÍ ES UN INGRESO OPERATIVO REAL
+          transactionPayload = {
+            user_id: String(userId),
+            type: 'income',
+            account_id: paymentAccountId,
+            destination_account_id: null,
+            category_id: validCategoryId, // Hereda la categoría de ingreso
+            debt_id: validDebtId,
+            amount: numDebitAmount,
+            currency: accountCurrency,
+            exchange_rate_at_transaction: effectiveExchangeRate,
+            exclude_from_budget: false, // CRÍTICO: Suma al ingreso mensual y tasa de ahorro
+            description: `Cobro recibido: ${debtConcept}${fxSuffix}`.trim(),
+            transaction_date: paymentDate
+          };
+        }
+      } else if (debtType === 'payable') {
+        if (isDirectLoan) {
+          // CASO C: Devolución de dinero que me prestaron físicamente
+          // Es transferencia de salida hacia la cuenta virtual
+          transactionPayload = {
+            user_id: String(userId),
+            type: 'transfer',
+            account_id: paymentAccountId,
+            destination_account_id: null,
+            category_id: null,
+            debt_id: validDebtId,
+            amount: numDebitAmount,
+            currency: accountCurrency,
+            exchange_rate_at_transaction: effectiveExchangeRate,
+            exclude_from_budget: true, // No es gasto del mes, es devolución de capital
+            description: `Devolución de préstamo: ${debtConcept}${fxSuffix}`.trim(),
+            transaction_date: paymentDate
+          };
+        } else {
+          // CASO D: Pago de deuda/servicio/tarjeta (gasto adeudado)
+          // SÍ ES UN GASTO OPERATIVO
+          transactionPayload = {
+            user_id: String(userId),
+            type: 'expense',
+            account_id: paymentAccountId,
+            destination_account_id: null,
+            category_id: validCategoryId,
+            debt_id: validDebtId,
+            amount: numDebitAmount,
+            currency: accountCurrency,
+            exchange_rate_at_transaction: effectiveExchangeRate,
+            exclude_from_budget: false, // Suma a gastos del mes y burn rate
+            description: `Abono a deuda: ${debtConcept}${fxSuffix}`.trim(),
+            transaction_date: paymentDate
+          };
+        }
       }
 
-      console.log('🚀 [Supabase DB] Creando transacción vinculada al abono:', txPayload);
+      console.log('🚀 [Supabase DB] Creando transacción vinculada al abono (Matriz 4 Cuadrantes):', transactionPayload);
 
-      let currentTxPayload = { ...txPayload };
+      let currentTxPayload = { ...transactionPayload };
       for (let attempt = 0; attempt < 5; attempt++) {
         const txRes = await supabase.from('transactions').insert([currentTxPayload]).select();
         if (!txRes.error) {
-          createdTx = toCamel(txRes.data && txRes.data[0] ? txRes.data[0] : currentTxPayload);
+          const rawSavedTx = txRes.data && txRes.data[0] ? txRes.data[0] : currentTxPayload;
+          createdTx = toCamel({
+            ...transactionPayload,
+            ...rawSavedTx
+          });
           break;
         }
 

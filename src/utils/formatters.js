@@ -119,10 +119,45 @@ export const formatLoanDescription = (description, localeOrIsEs = true) => {
     ? localeOrIsEs 
     : String(localeOrIsEs || 'es').toLowerCase().startsWith('es');
 
-  const match = description.match(/^(?:pr[eé]stamo\s*a|loan\s*to):\s*(.+)$/i);
-  if (match) {
-    const person = match[1].trim();
-    return isEs ? `Préstamo a: ${person}` : `Loan to: ${person}`;
+  const rules = [
+    {
+      regex: /^(?:pr[eé]stamo\s*recibido\s*de|loan\s*received\s*from):\s*(.+)$/i,
+      es: 'Préstamo recibido de',
+      en: 'Loan received from'
+    },
+    {
+      regex: /^(?:pr[eé]stamo\s*a|loan\s*to):\s*(.+)$/i,
+      es: 'Préstamo a',
+      en: 'Loan to'
+    },
+    {
+      regex: /^(?:abono\s*de\s*pr[eé]stamo\s*recuperado|recovered\s*loan\s*payment):\s*(.+)$/i,
+      es: 'Abono de préstamo recuperado',
+      en: 'Recovered loan payment'
+    },
+    {
+      regex: /^(?:cobro\s*recibido|payment\s*received):\s*(.+)$/i,
+      es: 'Cobro recibido',
+      en: 'Payment received'
+    },
+    {
+      regex: /^(?:devoluci[oó]n\s*de\s*pr[eé]stamo|loan\s*repayment):\s*(.+)$/i,
+      es: 'Devolución de préstamo',
+      en: 'Loan repayment'
+    },
+    {
+      regex: /^(?:abono\s*a\s*deuda|debt\s*payment):\s*(.+)$/i,
+      es: 'Abono a deuda',
+      en: 'Debt payment'
+    }
+  ];
+
+  for (const rule of rules) {
+    const match = description.match(rule.regex);
+    if (match) {
+      const target = match[1].trim();
+      return `${isEs ? rule.es : rule.en}: ${target}`;
+    }
   }
   return description;
 };

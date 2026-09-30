@@ -125,13 +125,13 @@ export default function DebtModal({
   // Handle Type Switch
   const handleTypeChange = (newType) => {
     setDebtType(newType);
+    setIsDirectLoan(false);
     if (newType === 'payable') {
-      setIsDirectLoan(false);
       const expenseCats = (Array.isArray(categories) ? categories.filter(Boolean) : []).filter(c => (c.type || 'expense') === 'expense');
       setCategoryId(expenseCats[0]?.id || '');
     } else {
       const incomeCats = (Array.isArray(categories) ? categories.filter(Boolean) : []).filter(c => c.type === 'income');
-      setCategoryId(isDirectLoan ? '' : (incomeCats[0]?.id || ''));
+      setCategoryId(incomeCats[0]?.id || '');
     }
   };
 
@@ -139,13 +139,12 @@ export default function DebtModal({
   const handleDirectLoanToggle = (checked) => {
     setIsDirectLoan(checked);
     if (checked) {
-      setCategoryId(''); // Regla contable: Préstamo directo no lleva categoría de ingreso ni gasto
+      setCategoryId(''); // Regla contable: Préstamo directo (recibido u otorgado) no lleva categoría de ingreso ni gasto
       if (!sourceAccountId && safeAccounts.length > 0) {
         setSourceAccountId(safeAccounts[0].id);
       }
     } else {
-      const incomeCats = (Array.isArray(categories) ? categories.filter(Boolean) : []).filter(c => c.type === 'income');
-      setCategoryId(incomeCats[0]?.id || '');
+      setCategoryId(filteredCategories[0]?.id || '');
     }
   };
 
@@ -164,10 +163,14 @@ export default function DebtModal({
       return;
     }
 
-    const isDirect = debtType === 'receivable' && isDirectLoan;
+    const isDirect = Boolean(isDirectLoan);
 
     if (isDirect && !sourceAccountId) {
-      setError(t('debts.selectSourceAccountError', {}, 'Selecciona la cuenta de donde salió el dinero prestado'));
+      setError(
+        debtType === 'payable'
+          ? t('debts.selectDestinationAccountError', {}, isEs ? 'Selecciona la cuenta a la que ingresó el dinero' : 'Select the account where the money was received')
+          : t('debts.selectSourceAccountError', {}, isEs ? 'Selecciona la cuenta de donde salió el dinero prestado' : 'Select the account from which the loaned money left')
+      );
       return;
     }
 
@@ -178,18 +181,21 @@ export default function DebtModal({
       amount: numAmount,
       currency,
       categoryId: isDirect ? null : (categoryId || null),
+      category_id: isDirect ? null : (categoryId || null),
       startDate,
       dueDate: dueDate || null,
       type: debtType,
       isDirectLoan: isDirect,
+      is_direct_loan: isDirect,
       sourceAccountId: isDirect ? sourceAccountId : null,
+      source_account_id: isDirect ? sourceAccountId : null,
       status: currentItem ? currentItem.status : 'pending'
     });
 
     onClose();
   };
 
-  const isDirectLoanActive = debtType === 'receivable' && isDirectLoan;
+  const isDirectLoanActive = Boolean(isDirectLoan);
 
   return (
     <ModalWrapper
@@ -242,46 +248,58 @@ export default function DebtModal({
             </div>
           </div>
 
-          {/* 2. Switch Dinero Prestado (Exclusivo si es Por Cobrar) */}
-          {debtType === 'receivable' && (
-            <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 space-y-3 animate-fadeIn">
-              <label className="flex items-center justify-between gap-3 cursor-pointer select-none">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 flex items-center justify-center text-[var(--accent,#97F2CC)]">
-                    <Wallet className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <span className="text-xs font-bold text-white block">
-                      {t('debts.directLoanSwitch', {}, '¿Salió este dinero de una de tus cuentas hoy?')}
-                    </span>
-                    <span className="text-[11px] text-slate-400 block font-normal">
-                      {t('debts.directLoanHelp', {}, 'Crea un traspaso contable para reducir el saldo de la cuenta sin alterar gastos del presupuesto')}
-                    </span>
-                  </div>
+          {/* 2. Switch Dinero Prestado / Recibido (Movimiento directo de capital en cuenta bancaria) */}
+          <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 space-y-3 animate-fadeIn">
+            <label className="flex items-center justify-between gap-3 cursor-pointer select-none">
+              <div className="flex items-center gap-2.5">
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                  debtType === 'payable'
+                    ? 'bg-rose-500/15 border border-rose-500/30 text-rose-300'
+                    : 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] border border-[var(--accent,#97F2CC)]/30 text-[var(--accent,#97F2CC)]'
+                }`}>
+                  <Wallet className="w-4 h-4" />
                 </div>
-
-                <input
-                  type="checkbox"
-                  checked={isDirectLoan}
-                  onChange={(e) => handleDirectLoanToggle(e.target.checked)}
-                  className="w-5 h-5 rounded border-white/20 bg-black/40 text-[var(--accent,#97F2CC)] focus:ring-[var(--accent,#97F2CC)]/50 accent-[var(--accent,#97F2CC)] cursor-pointer"
-                />
-              </label>
-
-              {isDirectLoan && (
-                <div className="pt-2 border-t border-white/5 animate-fadeIn">
-                  <FormField label={t('debts.sourceAccount', {}, 'Cuenta Pagadora (De donde sale el dinero prestado)') + ' *'}>
-                    <CustomSelect
-                      options={accountSelectOptions}
-                      value={sourceAccountId}
-                      onChange={setSourceAccountId}
-                      placeholder={safeAccounts.length > 0 ? t('debts.selectAccount', {}, 'Selecciona cuenta') : t('debts.noAccounts', {}, 'Sin cuentas')}
-                    />
-                  </FormField>
+                <div>
+                  <span className="text-xs font-bold text-white block">
+                    {debtType === 'payable'
+                      ? t('debts.directPayableSwitch', {}, isEs ? '¿Recibiste este dinero en alguna de tus cuentas hoy?' : 'Did you receive this money in one of your accounts today?')
+                      : t('debts.directLoanSwitch', {}, isEs ? '¿Salió este dinero de una de tus cuentas hoy?' : 'Did this money leave one of your accounts today?')}
+                  </span>
+                  <span className="text-[11px] text-slate-400 block font-normal">
+                    {debtType === 'payable'
+                      ? t('debts.directPayableHelp', {}, isEs ? 'Crea un traspaso de entrada a tu cuenta sin inflar tus ingresos operativos del mes' : 'Creates an incoming transfer to your account without inflating monthly operating income')
+                      : t('debts.directLoanHelp', {}, isEs ? 'Crea un traspaso contable para reducir el saldo de la cuenta sin alterar gastos del presupuesto' : 'Creates an accounting transfer to reduce account balance without altering budget expenses')}
+                  </span>
                 </div>
-              )}
-            </div>
-          )}
+              </div>
+
+              <input
+                type="checkbox"
+                checked={isDirectLoan}
+                onChange={(e) => handleDirectLoanToggle(e.target.checked)}
+                className="w-5 h-5 rounded border-white/20 bg-black/40 text-[var(--accent,#97F2CC)] focus:ring-[var(--accent,#97F2CC)]/50 accent-[var(--accent,#97F2CC)] cursor-pointer shrink-0"
+              />
+            </label>
+
+            {isDirectLoan && (
+              <div className="pt-2 border-t border-white/5 animate-fadeIn">
+                <FormField
+                  label={
+                    (debtType === 'payable'
+                      ? t('debts.payableDestinationAccount', {}, isEs ? '¿A qué cuenta ingresó el dinero?' : 'Which account received the money?')
+                      : t('debts.sourceAccount', {}, isEs ? 'Cuenta Pagadora (De donde sale el dinero prestado)' : 'Source Account (Where loaned money leaves from)')) + ' *'
+                  }
+                >
+                  <CustomSelect
+                    options={accountSelectOptions}
+                    value={sourceAccountId}
+                    onChange={setSourceAccountId}
+                    placeholder={safeAccounts.length > 0 ? t('debts.selectAccount', {}, 'Selecciona cuenta') : t('debts.noAccounts', {}, 'Sin cuentas')}
+                  />
+                </FormField>
+              </div>
+            )}
+          </div>
 
           {/* 3. Concepto / Descripción */}
           <FormField

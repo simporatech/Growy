@@ -197,25 +197,25 @@ export default function DashboardPreview({ user, onLogout, onOpenPrivacy }) {
   // Dynamic Monthly Incomes (pure render conversion to global currency)
   const monthlyIncomes = useMemo(() => {
     return currentMonthTx
-      .filter(t => t?.type === 'income')
+      .filter(t => t?.type === 'income' && !t.exclude_from_budget && !t.excludeFromBudget)
       .reduce((sum, t) => sum + Math.abs(formatToGlobal(t)), 0);
   }, [currentMonthTx, formatToGlobal]);
 
   const prevMonthlyIncomes = useMemo(() => {
     return prevMonthTx
-      .filter(t => t?.type === 'income')
+      .filter(t => t?.type === 'income' && !t.exclude_from_budget && !t.excludeFromBudget)
       .reduce((sum, t) => sum + Math.abs(formatToGlobal(t)), 0);
   }, [prevMonthTx, formatToGlobal]);
 
   const monthlyExpenses = useMemo(() => {
     return currentMonthTx
-      .filter(t => t?.type === 'expense')
+      .filter(t => t?.type === 'expense' && !t.exclude_from_budget && !t.excludeFromBudget)
       .reduce((sum, t) => sum + Math.abs(formatToGlobal(t)), 0);
   }, [currentMonthTx, formatToGlobal]);
 
   const prevMonthlyExpenses = useMemo(() => {
     return prevMonthTx
-      .filter(t => t?.type === 'expense')
+      .filter(t => t?.type === 'expense' && !t.exclude_from_budget && !t.excludeFromBudget)
       .reduce((sum, t) => sum + Math.abs(formatToGlobal(t)), 0);
   }, [prevMonthTx, formatToGlobal]);
 
@@ -1334,15 +1334,20 @@ export default function DashboardPreview({ user, onLogout, onOpenPrivacy }) {
                     {recentTransactions.map((tx) => {
                       if (!tx) return null;
                       
-                      const acc = safeAccountsList.find(a => a?.id === tx.accountId) || { name: 'Cuenta General', currency: 'USD', currencySymbol: '$', emoji: '💳' };
+                      const sourceAccId = tx.accountId ?? tx.account_id ?? null;
+                      const destAccId = tx.targetAccountId || tx.destinationAccountId || tx.destination_account_id || null;
+                      const acc = sourceAccId ? safeAccountsList.find(a => a?.id === sourceAccId) : null;
+                      const destAcc = destAccId ? safeAccountsList.find(a => a?.id === destAccId) : null;
+                      const fallbackAcc = acc || destAcc || { name: 'Cuenta General', currency: 'USD', currencySymbol: '$', emoji: '💳' };
                       const cat = safeCategoriesList.find(c => c?.id === tx.categoryId) || { name: 'General', emoji: '📌' };
 
                       const isIncome = tx.type === 'income';
                       const isExpense = tx.type === 'expense';
                       const isTransfer = tx.type === 'transfer';
-                      const destAccId = tx.targetAccountId || tx.destinationAccountId || tx.destination_account_id;
-                      const isLoanTx = isTransfer && (!destAccId || Boolean(tx.debtId || tx.debt_id || /(pr[eé]stamo|loan)/i.test(tx.description || '')));
-                      const virtualAccountName = t('debts.virtual_account_name', {}, isEs ? 'Saldos Pendientes (Por Cobrar)' : 'Pending Balances (Receivable)');
+                      const isVirtualSource = isTransfer && !sourceAccId;
+                      const isVirtualDest = isTransfer && !destAccId;
+                      const isLoanTx = isTransfer && (isVirtualSource || isVirtualDest || Boolean(tx.debtId || tx.debt_id || /(pr[eé]stamo|loan)/i.test(tx.description || '')));
+                      const virtualAccountName = isEs ? 'Saldos Pendientes' : 'Pending Balances';
                       const emoji = isTransfer ? (isLoanTx ? '⏳' : '🔁') : (cat?.emoji || '💰');
 
                       return (
@@ -1366,12 +1371,27 @@ export default function DashboardPreview({ user, onLogout, onOpenPrivacy }) {
                                 {formatLoanDescription(tx.description, isEs) || cat?.name || (isEs ? 'Movimiento' : 'Transaction')}
                               </h4>
                               <p className="text-[11px] text-slate-300 truncate font-medium flex items-center gap-1">
-                                <span>{acc?.name}</span>
-                                {isLoanTx ? (
-                                  <span className="text-slate-400 bg-slate-800/40 border border-slate-700/40 rounded px-1.5 py-0.2 text-[10px] inline-flex items-center gap-1">
-                                    ➔ ⏳ {virtualAccountName}
-                                  </span>
-                                ) : null}
+                                {isTransfer ? (
+                                  <>
+                                    {isVirtualSource ? (
+                                      <span className="text-slate-400 bg-slate-800/60 border border-slate-700/60 rounded px-1.5 py-0.2 text-[10px] inline-flex items-center gap-1">
+                                        ⏳ {virtualAccountName}
+                                      </span>
+                                    ) : (
+                                      <span>{acc?.name || fallbackAcc.name}</span>
+                                    )}
+                                    <span className="text-slate-500">➔</span>
+                                    {isVirtualDest ? (
+                                      <span className="text-slate-400 bg-slate-800/60 border border-slate-700/60 rounded px-1.5 py-0.2 text-[10px] inline-flex items-center gap-1">
+                                        ⏳ {virtualAccountName}
+                                      </span>
+                                    ) : (
+                                      <span>{destAcc?.name || fallbackAcc.name}</span>
+                                    )}
+                                  </>
+                                ) : (
+                                  <span>{acc?.name || fallbackAcc.name}</span>
+                                )}
                                 <span>• {formatDateLabel(tx.date, language)}</span>
                               </p>
                             </div>
@@ -1379,7 +1399,7 @@ export default function DashboardPreview({ user, onLogout, onOpenPrivacy }) {
 
                           <div className={`text-xs font-bold shrink-0 tabular-nums ${isIncome ? 'text-[var(--accent,#97F2CC)]' : isExpense ? 'text-rose-400' : 'text-sky-400'}`}>
                             {isIncome ? '+ ' : isExpense ? '- ' : ''}
-                            {formatCurrency(tx.amount, tx.currency || acc.currency || 'USD')}
+                            {formatCurrency(tx.amount, tx.currency || fallbackAcc.currency || 'USD')}
                           </div>
                         </div>
                       );

@@ -15,6 +15,7 @@ import { formatLoanDescription } from '../utils/formatters';
 import { getLocalDateString } from '../utils/dateUtils';
 import { convertCrossCurrency } from '../utils/currency';
 import DynamicIcon from './DynamicIcon';
+import TransactionRow from './TransactionRow';
 
 export default function TransactionsModule() {
   const { transactions, accounts, categories, addTransaction, updateTransaction, deleteTransaction, isLoading, isInitialized } = useFinance();
@@ -221,11 +222,12 @@ export default function TransactionsModule() {
     });
   }, [safeTxList, typeFilter, currencyFilter, selectedAccountIds, selectedCategoryIds, searchQuery, startDate, endDate, safeAccountsList, safeCategoriesList, baseCurrency]);
 
-  // Dynamic Totals Calculation
+  // Dynamic Totals Calculation (excluding capital transfers/exclusions from operating flow)
   const { totalIncome, totalExpense, netFlow } = useMemo(() => {
     let inc = 0;
     let exp = 0;
     filteredTx.forEach(tx => {
+      if (tx.exclude_from_budget === true || tx.excludeFromBudget === true) return;
       const val = Math.abs(formatToGlobal(tx));
       if (tx.type === 'income') inc += val;
       if (tx.type === 'expense') exp += val;
@@ -299,64 +301,68 @@ export default function TransactionsModule() {
     return monthName.charAt(0).toUpperCase() + monthName.slice(1);
   }, [currentYear, currentMonth, language]);
 
-  const transactionColumns = useMemo(() => [
-    { 
-      label: isEs ? 'Fecha' : 'Date', 
-      accessor: (tx) => tx?.date || tx?.transactionDate || tx?.transaction_date || '-' 
-    },
-    { 
-      label: isEs ? 'Descripción' : 'Description', 
-      accessor: (tx) => {
-        if (tx?.type === 'transfer') {
-          const src = safeAccountsList.find(a => a?.id === (tx?.accountId || tx?.account_id))?.name || '-';
-          const destId = tx?.targetAccountId || tx?.destinationAccountId || tx?.destination_account_id;
-          const dest = safeAccountsList.find(a => a?.id === destId)?.name;
-          const isLoan = Boolean(tx?.debtId || tx?.debt_id || (!destId && /(pr[eé]stamo|loan)/i.test(tx?.description || '')) || (!destId && tx?.type === 'transfer'));
-          const virtualName = t('debts.virtual_account_name', {}, isEs ? 'Saldos Pendientes (Por Cobrar)' : 'Pending Balances (Receivable)');
-          const destName = dest || (isLoan ? virtualName : '');
-          const localizedDesc = formatLoanDescription(tx?.description, isEs);
-          return destName ? `${src} ➔ ${destName}` : (localizedDesc || (isEs ? 'Transferencia' : 'Transfer'));
+  const transactionColumns = useMemo(() => {
+    const virtualName = t('debts.virtualAccountShort', {}, isEs ? 'Saldos Pendientes' : 'Pending Balances');
+    return [
+      { 
+        label: isEs ? 'Fecha' : 'Date', 
+        accessor: (tx) => tx?.date || tx?.transactionDate || tx?.transaction_date || '-' 
+      },
+      { 
+        label: isEs ? 'Descripción' : 'Description', 
+        accessor: (tx) => {
+          if (tx?.type === 'transfer') {
+            const srcAcc = safeAccountsList.find(a => a?.id === (tx?.accountId || tx?.account_id));
+            const destId = tx?.targetAccountId || tx?.destinationAccountId || tx?.destination_account_id;
+            const destAcc = safeAccountsList.find(a => a?.id === destId);
+            const srcName = srcAcc ? srcAcc.name : virtualName;
+            const destName = destAcc ? destAcc.name : virtualName;
+            const localizedDesc = formatLoanDescription(tx?.description, isEs);
+            return localizedDesc || `${srcName} ➔ ${destName}`;
+          }
+          return formatLoanDescription(tx?.description, isEs) || '-';
         }
-        return formatLoanDescription(tx?.description, isEs) || '-';
+      },
+      { 
+        label: isEs ? 'Cuenta Origen' : 'Account', 
+        accessor: (tx) => {
+          const srcAcc = safeAccountsList.find(a => a?.id === (tx?.accountId || tx?.account_id));
+          if (srcAcc) return srcAcc.name;
+          if (tx?.type === 'transfer') return virtualName;
+          return '-';
+        }
+      },
+      { 
+        label: isEs ? 'Cuenta Destino' : 'Destination Account', 
+        accessor: (tx) => {
+          if (tx?.type !== 'transfer') return '-';
+          const destId = tx?.targetAccountId || tx?.destinationAccountId || tx?.destination_account_id;
+          const dest = safeAccountsList.find(a => a?.id === destId);
+          return dest ? dest.name : virtualName;
+        }
+      },
+      { 
+        label: isEs ? 'Categoría' : 'Category', 
+        accessor: (tx) => safeCategoriesList.find(c => c?.id === (tx?.categoryId || tx?.category_id))?.name || (isEs ? 'General' : 'General') 
+      },
+      { 
+        label: isEs ? 'Tipo' : 'Type', 
+        accessor: (tx) => tx?.type === 'expense' ? (isEs ? 'Gasto' : 'Expense') : tx?.type === 'income' ? (isEs ? 'Ingreso' : 'Income') : (isEs ? 'Transferencia' : 'Transfer') 
+      },
+      { 
+        label: isEs ? 'Monto' : 'Amount', 
+        accessor: (tx) => Number(tx?.amount || 0).toFixed(2) 
+      },
+      { 
+        label: isEs ? 'Moneda' : 'Currency', 
+        accessor: (tx) => tx?.currency || 'USD' 
+      },
+      { 
+        label: isEs ? `Monto Base (${baseCurrency})` : `Base Amount (${baseCurrency})`, 
+        accessor: (tx) => convertCrossCurrency(Number(tx?.amount || 0), tx?.currency || 'USD', baseCurrency, exchangeRates).toFixed(2) 
       }
-    },
-    { 
-      label: isEs ? 'Cuenta Origen' : 'Account', 
-      accessor: (tx) => safeAccountsList.find(a => a?.id === (tx?.accountId || tx?.account_id))?.name || '-' 
-    },
-    { 
-      label: isEs ? 'Cuenta Destino' : 'Destination Account', 
-      accessor: (tx) => {
-        if (tx?.type !== 'transfer') return '-';
-        const destId = tx?.targetAccountId || tx?.destinationAccountId || tx?.destination_account_id;
-        const dest = safeAccountsList.find(a => a?.id === destId);
-        if (dest) return dest.name;
-        const isLoan = Boolean(tx?.debtId || tx?.debt_id || (!destId && /(pr[eé]stamo|loan)/i.test(tx?.description || '')) || !destId);
-        if (isLoan) return t('debts.virtual_account_name', {}, isEs ? 'Saldos Pendientes (Por Cobrar)' : 'Pending Balances (Receivable)');
-        return '-';
-      }
-    },
-    { 
-      label: isEs ? 'Categoría' : 'Category', 
-      accessor: (tx) => safeCategoriesList.find(c => c?.id === (tx?.categoryId || tx?.category_id))?.name || (isEs ? 'General' : 'General') 
-    },
-    { 
-      label: isEs ? 'Tipo' : 'Type', 
-      accessor: (tx) => tx?.type === 'expense' ? (isEs ? 'Gasto' : 'Expense') : tx?.type === 'income' ? (isEs ? 'Ingreso' : 'Income') : (isEs ? 'Transferencia' : 'Transfer') 
-    },
-    { 
-      label: isEs ? 'Monto' : 'Amount', 
-      accessor: (tx) => Number(tx?.amount || 0).toFixed(2) 
-    },
-    { 
-      label: isEs ? 'Moneda' : 'Currency', 
-      accessor: (tx) => tx?.currency || 'USD' 
-    },
-    { 
-      label: isEs ? `Monto Base (${baseCurrency})` : `Base Amount (${baseCurrency})`, 
-      accessor: (tx) => convertCrossCurrency(Number(tx?.amount || 0), tx?.currency || 'USD', baseCurrency, exchangeRates).toFixed(2) 
-    }
-  ], [safeCategoriesList, safeAccountsList, isEs, baseCurrency, exchangeRates]);
+    ];
+  }, [safeCategoriesList, safeAccountsList, isEs, baseCurrency, exchangeRates, t]);
 
   const transactionSummary = useMemo(() => ({
     totalRecords: filteredTx.length,
@@ -541,7 +547,9 @@ export default function TransactionsModule() {
             <span>{t('common.clear', {}, language === 'es' ? 'Limpiar' : 'Clear')}</span>
           </button>
         )}
-      </div>      {/* Structured High-Density Feed */}
+      </div>
+
+      {/* Structured High-Density Feed */}
       <div className="w-full space-y-6 relative z-10">
         {sortedDates.length === 0 ? (
           safeTxList.length === 0 ? (
@@ -573,118 +581,23 @@ export default function TransactionsModule() {
                 </div>
 
                 <div className="space-y-2">
-                  {list.map((tx) => {
-                    const sourceAcc = safeAccountsList.find(a => a?.id === (tx?.accountId || tx?.account_id));
-                    const destAccId = tx?.targetAccountId || tx?.destinationAccountId || tx?.destination_account_id;
-                    const destAcc = safeAccountsList.find(a => a?.id === destAccId);
-                    const cat = safeCategoriesList.find(c => c?.id === (tx?.categoryId || tx?.category_id));
-
-                    const isIncome = tx?.type === 'income';
-                    const isExpense = tx?.type === 'expense';
-                    const isTransfer = tx?.type === 'transfer';
-
-                    const isLoanTransfer = isTransfer && (!destAccId || Boolean(tx?.debtId || tx?.debt_id || /(pr[eé]stamo|loan)/i.test(tx?.description || '')));
-                    const virtualAccountName = t('debts.virtual_account_name', {}, isEs ? 'Saldos Pendientes (Por Cobrar)' : 'Pending Balances (Receivable)');
-
-                    const sourceAccName = sourceAcc?.name || t('transactions.accountFilter', {}, isEs ? 'Cuenta' : 'Account');
-                    const destAccName = destAcc?.name || (isLoanTransfer ? virtualAccountName : '');
-                    const catName = cat?.name || t('transactions.categoryFilter', {}, isEs ? 'General' : 'General');
-
-                    const emoji = isTransfer ? (isLoanTransfer ? '⏳' : '🔁') : (cat?.emoji || '💰');
-
-                    const rawDescription = tx?.description || catName || t('transactions.movement', {}, isEs ? 'Movimiento' : 'Transaction');
-                    const localizedDesc = formatLoanDescription(rawDescription, isEs);
-                    const txTitle = isLoanTransfer 
-                      ? localizedDesc 
-                      : (isTransfer && destAccName ? `${sourceAccName} ➔ ${destAccName}` : localizedDesc);
-
-                    const displayDate = tx?.date || tx?.transactionDate || tx?.transaction_date || dateStr;
-
-                    return (
-                      <div
-                        key={tx?.id || Math.random()}
-                        onClick={() => {
-                          setTxToEdit(tx);
-                          setIsModalOpen(true);
-                        }}
-                        className="p-3.5 sm:px-5 sm:py-3.5 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-between gap-4 hover:bg-white/[0.06] transition-all group cursor-pointer"
-                      >
-                        {/* Col 1 (Izquierda): Icono + Concepto */}
-                        <div className="flex items-center gap-3.5 min-w-0 flex-1 sm:max-w-xs lg:max-w-sm">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 overflow-hidden ${
-                            isIncome ? 'bg-[var(--accent-muted,rgba(151,242,204,0.15))] text-[var(--accent,#97F2CC)] border border-[var(--accent,#97F2CC)]/20' : isExpense ? 'bg-rose-500/15 text-rose-400 border border-rose-500/20' : 'bg-sky-500/15 text-sky-400 border border-sky-500/20'
-                          }`}>
-                            <DynamicIcon value={emoji} fallback="💰" className="w-5 h-5 text-lg" />
-                          </div>
-
-                          <div className="min-w-0 flex-1">
-                            <h4 className="line-clamp-2 sm:truncate text-sm font-semibold text-white group-hover:text-slate-200 transition-colors">
-                              {txTitle}
-                            </h4>
-                            <p className="text-xs text-slate-300 font-medium sm:hidden truncate mt-0.5">
-                              {isTransfer 
-                                ? (isLoanTransfer
-                                    ? `${sourceAccName} ➔ ⏳ ${virtualAccountName}`
-                                    : `${sourceAccName} ➔ ${destAccName || ''}`)
-                                : `${sourceAccName} • ${catName}`}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Col 2 (Centro-Izquierda): Badge de Cuenta y Categoría (Desktop) */}
-                        <div className="hidden sm:flex items-center gap-2 min-w-0 flex-1">
-                          <span className="text-xs font-medium text-slate-300 px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 truncate max-w-[140px]" title={sourceAccName}>
-                            🏦 {sourceAccName}
-                          </span>
-                          {isTransfer ? (
-                            destAcc ? (
-                              <span className="text-xs font-medium text-slate-300 px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 truncate max-w-[140px]" title={destAcc.name}>
-                                ➔ 🏦 {destAcc.name}
-                              </span>
-                            ) : isLoanTransfer ? (
-                              <span 
-                                className="text-slate-400 bg-slate-800/40 border border-slate-700/40 rounded px-2 py-0.5 text-xs truncate max-w-[190px] inline-flex items-center gap-1.5 shrink-0"
-                                title={virtualAccountName}
-                              >
-                                ➔ <span>⏳</span> <span className="truncate">{virtualAccountName}</span>
-                              </span>
-                            ) : null
-                          ) : (
-                            <span className="text-xs font-medium text-slate-300 px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 truncate max-w-[140px]">
-                              🏷️ {catName}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Col 3 (Centro-Derecha): Fecha legible (Desktop) */}
-                        <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-400 font-medium shrink-0 w-28">
-                          <span>🕒 {displayDate}</span>
-                        </div>
-
-                        {/* Col 4 (Derecha): Monto formateado grande + Botones en hover */}
-                        <div className="flex items-center gap-3 shrink-0">
-                          <div className={`text-base font-bold tabular-nums ${isIncome ? 'text-[var(--accent,#97F2CC)]' : isExpense ? 'text-rose-400' : 'text-sky-400'}`}>
-                            {isIncome ? '+ ' : isExpense ? '- ' : ''}
-                            {formatCurrency ? formatCurrency(tx?.amount, tx?.currency || sourceAcc?.currency || 'USD') : `${tx?.amount}`}
-                          </div>
-
-                          <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setTxToDelete(tx);
-                              }}
-                              className="p-1.5 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
-                              title={t('common.delete', {}, 'Eliminar')}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-
-                      </div>
-                    );
-                  })}
+                  {list.map((tx) => (
+                    <TransactionRow
+                      key={tx?.id || Math.random()}
+                      tx={tx}
+                      dateStr={dateStr}
+                      accounts={safeAccountsList}
+                      categories={safeCategoriesList}
+                      onEdit={(selectedTx) => {
+                        setTxToEdit(selectedTx);
+                        setIsModalOpen(true);
+                      }}
+                      onDelete={(selectedTx) => setTxToDelete(selectedTx)}
+                      formatCurrency={formatCurrency}
+                      t={t}
+                      isEs={isEs}
+                    />
+                  ))}
                 </div>
               </div>
             );

@@ -377,7 +377,7 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
       if (saved) {
         setLoans(prev => [saved, ...(Array.isArray(prev) ? prev.filter(Boolean) : [])]);
         
-        // Handle Direct Loan Transfer Transaction if selected
+        // Handle Direct Loan Transfer Transaction if selected (payable or receivable)
         const isDirect = Boolean(newLoan.isDirectLoan || newLoan.is_direct_loan);
         const sourceAccId = newLoan.sourceAccountId || newLoan.source_account_id;
         if (isDirect && sourceAccId) {
@@ -389,6 +389,7 @@ export function FinanceProvider({ children, userId = 'usr_admin' }) {
             concept: newLoan.concept || newLoan.description,
             startDate: newLoan.startDate || newLoan.start_date,
             debtId: saved?.id || null,
+            type: newLoan.type || saved?.type || 'receivable',
             language
           });
           if (directTx) {

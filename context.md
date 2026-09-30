@@ -443,31 +443,31 @@ Implementado en [`processSubscriptionsCron(userId, existingSubs, existingTxs)`](
    - Crea una transacción `type: 'expense'` en `public.transactions` con fecha `YYYY-MM-<effectiveBillingDay>`, descripción `"Suscripción: <Nombre>"`, y el `accountId` y `categoryId` de la suscripción.
    - Actualiza `last_processed_date` en `public.subscriptions` y dispara una notificación en el Dashboard (`autoDebitsNotification`).
 
-### 4.3 Tratamiento Contable: Deudas Por Pagar (`payable`) vs. Préstamos Otorgados (`receivable`)
-Implementado en [`src/services/debtsService.js`](file:///c:/Users/jonit/Desktop/Growy/src/services/debtsService.js) y [`src/context/FinanceContext.jsx`](file:///c:/Users/jonit/Desktop/Growy/src/context/FinanceContext.jsx):
+### 4.3 Matriz Contable de 4 Cuadrantes: Deudas Por Pagar (`payable`) vs. Saldos Por Cobrar (`receivable`)
+Implementado en [`src/services/debtsService.js`](file:///c:/Users/jonit/Desktop/Growy/src/services/debtsService.js), [`src/components/DebtModal.jsx`](file:///c:/Users/jonit/Desktop/Growy/src/components/DebtModal.jsx), [`src/components/debts/ReceivableModal.jsx`](file:///c:/Users/jonit/Desktop/Growy/src/components/debts/ReceivableModal.jsx) y [`src/components/TransactionRow.jsx`](file:///c:/Users/jonit/Desktop/Growy/src/components/TransactionRow.jsx):
 
-1. **Creación de un Saldo Pendiente (`saveLoan`):**
-   - Si `isDirectLoan === false` (registro informativo): Solo se inserta el documento en `public.pending_debts` sin tocar los saldos bancarios actuales.
-   - Si `isDirectLoan === true` y `type === 'receivable'` (**Préstamo Directo Otorgado**):
-     - Invoca `recordDirectLoanTransaction` en [`debtsService.js`](file:///c:/Users/jonit/Desktop/Growy/src/services/debtsService.js#L261-L343).
-     - Crea un asiento en `public.transactions` con:
-       - `type: 'transfer'`
-       - `account_id: sourceAccountId` (la cuenta de donde salió el dinero)
-       - `destination_account_id: null` (representado en la UI mediante la cuenta virtual `'virtual_pending_balances'` -> `"⏳ Saldos Pendientes (Por Cobrar)"`)
-       - `category_id: null`
-       - `debt_id: savedDebt.id`
-       - `exclude_from_budget: true`
-       - `description: "Préstamo a: <Concepto>"`
-   - **Por qué se diseña así:** Prestar dinero **no es un gasto de consumo**; es una reubicación de liquidez desde un banco hacia una cuenta por cobrar. Al registrarse como `transfer` con `exclude_from_budget: true` y `category_id: null`, el saldo del banco disminuye realmente, pero **no infla los gastos del mes, no altera el Burn Rate diario, no penaliza la Tasa de Ahorro y no consume presupuesto de ninguna categoría**.
+1. **Creación de un Saldo Pendiente (`saveLoan` / `recordDirectLoanTransaction`):**
+   - **Compromiso Operativo (`is_direct_loan: false`):** Representa una cuenta por cobrar operativa (factura/honorario devengado pendiente de cobro) o una deuda operativa por pagar (recibo/servicio pendiente de pago). Se vincula a una `category_id` operativa (`income` para `receivable`, `expense` para `payable`) y **no mueve saldos bancarios** en el momento de su creación; el impacto contable ocurre cuando se cobra o paga.
+   - **Préstamo Directo Otorgado (`type === 'receivable'` + `is_direct_loan: true`):**
+     - Oculta el selector de categoría (`category_id: null`) y solicita la cuenta origen (`source_account_id`).
+     - Crea una transacción `type: 'transfer'`, `account_id: source_account_id`, `destination_account_id: null` (Cuenta Virtual `Saldos Pendientes`), `exclude_from_budget: true`, `description: "Préstamo a: <Concepto>"`.
+     - Disminuye el saldo disponible del banco sin inflar los gastos del mes ni el Burn Rate.
+   - **Préstamo Directo Recibido (`type === 'payable'` + `is_direct_loan: true`):**
+     - Oculta el selector de categoría (`category_id: null`) y solicita la cuenta destino (`source_account_id`: *"¿A qué cuenta ingresó el dinero?"*).
+     - Crea una transacción `type: 'transfer'`, `account_id: null` (Cuenta Virtual `Saldos Pendientes`), `destination_account_id: source_account_id`, `exclude_from_budget: true`, `description: "Préstamo recibido de: <Concepto>"`.
+     - Incrementa el saldo disponible del banco receptor sin inflar los ingresos operativos del mes.
 
-2. **Flujo de Abonos Parciales y Manejo Multidivisa (`recordDebtPaymentWithTransaction`):**
-   Cuando el usuario registra un abono en [`DebtPaymentModal.jsx`](file:///c:/Users/jonit/Desktop/Growy/src/components/DebtPaymentModal.jsx):
-   - Se distinguen dos montos:
-     1. **`amount` (Monto de Amortización):** Expresado en la divisa nominal de la deuda (`debt.currency`). Se guarda en `public.debt_payments.amount` para restar exactamente del saldo pendiente de la deuda.
-     2. **`accountDebitAmount` (Monto Bancario Real):** Expresado en la divisa de la cuenta bancaria seleccionada (`account.currency`). Se guarda en `public.transactions.amount` para afectar el saldo de la cuenta bancaria en su propia moneda.
-   - **Naturaleza del asiento en `transactions` según el tipo de saldo:**
-     - **Abono a Deuda Por Pagar (`payable`):** Genera una transacción `type: 'expense'`, `account_id: accountId`, `category_id: debt.categoryId`, `exclude_from_budget: false`, descripción `"Abono a deuda: <Concepto>"`.
-     - **Cobro de Préstamo / Saldo a Favor (`receivable`):** Genera una transacción `type: 'transfer'`, `account_id: null`, `destination_account_id: accountId`, `category_id: null`, `exclude_from_budget: true`, descripción `"Cobro de préstamo: <Concepto>"`. Así, el dinero regresa al banco (vía `totalTransfersIn`) sin inflar artificialmente los "Ingresos Operativos" del mes.
+2. **Matriz de 4 Cuadrantes al Registrar un Abono (`recordDebtPaymentWithTransaction`):**
+   Cuando el usuario registra un abono en [`DebtPaymentModal.jsx`](file:///c:/Users/jonit/Desktop/Growy/src/components/DebtPaymentModal.jsx), se distinguen el **Monto de Amortización** (`amount` en moneda de la deuda) y el **Monto Bancario Real** (`accountDebitAmount` en moneda de la cuenta). La transacción generada en `public.transactions` obedece estrictamente estos 4 cuadrantes:
+
+   | Cuadrante | Tipo (`debt.type`) | `is_direct_loan` | Naturaleza Económica | `tx.type` | `account_id` | `destination_account_id` | `category_id` | `exclude_from_budget` | Descripción |
+   | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+   | **Caso A** | `'receivable'` | `true` | Recuperación de capital prestado | `'transfer'` | `null` (Virtual) | `paymentAccountId` | `null` | `true` | `"Abono de préstamo recuperado: <concept>"` |
+   | **Caso B** | `'receivable'` | `false` | Cobro de venta / servicio / salario pendiente | `'income'` | `paymentAccountId` | `null` | `debt.category_id` | `false` | `"Cobro recibido: <concept>"` |
+   | **Caso C** | `'payable'` | `true` | Devolución de capital que me prestaron | `'transfer'` | `paymentAccountId` | `null` (Virtual) | `null` | `true` | `"Devolución de préstamo: <concept>"` |
+   | **Caso D** | `'payable'` | `false` | Pago de obligación / gasto operativo | `'expense'` | `paymentAccountId` | `null` | `debt.category_id` | `false` | `"Abono a deuda: <concept>"` |
+
+   - **Renderizado Visual en `TransactionRow.jsx`:** Siempre que `tx.type === 'transfer'` y `account_id === null` o `destination_account_id === null`, el extremo nulo se renderiza con un badge neutro (`bg-slate-800/60 text-slate-400 border-slate-700/60`) e ícono `Scale` bajo la etiqueta **`Saldos Pendientes`** (`Pending Balances`).
    - **Liquidación Automática:** Tras insertar el abono, `calculateDebtRemaining(debt, updatedPayments)` verifica si $\text{remainingAmount} \le 0.001$. De ser así, actualiza automáticamente `pending_debts.status = 'paid'`.
    - **Reversión Bidireccional:**
      - Si se elimina un abono desde `DebtsView` (`deleteDebtPaymentWithReversion`), se borra la fila en `debt_payments`, se borra su `transaction_id` en `transactions` y, si la deuda estaba en `'paid'` y ahora tiene saldo $> 0.001$, se revierte su estado a `'pending'`.

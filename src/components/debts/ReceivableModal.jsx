@@ -28,7 +28,8 @@ export default function ReceivableModal({
   onClose,
   onSave,
   debtToEdit = null,
-  accounts = []
+  accounts = [],
+  categories = []
 }) {
   const { t, baseCurrency, language } = useSettings();
   const isEs = String(language || 'es').toLowerCase().startsWith('es');
@@ -41,6 +42,7 @@ export default function ReceivableModal({
   const [concept, setConcept] = useState('');
   const [amount, setAmount] = useState('');
   const [currency, setCurrency] = useState(debtToEdit?.currency || baseCurrency || 'USD');
+  const [categoryId, setCategoryId] = useState('');
   const [startDate, setStartDate] = useState(() => getLocalDateString());
   const [dueDate, setDueDate] = useState('');
   const [isDirectLoan, setIsDirectLoan] = useState(false);
@@ -57,15 +59,25 @@ export default function ReceivableModal({
     );
   }, [accounts]);
 
+  // Safe sorted income categories for Case B (non-direct receivable)
+  const incomeCategories = useMemo(() => {
+    const list = Array.isArray(categories) ? categories.filter(Boolean) : [];
+    return list
+      .filter(c => c.type === 'income')
+      .sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' }));
+  }, [categories]);
+
   // Sync state when modal opens or debtToEdit changes
   useEffect(() => {
     if (!isOpen) return;
 
     if (debtToEdit) {
       const isDirect = Boolean(debtToEdit.isDirectLoan || debtToEdit.is_direct_loan);
+      const rawCatId = debtToEdit.categoryId || debtToEdit.category_id;
       setConcept(debtToEdit.concept || debtToEdit.description || '');
       setAmount(debtToEdit.amount !== undefined && debtToEdit.amount !== null ? debtToEdit.amount.toString() : '');
       setCurrency(debtToEdit.currency || baseCurrency || 'USD');
+      setCategoryId(isDirect ? '' : (rawCatId || incomeCategories[0]?.id || ''));
       setStartDate(debtToEdit.startDate || debtToEdit.start_date || getLocalDateString());
       setDueDate(debtToEdit.dueDate || debtToEdit.due_date || '');
       setIsDirectLoan(isDirect);
@@ -75,6 +87,7 @@ export default function ReceivableModal({
       setConcept('');
       setAmount('');
       setCurrency(baseCurrency || 'USD');
+      setCategoryId(incomeCategories[0]?.id || '');
       setStartDate(getLocalDateString());
       setDueDate('');
       setIsDirectLoan(false);
@@ -83,7 +96,7 @@ export default function ReceivableModal({
     }
     setError('');
     setIsSubmitting(false);
-  }, [debtToEdit, isOpen, baseCurrency, safeAccounts]);
+  }, [debtToEdit, isOpen, baseCurrency, safeAccounts, incomeCategories]);
 
   if (!isOpen) return null;
 
@@ -96,6 +109,13 @@ export default function ReceivableModal({
     currency: acc.currency || 'USD',
     extra: `- ${formatCurrency(acc.balance, acc.currency || 'USD')}`,
     label: acc.name
+  }));
+
+  const incomeCategoryOptions = incomeCategories.map(cat => ({
+    value: cat.id,
+    name: cat.name,
+    emoji: cat.emoji || '💰',
+    label: cat.name
   }));
 
   const handleSubmit = async (e) => {
@@ -126,14 +146,17 @@ export default function ReceivableModal({
         description: concept.trim(),
         amount: numAmount,
         currency,
-        categoryId: null, // Los préstamos y saldos por cobrar directos no distorsionan categorías de presupuesto
+        categoryId: isDirectLoan ? null : (categoryId || null),
+        category_id: isDirectLoan ? null : (categoryId || null),
         startDate,
         dueDate: dueDate || null,
         type: 'receivable',
         emoji: debtToEdit?.emoji || debtToEdit?.icon || '👤',
         icon: debtToEdit?.icon || debtToEdit?.emoji || '👤',
         isDirectLoan,
+        is_direct_loan: isDirectLoan,
         sourceAccountId: isDirectLoan ? sourceAccountId : null,
+        source_account_id: isDirectLoan ? sourceAccountId : null,
         notes: notes.trim(),
         status: debtToEdit ? debtToEdit.status : 'pending'
       };
@@ -248,8 +271,13 @@ export default function ReceivableModal({
                 onChange={(e) => {
                   const checked = e.target.checked;
                   setIsDirectLoan(checked);
-                  if (checked && !sourceAccountId && safeAccounts.length > 0) {
-                    setSourceAccountId(safeAccounts[0].id);
+                  if (checked) {
+                    setCategoryId('');
+                    if (!sourceAccountId && safeAccounts.length > 0) {
+                      setSourceAccountId(safeAccounts[0].id);
+                    }
+                  } else {
+                    setCategoryId(incomeCategories[0]?.id || '');
                   }
                 }}
                 className="w-5 h-5 rounded border-white/20 bg-black/40 text-[var(--accent,#97F2CC)] focus:ring-[var(--accent,#97F2CC)]/50 accent-[var(--accent,#97F2CC)] cursor-pointer shrink-0"
@@ -278,6 +306,20 @@ export default function ReceivableModal({
               </div>
             )}
           </div>
+
+          {/* Categoría de Ingreso Asociada (Solo si NO es préstamo directo) */}
+          {!isDirectLoan && incomeCategoryOptions.length > 0 && (
+            <div className="animate-fadeIn">
+              <FormField label={t('debts.incomeCategoryLabel', {}, isEs ? 'Categoría de Ingreso Asociada' : 'Associated Income Category')}>
+                <CustomSelect
+                  options={incomeCategoryOptions}
+                  value={categoryId}
+                  onChange={setCategoryId}
+                  placeholder={t('debts.selectIncomeCategory', {}, isEs ? 'Selecciona categoría de ingreso' : 'Select income category')}
+                />
+              </FormField>
+            </div>
+          )}
 
           {/* 5. Notas Adicionales (Opcional) */}
           <div className="space-y-1.5">

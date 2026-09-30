@@ -842,16 +842,22 @@ export const dbSaveLoan = async (userId, loanData) => {
   const statusVal = (loanData.status === 'paid' || loanData.status === 'settled') ? 'paid' : 'pending';
   const debtTypeVal = (loanData.type || '').toLowerCase() === 'receivable' ? 'receivable' : 'payable';
 
+  const isDirectLoanVal = Boolean(loanData.isDirectLoan ?? loanData.is_direct_loan ?? false);
+  const rawSourceAccId = loanData.sourceAccountId || loanData.source_account_id;
+  const validSourceAccId = isValidUuid(rawSourceAccId) ? rawSourceAccId : null;
+
   const payload = {
     user_id: userId,
-    category_id: validCategoryId,
+    category_id: isDirectLoanVal ? null : validCategoryId,
     concept: conceptText,
     amount: isNaN(numAmount) ? 0 : numAmount,
     currency: loanData.currency || 'USD',
     start_date: loanData.startDate || loanData.start_date || getLocalDateString(),
     due_date: loanData.dueDate || loanData.due_date || null,
     status: statusVal,
-    type: debtTypeVal
+    type: debtTypeVal,
+    is_direct_loan: isDirectLoanVal,
+    source_account_id: isDirectLoanVal ? validSourceAccId : null
   };
 
   // Only pass id when updating an existing UUID record from PostgreSQL
@@ -866,7 +872,7 @@ export const dbSaveLoan = async (userId, loanData) => {
     let data = null;
     let error = null;
 
-    for (let attempt = 0; attempt < 4; attempt++) {
+    for (let attempt = 0; attempt < 6; attempt++) {
       const query = currentPayload.id 
         ? supabase.from('pending_debts').upsert([currentPayload]).select()
         : supabase.from('pending_debts').insert([currentPayload]).select();
@@ -882,6 +888,14 @@ export const dbSaveLoan = async (userId, loanData) => {
       // If status check constraint failed on 'paid', try 'settled'
       if (error.message.includes('status') && currentPayload.status === 'paid') {
         currentPayload.status = 'settled';
+        continue;
+      }
+      if (error.message.includes('is_direct_loan') && currentPayload.is_direct_loan !== undefined) {
+        delete currentPayload.is_direct_loan;
+        continue;
+      }
+      if (error.message.includes('source_account_id') && currentPayload.source_account_id !== undefined) {
+        delete currentPayload.source_account_id;
         continue;
       }
       if (error.message.includes('category_id') && currentPayload.category_id) {
@@ -903,7 +917,14 @@ export const dbSaveLoan = async (userId, loanData) => {
     }
 
     console.log('✅ Deuda/Préstamo guardado en DB:', data);
-    const resultObj = toCamel(data && data[0] ? data[0] : payload);
+    const rawSaved = data && data[0] ? data[0] : payload;
+    const resultObj = toCamel({
+      ...payload,
+      ...rawSaved,
+      is_direct_loan: rawSaved.is_direct_loan !== undefined ? rawSaved.is_direct_loan : isDirectLoanVal,
+      source_account_id: rawSaved.source_account_id !== undefined ? rawSaved.source_account_id : (isDirectLoanVal ? validSourceAccId : null),
+      category_id: isDirectLoanVal ? null : (rawSaved.category_id !== undefined ? rawSaved.category_id : validCategoryId)
+    });
     if (!resultObj.type) {
       resultObj.type = debtTypeVal;
     }

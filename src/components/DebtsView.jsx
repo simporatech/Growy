@@ -1060,6 +1060,7 @@ export default function DebtsView() {
         }}
         debtToEdit={debtToEdit}
         accounts={safeAccountsList}
+        categories={safeCategoriesList}
         onSave={(data) => {
           if (debtToEdit) {
             updateLoan(data);
