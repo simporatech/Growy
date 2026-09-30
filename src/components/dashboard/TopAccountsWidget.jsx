@@ -63,11 +63,11 @@ export default function TopAccountsWidget({
             <div 
               key={acc.id}
               onClick={() => onNavigateTab && onNavigateTab('accounts')}
-              className="p-2.5 sm:p-3 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between hover:bg-white/[0.06] hover:border-[var(--accent)]/40 hover:scale-[1.005] active:scale-[0.995] transition-all cursor-pointer group"
+              className="p-2.5 sm:p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 flex items-center justify-between hover:bg-slate-900/90 hover:border-slate-700/80 transition-colors duration-200 cursor-pointer group"
               title={t('dashboard.viewAccounts', {}, 'Ver Cuentas')}
             >
               <div className="flex items-center gap-2.5 min-w-0 flex-1 pr-2">
-                <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-base shrink-0 group-hover:scale-105 transition-transform overflow-hidden">
+                <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-base shrink-0 overflow-hidden">
                   <DynamicIcon value={acc.emoji || acc.icon || acc.logo} fallback="🏦" className="w-5 h-5 text-base" />
                 </div>
                 <div className="min-w-0 flex-1">
